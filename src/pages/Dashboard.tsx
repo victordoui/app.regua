@@ -1,0 +1,1 @@
+// This file is a duplicate and should be removed since we have src/components/Dashboard.tsx
