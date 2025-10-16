@@ -172,9 +172,9 @@ const Login = () => {
               <Crown className="h-8 w-8 text-primary mr-2" />
               <h2 className="text-2xl font-bold text-foreground">Bem-vindo de Volta</h2>
             </div>
-            <CardDescription className="text-muted-foreground text-base">
+            {/* <CardDescription className="text-muted-foreground text-base">
               Acesse sua conta para gerenciar sua barbearia
-            </CardDescription>
+            </CardDescription> */}
           </CardHeader>
 
           <CardContent className="relative">
