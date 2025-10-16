@@ -126,15 +126,6 @@ const Sidebar = () => {
       ]
     },
     {
-      category: "administracao",
-      label: "Administração",
-      icon: Settings,
-      items: [
-        { icon: UserCheck, label: "Usuários e Permissões", path: "/users" },
-        { icon: Settings, label: "Configurações Gerais", path: "/settings" }
-      ]
-    },
-    {
       category: "vendas",
       label: "Vendas / Caixa",
       icon: ShoppingCart,
@@ -292,109 +283,77 @@ const Sidebar = () => {
       )}
 
       {/* Sidebar */}
-      <AnimatePresence mode="wait">
-        {(!isMobile || isOpen) && (
-          <motion.div
-            initial={isMobile ? { x: -256, opacity: 0 } : { x: 0, opacity: 1 }}
-            animate={{ x: 0, opacity: 1 }}
-            exit={isMobile ? { x: -256, opacity: 0 } : { x: 0, opacity: 1 }}
-            transition={{ 
-              type: "spring", 
-              stiffness: 300, 
-              damping: 30,
-              opacity: { duration: 0.2 }
-            }}
-            className={`fixed left-0 top-0 h-full w-72 bg-card/95 backdrop-blur-sm border-r border-border z-40 ${
-              isMobile ? 'shadow-2xl' : ''
-            } md:relative md:shadow-none md:bg-card`}
+      {/* Removendo AnimatePresence e motion.div para tornar a sidebar estática */}
+      <div
+        className={`fixed left-0 top-0 h-full w-72 bg-card/95 backdrop-blur-sm border-r border-border z-40 ${
+          isMobile ? 'shadow-2xl' : ''
+        } md:relative md:shadow-none md:bg-card`}
+        style={isMobile && !isOpen ? { transform: 'translateX(-100%)' } : {}} // Controla a visibilidade móvel sem animação complexa
+      >
+        {/* Header */}
+        <div className="p-6 border-b border-border">
+          <div className="flex items-center gap-3">
+            {/* Ícone de Tesoura (Replicando o estilo do Login) */}
+            <div className="w-10 h-10 bg-gradient-to-r from-primary to-primary-600 rounded-lg flex items-center justify-center shadow-sm">
+              <Scissors className="h-5 w-5 text-primary-foreground" />
+            </div>
+            <div>
+              <h2 className="font-bold text-3xl text-foreground">Na Régua</h2>
+            </div>
+          </div>
+        </div>
+
+        {/* Navigation */}
+        <nav className="p-4 overflow-y-auto flex-1">
+          <div 
+            className="space-y-2"
           >
-            {/* Header */}
-            <div className="p-6 border-b border-border">
-              <div className="flex items-center gap-3">
-                {/* Ícone de Tesoura (Replicando o estilo do Login) */}
-                <div className="w-10 h-10 bg-gradient-to-r from-primary to-primary-600 rounded-lg flex items-center justify-center shadow-sm">
-                  <Scissors className="h-5 w-5 text-primary-foreground" />
-                </div>
-                <div>
-                  <h2 className="font-bold text-3xl text-foreground">Na Régua</h2>
-                </div>
+            {/* Categories */}
+            {menuStructure.map((category, index) => (
+              <div
+                key={category.category}
+              >
+                {renderCategory(category)}
               </div>
+            ))}
+
+            {/* Divider */}
+            <div className="pt-4 border-t border-border">
+              <div className="h-px bg-border my-4"></div>
             </div>
 
-            {/* Navigation */}
-            <nav className="p-4 overflow-y-auto flex-1">
-              <motion.div 
-                className="space-y-2" // Reduzido de space-y-4 para space-y-2
-                initial="hidden"
-                animate="visible"
-                variants={{
-                  hidden: { opacity: 0 },
-                  visible: {
-                    opacity: 1,
-                    transition: {
-                      staggerChildren: 0.05
-                    }
-                  }
-                }}
-              >
-                {/* Categories */}
-                {menuStructure.map((category, index) => (
-                  <motion.div
-                    key={category.category}
-                    variants={{
-                      hidden: { opacity: 0, x: -20 },
-                      visible: { opacity: 1, x: 0 }
-                    }}
-                  >
-                    {renderCategory(category)}
-                  </motion.div>
-                ))}
-
-                {/* Divider */}
-                <div className="pt-4 border-t border-border">
-                  <div className="h-px bg-border my-4"></div>
-                </div>
-
-                {/* Sign Out */}
-                <motion.div 
-                  className="space-y-3"
-                  initial={{ opacity: 0, y: 20 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ delay: 0.3 }}
-                >
-                  <Button 
-                    variant="outline" 
-                    className="w-full hover:bg-destructive/10 hover:text-destructive hover:border-destructive/20 transition-all duration-200" 
-                    size="sm"
-                    onClick={handleSignOut}
-                  >
-                    <LogOut className="h-4 w-4 mr-2" />
-                    Sair
-                  </Button>
-                </motion.div>
-              </motion.div>
-            </nav>
-
-            {/* User info */}
-            <motion.div 
-              className="p-4 border-t border-border bg-muted/30"
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.4 }}
+            {/* Sign Out */}
+            <div 
+              className="space-y-3"
             >
-              <div className="flex items-center gap-3">
-                <div className="w-8 h-8 bg-gradient-to-br from-primary to-primary/70 rounded-full flex items-center justify-center shadow-sm">
-                  <span className="text-sm font-medium text-primary-foreground">WM</span>
-                </div>
-                <div className="flex-1 min-w-0">
-                  <p className="text-sm font-medium text-foreground truncate">Wesley Martins</p>
-                  <p className="text-xs text-muted-foreground truncate">Administrador</p>
-                </div>
-              </div>
-            </motion.div>
-          </motion.div>
-        )}
-      </AnimatePresence>
+              <Button 
+                variant="outline" 
+                className="w-full hover:bg-destructive/10 hover:text-destructive hover:border-destructive/20 transition-all duration-200" 
+                size="sm"
+                onClick={handleSignOut}
+              >
+                <LogOut className="h-4 w-4 mr-2" />
+                Sair
+              </Button>
+            </div>
+          </div>
+        </nav>
+
+        {/* User info */}
+        <div 
+          className="p-4 border-t border-border bg-muted/30"
+        >
+          <div className="flex items-center gap-3">
+            <div className="w-8 h-8 bg-gradient-to-br from-primary to-primary/70 rounded-full flex items-center justify-center shadow-sm">
+              <span className="text-sm font-medium text-primary-foreground">WM</span>
+            </div>
+            <div className="flex-1 min-w-0">
+              <p className="text-sm font-medium text-foreground truncate">Wesley Martins</p>
+              <p className="text-xs text-muted-foreground truncate">Administrador</p>
+            </div>
+          </div>
+        </div>
+      </div>
 
       {/* Overlay for mobile */}
       <AnimatePresence>
