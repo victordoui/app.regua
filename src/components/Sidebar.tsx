@@ -191,13 +191,12 @@ const Sidebar = () => {
           hidden: { opacity: 0, x: -20 },
           visible: { opacity: 1, x: 0 }
         }}
-        whileHover={{ scale: 1.02 }}
-        whileTap={{ scale: 0.98 }}
+        // Efeitos de animação removidos para navegação instantânea
       >
         <Button
           variant={isActive ? "secondary" : "ghost"}
-          className={`w-full justify-start h-11 transition-all duration-200 ${
-            isSubItem ? `ml-6 pl-8 text-sm ${isActive ? 'bg-primary/10 text-primary' : 'text-muted-foreground hover:text-foreground'}` : ''
+          className={`w-full justify-start h-10 transition-all duration-200 ${ // Reduzido h-11 para h-10
+            isSubItem ? `ml-4 pl-8 text-sm ${isActive ? 'bg-primary/10 text-primary' : 'text-muted-foreground hover:text-foreground'}` : '' // Reduzido ml-6 para ml-4
           } ${
             isActive 
               ? 'bg-secondary text-secondary-foreground shadow-sm' 
@@ -225,7 +224,7 @@ const Sidebar = () => {
       <div key={category.category} className="space-y-1">
         <Button
           variant="ghost"
-          className={`w-full justify-start h-11 transition-all duration-200 font-medium ${
+          className={`w-full justify-start h-10 transition-all duration-200 font-medium ${ // Reduzido h-11 para h-10
             hasActiveItem 
               ? 'text-primary bg-primary/5' 
               : 'text-muted-foreground hover:text-foreground hover:bg-accent/50'
@@ -325,7 +324,7 @@ const Sidebar = () => {
             {/* Navigation */}
             <nav className="p-4 overflow-y-auto flex-1">
               <motion.div 
-                className="space-y-4" // Reduzido de space-y-6 para space-y-4
+                className="space-y-2" // Reduzido de space-y-4 para space-y-2
                 initial="hidden"
                 animate="visible"
                 variants={{
@@ -352,7 +351,7 @@ const Sidebar = () => {
                 ))}
 
                 {/* Divider */}
-                <div className="pt-4 border-t border-border"> {/* Reduzido pt-6 para pt-4 */}
+                <div className="pt-4 border-t border-border">
                   <div className="h-px bg-border my-4"></div>
                 </div>
 
