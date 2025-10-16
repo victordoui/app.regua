@@ -20,11 +20,14 @@ const Login = () => {
   const { toast } = useToast();
   const { signIn, signUp } = useAuth();
 
-  // Login com credenciais
-  const handleLogin = async (e: React.FormEvent) => {
-    e.preventDefault();
+  // Função de login unificada
+  const handleLogin = async (e?: React.FormEvent, loginEmail?: string, loginPassword?: string) => {
+    e?.preventDefault();
     
-    if (!email || !password) {
+    const finalEmail = loginEmail || email;
+    const finalPassword = loginPassword || password;
+
+    if (!finalEmail || !finalPassword) {
       toast({
         title: "Erro de validação",
         description: "Por favor, preencha todos os campos.",
@@ -36,7 +39,7 @@ const Login = () => {
     setLoading(true);
 
     try {
-      const { error, success } = await signIn(email, password);
+      const { error, success } = await signIn(finalEmail, finalPassword);
 
       if (error) {
         toast({
@@ -109,6 +112,21 @@ const Login = () => {
     } finally {
       setLoading(false);
     }
+  };
+
+  const handleQuickLogin = (role: 'barber' | 'admin') => {
+    const loginEmail = role === 'barber' ? "barbeiro@naregua.com" : "admin@naregua.com";
+    const loginPassword = role === 'barber' ? "barbeiro123456" : "admin123456";
+    
+    // 1. Preenche os campos (para feedback visual)
+    setEmail(loginEmail);
+    setPassword(loginPassword);
+    
+    // 2. Submete o login diretamente
+    // Usamos setTimeout para garantir que o estado (email/password) seja atualizado antes de chamar handleLogin
+    setTimeout(() => {
+      handleLogin(undefined, loginEmail, loginPassword);
+    }, 50);
   };
 
   return (
@@ -253,11 +271,7 @@ const Login = () => {
                     <Button
                       variant="outline"
                       className="border-primary/50 text-primary hover:bg-primary hover:text-primary-foreground hover:border-primary transition-all duration-300 h-10"
-                      onClick={() => {
-                        setEmail("barbeiro@naregua.com");
-                        setPassword("barbeiro123456");
-                        setTimeout(() => handleLogin(new Event('submit') as any), 100);
-                      }}
+                      onClick={() => handleQuickLogin('barber')}
                     >
                       <User className="h-4 w-4 mr-1" />
                       Barbeiro
@@ -266,11 +280,7 @@ const Login = () => {
                     <Button
                       variant="outline"
                       className="border-primary/50 text-primary hover:bg-primary hover:text-primary-foreground hover:border-primary transition-all duration-300 h-10"
-                      onClick={() => {
-                        setEmail("admin@naregua.com");
-                        setPassword("admin123456");
-                        setTimeout(() => handleLogin(new Event('submit') as any), 100);
-                      }}
+                      onClick={() => handleQuickLogin('admin')}
                     >
                       <Crown className="h-4 w-4 mr-1" />
                       Admin
