@@ -187,6 +187,7 @@ const Sidebar = () => {
     return (
       <div
         key={item.path}
+        // Removendo motion.div
       >
         <Button
           variant={isActive ? "secondary" : "ghost"}
@@ -237,24 +238,12 @@ const Sidebar = () => {
           </div>
         </Button>
         
-        {/* Renderização dos sub-itens com animação de altura */}
-        <AnimatePresence initial={false}>
-          {isExpanded && category.items && (
-            <motion.div
-              initial="collapsed"
-              animate="open"
-              exit="collapsed"
-              variants={{
-                open: { opacity: 1, height: "auto" },
-                collapsed: { opacity: 0, height: 0 }
-              }}
-              transition={{ duration: 0.3, ease: [0.04, 0.62, 0.23, 0.98] }}
-              className="overflow-hidden space-y-1"
-            >
-              {category.items.map((item: any) => renderMenuItem(item, true, category.category))}
-            </motion.div>
-          )}
-        </AnimatePresence>
+        {/* Renderização dos sub-itens - Removendo AnimatePresence e motion.div */}
+        {isExpanded && category.items && (
+          <div className="overflow-hidden space-y-1">
+            {category.items.map((item: any) => renderMenuItem(item, true, category.category))}
+          </div>
+        )}
       </div>
     );
   };
