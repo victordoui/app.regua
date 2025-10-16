@@ -40,8 +40,9 @@ All colors MUST be HSL.
     --muted: 0 0% 95%;
     --muted-foreground: 0 0% 45%;
 
-    --accent: 280 100% 70%; /* Modern purple accent */
-    --accent-foreground: 0 0% 8%;
+    /* Ajustado para um azul claro */
+    --accent: 220 100% 90%; 
+    --accent-foreground: 220 100% 18%;
 
     --destructive: 0 84% 60%;
     --destructive-foreground: 0 0% 98%;
@@ -71,9 +72,6 @@ All colors MUST be HSL.
     /* Modern Shadows */
     --shadow-elegant: 0 10px 25px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
     --shadow-subtle: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
-    
-    /* Smooth Animations */
-    --transition-smooth: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
     
     /* Glassmorphism */
     --glass-bg: rgba(255, 255, 255, 0.1);
@@ -131,8 +129,9 @@ All colors MUST be HSL.
     --muted: 217 33% 18%;
     --muted-foreground: 215 20% 65%;
 
-    --accent: 280 100% 70%;
-    --accent-foreground: 222 84% 5%;
+    /* Ajustado para um azul escuro */
+    --accent: 220 100% 15%;
+    --accent-foreground: 210 40% 98%;
 
     --destructive: 0 63% 31%;
     --destructive-foreground: 210 40% 98%;
