@@ -133,6 +133,15 @@ const Sidebar = () => {
         { icon: ShoppingCart, label: "Caixa e PDV", path: "/cash" },
         { icon: BarChart3, label: "Relatórios de Vendas", path: "/sales-reports" }
       ]
+    },
+    {
+      category: "administracao",
+      label: "Administração",
+      icon: Shield,
+      items: [
+        { icon: UserCheck, label: "Gerenciar Usuários", path: "/users" },
+        { icon: Settings, label: "Configurações Gerais", path: "/settings" }
+      ]
     }
   ];
 
