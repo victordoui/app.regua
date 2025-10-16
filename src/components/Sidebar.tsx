@@ -122,7 +122,6 @@ const Sidebar = () => {
       items: [
         { icon: Building, label: "Dados da Empresa", path: "/settings/company" },
         { icon: Warehouse, label: "Estoque", path: "/inventory" },
-        { icon: Plug, label: "Integrações (WhatsApp)", path: "/integrations" }
       ]
     },
     {
@@ -130,7 +129,8 @@ const Sidebar = () => {
       label: "Administração",
       icon: Shield,
       items: [
-        { icon: UserCheck, label: "Gerenciar Usuários", path: "/users" },
+        { icon: UserCheck, label: "Usuários e Permissões", path: "/users" },
+        { icon: Plug, label: "Integrações", path: "/integrations" },
         { icon: Settings, label: "Configurações Gerais", path: "/settings" }
       ]
     },
