@@ -6,34 +6,35 @@ import { motion, AnimatePresence } from "framer-motion";
 import { 
   // Navegação Principal
   Home,
+  // Visão Geral
+  BarChart3,
+  TrendingUp,
+  Target,
   // Operações
   Calendar, 
-  Globe, 
   Users, 
   Scissors, 
-  DollarSign, 
   Package,
   // Comunicação
   MessageSquare, 
   Bell, 
-  Zap, 
   Megaphone,
-  // Relatórios
-  BarChart3, 
-  TrendingUp, 
-  Target, 
-  Award,
-  // Administração
-  UserCheck, 
-  Shield, 
-  Puzzle, 
-  Settings,
-  // Assinaturas
-  CreditCard, 
+  // Financeiro
+  DollarSign,
+  CreditCard,
   Receipt,
-  // Suporte
-  HelpCircle, 
-  Lightbulb,
+  // Assinaturas
+  Crown,
+  // Minha Empresa
+  Building,
+  Warehouse,
+  Plug,
+  // Administração
+  Settings,
+  Shield,
+  UserCheck,
+  // Vendas / Caixa
+  ShoppingCart,
   // Gerais
   PlusCircle,
   Menu,
@@ -65,10 +66,14 @@ const Sidebar = () => {
 
   const menuStructure = [
     { 
-      icon: Home, 
-      label: "Dashboard", 
-      path: "/", 
-      category: "main"
+      category: "dashboard",
+      label: "Dashboard",
+      icon: Home,
+      items: [
+        { icon: BarChart3, label: "Visão Geral", path: "/" },
+        { icon: TrendingUp, label: "Sucesso do Cliente", path: "/customer-success" },
+        { icon: Target, label: "Desempenho dos Barbeiros", path: "/barber-performance" }
+      ]
     },
     {
       category: "operacoes",
@@ -76,11 +81,9 @@ const Sidebar = () => {
       icon: Package,
       items: [
         { icon: Calendar, label: "Agendamentos", path: "/appointments" },
-        { icon: Globe, label: "Agendamentos Online", path: "/booking" },
         { icon: Users, label: "Clientes", path: "/clients" },
         { icon: Scissors, label: "Barbeiros", path: "/barbers" },
-        { icon: Package, label: "Serviços", path: "/services" },
-        { icon: DollarSign, label: "Caixa / Vendas", path: "/cash" }
+        { icon: Package, label: "Serviços", path: "/services" }
       ]
     },
     {
@@ -89,19 +92,37 @@ const Sidebar = () => {
       icon: MessageSquare,
       items: [
         { icon: MessageSquare, label: "Conversas", path: "/conversations" },
-        { icon: Bell, label: "Notificações", path: "/notifications" },
-        { icon: Zap, label: "Notificações Avançadas", path: "/advanced-notifications" },
+        { icon: Bell, label: "Notificações", path: "/advanced-notifications" }, // Unificado
         { icon: Megaphone, label: "Campanhas / Marketing", path: "/campaigns" }
       ]
     },
     {
-      category: "relatorios",
-      label: "Relatórios",
-      icon: BarChart3,
+      category: "financeiro",
+      label: "Financeiro",
+      icon: DollarSign,
       items: [
-        { icon: BarChart3, label: "Relatórios Gerais", path: "/reports" },
-        { icon: TrendingUp, label: "Sucesso do Cliente", path: "/customer-success" },
-        { icon: Target, label: "Desempenho dos Barbeiros", path: "/barber-performance" }
+        { icon: BarChart3, label: "Visão Financeira", path: "/reports" }, // Reutilizando Reports
+        { icon: CreditCard, label: "Contas a Pagar / Receber", path: "/billing" },
+        { icon: Receipt, label: "Comissões", path: "/commissions" }
+      ]
+    },
+    {
+      category: "assinaturas",
+      label: "Assinaturas",
+      icon: Crown,
+      items: [
+        { icon: Crown, label: "Gerenciar Planos", path: "/subscriptions" },
+        { icon: PlusCircle, label: "Criar / Editar Plano", path: "/subscriptions/new" } // Nova rota para criação/edição
+      ]
+    },
+    {
+      category: "empresa",
+      label: "Minha Empresa",
+      icon: Building,
+      items: [
+        { icon: Building, label: "Dados da Empresa", path: "/settings/company" },
+        { icon: Warehouse, label: "Estoque", path: "/inventory" },
+        { icon: Plug, label: "Integrações (WhatsApp)", path: "/integrations" }
       ]
     },
     {
@@ -109,31 +130,32 @@ const Sidebar = () => {
       label: "Administração",
       icon: Settings,
       items: [
-        { icon: UserCheck, label: "Usuários", path: "/users" },
-        { icon: Shield, label: "Permissões e Acessos", path: "/permissions" },
-        { icon: Puzzle, label: "Integrações", path: "/integrations" },
-        { icon: Settings, label: "Configurações", path: "/settings" }
+        { icon: UserCheck, label: "Usuários e Permissões", path: "/users" },
+        { icon: Settings, label: "Configurações Gerais", path: "/settings" }
       ]
     },
     {
-      category: "assinaturas",
-      label: "Assinaturas e Plano",
-      icon: CreditCard,
+      category: "vendas",
+      label: "Vendas / Caixa",
+      icon: ShoppingCart,
       items: [
-        { icon: CreditCard, label: "Assinaturas", path: "/subscriptions" },
-        { icon: Receipt, label: "Plano e Cobrança", path: "/billing" }
-      ]
-    },
-    {
-      category: "suporte",
-      label: "Suporte",
-      icon: HelpCircle,
-      items: [
-        { icon: HelpCircle, label: "Central de Ajuda", path: "/help" },
-        { icon: Lightbulb, label: "Feedback", path: "/feedback" }
+        { icon: ShoppingCart, label: "Caixa e PDV", path: "/cash" },
+        { icon: BarChart3, label: "Relatórios de Vendas", path: "/sales-reports" }
       ]
     }
   ];
+
+  // Função para expandir categorias ativas por padrão
+  useEffect(() => {
+    const activeCategories = menuStructure
+      .filter(category => 
+        category.items?.some(item => isActivePath(item.path))
+      )
+      .map(category => category.category);
+      
+    setExpandedCategories(activeCategories);
+  }, [location.pathname]);
+
 
   const handleNavigation = (path: string) => {
     navigate(path);
@@ -141,7 +163,7 @@ const Sidebar = () => {
   };
 
   const handleSignOut = () => {
-    navigate("/");
+    navigate("/login"); // Redireciona para login
   };
 
   const toggleCategory = (category: string) => {
@@ -158,7 +180,7 @@ const Sidebar = () => {
     const isActive = isActivePath(item.path);
     const isExpanded = expandedCategories.includes(parentCategory);
 
-    if (isSubItem && !isExpanded && parentCategory) {
+    if (isSubItem && parentCategory && !isExpanded) {
       return null;
     }
 
@@ -221,12 +243,24 @@ const Sidebar = () => {
           </div>
         </Button>
         
-        {/* Renderização instantânea sem animação */}
-        {isExpanded && category.items && (
-          <div className="space-y-1">
-            {category.items.map((item: any) => renderMenuItem(item, true, category.category))}
-          </div>
-        )}
+        {/* Renderização dos sub-itens com animação de altura */}
+        <AnimatePresence initial={false}>
+          {isExpanded && category.items && (
+            <motion.div
+              initial="collapsed"
+              animate="open"
+              exit="collapsed"
+              variants={{
+                open: { opacity: 1, height: "auto" },
+                collapsed: { opacity: 0, height: 0 }
+              }}
+              transition={{ duration: 0.3, ease: [0.04, 0.62, 0.23, 0.98] }}
+              className="overflow-hidden space-y-1"
+            >
+              {category.items.map((item: any) => renderMenuItem(item, true, category.category))}
+            </motion.div>
+          )}
+        </AnimatePresence>
       </div>
     );
   };
@@ -283,7 +317,7 @@ const Sidebar = () => {
                 </div>
                 <div>
                   <h2 className="font-semibold text-foreground">Na Régua</h2>
-                  <p className="text-xs text-primary-foreground/80">Barbearia</p>
+                  <p className="text-xs text-muted-foreground/80">Barbearia</p>
                 </div>
               </div>
             </div>
@@ -304,25 +338,8 @@ const Sidebar = () => {
                   }
                 }}
               >
-                {/* Main items */}
-                <div className="space-y-2">
-                  {menuStructure.filter(item => item.category === "main").map((item, index) => (
-                    <motion.div
-                      key={index}
-                      variants={{
-                        hidden: { opacity: 0, x: -20 },
-                        visible: { opacity: 1, x: 0 }
-                      }}
-                      whileHover={{ scale: 1.02 }}
-                      whileTap={{ scale: 0.98 }}
-                    >
-                      {renderMenuItem(item)}
-                    </motion.div>
-                  ))}
-                </div>
-
                 {/* Categories */}
-                {menuStructure.filter(item => item.category !== "main").map((category, index) => (
+                {menuStructure.map((category, index) => (
                   <motion.div
                     key={category.category}
                     variants={{
