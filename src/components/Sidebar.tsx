@@ -325,7 +325,7 @@ const Sidebar = () => {
             {/* Navigation */}
             <nav className="p-4 overflow-y-auto flex-1">
               <motion.div 
-                className="space-y-6"
+                className="space-y-4" // Reduzido de space-y-6 para space-y-4
                 initial="hidden"
                 animate="visible"
                 variants={{
@@ -352,7 +352,7 @@ const Sidebar = () => {
                 ))}
 
                 {/* Divider */}
-                <div className="pt-6 border-t border-border">
+                <div className="pt-4 border-t border-border"> {/* Reduzido pt-6 para pt-4 */}
                   <div className="h-px bg-border my-4"></div>
                 </div>
 
