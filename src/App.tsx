@@ -20,6 +20,7 @@ import CustomerSuccess from "./pages/CustomerSuccess";
 import AdvancedNotifications from "./pages/AdvancedNotifications";
 import Settings from "./pages/Settings";
 import OnlineBooking from "./pages/OnlineBooking";
+import Services from "./pages/Services"; // <-- Importação adicionada
 
 // Novas Páginas
 import BarberPerformance from "./pages/BarberPerformance";
