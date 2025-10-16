@@ -13,7 +13,7 @@ import {
   // Operações
   Calendar, 
   Users, 
-  Scissors, 
+  Scissors, // Importado
   Package,
   // Comunicação
   MessageSquare, 
@@ -312,8 +312,9 @@ const Sidebar = () => {
             {/* Header */}
             <div className="p-6 border-b border-border">
               <div className="flex items-center gap-3">
+                {/* Ícone de Tesoura */}
                 <div className="w-8 h-8 bg-gradient-to-r from-primary to-primary-600 rounded-lg flex items-center justify-center">
-                  <span className="text-primary-foreground font-bold text-sm">💈</span>
+                  <Scissors className="h-4 w-4 text-primary-foreground" />
                 </div>
                 <div>
                   <h2 className="font-semibold text-foreground">Na Régua</h2>
