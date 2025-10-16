@@ -13,7 +13,7 @@ import {
   // Operações
   Calendar, 
   Users, 
-  Scissors, // Importado
+  Scissors, 
   Package,
   // Comunicação
   MessageSquare, 
@@ -312,13 +312,13 @@ const Sidebar = () => {
             {/* Header */}
             <div className="p-6 border-b border-border">
               <div className="flex items-center gap-3">
-                {/* Ícone de Tesoura */}
-                <div className="w-8 h-8 bg-gradient-to-r from-primary to-primary-600 rounded-lg flex items-center justify-center">
+                {/* Ícone de Tesoura (Replicando o estilo do Login) */}
+                <div className="w-8 h-8 bg-gradient-to-r from-primary to-primary-600 rounded-lg flex items-center justify-center shadow-sm">
                   <Scissors className="h-4 w-4 text-primary-foreground" />
                 </div>
                 <div>
-                  <h2 className="font-semibold text-foreground">Na Régua</h2>
-                  <p className="text-xs text-muted-foreground/80">Barbearia</p>
+                  <h2 className="font-semibold text-xl text-foreground">Na Régua</h2>
+                  {/* Removido o subtítulo "Barbearia" */}
                 </div>
               </div>
             </div>
