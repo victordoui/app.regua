@@ -313,12 +313,11 @@ const Sidebar = () => {
             <div className="p-6 border-b border-border">
               <div className="flex items-center gap-3">
                 {/* Ícone de Tesoura (Replicando o estilo do Login) */}
-                <div className="w-8 h-8 bg-gradient-to-r from-primary to-primary-600 rounded-lg flex items-center justify-center shadow-sm">
-                  <Scissors className="h-4 w-4 text-primary-foreground" />
+                <div className="w-10 h-10 bg-gradient-to-r from-primary to-primary-600 rounded-lg flex items-center justify-center shadow-sm">
+                  <Scissors className="h-5 w-5 text-primary-foreground" />
                 </div>
                 <div>
-                  <h2 className="font-semibold text-xl text-foreground">Na Régua</h2>
-                  {/* Removido o subtítulo "Barbearia" */}
+                  <h2 className="font-bold text-3xl text-foreground">Na Régua</h2>
                 </div>
               </div>
             </div>
