@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import Layout from '@/components/Layout';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -50,16 +50,88 @@ interface SatisfactionMetrics {
   retention_rate: number;
 }
 
+// Dados mockados carregados instantaneamente
+const mockClients: Client[] = [
+  {
+    id: '1',
+    name: 'João Silva',
+    email: 'joao@email.com',
+    phone: '(11) 99999-9999',
+    created_at: '2024-01-15',
+    last_visit: '2024-12-20',
+    total_visits: 15,
+    subscription_type: 'premium'
+  },
+  {
+    id: '2',
+    name: 'Maria Santos',
+    email: 'maria@email.com',
+    phone: '(11) 88888-8888',
+    created_at: '2024-02-10',
+    last_visit: '2024-12-18',
+    total_visits: 8,
+    subscription_type: 'basic'
+  },
+  {
+    id: '3',
+    name: 'Pedro Costa',
+    email: 'pedro@email.com',
+    phone: '(11) 77777-7777',
+    created_at: '2024-03-05',
+    last_visit: '2024-12-15',
+    total_visits: 12
+  }
+];
+
+const mockFeedbacks: Feedback[] = [
+  {
+    id: '1',
+    client_id: '1',
+    client_name: 'João Silva',
+    rating: 5,
+    comment: 'Excelente atendimento! O barbeiro foi muito profissional e o resultado ficou perfeito.',
+    service_type: 'Corte + Barba',
+    barber_name: 'Carlos',
+    created_at: '2024-12-20',
+    status: 'reviewed'
+  },
+  {
+    id: '2',
+    client_id: '2',
+    client_name: 'Maria Santos',
+    rating: 4,
+    comment: 'Muito bom, mas a espera foi um pouco longa.',
+    service_type: 'Corte Feminino',
+    barber_name: 'Ana',
+    created_at: '2024-12-18',
+    status: 'pending'
+  },
+  {
+    id: '3',
+    client_id: '3',
+    client_name: 'Pedro Costa',
+    rating: 5,
+    comment: 'Sempre saio satisfeito! Equipe nota 10.',
+    service_type: 'Corte Masculino',
+    barber_name: 'Roberto',
+    created_at: '2024-12-15',
+    status: 'responded'
+  }
+];
+
+const initialMetrics: SatisfactionMetrics = {
+  overall_rating: 4.7,
+  total_feedbacks: 156,
+  response_rate: 89,
+  nps_score: 72,
+  retention_rate: 85
+};
+
+
 function CustomerSuccess() {
-  const [clients, setClients] = useState<Client[]>([]);
-  const [feedbacks, setFeedbacks] = useState<Feedback[]>([]);
-  const [metrics, setMetrics] = useState<SatisfactionMetrics>({
-    overall_rating: 0,
-    total_feedbacks: 0,
-    response_rate: 0,
-    nps_score: 0,
-    retention_rate: 0
-  });
+  const [clients, setClients] = useState<Client[]>(mockClients);
+  const [feedbacks, setFeedbacks] = useState<Feedback[]>(mockFeedbacks);
+  const [metrics, setMetrics] = useState<SatisfactionMetrics>(initialMetrics);
   const [selectedClient, setSelectedClient] = useState<Client | null>(null);
   const [feedbackFilter, setFeedbackFilter] = useState('all');
   const [searchTerm, setSearchTerm] = useState('');
@@ -71,8 +143,11 @@ function CustomerSuccess() {
     barber_name: ''
   });
   const [isDialogOpen, setIsDialogOpen] = useState(false);
-  const [loading, setLoading] = useState(true);
+  // Removendo o estado de loading para carregamento instantâneo
+  // const [loading, setLoading] = useState(true); 
 
+  // Removendo useEffect e funções de carregamento simulado
+  /*
   useEffect(() => {
     loadData();
   }, []);
@@ -94,91 +169,17 @@ function CustomerSuccess() {
   };
 
   const loadClients = async () => {
-    // Simulação de dados - em produção, viria do Supabase
-    const mockClients: Client[] = [
-      {
-        id: '1',
-        name: 'João Silva',
-        email: 'joao@email.com',
-        phone: '(11) 99999-9999',
-        created_at: '2024-01-15',
-        last_visit: '2024-12-20',
-        total_visits: 15,
-        subscription_type: 'premium'
-      },
-      {
-        id: '2',
-        name: 'Maria Santos',
-        email: 'maria@email.com',
-        phone: '(11) 88888-8888',
-        created_at: '2024-02-10',
-        last_visit: '2024-12-18',
-        total_visits: 8,
-        subscription_type: 'basic'
-      },
-      {
-        id: '3',
-        name: 'Pedro Costa',
-        email: 'pedro@email.com',
-        phone: '(11) 77777-7777',
-        created_at: '2024-03-05',
-        last_visit: '2024-12-15',
-        total_visits: 12
-      }
-    ];
     setClients(mockClients);
   };
 
   const loadFeedbacks = async () => {
-    // Simulação de dados - em produção, viria do Supabase
-    const mockFeedbacks: Feedback[] = [
-      {
-        id: '1',
-        client_id: '1',
-        client_name: 'João Silva',
-        rating: 5,
-        comment: 'Excelente atendimento! O barbeiro foi muito profissional e o resultado ficou perfeito.',
-        service_type: 'Corte + Barba',
-        barber_name: 'Carlos',
-        created_at: '2024-12-20',
-        status: 'reviewed'
-      },
-      {
-        id: '2',
-        client_id: '2',
-        client_name: 'Maria Santos',
-        rating: 4,
-        comment: 'Muito bom, mas a espera foi um pouco longa.',
-        service_type: 'Corte Feminino',
-        barber_name: 'Ana',
-        created_at: '2024-12-18',
-        status: 'pending'
-      },
-      {
-        id: '3',
-        client_id: '3',
-        client_name: 'Pedro Costa',
-        rating: 5,
-        comment: 'Sempre saio satisfeito! Equipe nota 10.',
-        service_type: 'Corte Masculino',
-        barber_name: 'Roberto',
-        created_at: '2024-12-15',
-        status: 'responded'
-      }
-    ];
     setFeedbacks(mockFeedbacks);
   };
 
   const calculateMetrics = async () => {
-    // Simulação de cálculos - em produção, seria calculado com dados reais
-    setMetrics({
-      overall_rating: 4.7,
-      total_feedbacks: 156,
-      response_rate: 89,
-      nps_score: 72,
-      retention_rate: 85
-    });
+    setMetrics(initialMetrics);
   };
+  */
 
   const handleSubmitFeedback = async () => {
     try {
@@ -262,6 +263,8 @@ function CustomerSuccess() {
     ));
   };
 
+  // Removendo o bloco de loading
+  /*
   if (loading) {
     return (
       <Layout>
@@ -271,6 +274,7 @@ function CustomerSuccess() {
       </Layout>
     );
   }
+  */
 
   return (
     <Layout>
@@ -494,7 +498,7 @@ function CustomerSuccess() {
                               {getStatusText(feedback.status)}
                             </Badge>
                           </div>
-                          <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                          <div className="flex items-center gap-4 text-sm text-muted-foreground">
                             <span>{feedback.service_type}</span>
                             <span>•</span>
                             <span>Barbeiro: {feedback.barber_name}</span>
