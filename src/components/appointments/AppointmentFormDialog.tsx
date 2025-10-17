@@ -4,6 +4,7 @@ import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input'; // Adicionando esta importação
 import { Appointment, AppointmentFormData, Barber, Client, Service } from '@/types/appointments';
 import { format } from "date-fns";
 
