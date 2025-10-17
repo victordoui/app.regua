@@ -56,6 +56,80 @@ export interface Database {
           }
         ]
       }
+      appointments: {
+        Row: {
+          id: string
+          user_id: string
+          client_id: string
+          service_id: string
+          barbeiro_id: string | null
+          appointment_date: string
+          appointment_time: string
+          status: 'pending' | 'confirmed' | 'completed' | 'cancelled'
+          notes: string | null
+          total_price: number | null
+          created_at: string
+          updated_at: string
+        }
+        Insert: {
+          id?: string
+          user_id: string
+          client_id: string
+          service_id: string
+          barbeiro_id?: string | null
+          appointment_date: string
+          appointment_time: string
+          status?: 'pending' | 'confirmed' | 'completed' | 'cancelled'
+          notes?: string | null
+          total_price?: number | null
+          created_at?: string
+          updated_at?: string
+        }
+        Update: {
+          id?: string
+          user_id?: string
+          client_id?: string
+          service_id?: string
+          barbeiro_id?: string | null
+          appointment_date?: string
+          appointment_time?: string
+          status?: 'pending' | 'confirmed' | 'completed' | 'cancelled'
+          notes?: string | null
+          total_price?: number | null
+          created_at?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "appointments_barbeiro_id_fkey"
+            columns: ["barbeiro_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "appointments_client_id_fkey"
+            columns: ["client_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "appointments_service_id_fkey"
+            columns: ["service_id"]
+            isOneToOne: false
+            referencedRelation: "services"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "appointments_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "users"
+            referencedColumns: ["id"]
+          }
+        ]
+      }
       products: {
         Row: {
           id: string
