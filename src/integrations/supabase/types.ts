@@ -56,6 +56,103 @@ export interface Database {
           }
         ]
       }
+      subscription_plans: {
+        Row: {
+          id: string
+          name: string
+          description: string | null
+          price: number
+          billing_cycle: 'monthly' | 'yearly'
+          features: string[]
+          active: boolean
+          created_at: string
+          updated_at: string
+        }
+        Insert: {
+          id?: string
+          name: string
+          description?: string | null
+          price: number
+          billing_cycle: 'monthly' | 'yearly'
+          features?: string[]
+          active?: boolean
+          created_at?: string
+          updated_at?: string
+        }
+        Update: {
+          id?: string
+          name?: string
+          description?: string | null
+          price?: number
+          billing_cycle?: 'monthly' | 'yearly'
+          features?: string[]
+          active?: boolean
+          created_at?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      user_subscriptions: {
+        Row: {
+          id: string
+          user_id: string
+          client_id: string
+          plan_id: string
+          status: 'active' | 'cancelled' | 'paused' | 'expired'
+          start_date: string
+          end_date: string
+          credits_remaining: number
+          created_at: string
+          updated_at: string
+        }
+        Insert: {
+          id?: string
+          user_id: string
+          client_id: string
+          plan_id: string
+          status?: 'active' | 'cancelled' | 'paused' | 'expired'
+          start_date: string
+          end_date: string
+          credits_remaining?: number
+          created_at?: string
+          updated_at?: string
+        }
+        Update: {
+          id?: string
+          user_id?: string
+          client_id?: string
+          plan_id?: string
+          status?: 'active' | 'cancelled' | 'paused' | 'expired'
+          start_date?: string
+          end_date?: string
+          credits_remaining?: number
+          created_at?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "user_subscriptions_client_id_fkey"
+            columns: ["client_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "user_subscriptions_plan_id_fkey"
+            columns: ["plan_id"]
+            isOneToOne: false
+            referencedRelation: "subscription_plans"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "user_subscriptions_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "users"
+            referencedColumns: ["id"]
+          }
+        ]
+      }
       [_ in never]: never
     }
     Views: {
@@ -67,6 +164,8 @@ export interface Database {
     Enums: {
       transaction_type: 'payable' | 'receivable'
       transaction_status: 'pending' | 'paid' | 'overdue' | 'received' | 'cancelled'
+      billing_cycle_type: 'monthly' | 'yearly'
+      subscription_status: 'active' | 'cancelled' | 'paused' | 'expired'
     }
     CompositeTypes: {
       [_ in never]: never

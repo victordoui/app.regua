@@ -21,7 +21,10 @@ const Subscriptions = () => {
     plans,
     subscriptions,
     clients,
+    isLoading,
     createPlan,
+    updatePlan,
+    togglePlanStatus,
     createSubscription,
     updateSubscriptionStatus,
     getStats
@@ -31,40 +34,60 @@ const Subscriptions = () => {
   const [isSubscriptionDialogOpen, setIsSubscriptionDialogOpen] = useState(false);
   const [editingPlan, setEditingPlan] = useState<SubscriptionPlan | null>(null);
 
-  const stats = [
+  const handleSavePlan = async (formData: any, id: string | null) => {
+    if (id) {
+      await updatePlan({ id, formData });
+    } else {
+      await createPlan(formData);
+    }
+  };
+
+  const stats = getStats();
+
+  const summaryCards = [
     {
-      title: "Total de Assinantes",
-      value: getStats().activeCount.toString(),
-      change: `MRR: R$ ${getStats().mrr.toLocaleString('pt-br', { minimumFractionDigits: 2 })}`,
+      title: "Assinantes Ativos",
+      value: stats.activeCount.toString(),
+      change: `MRR: R$ ${stats.mrr.toLocaleString('pt-br', { minimumFractionDigits: 2 })}`,
       icon: Crown,
       color: "purple",
-      progress: getStats().retention
+      progress: stats.retention
     },
     {
       title: "Receita Mensal",
-      value: `R$ ${getStats().mrr.toLocaleString('pt-br', { minimumFractionDigits: 2 })}`,
-      change: "+12% vs mês anterior",
+      value: `R$ ${stats.mrr.toLocaleString('pt-br', { minimumFractionDigits: 2 })}`,
+      change: "+12% vs mês anterior", // Placeholder, could be calculated
       icon: DollarSign,
       color: "green",
-      progress: 85
+      progress: Math.min((stats.mrr / 10000) * 100, 100) // Example progress based on a target
     },
     {
       title: "Taxa de Retenção",
-      value: `${getStats().retention}%`,
-      change: "+5% vs mês anterior",
+      value: `${stats.retention}%`,
+      change: "+5% vs mês anterior", // Placeholder
       icon: TrendingUp,
       color: "blue",
-      progress: getStats().retention
+      progress: stats.retention
     },
     {
-      title: "Novos Clientes",
-      value: "8",
-      change: "+3 esta semana",
+      title: "Total de Clientes",
+      value: clients.length.toString(),
+      change: "Novos este mês: 0", // Placeholder
       icon: Users,
       color: "orange",
-      progress: 70
+      progress: 0 // Placeholder
     }
   ];
+
+  if (isLoading) {
+    return (
+      <Layout>
+        <div className="flex items-center justify-center min-h-[400px]">
+          <div className="text-muted-foreground">Carregando assinaturas...</div>
+        </div>
+      </Layout>
+    );
+  }
 
   return (
     <Layout>
@@ -77,7 +100,7 @@ const Subscriptions = () => {
             </p>
           </div>
           <div className="flex gap-2">
-            <Button onClick={() => setIsPlanDialogOpen(true)}>
+            <Button onClick={() => { setEditingPlan(null); setIsPlanDialogOpen(true); }}>
               <Plus className="h-4 w-4 mr-2" />
               Novo Plano
             </Button>
@@ -89,7 +112,7 @@ const Subscriptions = () => {
         </div>
 
         <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
-          {stats.map((stat, index) => {
+          {summaryCards.map((stat, index) => {
             const Icon = stat.icon;
             return (
               <Card key={index}>
@@ -115,26 +138,34 @@ const Subscriptions = () => {
 
           <TabsContent value="plans" className="space-y-4">
             <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
-              {plans.map((plan) => (
-                <SubscriptionPlanCard
-                  key={plan.id}
-                  plan={plan}
-                  onEdit={setEditingPlan}
-                  onToggleStatus={() => {}}
-                />
-              ))}
+              {plans.length === 0 ? (
+                <div className="col-span-full text-center py-8 text-muted-foreground">Nenhum plano de assinatura encontrado.</div>
+              ) : (
+                plans.map((plan) => (
+                  <SubscriptionPlanCard
+                    key={plan.id}
+                    plan={plan}
+                    onEdit={setEditingPlan}
+                    onToggleStatus={togglePlanStatus}
+                  />
+                ))
+              )}
             </div>
           </TabsContent>
 
           <TabsContent value="subscriptions" className="space-y-4">
-            <div className="space-y-4">
-              {subscriptions.map((subscription) => (
-                <UserSubscriptionCard
-                  key={subscription.id}
-                  subscription={subscription}
-                  onUpdateStatus={updateSubscriptionStatus}
-                />
-              ))}
+            <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+              {subscriptions.length === 0 ? (
+                <div className="col-span-full text-center py-8 text-muted-foreground">Nenhuma assinatura de cliente encontrada.</div>
+              ) : (
+                subscriptions.map((subscription) => (
+                  <UserSubscriptionCard
+                    key={subscription.id}
+                    subscription={subscription}
+                    onUpdateStatus={updateSubscriptionStatus}
+                  />
+                ))
+              )}
             </div>
           </TabsContent>
         </Tabs>
@@ -143,7 +174,7 @@ const Subscriptions = () => {
           isOpen={isPlanDialogOpen}
           setIsOpen={setIsPlanDialogOpen}
           editingPlan={editingPlan}
-          savePlan={createPlan}
+          savePlan={handleSavePlan}
         />
 
         <SubscriptionCreationDialog
@@ -151,6 +182,7 @@ const Subscriptions = () => {
           setIsOpen={setIsSubscriptionDialogOpen}
           createSubscription={createSubscription}
           clients={clients}
+          plans={plans}
         />
       </div>
     </Layout>

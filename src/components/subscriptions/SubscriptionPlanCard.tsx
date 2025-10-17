@@ -2,13 +2,13 @@ import React from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { Edit, Trash2, Power, PowerOff, CheckCircle, Scissors } from 'lucide-react';
+import { Edit, Power, PowerOff, CheckCircle } from 'lucide-react';
 import { SubscriptionPlan } from '@/types/subscriptions';
 
 interface SubscriptionPlanCardProps {
   plan: SubscriptionPlan;
   onEdit: (plan: SubscriptionPlan) => void;
-  onToggleStatus: (planId: string, currentStatus: boolean) => void;
+  onToggleStatus: (planId: string, currentStatus: boolean) => Promise<void>;
 }
 
 const SubscriptionPlanCard: React.FC<SubscriptionPlanCardProps> = ({ plan, onEdit, onToggleStatus }) => {
@@ -26,7 +26,7 @@ const SubscriptionPlanCard: React.FC<SubscriptionPlanCardProps> = ({ plan, onEdi
         <p className="text-sm text-muted-foreground mb-4">{plan.description}</p>
         <div className="text-2xl font-bold mb-4">
           R$ {plan.price.toFixed(2)}
-          <span className="text-sm font-normal text-muted-foreground">/{plan.billing_cycle}</span>
+          <span className="text-sm font-normal text-muted-foreground">/{plan.billing_cycle === 'monthly' ? 'mês' : 'ano'}</span>
         </div>
         <div className="space-y-2 mb-4">
           {plan.features.map((feature, index) => (
