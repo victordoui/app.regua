@@ -56,6 +56,162 @@ export interface Database {
           }
         ]
       }
+      products: {
+        Row: {
+          id: string
+          user_id: string
+          name: string
+          description: string | null
+          price: number
+          stock: number
+          active: boolean
+          created_at: string
+          updated_at: string
+        }
+        Insert: {
+          id?: string
+          user_id: string
+          name: string
+          description?: string | null
+          price: number
+          stock?: number
+          active?: boolean
+          created_at?: string
+          updated_at?: string
+        }
+        Update: {
+          id?: string
+          user_id?: string
+          name?: string
+          description?: string | null
+          price?: number
+          stock?: number
+          active?: boolean
+          created_at?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "products_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "users"
+            referencedColumns: ["id"]
+          }
+        ]
+      }
+      sales: {
+        Row: {
+          id: string
+          user_id: string
+          client_id: string | null
+          sale_date: string
+          total_amount: number
+          payment_method: string | null
+          notes: string | null
+          created_at: string
+          updated_at: string
+        }
+        Insert: {
+          id?: string
+          user_id: string
+          client_id?: string | null
+          sale_date?: string
+          total_amount: number
+          payment_method?: string | null
+          notes?: string | null
+          created_at?: string
+          updated_at?: string
+        }
+        Update: {
+          id?: string
+          user_id?: string
+          client_id?: string | null
+          sale_date?: string
+          total_amount?: number
+          payment_method?: string | null
+          notes?: string | null
+          created_at?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "sales_client_id_fkey"
+            columns: ["client_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "sales_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "users"
+            referencedColumns: ["id"]
+          }
+        ]
+      }
+      sale_items: {
+        Row: {
+          id: string
+          sale_id: string
+          product_id: string | null
+          service_id: string | null
+          item_name: string
+          quantity: number
+          unit_price: number
+          total_price: number
+          created_at: string
+          updated_at: string
+        }
+        Insert: {
+          id?: string
+          sale_id: string
+          product_id?: string | null
+          service_id?: string | null
+          item_name: string
+          quantity: number
+          unit_price: number
+          total_price: number
+          created_at?: string
+          updated_at?: string
+        }
+        Update: {
+          id?: string
+          sale_id?: string
+          product_id?: string | null
+          service_id?: string | null
+          item_name?: string
+          quantity?: number
+          unit_price?: number
+          total_price?: number
+          created_at?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "sale_items_product_id_fkey"
+            columns: ["product_id"]
+            isOneToOne: false
+            referencedRelation: "products"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "sale_items_sale_id_fkey"
+            columns: ["sale_id"]
+            isOneToOne: false
+            referencedRelation: "sales"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "sale_items_service_id_fkey"
+            columns: ["service_id"]
+            isOneToOne: false
+            referencedRelation: "services"
+            referencedColumns: ["id"]
+          }
+        ]
+      }
       subscription_plans: {
         Row: {
           id: string
