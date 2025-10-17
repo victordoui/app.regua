@@ -4,7 +4,7 @@ import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input'; // Adicionando esta importação
+import { Input } from '@/components/ui/input';
 import { Appointment, AppointmentFormData, Barber, Client, Service } from '@/types/appointments';
 import { format } from "date-fns";
 
@@ -114,12 +114,15 @@ const AppointmentFormDialog: React.FC<AppointmentFormDialogProps> = ({
           </div>
           <div>
             <Label htmlFor="barbeiro_id">Barbeiro (Opcional)</Label>
-            <Select value={formData.barbeiro_id || ""} onValueChange={(value) => setFormData(prev => ({ ...prev, barbeiro_id: value === "" ? null : value }))}>
+            <Select 
+              value={formData.barbeiro_id || "unassigned-barber"} 
+              onValueChange={(value) => setFormData(prev => ({ ...prev, barbeiro_id: value === "unassigned-barber" ? null : value }))}
+            >
               <SelectTrigger>
                 <SelectValue placeholder="Selecione um barbeiro" />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="">Nenhum (qualquer disponível)</SelectItem>
+                <SelectItem value="unassigned-barber">Nenhum (qualquer disponível)</SelectItem>
                 {barbers.map(barber => (
                   <SelectItem key={barber.id} value={barber.id}>
                     {barber.full_name}
