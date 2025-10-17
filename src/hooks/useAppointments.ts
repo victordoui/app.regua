@@ -1,165 +1,240 @@
 import { useState, useEffect, useCallback, useMemo } from "react";
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import { supabase } from "@/integrations/supabase/client";
+import { useAuth } from "@/contexts/AuthContext";
 import { useToast } from "@/hooks/use-toast";
-import { Appointment, AppointmentFormData, BarberData, Client, Service } from "@/types/appointments";
+import { Appointment, AppointmentFormData, Barber, Client, Service } from "@/types/appointments";
+import { format } from "date-fns";
 
 export const useAppointments = () => {
-  const [appointments, setAppointments] = useState<Appointment[]>([]);
-  const [clients, setClients] = useState<Client[]>([]);
-  const [services, setServices] = useState<Service[]>([]);
-  const [barbers, setBarbers] = useState<BarberData[]>([]);
-  const [loading, setLoading] = useState(true);
+  const { user } = useAuth();
   const { toast } = useToast();
+  const queryClient = useQueryClient();
 
-  const fetchData = useCallback(async () => {
-    try {
-      setLoading(true);
-      // Mock data for now
-      setAppointments([
-        {
-          id: '1',
-          client_id: '1',
-          service_id: '1',
-          barbeiro_id: '1',
-          appointment_date: '2024-01-20',
-          appointment_time: '14:00',
-          status: 'completed',
-          notes: 'Cliente satisfeito',
-          total_price: 50,
-          user_id: 'demo-user',
-          created_at: new Date().toISOString(),
-          updated_at: new Date().toISOString()
-        }
-      ]);
-      
-      setClients([
-        {
-          id: '1',
-          name: 'João Silva',
-          phone: '11999999999',
-          email: 'joao@email.com',
-          created_at: new Date().toISOString()
-        }
-      ]);
-      
-      setServices([
-        {
-          id: '1',
-          name: 'Corte Masculino',
-          description: 'Corte de cabelo padrão',
-          price: 50,
-          duration_minutes: 30,
-          active: true
-        }
-      ]);
-      
-      setBarbers([
-        {
-          id: '1',
-          user_id: '1',
-          full_name: 'Carlos Barbeiro',
-          email: 'carlos@email.com',
-          role: 'barbeiro'
-        }
-      ]);
-    } catch (error: any) {
-      console.error("Error fetching data:", error);
-      toast({
-        title: "Erro ao carregar dados",
-        description: error.message,
-        variant: "destructive",
-      });
-    } finally {
-      setLoading(false);
+  const fetchAppointments = useCallback(async (date?: Date, statusFilter: string = 'all'): Promise<Appointment[]> => {
+    if (!user) return [];
+
+    let query = supabase
+      .from("appointments")
+      .select(`
+        *,
+        clients:profiles!client_id (id, name:display_name, email, phone),
+        services (id, name, description, price, duration_minutes, active),
+        barbers:profiles!barbeiro_id (id, user_id, full_name:display_name, email, phone, role)
+      `)
+      .eq("user_id", user.id)
+      .order("appointment_time", { ascending: true });
+
+    if (date) {
+      const formattedDate = format(date, 'yyyy-MM-dd');
+      query = query.eq("appointment_date", formattedDate);
     }
-  }, [toast]);
+
+    if (statusFilter !== 'all') {
+      query = query.eq("status", statusFilter);
+    }
+
+    const { data, error } = await query;
+
+    if (error) throw error;
+    return data || [];
+  }, [user]);
+
+  const fetchClients = useCallback(async (): Promise<Client[]> => {
+    if (!user) return [];
+    const { data, error } = await supabase
+      .from("profiles")
+      .select("id, name:display_name, email, phone, created_at")
+      .eq("user_id", user.id) // Fetch clients associated with the current user
+      .order("display_name", { ascending: true });
+    if (error) throw error;
+    return data || [];
+  }, [user]);
+
+  const fetchServices = useCallback(async (): Promise<Service[]> => {
+    if (!user) return [];
+    const { data, error } = await supabase
+      .from("services")
+      .select("*")
+      .eq("user_id", user.id)
+      .eq("active", true)
+      .order("name", { ascending: true });
+    if (error) throw error;
+    return data || [];
+  }, [user]);
+
+  const fetchBarbers = useCallback(async (): Promise<Barber[]> => {
+    if (!user) return [];
+    const { data, error } = await supabase
+      .from("profiles")
+      .select("id, user_id, full_name:display_name, email, phone, role")
+      .eq("user_id", user.id) // Assuming barbers are also managed by the current user
+      .eq("role", "barbeiro") // Filter for profiles with 'barbeiro' role
+      .order("display_name", { ascending: true });
+    if (error) throw error;
+    return data || [];
+  }, [user]);
+
+  const { data: clients, isLoading: isLoadingClients, error: clientsError } = useQuery<Client[], Error>({
+    queryKey: ["clients", user?.id],
+    queryFn: fetchClients,
+    enabled: !!user,
+  });
+
+  const { data: services, isLoading: isLoadingServices, error: servicesError } = useQuery<Service[], Error>({
+    queryKey: ["services", user?.id],
+    queryFn: fetchServices,
+    enabled: !!user,
+  });
+
+  const { data: barbers, isLoading: isLoadingBarbers, error: barbersError } = useQuery<Barber[], Error>({
+    queryKey: ["barbers", user?.id],
+    queryFn: fetchBarbers,
+    enabled: !!user,
+  });
 
   useEffect(() => {
-    fetchData();
-  }, [fetchData]);
-
-  const saveAppointment = useCallback(async (formData: AppointmentFormData, id: string | null) => {
-    try {
-      if (id) {
-        // Update existing appointment
-        setAppointments(prev => 
-          prev.map(apt => apt.id === id 
-            ? { ...apt, ...formData, updated_at: new Date().toISOString() }
-            : apt
-          )
-        );
-        toast({
-          title: "Agendamento atualizado com sucesso!",
-        });
-      } else {
-        // Create new appointment
-        const newAppointment: Appointment = {
-          id: Date.now().toString(),
-          ...formData,
-          status: 'pending',
-          user_id: 'demo-user',
-          created_at: new Date().toISOString(),
-          updated_at: new Date().toISOString()
-        };
-        setAppointments(prev => [newAppointment, ...prev]);
-        toast({
-          title: "Agendamento criado com sucesso!",
-        });
-      }
-      return true;
-    } catch (error: any) {
+    if (clientsError || servicesError || barbersError) {
       toast({
-        title: "Erro ao salvar agendamento",
-        description: error.message,
+        title: "Erro ao carregar dados",
+        description: clientsError?.message || servicesError?.message || barbersError?.message,
         variant: "destructive",
       });
-      return false;
     }
-  }, [toast]);
+  }, [clientsError, servicesError, barbersError, toast]);
 
-  const updateAppointmentStatus = useCallback(async (appointmentId: string, newStatus: string) => {
-    try {
-      setAppointments(prev => 
-        prev.map(apt => apt.id === appointmentId 
-          ? { ...apt, status: newStatus, updated_at: new Date().toISOString() }
-          : apt
-        )
-      );
+  const addAppointmentMutation = useMutation<Appointment, Error, AppointmentFormData>({
+    mutationFn: async (formData) => {
+      if (!user) throw new Error("Usuário não autenticado.");
+      const { data, error } = await supabase
+        .from("appointments")
+        .insert({
+          user_id: user.id,
+          client_id: formData.client_id,
+          service_id: formData.service_id,
+          barbeiro_id: formData.barbeiro_id,
+          appointment_date: formData.appointment_date,
+          appointment_time: formData.appointment_time,
+          notes: formData.notes,
+          status: 'pending', // Default status
+          total_price: services?.find(s => s.id === formData.service_id)?.price || 0,
+        })
+        .select()
+        .single();
+
+      if (error) throw error;
+      return data;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["appointments", user?.id] });
+      toast({ title: "Agendamento criado com sucesso!" });
+    },
+    onError: (err) => {
       toast({
-        title: "Status atualizado com sucesso!",
+        title: "Erro ao criar agendamento",
+        description: err.message,
+        variant: "destructive",
       });
-    } catch (error: any) {
+    },
+  });
+
+  const updateAppointmentMutation = useMutation<Appointment, Error, { id: string; formData: AppointmentFormData }>({
+    mutationFn: async ({ id, formData }) => {
+      if (!user) throw new Error("Usuário não autenticado.");
+      const { data, error } = await supabase
+        .from("appointments")
+        .update({
+          client_id: formData.client_id,
+          service_id: formData.service_id,
+          barbeiro_id: formData.barbeiro_id,
+          appointment_date: formData.appointment_date,
+          appointment_time: formData.appointment_time,
+          notes: formData.notes,
+          total_price: services?.find(s => s.id === formData.service_id)?.price || 0,
+        })
+        .eq("id", id)
+        .eq("user_id", user.id)
+        .select()
+        .single();
+
+      if (error) throw error;
+      return data;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["appointments", user?.id] });
+      toast({ title: "Agendamento atualizado com sucesso!" });
+    },
+    onError: (err) => {
+      toast({
+        title: "Erro ao atualizar agendamento",
+        description: err.message,
+        variant: "destructive",
+      });
+    },
+  });
+
+  const updateAppointmentStatusMutation = useMutation<Appointment, Error, { id: string; status: 'pending' | 'confirmed' | 'completed' | 'cancelled' }>({
+    mutationFn: async ({ id, status }) => {
+      if (!user) throw new Error("Usuário não autenticado.");
+      const { data, error } = await supabase
+        .from("appointments")
+        .update({ status })
+        .eq("id", id)
+        .eq("user_id", user.id)
+        .select()
+        .single();
+
+      if (error) throw error;
+      return data;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["appointments", user?.id] });
+      toast({ title: "Status do agendamento atualizado!" });
+    },
+    onError: (err) => {
       toast({
         title: "Erro ao atualizar status",
-        description: error.message,
+        description: err.message,
         variant: "destructive",
       });
-    }
-  }, [toast]);
+    },
+  });
 
-  const deleteAppointment = useCallback(async (appointmentId: string) => {
-    try {
-      setAppointments(prev => prev.filter(apt => apt.id !== appointmentId));
-      toast({
-        title: "Agendamento excluído com sucesso!",
-      });
-    } catch (error: any) {
+  const deleteAppointmentMutation = useMutation<void, Error, string>({
+    mutationFn: async (id) => {
+      if (!user) throw new Error("Usuário não autenticado.");
+      const { error } = await supabase
+        .from("appointments")
+        .delete()
+        .eq("id", id)
+        .eq("user_id", user.id);
+
+      if (error) throw error;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["appointments", user?.id] });
+      toast({ title: "Agendamento excluído com sucesso!" });
+    },
+    onError: (err) => {
       toast({
         title: "Erro ao excluir agendamento",
-        description: error.message,
+        description: err.message,
         variant: "destructive",
       });
-    }
-  }, [toast]);
+    },
+  });
 
   return {
-    appointments,
-    clients,
-    services,
-    barbers,
-    loading,
-    saveAppointment,
-    updateAppointmentStatus,
-    deleteAppointment,
-    fetchData
+    clients: clients || [],
+    services: services || [],
+    barbers: barbers || [],
+    isLoadingClients,
+    isLoadingServices,
+    isLoadingBarbers,
+    fetchAppointments, // Expose fetch function for specific date/filter
+    addAppointment: addAppointmentMutation.mutateAsync,
+    updateAppointment: updateAppointmentMutation.mutateAsync,
+    updateAppointmentStatus: updateAppointmentStatusMutation.mutateAsync,
+    deleteAppointment: deleteAppointmentMutation.mutateAsync,
   };
 };

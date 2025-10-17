@@ -5,6 +5,8 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Label } from "@/components/ui/label";
 import { Calendar as ShadcnCalendar } from "@/components/ui/calendar";
 import { Plus } from "lucide-react";
+import { format } from 'date-fns';
+import { ptBR } from 'date-fns/locale';
 
 interface AppointmentSidebarProps {
   calendarDate: Date | undefined;
@@ -12,7 +14,7 @@ interface AppointmentSidebarProps {
   statusFilter: string;
   setStatusFilter: (status: string) => void;
   daysWithAppointments: string[];
-  onManualSchedule: () => void;
+  onManualSchedule: (initialTime?: string) => void;
 }
 
 const AppointmentSidebar: React.FC<AppointmentSidebarProps> = ({
@@ -45,6 +47,7 @@ const AppointmentSidebar: React.FC<AppointmentSidebarProps> = ({
                 border: '1px solid hsl(var(--primary) / 0.5)',
               },
             }}
+            locale={ptBR}
           />
         </ModernCardContent>
       </ModernCard>
@@ -60,7 +63,7 @@ const AppointmentSidebar: React.FC<AppointmentSidebarProps> = ({
               <SelectTrigger className="glass">
                 <SelectValue placeholder="Filtrar por status" />
               </SelectTrigger>
-              <SelectContent position="popper"> {/* Explicitly setting position to popper */}
+              <SelectContent position="popper">
                 <SelectItem value="all">Todos</SelectItem>
                 <SelectItem value="pending">Pendente</SelectItem>
                 <SelectItem value="confirmed">Confirmado</SelectItem>
@@ -69,10 +72,10 @@ const AppointmentSidebar: React.FC<AppointmentSidebarProps> = ({
               </SelectContent>
             </Select>
           </div>
-          <ModernButton 
-            variant="gradient" 
+          <ModernButton
+            variant="gradient"
             className="w-full"
-            onClick={onManualSchedule}
+            onClick={() => onManualSchedule()}
           >
             <Plus className="h-4 w-4 mr-2" />
             Agendar Manualmente
