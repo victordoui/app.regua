@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { useAuth } from '@/hooks/useAuth';
+import { useAuth } from '@/contexts/AuthContext';
 import { useNavigate } from 'react-router-dom';
 import Sidebar from './Sidebar';
 import Header from './Header';
@@ -9,11 +9,12 @@ interface LayoutProps {
 }
 
 const Layout: React.FC<LayoutProps> = ({ children }) => {
-  const { user, isLoading } = useAuth();
+  const { user, loading } = useAuth();
   const navigate = useNavigate();
   
   // Estado para o colapso da sidebar, persistido no localStorage
   const [isCollapsed, setIsCollapsed] = useState(() => {
+    // Padrão para false se for a primeira vez, ou se estiver em mobile
     const saved = localStorage.getItem('sidebarCollapsed');
     return saved === 'true';
   });
@@ -26,7 +27,7 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
     setIsCollapsed(prev => !prev);
   };
 
-  if (isLoading) {
+  if (loading) {
     return (
       <div className="flex items-center justify-center h-screen bg-gray-50 dark:bg-gray-900">
         <div className="text-lg">Carregando...</div>
@@ -35,6 +36,7 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
   }
 
   if (!user) {
+    // Se não estiver autenticado e não estiver carregando, redireciona para o login
     navigate('/login');
     return null;
   }
