@@ -9,6 +9,8 @@ import { Building, Settings, Palette, Link, Save, Image, Eye } from 'lucide-reac
 import { useCompanySettings, CompanySettingsFormData } from '@/hooks/useCompanySettings';
 import { toast } from 'sonner';
 import CompanyPagePreview from '@/components/CompanyPagePreview';
+import ImageUploadField from '@/components/ImageUploadField';
+import { uploadFileToStorage } from '@/lib/supabaseStorage';
 
 const CompanySettings = () => {
   const { settings, isLoading, saveSettings, isSaving } = useCompanySettings();
@@ -193,7 +195,7 @@ const CompanySettings = () => {
               </CardContent>
             </Card>
 
-            {/* Customização de Imagens */}
+            {/* Customização de Imagens - Substituído por ImageUploadField */}
             <Card>
               <CardHeader>
                 <CardTitle className="flex items-center gap-2">
@@ -201,44 +203,26 @@ const CompanySettings = () => {
                   Imagens da Página Pública
                 </CardTitle>
                 <CardDescription>
-                  URLs para a logo/perfil e o banner de fundo.
+                  Faça upload da logo e do banner para personalizar sua página de agendamento.
                 </CardDescription>
               </CardHeader>
               <CardContent className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div className="space-y-2">
-                  <Label htmlFor="logo_url" className="flex items-center gap-1">
-                    URL da Logo/Perfil
-                  </Label>
-                  <Input
-                    id="logo_url"
-                    value={formData.logo_url}
-                    onChange={(e) => setFormData(prev => ({ ...prev, logo_url: e.target.value }))}
-                    placeholder="https://link-da-sua-logo.png"
-                  />
-                  {formData.logo_url && (
-                    <div className="mt-2">
-                      <p className="text-xs text-muted-foreground mb-1">Preview:</p>
-                      <img src={formData.logo_url} alt="Preview Logo" className="h-16 w-16 object-cover rounded-full border-2 shadow-md" />
-                    </div>
-                  )}
-                </div>
-                <div className="space-y-2">
-                  <Label htmlFor="banner_url" className="flex items-center gap-1">
-                    URL do Banner (Capa)
-                  </Label>
-                  <Input
-                    id="banner_url"
-                    value={formData.banner_url}
-                    onChange={(e) => setFormData(prev => ({ ...prev, banner_url: e.target.value }))}
-                    placeholder="https://link-do-seu-banner.jpg"
-                  />
-                  {formData.banner_url && (
-                    <div className="mt-2">
-                      <p className="text-xs text-muted-foreground mb-1">Preview:</p>
-                      <img src={formData.banner_url} alt="Preview Banner" className="h-16 w-full object-cover rounded border shadow-md" />
-                    </div>
-                  )}
-                </div>
+                <ImageUploadField
+                  label="Logo / Imagem de Perfil"
+                  currentUrl={formData.logo_url}
+                  folder="logos"
+                  aspectRatio="square"
+                  onUploadSuccess={(url) => setFormData(prev => ({ ...prev, logo_url: url }))}
+                  uploadFile={uploadFileToStorage}
+                />
+                <ImageUploadField
+                  label="Banner / Imagem de Capa"
+                  currentUrl={formData.banner_url}
+                  folder="banners"
+                  aspectRatio="wide"
+                  onUploadSuccess={(url) => setFormData(prev => ({ ...prev, banner_url: url }))}
+                  uploadFile={uploadFileToStorage}
+                />
               </CardContent>
             </Card>
 
