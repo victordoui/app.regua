@@ -28,6 +28,9 @@ export interface CompanySettingsFormData {
   phone: string;
   email: string;
   is_public_page_enabled: boolean;
+  // Adicionando campos de imagem
+  logo_url: string;
+  banner_url: string;
 }
 
 export const useCompanySettings = () => {
@@ -81,6 +84,8 @@ export const useCompanySettings = () => {
         phone: formData.phone || null,
         email: formData.email || null,
         is_public_page_enabled: formData.is_public_page_enabled,
+        logo_url: formData.logo_url || null,
+        banner_url: formData.banner_url || null,
       };
 
       if (settings?.id) {
