@@ -1,6 +1,6 @@
 import React from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Scissors, MapPin, Phone, Mail } from 'lucide-react';
+import { Scissors, MapPin, Phone, Mail, Eye } from 'lucide-react';
 
 interface PreviewData {
   company_name: string;
