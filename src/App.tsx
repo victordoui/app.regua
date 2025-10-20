@@ -33,6 +33,7 @@ import Inventory from "./pages/Inventory";
 import Integrations from "./pages/Integrations";
 import Cash from "./pages/Cash";
 import SalesReports from "./pages/SalesReports";
+import PublicBookingPage from "./pages/PublicBookingPage"; // Importação da nova página pública
 
 
 const queryClient = new QueryClient();
@@ -42,6 +43,9 @@ function AppContent() {
     <BrowserRouter>
       <Routes>
         <Route path="/login" element={<Login />} />
+        
+        {/* Rota Pública de Agendamento */}
+        <Route path="/public-booking/:userId" element={<PublicBookingPage />} />
         
         {/* Dashboard / Visão Geral */}
         <Route path="/" element={<ProtectedRoute><Dashboard /></ProtectedRoute>} />
