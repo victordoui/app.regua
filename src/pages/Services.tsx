@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -8,20 +8,10 @@ import { Textarea } from "@/components/ui/textarea";
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Switch } from "@/components/ui/switch";
-import { useToast } from "@/hooks/use-toast";
-import { Scissors, Plus, Edit, Trash2, Clock, DollarSign, Search, Filter } from "lucide-react";
+import { useServices } from "@/hooks/useServices";
+import { Scissors, Plus, Edit, Trash2, Clock, DollarSign, Search, Filter, Power, PowerOff } from "lucide-react";
 import Layout from "@/components/Layout";
-
-interface Service {
-  id: string;
-  name: string;
-  description: string | null;
-  price: number;
-  duration_minutes: number;
-  active: boolean;
-  created_at: string;
-  updated_at: string;
-}
+import { Service } from "@/types/appointments";
 
 interface ServiceFormData {
   name: string;
@@ -32,8 +22,8 @@ interface ServiceFormData {
 }
 
 const Services = () => {
-  const [services, setServices] = useState<Service[]>([]);
-  const [loading, setLoading] = useState(true);
+  const { services, isLoading, addService, updateService, deleteService } = useServices();
+  
   const [searchQuery, setSearchQuery] = useState("");
   const [statusFilter, setStatusFilter] = useState("all");
   const [dialogOpen, setDialogOpen] = useState(false);
@@ -47,118 +37,47 @@ const Services = () => {
     active: true
   });
 
-  const { toast } = useToast();
-
   useEffect(() => {
-    fetchServices();
-  }, []);
-
-  const fetchServices = async () => {
-    try {
-      setLoading(true);
-      // Mock data
-      const mockServices: Service[] = [
-        {
-          id: '1',
-          name: 'Corte Masculino',
-          description: 'Corte tradicional masculino com acabamento perfeito',
-          price: 50,
-          duration_minutes: 30,
-          active: true,
-          created_at: '2024-01-01',
-          updated_at: '2024-01-01'
-        },
-        {
-          id: '2',
-          name: 'Corte + Barba',
-          description: 'Combo completo com corte moderno e barba alinhada',
-          price: 80,
-          duration_minutes: 50,
-          active: true,
-          created_at: '2024-01-01',
-          updated_at: '2024-01-01'
-        },
-        {
-          id: '3',
-          name: 'Barba',
-          description: 'Barba alinhada e finalizada',
-          price: 35,
-          duration_minutes: 20,
-          active: true,
-          created_at: '2024-01-01',
-          updated_at: '2024-01-01'
-        }
-      ];
-      setServices(mockServices);
-    } catch (error: any) {
-      toast({
-        title: "Erro ao carregar serviços",
-        description: error.message,
-        variant: "destructive",
+    if (editingService) {
+      setFormData({
+        name: editingService.name,
+        description: editingService.description || "",
+        price: editingService.price.toString(),
+        duration_minutes: editingService.duration_minutes.toString(),
+        active: editingService.active
       });
-    } finally {
-      setLoading(false);
+    } else {
+      setFormData({
+        name: "",
+        description: "",
+        price: "",
+        duration_minutes: "",
+        active: true
+      });
     }
-  };
+  }, [editingService, dialogOpen]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
     if (!formData.name || !formData.price || !formData.duration_minutes) {
-      toast({
-        title: "Erro de validação",
-        description: "Preencha todos os campos obrigatórios",
-        variant: "destructive",
-      });
+      // Validation handled by hook/toast internally, but good to have a quick check
       return;
     }
 
     setSubmitting(true);
 
     try {
-      const serviceData = {
-        name: formData.name,
-        description: formData.description || null,
-        price: parseFloat(formData.price),
-        duration_minutes: parseInt(formData.duration_minutes),
-        active: formData.active,
-      };
-
       if (editingService) {
-        setServices(prev => 
-          prev.map(service => 
-            service.id === editingService.id 
-              ? { ...service, ...serviceData, updated_at: new Date().toISOString() }
-              : service
-          )
-        );
-        toast({
-          title: "Serviço atualizado!",
-          description: "As alterações foram salvas com sucesso.",
-        });
+        await updateService({ id: editingService.id, formData });
       } else {
-        const newService: Service = {
-          id: Date.now().toString(),
-          ...serviceData,
-          created_at: new Date().toISOString(),
-          updated_at: new Date().toISOString()
-        };
-        setServices(prev => [newService, ...prev]);
-        toast({
-          title: "Serviço criado!",
-          description: "O novo serviço foi adicionado com sucesso.",
-        });
+        await addService(formData);
       }
 
-      resetForm();
       setDialogOpen(false);
-      fetchServices();
-    } catch (error: any) {
-      toast({
-        title: "Erro ao salvar serviço",
-        description: error.message,
-        variant: "destructive",
-      });
+      setEditingService(null);
+    } catch (error) {
+      // Error handled by hook
     } finally {
       setSubmitting(false);
     }
@@ -166,13 +85,6 @@ const Services = () => {
 
   const handleEdit = (service: Service) => {
     setEditingService(service);
-    setFormData({
-      name: service.name,
-      description: service.description || "",
-      price: service.price.toString(),
-      duration_minutes: service.duration_minutes.toString(),
-      active: service.active
-    });
     setDialogOpen(true);
   };
 
@@ -180,53 +92,18 @@ const Services = () => {
     if (!confirm(`Tem certeza que deseja excluir o serviço "${service.name}"?`)) {
       return;
     }
-
-    try {
-      setServices(prev => prev.filter(s => s.id !== service.id));
-      toast({
-        title: "Serviço excluído!",
-        description: "O serviço foi removido com sucesso.",
-      });
-
-      fetchServices();
-    } catch (error: any) {
-      toast({
-        title: "Erro ao excluir serviço",
-        description: error.message,
-        variant: "destructive",
-      });
-    }
+    await deleteService(service.id);
   };
 
   const toggleServiceStatus = async (service: Service) => {
-    try {
-      setServices(prev => 
-        prev.map(s => s.id === service.id ? { ...s, active: !s.active } : s)
-      );
-      toast({
-        title: service.active ? "Serviço desativado" : "Serviço ativado",
-        description: `O serviço "${service.name}" foi ${service.active ? 'desativado' : 'ativado'}.`,
-      });
-
-      fetchServices();
-    } catch (error: any) {
-      toast({
-        title: "Erro ao alterar status",
-        description: error.message,
-        variant: "destructive",
-      });
-    }
-  };
-
-  const resetForm = () => {
-    setEditingService(null);
-    setFormData({
-      name: "",
-      description: "",
-      price: "",
-      duration_minutes: "",
-      active: true
-    });
+    const serviceData: ServiceFormData = {
+      name: service.name,
+      description: service.description || "",
+      price: service.price.toString(),
+      duration_minutes: service.duration_minutes.toString(),
+      active: !service.active
+    };
+    await updateService({ id: service.id, formData: serviceData });
   };
 
   const filteredServices = services.filter(service => {
@@ -246,7 +123,7 @@ const Services = () => {
     }).format(value);
   };
 
-  if (loading) {
+  if (isLoading) {
     return (
       <Layout>
         <div className="flex items-center justify-center min-h-[400px]">
@@ -268,7 +145,7 @@ const Services = () => {
 
           <Dialog open={dialogOpen} onOpenChange={(open) => {
             setDialogOpen(open);
-            if (!open) resetForm();
+            if (!open) setEditingService(null);
           }}>
             <DialogTrigger asChild>
               <Button>
@@ -446,7 +323,7 @@ const Services = () => {
                     size="sm"
                     onClick={() => toggleServiceStatus(service)}
                   >
-                    {service.active ? "Desativar" : "Ativar"}
+                    {service.active ? <PowerOff className="h-3 w-3" /> : <Power className="h-3 w-3" />}
                   </Button>
                   <Button
                     variant="destructive"

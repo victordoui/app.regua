@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useCallback } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -21,97 +21,52 @@ import {
   Crown,
   Shield
 } from "lucide-react";
+import { useQuery } from "@tanstack/react-query";
+import { supabase } from "@/integrations/supabase/client";
+import { useAuth } from "@/contexts/AuthContext";
+import { useToast } from "@/hooks/use-toast";
 
 import Layout from "@/components/Layout";
 
-interface User {
+interface UserProfile {
   id: string;
-  name: string;
+  user_id: string;
+  display_name: string;
   email: string;
   role: string;
-  status: string;
-  avatar: string | null;
-  lastLogin: string;
-  createdAt: string;
+  active: boolean;
+  created_at: string;
+  last_login?: string; // Mocked for now
 }
 
 const Users = () => {
+  const { user: currentUser } = useAuth();
+  const { toast } = useToast();
   const [searchTerm, setSearchTerm] = useState("");
 
-  // Mock data de usuários
-  const users: User[] = [
-    {
-      id: "1",
-      name: "João Silva",
-      email: "joao@naregua.com",
-      role: "admin",
-      status: "active",
-      avatar: null,
-      lastLogin: "Há 2 horas",
-      createdAt: "15/01/2025"
-    },
-    {
-      id: "2",
-      name: "Maria Santos",
-      email: "maria@naregua.com", 
-      role: "barbeiro",
-      status: "active",
-      avatar: null,
-      lastLogin: "Há 1 dia",
-      createdAt: "10/01/2025"
-    },
-    {
-      id: "3",
-      name: "Pedro Oliveira",
-      email: "pedro@naregua.com",
-      role: "barbeiro", 
-      status: "inactive",
-      avatar: null,
-      lastLogin: "Há 1 semana",
-      createdAt: "05/01/2025"
-    },
-    {
-      id: "4",
-      name: "Ana Costa",
-      email: "ana@naregua.com",
-      role: "recepcionista",
-      status: "active", 
-      avatar: null,
-      lastLogin: "Há 3 horas",
-      createdAt: "20/12/2024"
-    }
-  ];
+  const fetchAllProfiles = useCallback(async (): Promise<UserProfile[]> => {
+    if (!currentUser) return [];
+    
+    // Fetch all profiles managed by the current user
+    const { data, error } = await supabase
+      .from("profiles")
+      .select("id, user_id, display_name, email, role, active, created_at");
 
-  const stats = [
-    {
-      title: "Total de Usuários",
-      value: users.length.toString(),
-      subtitle: "Cadastrados no sistema",
-      icon: UsersIcon,
-      color: "blue"
-    },
-    {
-      title: "Usuários Ativos",
-      value: users.filter(u => u.status === 'active').length.toString(),
-      subtitle: "Online nas últimas 24h",
-      icon: UserCheck,
-      color: "green"
-    },
-    {
-      title: "Administradores",
-      value: users.filter(u => u.role === 'admin').length.toString(), 
-      subtitle: "Com acesso total",
-      icon: Shield,
-      color: "orange"
-    },
-    {
-      title: "Barbeiros",
-      value: users.filter(u => u.role === 'barbeiro').length.toString(),
-      subtitle: "Profissionais ativos",
-      icon: Crown,
-      color: "purple"
-    }
-  ];
+    if (error) throw error;
+    
+    return (data || []).map(p => ({
+      ...p,
+      display_name: p.display_name || p.email || 'Usuário Desconhecido',
+      active: p.active ?? true, // Assuming active by default if not set
+      last_login: "N/A" // Mocked as we don't track last login in profiles table
+    })) as UserProfile[];
+  }, [currentUser]);
+
+  const { data: profiles = [], isLoading } = useQuery<UserProfile[], Error>({
+    queryKey: ["allProfiles", currentUser?.id],
+    queryFn: fetchAllProfiles,
+    enabled: !!currentUser,
+  });
 
   const getInitials = (name: string) => {
     return name
@@ -127,6 +82,7 @@ const Users = () => {
       case "admin": return "bg-red-100 text-red-800";
       case "barbeiro": return "bg-blue-100 text-blue-800";
       case "recepcionista": return "bg-green-100 text-green-800";
+      case "cliente": return "bg-gray-100 text-gray-800";
       default: return "bg-gray-100 text-gray-800";
     }
   };
@@ -136,18 +92,19 @@ const Users = () => {
       case "admin": return "Administrador";
       case "barbeiro": return "Barbeiro";
       case "recepcionista": return "Recepcionista";
+      case "cliente": return "Cliente";
       default: return role;
     }
   };
 
-  const getStatusColor = (status: string) => {
-    return status === "active" 
+  const getStatusColor = (active: boolean) => {
+    return active 
       ? "bg-green-100 text-green-800" 
       : "bg-red-100 text-red-800";
   };
 
-  const getStatusLabel = (status: string) => {
-    return status === "active" ? "Ativo" : "Inativo";
+  const getStatusLabel = (active: boolean) => {
+    return active ? "Ativo" : "Inativo";
   };
 
   const getStatColor = (color: string) => {
@@ -160,10 +117,51 @@ const Users = () => {
     }
   };
 
-  const filteredUsers = users.filter(user =>
-    user.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+  const filteredUsers = profiles.filter(user =>
+    user.display_name.toLowerCase().includes(searchTerm.toLowerCase()) ||
     user.email.toLowerCase().includes(searchTerm.toLowerCase())
   );
+
+  const stats = [
+    {
+      title: "Total de Perfis",
+      value: profiles.length.toString(),
+      subtitle: "Cadastrados no sistema",
+      icon: UsersIcon,
+      color: "blue"
+    },
+    {
+      title: "Barbeiros Ativos",
+      value: profiles.filter(u => u.role === 'barbeiro' && u.active).length.toString(),
+      subtitle: "Profissionais disponíveis",
+      icon: Scissors,
+      color: "green"
+    },
+    {
+      title: "Administradores",
+      value: profiles.filter(u => u.role === 'admin').length.toString(), 
+      subtitle: "Com acesso total",
+      icon: Shield,
+      color: "orange"
+    },
+    {
+      title: "Clientes",
+      value: profiles.filter(u => u.role === 'cliente').length.toString(),
+      subtitle: "Base de clientes",
+      icon: Crown,
+      color: "purple"
+    }
+  ];
+
+  if (isLoading) {
+    return (
+      <Layout>
+        <div className="flex items-center justify-center min-h-[400px]">
+          <div className="text-muted-foreground">Carregando usuários...</div>
+        </div>
+      </Layout>
+    );
+  }
 
   return (
     <Layout>
@@ -240,25 +238,25 @@ const Users = () => {
                   <div className="flex items-center gap-4">
                     <div className="w-12 h-12 bg-gray-200 rounded-full flex items-center justify-center">
                       <span className="text-gray-500 font-medium">
-                        {getInitials(user.name)}
+                        {getInitials(user.display_name)}
                       </span>
                     </div>
                     
                     <div className="space-y-1">
                       <div className="flex items-center gap-2">
-                        <span className="font-medium">{user.name}</span>
+                        <span className="font-medium">{user.display_name}</span>
                         <Badge className={getRoleColor(user.role)}>
                           {getRoleLabel(user.role)}
                         </Badge>
-                        <Badge className={getStatusColor(user.status)}>
-                          {getStatusLabel(user.status)}
+                        <Badge className={getStatusColor(user.active)}>
+                          {getStatusLabel(user.active)}
                         </Badge>
                       </div>
                       <div className="text-sm text-muted-foreground">
                         {user.email}
                       </div>
                       <div className="text-xs text-muted-foreground">
-                        Último acesso: {user.lastLogin} • Criado em: {user.createdAt}
+                        Criado em: {new Date(user.created_at).toLocaleDateString('pt-BR')}
                       </div>
                     </div>
                   </div>
@@ -275,7 +273,7 @@ const Users = () => {
                         Editar
                       </DropdownMenuItem>
                       <DropdownMenuItem>
-                        {user.status === "active" ? (
+                        {user.active ? (
                           <>
                             <UserX className="mr-2 h-4 w-4" />
                             Desativar

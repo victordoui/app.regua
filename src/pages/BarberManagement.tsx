@@ -2,164 +2,103 @@ import { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { Progress } from '@/components/ui/progress';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '@/components/ui/dialog';
 import { Label } from '@/components/ui/label';
-import { Textarea } from '@/components/ui/textarea';
 import { Input } from '@/components/ui/input';
 import { Switch } from '@/components/ui/switch';
-import { useToast } from '@/hooks/use-toast';
 import Layout from '@/components/Layout';
-import { Plus } from 'lucide-react';
+import { Plus, Power, PowerOff } from 'lucide-react';
+import { useBarbers } from '@/hooks/useBarbers';
+import { Barber } from '@/types/appointments';
 
-interface Barber {
-  id: string;
-  user_id: string;
+interface BarberFormData {
   full_name: string;
   email: string;
-  phone?: string;
-  role?: string;
+  phone: string;
+  specializations: string; // comma separated string
   active: boolean;
-  specializations?: string[];
 }
 
 const BarberManagement = () => {
-  const [barbers, setBarbers] = useState<Barber[]>([]);
-  const [loading, setLoading] = useState(true);
+  const { barbers, isLoading, addBarber, updateBarber, toggleBarberStatus } = useBarbers();
+  
   const [dialogOpen, setDialogOpen] = useState(false);
   const [editingBarber, setEditingBarber] = useState<Barber | null>(null);
-  const { toast } = useToast();
+  const [submitting, setSubmitting] = useState(false);
 
-  const [formData, setFormData] = useState({
+  const [formData, setFormData] = useState<BarberFormData>({
     full_name: "",
     email: "",
     phone: "",
-    role: "barbeiro",
+    specializations: "",
     active: true,
-    specializations: ""
   });
 
   useEffect(() => {
-    fetchBarbers();
-  }, []);
-
-  const fetchBarbers = async () => {
-    try {
-      setLoading(true);
-      // Mock data for now
-      setBarbers([
-        {
-          id: '1',
-          user_id: '1',
-          full_name: 'Carlos Silva',
-          email: 'carlos@email.com',
-          phone: '(11) 99999-9999',
-          role: 'barbeiro',
-          active: true,
-          specializations: ['Corte Masculino', 'Barba']
-        },
-        {
-          id: '2',
-          user_id: '2',
-          full_name: 'João Santos',
-          email: 'joao@email.com',
-          phone: '(11) 88888-8888',
-          role: 'barbeiro',
-          active: true,
-          specializations: ['Corte Feminino', 'Coloração']
-        }
-      ]);
-    } catch (error: any) {
-      toast({
-        title: "Erro ao carregar barbeiros",
-        description: error.message,
-        variant: "destructive",
+    if (editingBarber) {
+      setFormData({
+        full_name: editingBarber.full_name,
+        email: editingBarber.email || "",
+        phone: editingBarber.phone || "",
+        specializations: editingBarber.specialties?.join(', ') || "",
+        active: editingBarber.active || true,
       });
-    } finally {
-      setLoading(false);
+    } else {
+      setFormData({
+        full_name: "",
+        email: "",
+        phone: "",
+        specializations: "",
+        active: true,
+      });
     }
-  };
+  }, [editingBarber, dialogOpen]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     
     if (!formData.full_name || !formData.email) {
-      toast({
-        title: "Erro de validação",
-        description: "Preencha os campos obrigatórios",
-        variant: "destructive",
-      });
+      // Validation handled by hook/toast internally
       return;
     }
 
+    setSubmitting(true);
+
     try {
       if (editingBarber) {
-        // Update existing barber
-        setBarbers(prev => 
-          prev.map(b => b.id === editingBarber.id 
-            ? { ...b, ...formData, specializations: formData.specializations.split(',').map(s => s.trim()) }
-            : b
-          )
-        );
-        toast({
-          title: "Barbeiro atualizado!",
-          description: "Os dados foram atualizados com sucesso.",
-        });
+        await updateBarber({ id: editingBarber.id, formData });
       } else {
-        // Create new barber
-        const newBarber: Barber = {
-          id: Date.now().toString(),
-          user_id: Date.now().toString(),
-          full_name: formData.full_name,
-          email: formData.email,
-          phone: formData.phone,
-          role: formData.role,
-          active: formData.active,
-          specializations: formData.specializations.split(',').map(s => s.trim())
-        };
-        setBarbers(prev => [...prev, newBarber]);
-        toast({
-          title: "Barbeiro cadastrado!",
-          description: "O barbeiro foi adicionado com sucesso.",
-        });
+        await addBarber(formData);
       }
 
-      resetForm();
       setDialogOpen(false);
-    } catch (error: any) {
-      toast({
-        title: "Erro ao salvar barbeiro",
-        description: error.message,
-        variant: "destructive",
-      });
+      setEditingBarber(null);
+    } catch (error) {
+      // Error handled by hook
+    } finally {
+      setSubmitting(false);
     }
   };
 
   const handleEdit = (barber: Barber) => {
     setEditingBarber(barber);
-    setFormData({
-      full_name: barber.full_name,
-      email: barber.email,
-      phone: barber.phone || "",
-      role: barber.role || "barbeiro",
-      active: barber.active,
-      specializations: barber.specializations?.join(', ') || ""
-    });
     setDialogOpen(true);
   };
 
-  const resetForm = () => {
-    setEditingBarber(null);
-    setFormData({
-      full_name: "",
-      email: "",
-      phone: "",
-      role: "barbeiro",
-      active: true,
-      specializations: ""
-    });
+  const handleToggleStatus = async (barber: Barber) => {
+    await toggleBarberStatus({ id: barber.id, currentStatus: barber.active || false });
   };
+
+  if (isLoading) {
+    return (
+      <Layout>
+        <div className="flex items-center justify-center min-h-[400px]">
+          <div className="text-muted-foreground">Carregando barbeiros...</div>
+        </div>
+      </Layout>
+    );
+  }
 
   return (
     <Layout>
@@ -199,7 +138,7 @@ const BarberManagement = () => {
                   <div className="text-sm">
                     <span className="font-medium">Especializações:</span>
                     <div className="flex flex-wrap gap-1 mt-1">
-                      {barber.specializations?.map((spec, index) => (
+                      {barber.specialties?.map((spec, index) => (
                         <Badge key={index} variant="outline" className="text-xs">
                           {spec}
                         </Badge>
@@ -212,15 +151,11 @@ const BarberManagement = () => {
                     Editar
                   </Button>
                   <Button 
-                    variant="outline" 
+                    variant={barber.active ? "secondary" : "default"}
                     size="sm"
-                    onClick={() => {
-                      setBarbers(prev => 
-                        prev.map(b => b.id === barber.id ? { ...b, active: !b.active } : b)
-                      );
-                    }}
+                    onClick={() => handleToggleStatus(barber)}
                   >
-                    {barber.active ? "Desativar" : "Ativar"}
+                    {barber.active ? <PowerOff className="h-4 w-4" /> : <Power className="h-4 w-4" />}
                   </Button>
                 </div>
               </CardContent>
@@ -228,7 +163,10 @@ const BarberManagement = () => {
           ))}
         </div>
 
-        <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
+        <Dialog open={dialogOpen} onOpenChange={(open) => {
+          setDialogOpen(open);
+          if (!open) setEditingBarber(null);
+        }}>
           <DialogContent className="sm:max-w-md">
             <DialogHeader>
               <DialogTitle>
@@ -283,14 +221,14 @@ const BarberManagement = () => {
                 />
                 <Label htmlFor="active">Barbeiro ativo</Label>
               </div>
-              <div className="flex gap-2">
-                <Button type="submit">
-                  {editingBarber ? "Atualizar" : "Cadastrar"}
-                </Button>
+              <DialogFooter>
                 <Button type="button" variant="outline" onClick={() => setDialogOpen(false)}>
                   Cancelar
                 </Button>
-              </div>
+                <Button type="submit" disabled={submitting}>
+                  {submitting ? "Salvando..." : (editingBarber ? "Atualizar" : "Cadastrar")}
+                </Button>
+              </DialogFooter>
             </form>
           </DialogContent>
         </Dialog>

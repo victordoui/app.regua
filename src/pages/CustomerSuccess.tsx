@@ -16,8 +16,9 @@ import {
   DialogTitle,
   DialogTrigger
 } from '@/components/ui/dialog';
-import { Star, TrendingUp, Users, MessageSquare, Award, Target, BarChart3, Send, Filter, Search } from 'lucide-react';
+import { Star, TrendingUp, Users, MessageSquare, Target, Send, Filter, Search } from 'lucide-react';
 import { toast } from 'sonner';
+import { useClients } from '@/hooks/useClients'; // Importando hook real de clientes
 
 interface Client {
   id: string;
@@ -50,39 +51,7 @@ interface SatisfactionMetrics {
   retention_rate: number;
 }
 
-// Dados mockados carregados instantaneamente
-const mockClients: Client[] = [
-  {
-    id: '1',
-    name: 'João Silva',
-    email: 'joao@email.com',
-    phone: '(11) 99999-9999',
-    created_at: '2024-01-15',
-    last_visit: '2024-12-20',
-    total_visits: 15,
-    subscription_type: 'premium'
-  },
-  {
-    id: '2',
-    name: 'Maria Santos',
-    email: 'maria@email.com',
-    phone: '(11) 88888-8888',
-    created_at: '2024-02-10',
-    last_visit: '2024-12-18',
-    total_visits: 8,
-    subscription_type: 'basic'
-  },
-  {
-    id: '3',
-    name: 'Pedro Costa',
-    email: 'pedro@email.com',
-    phone: '(11) 77777-7777',
-    created_at: '2024-03-05',
-    last_visit: '2024-12-15',
-    total_visits: 12
-  }
-];
-
+// Dados mockados para Feedbacks e Métricas (mantidos por enquanto)
 const mockFeedbacks: Feedback[] = [
   {
     id: '1',
@@ -129,10 +98,19 @@ const initialMetrics: SatisfactionMetrics = {
 
 
 function CustomerSuccess() {
-  const [clients, setClients] = useState<Client[]>(mockClients);
+  const { clients: realClients, isLoading: isLoadingClients } = useClients();
+  
+  // Mapeia clientes reais para o tipo Client local, adicionando dados mockados de visita/assinatura
+  const clients: Client[] = realClients.map(c => ({
+    ...c,
+    name: c.name || c.email || 'Cliente',
+    last_visit: '2024-12-20', // Mocked
+    total_visits: 15, // Mocked
+    subscription_type: c.id === '1' ? 'premium' : undefined, // Mocked
+  }));
+
   const [feedbacks, setFeedbacks] = useState<Feedback[]>(mockFeedbacks);
   const [metrics, setMetrics] = useState<SatisfactionMetrics>(initialMetrics);
-  const [selectedClient, setSelectedClient] = useState<Client | null>(null);
   const [feedbackFilter, setFeedbackFilter] = useState('all');
   const [searchTerm, setSearchTerm] = useState('');
   const [newFeedback, setNewFeedback] = useState({
@@ -143,43 +121,6 @@ function CustomerSuccess() {
     barber_name: ''
   });
   const [isDialogOpen, setIsDialogOpen] = useState(false);
-  // Removendo o estado de loading para carregamento instantâneo
-  // const [loading, setLoading] = useState(true); 
-
-  // Removendo useEffect e funções de carregamento simulado
-  /*
-  useEffect(() => {
-    loadData();
-  }, []);
-
-  const loadData = async () => {
-    try {
-      setLoading(true);
-      await Promise.all([
-        loadClients(),
-        loadFeedbacks(),
-        calculateMetrics()
-      ]);
-    } catch (error) {
-      console.error('Erro ao carregar dados:', error);
-      toast.error('Erro ao carregar dados do sistema');
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const loadClients = async () => {
-    setClients(mockClients);
-  };
-
-  const loadFeedbacks = async () => {
-    setFeedbacks(mockFeedbacks);
-  };
-
-  const calculateMetrics = async () => {
-    setMetrics(initialMetrics);
-  };
-  */
 
   const handleSubmitFeedback = async () => {
     try {
@@ -188,11 +129,13 @@ function CustomerSuccess() {
         return;
       }
 
+      const clientName = clients.find(c => c.id === newFeedback.client_id)?.name || 'Cliente Desconhecido';
+
       // Em produção, salvaria no Supabase
       const feedback: Feedback = {
         id: Date.now().toString(),
         client_id: newFeedback.client_id,
-        client_name: clients.find(c => c.id === newFeedback.client_id)?.name || '',
+        client_name: clientName,
         rating: newFeedback.rating,
         comment: newFeedback.comment,
         service_type: newFeedback.service_type,
@@ -263,18 +206,15 @@ function CustomerSuccess() {
     ));
   };
 
-  // Removendo o bloco de loading
-  /*
-  if (loading) {
+  if (isLoadingClients) {
     return (
       <Layout>
         <div className="flex items-center justify-center h-64">
-          <div className="text-lg">Carregando...</div>
+          <div className="text-lg">Carregando dados de clientes...</div>
         </div>
       </Layout>
     );
   }
-  */
 
   return (
     <Layout>
@@ -610,7 +550,7 @@ function CustomerSuccess() {
                           <p className="text-sm text-muted-foreground">{client.email}</p>
                           <div className="flex items-center gap-4 text-sm text-muted-foreground">
                             <span>Cliente desde: {client.created_at}</span>
-                            <span>Última visita: {client.last_visit}</span>
+                            <span>Última visita: {client.last_visit || 'N/A'}</span>
                             <span>Total de visitas: {client.total_visits}</span>
                           </div>
                         </div>

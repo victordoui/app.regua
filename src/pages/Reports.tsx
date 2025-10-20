@@ -1,7 +1,6 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Badge } from '@/components/ui/badge';
 import { Progress } from '@/components/ui/progress';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import {
@@ -11,76 +10,163 @@ import {
   Calendar,
   DollarSign,
   Users,
-  Activity
 } from 'lucide-react';
 import Layout from '@/components/Layout';
+import { useQuery } from '@tanstack/react-query';
+import { supabase } from '@/integrations/supabase/client';
+import { useAuth } from '@/contexts/AuthContext';
+import { useToast } from '@/hooks/use-toast';
+
+interface ReportData {
+  monthlyRevenue: number;
+  totalAppointments: number;
+  completedAppointments: number;
+  newClients: number;
+  clientRetention: number;
+  topServices: { name: string; count: number }[];
+}
 
 const Reports = () => {
-  const [loading, setLoading] = useState(true);
-  const [reportData, setReportData] = useState({
-    monthlyRevenue: 0,
-    totalAppointments: 0,
-    newClients: 0,
-    topServices: [],
-    clientRetention: 0
+  const { user } = useAuth();
+  const { toast } = useToast();
+
+  const fetchReportData = async (): Promise<ReportData> => {
+    if (!user) return {
+      monthlyRevenue: 0,
+      totalAppointments: 0,
+      completedAppointments: 0,
+      newClients: 0,
+      clientRetention: 0,
+      topServices: []
+    };
+
+    // 1. Fetch Appointments and Services for the current month
+    const startOfMonth = new Date(new Date().getFullYear(), new Date().getMonth(), 1).toISOString();
+    const endOfMonth = new Date(new Date().getFullYear(), new Date().getMonth() + 1, 0).toISOString();
+
+    const { data: appointmentsData, error: aptError } = await supabase
+      .from("appointments")
+      .select(`
+        id, 
+        status, 
+        total_price, 
+        created_at,
+        services (name)
+      `)
+      .eq("user_id", user.id)
+      .gte("created_at", startOfMonth)
+      .lte("created_at", endOfMonth);
+
+    if (aptError) throw aptError;
+
+    const completedAppointments = (appointmentsData || []).filter(a => a.status === 'completed');
+    const totalAppointments = (appointmentsData || []).length;
+    const monthlyRevenue = completedAppointments.reduce((sum, a) => sum + (a.total_price || 0), 0);
+
+    // Calculate Top Services
+    const serviceCounts: { [key: string]: number } = {};
+    completedAppointments.forEach((apt: any) => {
+      const serviceName = apt.services?.name || 'Serviço Desconhecido';
+      serviceCounts[serviceName] = (serviceCounts[serviceName] || 0) + 1;
+    });
+    const topServices = Object.entries(serviceCounts)
+      .map(([name, count]) => ({ name, count }))
+      .sort((a, b) => b.count - a.count)
+      .slice(0, 5);
+
+    // 2. Fetch Clients (Profiles) created this month
+    const { data: clientsData, error: clientsError } = await supabase
+      .from("profiles")
+      .select("id, created_at")
+      .eq("user_id", user.id)
+      .gte("created_at", startOfMonth)
+      .lte("created_at", endOfMonth);
+
+    if (clientsError) throw clientsError;
+    const newClients = (clientsData || []).length;
+
+    // Placeholder for retention (requires more complex logic/data)
+    const clientRetention = 85; 
+
+    return {
+      monthlyRevenue,
+      totalAppointments,
+      completedAppointments: completedAppointments.length,
+      newClients,
+      clientRetention,
+      topServices,
+    };
+  };
+
+  const { data: reportData, isLoading } = useQuery<ReportData, Error>({
+    queryKey: ["reports", user?.id],
+    queryFn: fetchReportData,
+    enabled: !!user,
+    initialData: {
+      monthlyRevenue: 0,
+      totalAppointments: 0,
+      completedAppointments: 0,
+      newClients: 0,
+      clientRetention: 0,
+      topServices: []
+    }
   });
 
   useEffect(() => {
-    const fetchReportData = async () => {
-      try {
-        setLoading(true);
-        // Mock data for now
-        setReportData({
-          monthlyRevenue: 15000,
-          totalAppointments: 245,
-          newClients: 32,
-          topServices: [
-            { name: 'Corte + Barba', count: 89 },
-            { name: 'Corte Simples', count: 76 },
-            { name: 'Barba', count: 45 }
-          ],
-          clientRetention: 87
-        });
-      } catch (error) {
-        console.error('Error fetching report data:', error);
-      } finally {
-        setLoading(false);
-      }
-    };
+    if (isLoading && !user) {
+      // Do nothing if loading and user is null (unauthenticated)
+    } else if (reportData && !isLoading) {
+      // Data loaded successfully
+    } else if (reportData === undefined) {
+      toast({
+        title: "Erro de dados",
+        description: "Não foi possível carregar os dados do relatório.",
+        variant: "destructive",
+      });
+    }
+  }, [reportData, isLoading, user, toast]);
 
-    fetchReportData();
-  }, []);
 
   const stats = [
     {
       title: "Receita Mensal",
-      value: `R$ ${reportData.monthlyRevenue.toLocaleString('pt-BR')}`,
-      change: "+12% vs mês anterior",
+      value: `R$ ${reportData.monthlyRevenue.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}`,
+      change: "Dados em tempo real",
       icon: DollarSign,
       color: "green"
     },
     {
       title: "Total de Agendamentos",
       value: reportData.totalAppointments.toString(),
-      change: "+8% vs mês anterior",
+      change: `${reportData.completedAppointments} concluídos`,
       icon: Calendar,
       color: "blue"
     },
     {
       title: "Novos Clientes",
       value: reportData.newClients.toString(),
-      change: "+15% vs mês anterior",
+      change: "Este mês",
       icon: Users,
       color: "purple"
     },
     {
       title: "Taxa de Retenção",
       value: `${reportData.clientRetention}%`,
-      change: "+3% vs mês anterior",
+      change: "Estimativa",
       icon: TrendingUp,
       color: "orange"
     }
   ];
+
+  if (isLoading) {
+    return (
+      <Layout>
+        <div className="flex items-center justify-center min-h-[400px]">
+          <div className="text-muted-foreground">Carregando relatórios...</div>
+        </div>
+      </Layout>
+    );
+  }
 
   return (
     <Layout>
@@ -126,19 +212,23 @@ const Reports = () => {
           <TabsContent value="overview" className="space-y-4">
             <Card>
               <CardHeader>
-                <CardTitle>Serviços Mais Populares</CardTitle>
+                <CardTitle>Serviços Mais Populares (Mês Atual)</CardTitle>
               </CardHeader>
               <CardContent>
                 <div className="space-y-4">
-                  {reportData.topServices.map((service, index) => (
-                    <div key={index} className="flex items-center justify-between">
-                      <span className="font-medium">{service.name}</span>
-                      <div className="flex items-center gap-2">
-                        <span className="text-sm text-muted-foreground">{service.count} agendamentos</span>
-                        <Progress value={(service.count / reportData.totalAppointments) * 100} className="w-20" />
+                  {reportData.topServices.length === 0 ? (
+                    <p className="text-muted-foreground">Nenhum serviço concluído este mês.</p>
+                  ) : (
+                    reportData.topServices.map((service, index) => (
+                      <div key={index} className="flex items-center justify-between">
+                        <span className="font-medium">{service.name}</span>
+                        <div className="flex items-center gap-2">
+                          <span className="text-sm text-muted-foreground">{service.count} agendamentos</span>
+                          <Progress value={(service.count / reportData.completedAppointments) * 100} className="w-20" />
+                        </div>
                       </div>
-                    </div>
-                  ))}
+                    ))
+                  )}
                 </div>
               </CardContent>
             </Card>

@@ -16,27 +16,26 @@ import {
   Trash2,
   Calendar
 } from "lucide-react";
-import { useToast } from "@/hooks/use-toast";
+import { useClients } from "@/hooks/useClients";
 import Layout from "@/components/Layout";
+import { Client } from "@/types/appointments";
 
-interface Client {
-  id: string;
+interface ClientFormData {
   name: string;
   phone: string;
-  email?: string;
-  notes?: string;
-  created_at: string;
+  email: string;
+  notes: string;
 }
 
 const Clients = () => {
-  const [clients, setClients] = useState<Client[]>([]);
-  const [loading, setLoading] = useState(true);
+  const { clients, isLoading, addClient, updateClient, deleteClient } = useClients();
+  
   const [searchTerm, setSearchTerm] = useState("");
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [editingClient, setEditingClient] = useState<Client | null>(null);
-  const { toast } = useToast();
+  const [submitting, setSubmitting] = useState(false);
 
-  const [formData, setFormData] = useState({
+  const [formData, setFormData] = useState<ClientFormData>({
     name: "",
     phone: "",
     email: "",
@@ -44,119 +43,52 @@ const Clients = () => {
   });
 
   useEffect(() => {
-    fetchClients();
-  }, []);
-
-  const fetchClients = async () => {
-    try {
-      setLoading(true);
-      // Mock data
-      const mockClients: Client[] = [
-        {
-          id: '1',
-          name: 'João Silva',
-          phone: '(11) 99999-9999',
-          email: 'joao@email.com',
-          notes: 'Cliente preferencial',
-          created_at: '2024-01-15'
-        },
-        {
-          id: '2',
-          name: 'Maria Santos',
-          phone: '(11) 88888-8888',
-          email: 'maria@email.com',
-          created_at: '2024-01-10'
-        },
-        {
-          id: '3',
-          name: 'Pedro Oliveira',
-          phone: '(11) 77777-7777',
-          email: 'pedro@email.com',
-          notes: 'Alergia a produtos químicos',
-          created_at: '2024-01-05'
-        }
-      ];
-      setClients(mockClients);
-    } catch (error) {
-      toast({
-        title: "Erro ao carregar clientes",
-        description: "Não foi possível carregar a lista de clientes",
-        variant: "destructive",
+    if (editingClient) {
+      setFormData({
+        name: editingClient.name,
+        phone: editingClient.phone,
+        email: editingClient.email || "",
+        notes: editingClient.notes || ""
       });
-    } finally {
-      setLoading(false);
+    } else {
+      setFormData({ name: "", phone: "", email: "", notes: "" });
     }
-  };
+  }, [editingClient, isDialogOpen]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    setSubmitting(true);
     
+    if (!formData.name || !formData.phone) {
+      // Validation handled by hook/toast internally, but good to have a quick check
+      setSubmitting(false);
+      return;
+    }
+
     try {
       if (editingClient) {
-        setClients(prev => 
-          prev.map(client => 
-            client.id === editingClient.id 
-              ? { ...client, ...formData, updated_at: new Date().toISOString() }
-              : client
-          )
-        );
-        toast({
-          title: "Cliente atualizado!",
-          description: "Os dados do cliente foram atualizados com sucesso.",
-        });
+        await updateClient({ id: editingClient.id, formData });
       } else {
-        const newClient: Client = {
-          id: Date.now().toString(),
-          ...formData,
-          created_at: new Date().toISOString()
-        };
-        setClients(prev => [newClient, ...prev]);
-        toast({
-          title: "Cliente cadastrado!",
-          description: "O cliente foi adicionado com sucesso.",
-        });
+        await addClient(formData);
       }
 
       setIsDialogOpen(false);
       setEditingClient(null);
-      setFormData({ name: "", phone: "", email: "", notes: "" });
-      fetchClients();
     } catch (error) {
-      toast({
-        title: "Erro",
-        description: "Não foi possível salvar o cliente. Tente novamente.",
-        variant: "destructive",
-      });
+      // Error handled by hook
+    } finally {
+      setSubmitting(false);
     }
   };
 
   const handleEdit = (client: Client) => {
     setEditingClient(client);
-    setFormData({
-      name: client.name,
-      phone: client.phone,
-      email: client.email || "",
-      notes: client.notes || ""
-    });
     setIsDialogOpen(true);
   };
 
   const handleDelete = async (clientId: string) => {
     if (!confirm("Tem certeza que deseja excluir este cliente?")) return;
-
-    try {
-      setClients(prev => prev.filter(client => client.id !== clientId));
-      toast({
-        title: "Cliente excluído!",
-        description: "O cliente foi removido com sucesso.",
-      });
-    } catch (error) {
-      toast({
-        title: "Erro",
-        description: "Não foi possível excluir o cliente. Tente novamente.",
-        variant: "destructive",
-      });
-    }
+    await deleteClient(clientId);
   };
 
   const filteredClients = clients.filter(client =>
@@ -185,7 +117,6 @@ const Clients = () => {
             <DialogTrigger asChild>
               <Button onClick={() => {
                 setEditingClient(null);
-                setFormData({ name: "", phone: "", email: "", notes: "" });
               }}>
                 <Plus className="h-4 w-4 mr-2" />
                 Novo Cliente
@@ -239,8 +170,8 @@ const Clients = () => {
                   />
                 </div>
                 <div className="flex gap-2">
-                  <Button type="submit" className="flex-1">
-                    {editingClient ? "Atualizar" : "Cadastrar"}
+                  <Button type="submit" className="flex-1" disabled={submitting}>
+                    {submitting ? "Salvando..." : (editingClient ? "Atualizar" : "Cadastrar")}
                   </Button>
                   <Button type="button" variant="outline" onClick={() => setIsDialogOpen(false)}>
                     Cancelar
@@ -280,14 +211,9 @@ const Clients = () => {
               <div className="flex items-center gap-2">
                 <Calendar className="h-5 w-5 text-primary" />
                 <div>
-                  <p className="text-sm text-muted-foreground">Novos este mês</p>
+                  <p className="text-sm text-muted-foreground">Com E-mail</p>
                   <p className="text-2xl font-bold">
-                    {clients.filter(client => {
-                      const clientDate = new Date(client.created_at);
-                      const now = new Date();
-                      return clientDate.getMonth() === now.getMonth() && 
-                             clientDate.getFullYear() === now.getFullYear();
-                    }).length}
+                    {clients.filter(client => client.email).length}
                   </p>
                 </div>
               </div>
@@ -298,9 +224,9 @@ const Clients = () => {
               <div className="flex items-center gap-2">
                 <Mail className="h-5 w-5 text-primary" />
                 <div>
-                  <p className="text-sm text-muted-foreground">Com E-mail</p>
+                  <p className="text-sm text-muted-foreground">Com Telefone</p>
                   <p className="text-2xl font-bold">
-                    {clients.filter(client => client.email).length}
+                    {clients.filter(client => client.phone).length}
                   </p>
                 </div>
               </div>
@@ -310,7 +236,7 @@ const Clients = () => {
 
         {/* Clients List */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-          {loading ? (
+          {isLoading ? (
             <p className="text-muted-foreground">Carregando...</p>
           ) : filteredClients.length === 0 ? (
             <p className="text-muted-foreground">Nenhum cliente encontrado.</p>
