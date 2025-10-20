@@ -23,6 +23,7 @@ import {
 } from "lucide-react";
 import { useAuth } from '@/contexts/AuthContext';
 import { useToast } from '@/hooks/use-toast';
+import { ThemeToggle } from '@/components/ui/theme-toggle'; // Importando ThemeToggle
 
 interface LayoutProps {
   children?: React.ReactNode;
@@ -89,6 +90,8 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
           </div>
 
           <div className="flex items-center gap-4">
+            <ThemeToggle /> {/* Adicionando o botão de alternância de tema */}
+            
             <Button variant="ghost" size="sm">
               <Bell className="h-4 w-4" />
             </Button>
