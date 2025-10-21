@@ -41,12 +41,15 @@ import {
   X,
   LogOut,
   ChevronDown,
-  ChevronRight
+  ChevronRight,
+  ChevronsLeft, // Novo ícone para colapsar
+  ChevronsRight // Novo ícone para expandir
 } from "lucide-react";
 
 const Sidebar = () => {
   const [isOpen, setIsOpen] = useState(false);
   const [isMobile, setIsMobile] = useState(false);
+  const [isCollapsed, setIsCollapsed] = useState(false); // Novo estado para colapso
   const [expandedCategories, setExpandedCategories] = useState<string[]>([]);
   const navigate = useNavigate();
   const location = useLocation();
@@ -167,11 +170,22 @@ const Sidebar = () => {
   };
 
   const toggleCategory = (category: string) => {
-    setExpandedCategories(prev => 
-      prev.includes(category) 
-        ? prev.filter(c => c !== category)
-        : [...prev, category]
-    );
+    if (isCollapsed) {
+      // Se estiver colapsado, expande a sidebar temporariamente para mostrar o menu
+      setIsCollapsed(false);
+      // E expande a categoria
+      setExpandedCategories(prev => 
+        prev.includes(category) 
+          ? prev.filter(c => c !== category)
+          : [...prev, category]
+      );
+    } else {
+      setExpandedCategories(prev => 
+        prev.includes(category) 
+          ? prev.filter(c => c !== category)
+          : [...prev, category]
+      );
+    }
   };
 
   const isActivePath = (path: string) => location.pathname === path;
@@ -180,29 +194,28 @@ const Sidebar = () => {
     const isActive = isActivePath(item.path);
     const isExpanded = expandedCategories.includes(parentCategory);
 
-    if (isSubItem && parentCategory && !isExpanded) {
+    if (isSubItem && parentCategory && !isExpanded && !isCollapsed) {
       return null;
     }
 
     return (
       <div
         key={item.path}
-        // Removendo motion.div
       >
         <Button
           variant={isActive ? "secondary" : "ghost"}
-          className={`w-full justify-start h-10 transition-all duration-200 ${ // Reduzido h-11 para h-10
-            isSubItem ? `ml-4 pl-8 text-sm ${isActive ? 'bg-primary/10 text-primary' : 'text-muted-foreground hover:text-foreground'}` : '' // Reduzido ml-6 para ml-4
+          className={`w-full justify-start h-10 transition-all duration-200 ${
+            isSubItem ? `ml-4 pl-8 text-sm ${isActive ? 'bg-primary/10 text-primary' : 'text-muted-foreground hover:text-foreground'}` : ''
           } ${
             isActive 
               ? 'bg-secondary text-secondary-foreground shadow-sm' 
               : 'text-muted-foreground hover:text-foreground hover:bg-accent/50'
-          }`}
+          } ${isCollapsed ? 'justify-center ml-0 pl-3 pr-3' : ''}`}
           onClick={() => handleNavigation(item.path)}
         >
-          <item.icon className="h-4 w-4 mr-3 flex-shrink-0" />
-          <span className="truncate">{item.label}</span>
-          {item.path === "/appointments" && (
+          <item.icon className={`h-4 w-4 flex-shrink-0 ${!isCollapsed ? 'mr-3' : 'mr-0'}`} />
+          <span className={`truncate ${isCollapsed ? 'hidden' : 'block'}`}>{item.label}</span>
+          {item.path === "/appointments" && !isCollapsed && (
             <Badge variant="secondary" className="ml-auto text-xs flex-shrink-0">
               12
             </Badge>
@@ -220,25 +233,27 @@ const Sidebar = () => {
       <div key={category.category} className="space-y-1">
         <Button
           variant="ghost"
-          className={`w-full justify-start h-10 transition-all duration-200 font-medium ${ // Reduzido h-11 para h-10
+          className={`w-full justify-start h-10 transition-all duration-200 font-medium ${
             hasActiveItem 
               ? 'text-primary bg-primary/5' 
               : 'text-muted-foreground hover:text-foreground hover:bg-accent/50'
-          }`}
+          } ${isCollapsed ? 'justify-center' : ''}`}
           onClick={() => toggleCategory(category.category)}
         >
-          <category.icon className="h-4 w-4 mr-3 flex-shrink-0" />
-          <span className="truncate">{category.label}</span>
-          <div className="ml-auto">
-            {isExpanded ? (
-              <ChevronDown className="h-4 w-4" />
-            ) : (
-              <ChevronRight className="h-4 w-4" />
-            )}
-          </div>
+          <category.icon className={`h-4 w-4 flex-shrink-0 ${!isCollapsed ? 'mr-3' : 'mr-0'}`} />
+          <span className={`truncate ${isCollapsed ? 'hidden' : 'block'}`}>{category.label}</span>
+          {!isCollapsed && (
+            <div className="ml-auto">
+              {isExpanded ? (
+                <ChevronDown className="h-4 w-4" />
+              ) : (
+                <ChevronRight className="h-4 w-4" />
+              )}
+            </div>
+          )}
         </Button>
         
-        {/* Renderização dos sub-itens - Removendo AnimatePresence e motion.div */}
+        {/* Renderização dos sub-itens */}
         {isExpanded && category.items && (
           <div className="overflow-hidden space-y-1">
             {category.items.map((item: any) => renderMenuItem(item, true, category.category))}
@@ -276,23 +291,27 @@ const Sidebar = () => {
       )}
 
       {/* Sidebar */}
-      {/* Removendo AnimatePresence e motion.div para tornar a sidebar estática */}
-      <div
-        className={`fixed left-0 top-0 h-full w-72 bg-card/95 backdrop-blur-sm border-r border-border z-40 ${
+      <motion.div
+        initial={false}
+        animate={{ width: isCollapsed ? 80 : 288, x: isMobile && !isOpen ? -288 : 0 }}
+        transition={{ duration: 0.3, ease: "easeInOut" }}
+        className={`fixed left-0 top-0 h-full bg-card/95 backdrop-blur-sm border-r border-border z-40 ${
           isMobile ? 'shadow-2xl' : ''
-        } md:relative md:shadow-none md:bg-card`}
-        style={isMobile && !isOpen ? { transform: 'translateX(-100%)' } : {}} // Controla a visibilidade móvel sem animação complexa
+        } md:relative md:shadow-none md:bg-card flex flex-col`}
+        style={{ width: isMobile ? (isOpen ? 288 : 0) : (isCollapsed ? 80 : 288) }}
       >
         {/* Header */}
-        <div className="p-6 border-b border-border">
-          <div className="flex items-center gap-3">
+        <div className={`p-6 border-b border-border flex items-center ${isCollapsed ? 'justify-center' : 'justify-between'}`}>
+          <div className="flex items-center gap-3 overflow-hidden">
             {/* Ícone de Tesoura (Replicando o estilo do Login) */}
-            <div className="w-10 h-10 bg-gradient-to-r from-primary to-primary-600 rounded-lg flex items-center justify-center shadow-sm">
+            <div className="w-10 h-10 bg-gradient-to-r from-primary to-primary-600 rounded-lg flex items-center justify-center shadow-sm flex-shrink-0">
               <Scissors className="h-5 w-5 text-primary-foreground" />
             </div>
-            <div>
-              <h2 className="font-bold text-3xl text-foreground">Na Régua</h2>
-            </div>
+            {!isCollapsed && (
+              <div>
+                <h2 className="font-bold text-3xl text-foreground whitespace-nowrap">Na Régua</h2>
+              </div>
+            )}
           </div>
         </div>
 
@@ -321,23 +340,23 @@ const Sidebar = () => {
             >
               <Button 
                 variant="outline" 
-                className="w-full hover:bg-destructive/10 hover:text-destructive hover:border-destructive/20 transition-all duration-200" 
+                className={`w-full hover:bg-destructive/10 hover:text-destructive hover:border-destructive/20 transition-all duration-200 ${isCollapsed ? 'justify-center' : 'justify-start'}`} 
                 size="sm"
                 onClick={handleSignOut}
               >
-                <LogOut className="h-4 w-4 mr-2" />
-                Sair
+                <LogOut className={`h-4 w-4 flex-shrink-0 ${!isCollapsed ? 'mr-2' : 'mr-0'}`} />
+                <span className={isCollapsed ? 'hidden' : 'block'}>Sair</span>
               </Button>
             </div>
           </div>
         </nav>
 
-        {/* User info */}
+        {/* User info and Collapse Button */}
         <div 
-          className="p-4 border-t border-border bg-muted/30"
+          className="p-4 border-t border-border bg-muted/30 flex items-center justify-between"
         >
-          <div className="flex items-center gap-3">
-            <div className="w-8 h-8 bg-gradient-to-br from-primary to-primary/70 rounded-full flex items-center justify-center shadow-sm">
+          <div className={`flex items-center gap-3 overflow-hidden ${isCollapsed ? 'hidden' : 'flex'}`}>
+            <div className="w-8 h-8 bg-gradient-to-br from-primary to-primary/70 rounded-full flex items-center justify-center shadow-sm flex-shrink-0">
               <span className="text-sm font-medium text-primary-foreground">WM</span>
             </div>
             <div className="flex-1 min-w-0">
@@ -345,8 +364,19 @@ const Sidebar = () => {
               <p className="text-xs text-muted-foreground truncate">Administrador</p>
             </div>
           </div>
+          
+          {/* Collapse Button */}
+          <Button
+            variant="ghost"
+            size="icon"
+            className={`h-8 w-8 transition-transform duration-300 ${isCollapsed ? 'mx-auto' : ''}`}
+            onClick={() => setIsCollapsed(!isCollapsed)}
+            aria-label={isCollapsed ? "Expandir menu" : "Colapsar menu"}
+          >
+            {isCollapsed ? <ChevronsRight className="h-5 w-5" /> : <ChevronsLeft className="h-5 w-5" />}
+          </Button>
         </div>
-      </div>
+      </motion.div>
 
       {/* Overlay for mobile */}
       <AnimatePresence>
