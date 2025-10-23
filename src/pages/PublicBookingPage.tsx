@@ -1,8 +1,7 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { useParams, Routes, Route, Navigate } from 'react-router-dom';
 import { supabase } from '@/integrations/supabase/client';
-import { Card, CardContent } from '@/components/ui/card';
-import { Clock, MapPin, Phone, Mail, Scissors } from 'lucide-react';
+import { Card } from '@/components/ui/card';
 import ClientBookingFlow from '@/components/booking/ClientBookingFlow';
 import PublicLayout from '@/components/booking/public/PublicLayout'; // Novo Layout
 
@@ -96,70 +95,14 @@ const PublicBookingPage = () => {
     '--public-secondary': settings.secondary_color_hex,
   } as React.CSSProperties;
 
-  // Componente de Header Público (para ser usado no layout)
-  const PublicHeader = (
-    <header 
-      className="relative h-64 bg-cover bg-center flex items-end p-6"
-      style={{ 
-        backgroundImage: settings.banner_url ? `url(${settings.banner_url})` : `linear-gradient(135deg, var(--public-secondary), var(--public-primary))`
-      }}
-    >
-      <div className="absolute inset-0 bg-black/50"></div>
-      <div className="relative z-10 text-white">
-        <div className="flex items-center gap-4">
-          {settings.logo_url ? (
-            <img src={settings.logo_url} alt="Logo" className="h-16 w-16 rounded-full border-4 border-white object-cover" />
-          ) : (
-            <div className="h-16 w-16 bg-white rounded-full flex items-center justify-center border-4 border-white">
-              <Scissors className="h-8 w-8 text-gray-800" />
-            </div>
-          )}
-          <div>
-            <h1 className="text-4xl font-bold">{settings.company_name}</h1>
-            {settings.slogan && <p className="text-lg font-medium mt-1">{settings.slogan}</p>}
-          </div>
-        </div>
-      </div>
-    </header>
-  );
-
-  // Componente de Info Card (para ser usado no layout)
-  const InfoCard = (
-    <Card className="max-w-4xl mx-auto -mt-12 relative z-20 shadow-xl">
-      <CardContent className="p-6 grid grid-cols-1 md:grid-cols-3 gap-4 text-center">
-        {settings.address && (
-          <div className="flex flex-col items-center">
-            <MapPin className="h-6 w-6 text-gray-500 mb-1" />
-            <span className="text-sm text-muted-foreground">{settings.address}</span>
-          </div>
-        )}
-        {settings.phone && (
-          <div className="flex flex-col items-center">
-            <Phone className="h-6 w-6 text-gray-500 mb-1" />
-            <span className="text-sm text-muted-foreground">{settings.phone}</span>
-          </div>
-        )}
-        {settings.email && (
-          <div className="flex flex-col items-center">
-            <Mail className="h-6 w-6 text-gray-500 mb-1" />
-            <span className="text-sm text-muted-foreground">{settings.email}</span>
-          </div>
-        )}
-      </CardContent>
-    </Card>
-  );
-
   // O roteamento interno do cliente
   return (
     <div style={dynamicStyles} className="min-h-screen bg-gray-50 dark:bg-gray-900">
-      {/* Se o usuário não estiver autenticado, mostramos a landing page com o fluxo de agendamento */}
-      {/* Por enquanto, vamos assumir que o cliente está sempre logado para testar o layout */}
-      
       <PublicLayout settings={settings}>
         <Routes>
           {/* Rota de Novo Agendamento (o fluxo de 5 passos) */}
           <Route path="new-appointment" element={
-            <div className="max-w-4xl mx-auto mt-8 pb-16">
+            <div className="max-w-4xl mx-auto pb-16">
               <h1 className="text-3xl font-bold mb-6">Novo Agendamento</h1>
               <ClientBookingFlow />
             </div>

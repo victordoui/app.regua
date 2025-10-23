@@ -50,62 +50,71 @@ const PublicLayout: React.FC<PublicLayoutProps> = ({ children, settings }) => {
     try {
       await signOut();
       toast({ title: "Logout realizado", description: "Você saiu da sua conta de cliente." });
-      navigate(`/public-booking/${settings.company_name}/login`); // Redireciona para o login público
+      // Redireciona para o login público (usando o userId como identificador da barbearia)
+      navigate(`/public-booking/${settings.company_name}/login`); 
     } catch (error) {
       toast({ title: "Erro ao sair", variant: "destructive" });
     }
   };
 
-  const isActive = (path: string) => location.pathname === path;
+  const isActive = (path: string) => location.pathname.startsWith(path);
+
+  const renderSidebarContent = (isMobileView: boolean) => (
+    <>
+      {/* Logo Grande no Topo */}
+      <div className="p-6 border-b flex flex-col items-center justify-center">
+        {settings.logo_url ? (
+          <img src={settings.logo_url} alt="Logo" className="h-20 w-20 object-contain mb-2" />
+        ) : (
+          <div className="h-16 w-16 bg-primary rounded-full flex items-center justify-center mb-2">
+            <Scissors className="h-8 w-8 text-primary-foreground" />
+          </div>
+        )}
+        <h2 className="text-xl font-bold text-foreground text-center">
+          {settings.company_name || 'Barbearia'}
+        </h2>
+      </div>
+      
+      <nav className="flex-1 p-4 space-y-1">
+        {menuItems.map(item => (
+          <Button
+            key={item.path}
+            variant="ghost"
+            className={`w-full justify-start text-base font-medium h-12 ${
+              isActive(item.path) 
+                ? 'bg-primary/10 text-primary hover:bg-primary/20' 
+                : 'text-foreground hover:bg-muted'
+            }`}
+            onClick={() => { navigate(item.path); if (isMobileView) setIsSidebarOpen(false); }}
+            style={isActive(item.path) ? { color: settings.primary_color_hex } : {}}
+          >
+            <item.icon className="h-5 w-5 mr-3" />
+            {item.label}
+          </Button>
+        ))}
+      </nav>
+
+      <div className="p-4 border-t border-border">
+        <Button 
+          variant="ghost" 
+          className="w-full justify-start text-destructive hover:bg-destructive/10"
+          onClick={handleSignOut}
+        >
+          <LogOut className="h-4 w-4 mr-3" />
+          Sair
+        </Button>
+      </div>
+    </>
+  );
 
   return (
     <div className="flex min-h-screen bg-background">
       {/* Sidebar (Desktop) */}
-      <Card 
+      <div 
         className="hidden md:flex flex-col w-64 border-r border-border shadow-lg sticky top-0 h-screen bg-card"
-        style={{ borderColor: settings.primary_color_hex }}
       >
-        <div className="p-4 border-b" style={{ borderColor: settings.primary_color_hex }}>
-          <div className="flex items-center gap-3">
-            {settings.logo_url ? (
-              <img src={settings.logo_url} alt="Logo" className="h-10 w-10 rounded-full object-cover" />
-            ) : (
-              <div className="h-10 w-10 bg-primary rounded-full flex items-center justify-center">
-                <Scissors className="h-5 w-5 text-primary-foreground" />
-              </div>
-            )}
-            <h2 className="text-xl font-bold" style={{ color: settings.primary_color_hex }}>
-              {settings.company_name}
-            </h2>
-          </div>
-        </div>
-        
-        <nav className="flex-1 p-4 space-y-1">
-          {menuItems.map(item => (
-            <Button
-              key={item.path}
-              variant={isActive(item.path) ? "default" : "ghost"}
-              className={`w-full justify-start ${isActive(item.path) ? 'bg-primary hover:bg-primary/90 text-primary-foreground' : 'text-foreground hover:bg-muted'}`}
-              onClick={() => navigate(item.path)}
-              style={isActive(item.path) ? { backgroundColor: settings.primary_color_hex, color: '#fff' } : {}}
-            >
-              <item.icon className="h-4 w-4 mr-3" />
-              {item.label}
-            </Button>
-          ))}
-        </nav>
-
-        <div className="p-4 border-t border-border">
-          <Button 
-            variant="ghost" 
-            className="w-full justify-start text-destructive hover:bg-destructive/10"
-            onClick={handleSignOut}
-          >
-            <LogOut className="h-4 w-4 mr-3" />
-            Sair
-          </Button>
-        </div>
-      </Card>
+        {renderSidebarContent(false)}
+      </div>
 
       {/* Main Content */}
       <div className="flex-1 flex flex-col min-w-0">
@@ -147,32 +156,7 @@ const PublicLayout: React.FC<PublicLayoutProps> = ({ children, settings }) => {
                 <X className="h-5 w-5" />
               </Button>
             </div>
-            
-            <nav className="flex-1 p-4 space-y-1">
-              {menuItems.map(item => (
-                <Button
-                  key={item.path}
-                  variant={isActive(item.path) ? "default" : "ghost"}
-                  className={`w-full justify-start ${isActive(item.path) ? 'bg-primary hover:bg-primary/90 text-primary-foreground' : 'text-foreground hover:bg-muted'}`}
-                  onClick={() => { navigate(item.path); setIsSidebarOpen(false); }}
-                  style={isActive(item.path) ? { backgroundColor: settings.primary_color_hex, color: '#fff' } : {}}
-                >
-                  <item.icon className="h-4 w-4 mr-3" />
-                  {item.label}
-                </Button>
-              ))}
-            </nav>
-
-            <div className="p-4 border-t border-border">
-              <Button 
-                variant="ghost" 
-                className="w-full justify-start text-destructive hover:bg-destructive/10"
-                onClick={handleSignOut}
-              >
-                <LogOut className="h-4 w-4 mr-3" />
-                Sair
-              </Button>
-            </div>
+            {renderSidebarContent(true)}
           </Card>
         </div>
       )}
