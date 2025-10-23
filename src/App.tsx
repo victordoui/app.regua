@@ -20,7 +20,7 @@ import CustomerSuccess from "./pages/CustomerSuccess";
 import AdvancedNotifications from "./pages/AdvancedNotifications";
 import Settings from "./pages/Settings";
 import OnlineBooking from "./pages/OnlineBooking";
-import Services from "./pages/Services"; // <-- Importação adicionada
+import Services from "./pages/Services";
 
 // Novas Páginas
 import BarberPerformance from "./pages/BarberPerformance";
@@ -44,8 +44,8 @@ function AppContent() {
       <Routes>
         <Route path="/login" element={<Login />} />
         
-        {/* Rota Pública de Agendamento */}
-        <Route path="/public-booking/:userId" element={<PublicBookingPage />} />
+        {/* Rota Pública de Agendamento (Agora aceita sub-rotas) */}
+        <Route path="/public-booking/:userId/*" element={<PublicBookingPage />} />
         
         {/* Dashboard / Visão Geral */}
         <Route path="/" element={<ProtectedRoute><Dashboard /></ProtectedRoute>} />
