@@ -21,12 +21,11 @@ export interface ClientBookingForm {
 }
 
 export const PUBLIC_STEPS = [
-  { id: 1, name: "Upgrade/Paywall" }, // Novo Passo 1
-  { id: 2, name: "Filial" },
-  { id: 3, name: "Profissional" },
-  { id: 4, name: "Serviços" },
-  { id: 5, name: "Horário" },
-  { id: 6, name: "Confirmação" },
+  { id: 1, name: "Filial" },
+  { id: 2, name: "Profissional" },
+  { id: 3, name: "Serviços" },
+  { id: 4, name: "Horário" },
+  { id: 5, name: "Confirmação" },
 ];
 
 // Reutilizando tipos de booking.ts

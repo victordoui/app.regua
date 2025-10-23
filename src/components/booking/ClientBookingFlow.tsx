@@ -4,8 +4,7 @@ import { Button } from '@/components/ui/button';
 import { Check, ArrowLeft, ArrowRight, Calendar, Clock, User, MapPin, Scissors } from 'lucide-react';
 import { ClientBookingForm, PUBLIC_STEPS, Branch, PublicService, PublicBarber, PublicTimeSlot } from '@/types/publicBooking';
 import { useToast } from '@/hooks/use-toast';
-import StepIndicator from '../booking/StepIndicator';
-import StepPaywall from './public/StepPaywall'; // Novo Import
+import StepIndicator from '../booking/StepIndicator'; // Caminho ajustado
 import StepBranchSelection from './public/StepBranchSelection';
 import StepBarberSelection from './public/StepBarberSelection';
 import StepServiceSelection from './public/StepServiceSelection';
@@ -47,9 +46,6 @@ const ClientBookingFlow: React.FC<ClientBookingFlowProps> = () => {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const { toast } = useToast();
 
-  // Mock: Simula o status do plano do cliente (para o Paywall)
-  const [clientPlanStatus, setClientPlanStatus] = useState<'none' | 'basic' | 'premium'>('basic'); 
-
   const [formData, setFormData] = useState<ClientBookingForm>({
     step: 1,
     selectedBranch: '',
@@ -63,15 +59,7 @@ const ClientBookingFlow: React.FC<ClientBookingFlowProps> = () => {
     notes: '',
   });
 
-  // Ajusta o índice do passo para ignorar o Paywall se não for necessário
-  const effectiveStep = useMemo(() => {
-    if (clientPlanStatus === 'premium' && currentStep === 1) {
-      return 2; // Pula o Paywall
-    }
-    return currentStep;
-  }, [currentStep, clientPlanStatus]);
-
-  const currentStepData = PUBLIC_STEPS.find(s => s.id === effectiveStep);
+  const currentStepData = PUBLIC_STEPS.find(s => s.id === currentStep);
 
   const calculateTotalDuration = useMemo(() => {
     const selected = mockServices.filter(s => formData.selectedServices.includes(s.id));
@@ -84,37 +72,33 @@ const ClientBookingFlow: React.FC<ClientBookingFlowProps> = () => {
   }, [formData.selectedServices]);
 
   const handleNext = () => {
-    // Se estiver no Paywall e for necessário, o botão "Próximo" não deve aparecer.
-    // A navegação é feita pelo botão "Não tenho interesse" no StepPaywall.
-    if (effectiveStep === 1) return; 
-
     // Validação do passo atual
-    switch (effectiveStep) {
-      case 2: // Filial
+    switch (currentStep) {
+      case 1:
         if (!formData.selectedBranch) {
           toast({ title: "Selecione uma filial.", variant: "destructive" });
           return;
         }
         break;
-      case 3: // Profissional
+      case 2:
         if (!formData.selectedBarber) {
           toast({ title: "Selecione um profissional.", variant: "destructive" });
           return;
         }
         break;
-      case 4: // Serviços
+      case 3:
         if (formData.selectedServices.length === 0) {
           toast({ title: "Selecione pelo menos um serviço.", variant: "destructive" });
           return;
         }
         break;
-      case 5: // Horário
+      case 4:
         if (!formData.selectedDate || !formData.selectedTime) {
           toast({ title: "Selecione a data e o horário.", variant: "destructive" });
           return;
         }
         break;
-      case 6: // Confirmação
+      case 5:
         if (!formData.clientName || !formData.clientPhone || !formData.clientEmail) {
           toast({ title: "Preencha seus dados de contato.", variant: "destructive" });
           return;
@@ -125,17 +109,7 @@ const ClientBookingFlow: React.FC<ClientBookingFlowProps> = () => {
   };
 
   const handlePrev = () => {
-    // Se o Paywall foi pulado, o passo anterior ao 2 é o 1, mas queremos ir para o 1.
-    if (clientPlanStatus === 'premium' && currentStep === 2) {
-      // Não deve haver "Voltar" se o Paywall foi pulado e estamos no primeiro passo efetivo.
-      return;
-    }
     setCurrentStep(prev => Math.max(prev - 1, 1));
-  };
-
-  const handlePaywallContinue = () => {
-    // Pula o Paywall e vai para o próximo passo (Filial, que é o ID 2)
-    setCurrentStep(2);
   };
 
   const handleFinalizeBooking = async () => {
@@ -143,6 +117,9 @@ const ClientBookingFlow: React.FC<ClientBookingFlowProps> = () => {
     try {
       // Simulação de chamada API para agendamento
       await new Promise(resolve => setTimeout(resolve, 1500));
+      
+      // Aqui você faria a inserção no Supabase:
+      // const { error } = await supabase.from('appointments').insert({...formData, user_id: ownerId, status: 'pending'});
       
       toast({
         title: "Agendamento Concluído!",
@@ -177,16 +154,14 @@ const ClientBookingFlow: React.FC<ClientBookingFlowProps> = () => {
   };
 
   const renderStepContent = () => {
-    switch (effectiveStep) {
+    switch (currentStep) {
       case 1:
-        return <StepPaywall onContinue={handlePaywallContinue} planStatus={clientPlanStatus} />;
-      case 2:
         return <StepBranchSelection formData={formData} setFormData={setFormData} branches={mockBranches} />;
-      case 3:
+      case 2:
         return <StepBarberSelection formData={formData} setFormData={setFormData} barbers={mockBarbers} />;
-      case 4:
+      case 3:
         return <StepServiceSelection formData={formData} setFormData={setFormData} services={mockServices} />;
-      case 5:
+      case 4:
         return <StepDateTimeSelection 
           formData={formData} 
           setFormData={setFormData} 
@@ -194,7 +169,7 @@ const ClientBookingFlow: React.FC<ClientBookingFlowProps> = () => {
           loading={false} 
           totalDuration={calculateTotalDuration}
         />;
-      case 6:
+      case 5:
         return <StepConfirmation 
           formData={formData} 
           setFormData={setFormData} 
@@ -208,33 +183,13 @@ const ClientBookingFlow: React.FC<ClientBookingFlowProps> = () => {
     }
   };
 
-  // Se o Paywall foi pulado, não renderizamos o Card principal, apenas o conteúdo do passo 2 em diante.
-  if (clientPlanStatus === 'premium' && currentStep === 1) {
-    // Se o Paywall foi pulado, renderiza o conteúdo do passo 2 (Filial)
-    setCurrentStep(2);
-  }
-
-  // Se estiver no Paywall, renderiza apenas o Paywall sem o StepIndicator e botões de navegação padrão.
-  if (effectiveStep === 1) {
-    return (
-      <section className="py-10 bg-background">
-        <div className="container mx-auto px-4">
-          <div className="max-w-3xl mx-auto">
-            <h2 className="text-2xl font-bold mb-6 text-center">Agendamento Rápido</h2>
-            {renderStepContent()}
-          </div>
-        </div>
-      </section>
-    );
-  }
-
   return (
     <section className="py-10 bg-background">
       <div className="container mx-auto px-4">
         <div className="max-w-3xl mx-auto">
           
           {/* Indicador de Progresso */}
-          <StepIndicator currentStep={effectiveStep} steps={PUBLIC_STEPS.slice(1)} />
+          <StepIndicator currentStep={currentStep} steps={PUBLIC_STEPS} />
 
           <Card className="shadow-elegant">
             <CardHeader>
@@ -259,7 +214,7 @@ const ClientBookingFlow: React.FC<ClientBookingFlowProps> = () => {
                 <Button 
                   variant="outline" 
                   onClick={handlePrev}
-                  disabled={effectiveStep === 2 || isSubmitting}
+                  disabled={currentStep === 1 || isSubmitting}
                 >
                   <ArrowLeft className="h-4 w-4 mr-2" />
                   Voltar
@@ -270,7 +225,7 @@ const ClientBookingFlow: React.FC<ClientBookingFlowProps> = () => {
                   <p className="text-xl font-bold text-primary">R$ {calculateTotalPrice.toFixed(2)}</p>
                 </div>
 
-                {effectiveStep < PUBLIC_STEPS.length ? (
+                {currentStep < PUBLIC_STEPS.length ? (
                   <Button 
                     variant="default"
                     onClick={handleNext}
