@@ -24,7 +24,6 @@ const ImageUploadField: React.FC<ImageUploadFieldProps> = ({
   uploadFile,
   aspectRatio,
 }) => {
-  const [file, setFile] = useState<File | null>(null);
   const [previewUrl, setPreviewUrl] = useState<string>(currentUrl);
   const [isUploading, setIsUploading] = useState(false);
   const [isCropperOpen, setIsCropperOpen] = useState(false);
@@ -34,49 +33,45 @@ const ImageUploadField: React.FC<ImageUploadFieldProps> = ({
     setPreviewUrl(currentUrl);
   }, [currentUrl]);
 
-  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const selectedFile = e.target.files?.[0];
-    if (selectedFile) {
-      setFileToCrop(selectedFile);
-      setIsCropperOpen(true);
-      e.target.value = ''; // Clear input so same file can be selected again
-    }
-  };
-
-  const handleCropComplete = useCallback(async (croppedBlob: Blob) => {
-    // Convert Blob back to File for upload
-    const croppedFile = new File([croppedBlob], fileToCrop?.name || 'cropped_image.jpg', {
-      type: croppedBlob.type,
-    });
-    
-    setFile(croppedFile);
-    setPreviewUrl(URL.createObjectURL(croppedFile));
-    setFileToCrop(null);
-    
-    // Automatically trigger upload after crop
-    await handleUpload(croppedFile);
-  }, [fileToCrop, folder, onUploadSuccess, uploadFile, label, currentUrl]);
-
-
   const handleUpload = useCallback(async (fileToUpload: File) => {
     setIsUploading(true);
     try {
       const url = await uploadFile(fileToUpload, folder);
       onUploadSuccess(url);
       toast.success(`${label} atualizado com sucesso!`);
-      setFile(null); // Clear file after successful upload
     } catch (error: any) {
       toast.error(error.message || `Erro ao fazer upload do ${label}.`);
-      setPreviewUrl(currentUrl); // Revert preview on error
+      setPreviewUrl(currentUrl); // Reverte preview em caso de erro
     } finally {
       setIsUploading(false);
     }
   }, [folder, onUploadSuccess, uploadFile, label, currentUrl]);
 
+  const handleCropComplete = useCallback(async (croppedBlob: Blob) => {
+    // 1. Converte Blob de volta para File para upload
+    const croppedFile = new File([croppedBlob], fileToCrop?.name || 'cropped_image.jpg', {
+      type: croppedBlob.type,
+    });
+    
+    // 2. Atualiza o preview localmente
+    setPreviewUrl(URL.createObjectURL(croppedFile));
+    setFileToCrop(null);
+    
+    // 3. Inicia o upload
+    await handleUpload(croppedFile);
+  }, [fileToCrop, handleUpload]);
+
+  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const selectedFile = e.target.files?.[0];
+    if (selectedFile) {
+      setFileToCrop(selectedFile);
+      setIsCropperOpen(true);
+      e.target.value = ''; // Limpa input
+    }
+  };
 
   const handleRemove = () => {
     onUploadSuccess('');
-    setFile(null);
     setPreviewUrl('');
     toast.info(`${label} removido.`);
   };
@@ -122,18 +117,14 @@ const ImageUploadField: React.FC<ImageUploadFieldProps> = ({
 
             {/* Actions */}
             <div className="flex gap-2 pt-2 border-t border-border">
-              {/* O botão de upload automático foi removido, pois o upload ocorre após o crop */}
-              
-              {/* Botão de Ajuste/Crop - Abre o modal se houver uma imagem atual */}
+              {/* Botão de Ajuste/Crop - Agora só serve como placeholder/ajuda */}
               <Button
                 type="button"
                 variant="outline"
                 className="flex-1"
                 onClick={() => {
-                    if (currentUrl) {
-                        // Se já houver uma URL, precisamos buscar o arquivo para cortar
-                        toast.info("Funcionalidade de re-corte de URL existente em desenvolvimento.");
-                        // Para simplificar, vamos apenas abrir o cropper se um novo arquivo foi selecionado
+                    if (previewUrl && !fileToCrop) {
+                        toast.info("Para reajustar uma imagem já salva, você precisa fazer o upload do arquivo novamente.");
                     } else if (fileToCrop) {
                         setIsCropperOpen(true);
                     } else {
