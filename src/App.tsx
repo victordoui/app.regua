@@ -41,7 +41,6 @@ import ClientAppointments from "./pages/client/ClientAppointments";
 import ClientPartners from "./pages/client/ClientPartners";
 import ClientPlans from "./pages/client/ClientPlans";
 import ClientProfile from "./pages/client/ClientProfile";
-import ClientBooking from "./pages/client/ClientBooking"; // Nova importação
 
 
 const queryClient = new QueryClient();
@@ -61,7 +60,6 @@ function AppContent() {
         <Route path="/client/partners" element={<ProtectedRoute><ClientPartners /></ProtectedRoute>} />
         <Route path="/client/plans" element={<ProtectedRoute><ClientPlans /></ProtectedRoute>} />
         <Route path="/client/profile" element={<ProtectedRoute><ClientProfile /></ProtectedRoute>} />
-        <Route path="/client/booking" element={<ProtectedRoute><ClientBooking /></ProtectedRoute>} />
         
         {/* Redirecionamento padrão para usuários logados (Admin/Barber) */}
         <Route path="/" element={<ProtectedRoute><Dashboard /></ProtectedRoute>} />
