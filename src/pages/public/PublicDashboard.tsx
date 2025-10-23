@@ -46,34 +46,34 @@ const PublicDashboard: React.FC<PublicDashboardProps> = ({ settings }) => {
       {/* Banner de Capa Dinâmico */}
       {settings.banner_url && (
         <div 
-          className="relative h-48 bg-cover bg-center rounded-lg shadow-lg overflow-hidden"
+          className="relative h-32 md:h-48 bg-cover bg-center rounded-lg shadow-lg overflow-hidden"
           style={{ backgroundImage: `url(${settings.banner_url})` }}
         >
           <div className="absolute inset-0 bg-black/40 flex items-center justify-center">
             <div className="text-center text-white p-4">
-              <h2 className="text-3xl font-bold">{settings.company_name}</h2>
-              {settings.slogan && <p className="text-lg mt-1">{settings.slogan}</p>}
+              <h2 className="text-xl md:text-3xl font-bold">{settings.company_name}</h2>
+              {settings.slogan && <p className="text-sm md:text-lg mt-1">{settings.slogan}</p>}
             </div>
           </div>
         </div>
       )}
 
-      <div className="flex justify-between items-center">
-        <h1 className="text-3xl font-bold">Bem-vindo, Cliente!</h1>
-        <Button onClick={() => navigate(`/public-booking/${userId}/new-appointment`)}>
+      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+        <h1 className="text-2xl md:text-3xl font-bold">Bem-vindo, Cliente!</h1>
+        <Button onClick={() => navigate(`/public-booking/${userId}/new-appointment`)} className="w-full sm:w-auto">
           <Plus className="h-4 w-4 mr-2" />
           Novo Agendamento
         </Button>
       </div>
 
-      {/* Banner Promocional (Mantido, mas abaixo da saudação) */}
+      {/* Banner Promocional (Ajustado para mobile) */}
       <Card className="bg-gradient-to-r from-primary to-primary-600 text-primary-foreground shadow-lg">
-        <CardContent className="p-6 flex justify-between items-center">
+        <CardContent className="p-4 md:p-6 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3">
           <div>
-            <h2 className="text-xl font-bold mb-1">Promoção de Fim de Ano!</h2>
-            <p className="text-sm opacity-90">Agende seu combo Corte + Barba e ganhe 10% de desconto.</p>
+            <h2 className="text-lg md:text-xl font-bold mb-1">Promoção de Fim de Ano!</h2>
+            <p className="text-xs md:text-sm opacity-90">Agende seu combo Corte + Barba e ganhe 10% de desconto.</p>
           </div>
-          <Button variant="secondary" className="bg-primary-foreground text-primary hover:bg-gray-100">
+          <Button variant="secondary" className="bg-primary-foreground text-primary hover:bg-gray-100 w-full sm:w-auto">
             Agendar Agora
           </Button>
         </CardContent>

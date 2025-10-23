@@ -24,7 +24,7 @@ interface PublicLayoutProps {
     logo_url: string | null;
     company_name: string;
     primary_color_hex: string;
-    banner_url: string | null; // Adicionando banner_url aqui para consistência
+    banner_url: string | null;
   };
 }
 
@@ -62,16 +62,16 @@ const PublicLayout: React.FC<PublicLayoutProps> = ({ children, settings }) => {
 
   const renderSidebarContent = (isMobileView: boolean) => (
     <>
-      {/* Logo Grande no Topo (Aumentado) */}
+      {/* Logo Grande no Topo (Aumentado 3x) */}
       <div className="p-6 border-b flex flex-col items-center justify-center">
         {settings.logo_url ? (
-          <img src={settings.logo_url} alt="Logo" className="h-24 w-24 object-contain mb-2" />
+          <img src={settings.logo_url} alt="Logo" className="h-32 w-32 object-contain mb-2" />
         ) : (
-          <div className="h-24 w-24 bg-primary rounded-full flex items-center justify-center mb-2">
-            <Scissors className="h-10 w-10 text-primary-foreground" />
+          <div className="h-32 w-32 bg-primary rounded-full flex items-center justify-center mb-2">
+            <Scissors className="h-16 w-16 text-primary-foreground" />
           </div>
         )}
-        <h2 className="text-2xl font-bold text-foreground text-center">
+        <h2 className="text-3xl font-bold text-foreground text-center">
           {settings.company_name || 'Barbearia'}
         </h2>
       </div>
@@ -119,7 +119,7 @@ const PublicLayout: React.FC<PublicLayoutProps> = ({ children, settings }) => {
 
       {/* Main Content */}
       <div className="flex-1 flex flex-col min-w-0">
-        {/* Header Mobile */}
+        {/* Header Mobile (Menu Hamburguer) */}
         <header className="md:hidden h-16 border-b border-border flex items-center justify-between px-4 bg-card shadow-sm">
           <div className="flex items-center gap-2">
             {settings.logo_url ? (

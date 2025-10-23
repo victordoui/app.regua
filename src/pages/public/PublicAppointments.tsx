@@ -4,6 +4,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Calendar, Clock, CheckCircle, XCircle, Plus } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { useNavigate, useParams } from 'react-router-dom';
+import { Badge } from '@/components/ui/badge';
 
 const PublicAppointments = () => {
   const navigate = useNavigate();
@@ -29,12 +30,12 @@ const PublicAppointments = () => {
         appointments.map(apt => (
           <Card key={apt.id} className="hover:shadow-md transition-shadow">
             <CardContent className="p-4">
-              <div className="flex justify-between items-start">
+              <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center">
                 <div>
                   <p className="font-semibold text-lg">{apt.service}</p>
                   <p className="text-sm text-muted-foreground">Com {apt.barber}</p>
                 </div>
-                <span className={`text-sm font-medium ${
+                <span className={`text-sm font-medium mt-2 sm:mt-0 ${
                   apt.status === 'Confirmado' ? 'text-green-600' :
                   apt.status === 'Pendente' ? 'text-yellow-600' :
                   apt.status === 'Concluído' ? 'text-blue-600' :
@@ -43,7 +44,7 @@ const PublicAppointments = () => {
                   {apt.status}
                 </span>
               </div>
-              <div className="flex items-center gap-4 mt-3 text-sm text-muted-foreground">
+              <div className="flex flex-wrap gap-x-4 gap-y-2 mt-3 text-sm text-muted-foreground">
                 <div className="flex items-center gap-1">
                   <Calendar className="h-4 w-4" /> {apt.date}
                 </div>
@@ -53,10 +54,10 @@ const PublicAppointments = () => {
               </div>
               {apt.future && apt.status !== 'Cancelado' && (
                 <div className="mt-4 flex gap-2">
-                  <Button variant="outline" size="sm">
+                  <Button variant="outline" size="sm" className="flex-1 sm:flex-none">
                     Reagendar
                   </Button>
-                  <Button variant="destructive" size="sm">
+                  <Button variant="destructive" size="sm" className="flex-1 sm:flex-none">
                     Cancelar
                   </Button>
                 </div>
@@ -70,16 +71,16 @@ const PublicAppointments = () => {
 
   return (
     <div className="space-y-6">
-      <div className="flex justify-between items-center">
-        <h1 className="text-3xl font-bold">Meus Agendamentos</h1>
-        <Button onClick={() => navigate(`/public-booking/${userId}/new-appointment`)}>
+      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+        <h1 className="text-2xl md:text-3xl font-bold">Meus Agendamentos</h1>
+        <Button onClick={() => navigate(`/public-booking/${userId}/new-appointment`)} className="w-full sm:w-auto">
           <Plus className="h-4 w-4 mr-2" />
           Novo Agendamento
         </Button>
       </div>
 
       <Tabs defaultValue="future">
-        <TabsList>
+        <TabsList className="grid w-full grid-cols-2">
           <TabsTrigger value="future">Agendados ({futureAppointments.length})</TabsTrigger>
           <TabsTrigger value="past">Anteriores ({pastAppointments.length})</TabsTrigger>
         </TabsList>
