@@ -1,17 +1,28 @@
 import React from 'react';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Calendar, Clock, DollarSign, Plus } from 'lucide-react';
+import { Calendar, Clock, DollarSign, Plus, Crown, Handshake, ArrowRight } from 'lucide-react';
 import { useNavigate, useParams } from 'react-router-dom';
+import { Badge } from '@/components/ui/badge';
 
 const PublicDashboard = () => {
   const navigate = useNavigate();
   const { userId } = useParams<{ userId: string }>();
 
+  // Mock Data
   const mockAppointments = [
     { id: 1, date: '25/12/2024', time: '10:00', service: 'Corte + Barba', barber: 'Carlos Silva', status: 'Confirmado' },
     { id: 2, date: '10/01/2025', time: '15:30', service: 'Corte Clássico', barber: 'Ana Souza', status: 'Pendente' },
   ];
+  const mockPlanStatus = {
+    hasPlan: false,
+    planName: 'Nenhum',
+    credits: 0,
+  };
+  const mockPartner = {
+    name: 'Academia Fitness Pro',
+    discount: '10% de desconto em mensalidades',
+  };
 
   return (
     <div className="space-y-6">
@@ -23,53 +34,115 @@ const PublicDashboard = () => {
         </Button>
       </div>
 
-      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
-        <Card>
+      {/* Banner Promocional */}
+      <Card className="bg-gradient-to-r from-primary to-primary-600 text-primary-foreground shadow-lg">
+        <CardContent className="p-6 flex justify-between items-center">
+          <div>
+            <h2 className="text-xl font-bold mb-1">Promoção de Fim de Ano!</h2>
+            <p className="text-sm opacity-90">Agende seu combo Corte + Barba e ganhe 10% de desconto.</p>
+          </div>
+          <Button variant="secondary" className="bg-primary-foreground text-primary hover:bg-gray-100">
+            Agendar Agora
+          </Button>
+        </CardContent>
+      </Card>
+
+      <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+        {/* Status do Plano */}
+        <Card className="lg:col-span-1">
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Próximo Agendamento</CardTitle>
-            <Calendar className="h-4 w-4 text-muted-foreground" />
+            <CardTitle className="text-sm font-medium">Status do Plano</CardTitle>
+            <Crown className="h-4 w-4 text-primary" />
           </CardHeader>
           <CardContent>
-            {mockAppointments.length > 0 ? (
+            {mockPlanStatus.hasPlan ? (
               <>
-                <div className="text-2xl font-bold">{mockAppointments[0].date}</div>
-                <p className="text-xs text-muted-foreground">{mockAppointments[0].service} com {mockAppointments[0].barber} às {mockAppointments[0].time}</p>
+                <div className="text-2xl font-bold text-primary">{mockPlanStatus.planName}</div>
+                <p className="text-xs text-muted-foreground">{mockPlanStatus.credits} créditos restantes</p>
               </>
             ) : (
-              <p className="text-sm text-muted-foreground">Nenhum agendamento futuro.</p>
+              <>
+                <div className="text-lg font-bold text-red-500">Sem Plano Ativo</div>
+                <p className="text-sm text-muted-foreground mb-3">
+                  Faça um upgrade e garanta descontos exclusivos!
+                </p>
+                <Button 
+                  variant="outline" 
+                  size="sm" 
+                  className="w-full border-primary text-primary hover:bg-primary/10"
+                  onClick={() => navigate(`/public-booking/${userId}/plans`)}
+                >
+                  Quero conferir os planos
+                </Button>
+              </>
             )}
           </CardContent>
         </Card>
         
-        <Card>
+        {/* Próximo Agendamento */}
+        <Card className="lg:col-span-2">
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Seu Plano</CardTitle>
-            <DollarSign className="h-4 w-4 text-muted-foreground" />
+            <CardTitle className="text-sm font-medium">Próximos Agendamentos</CardTitle>
+            <Calendar className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold text-primary">VIP Mensal</div>
-            <p className="text-xs text-muted-foreground">3 créditos restantes</p>
+            {mockAppointments.length > 0 ? (
+              <div className="space-y-3">
+                {mockAppointments.slice(0, 2).map(apt => (
+                  <div key={apt.id} className="flex justify-between items-center p-3 border rounded-lg bg-muted/50">
+                    <div>
+                      <p className="font-medium">{apt.service} com {apt.barber}</p>
+                      <p className="text-sm text-muted-foreground flex items-center gap-2 mt-1">
+                        <Clock className="h-4 w-4" /> {apt.date} às {apt.time}
+                      </p>
+                    </div>
+                    <Badge variant="default">{apt.status}</Badge>
+                  </div>
+                ))}
+                <Button 
+                  variant="link" 
+                  className="w-full justify-end text-primary"
+                  onClick={() => navigate(`/public-booking/${userId}/appointments`)}
+                >
+                  Ver todos os agendamentos <ArrowRight className="h-4 w-4 ml-1" />
+                </Button>
+              </div>
+            ) : (
+              <div className="text-center py-4">
+                <p className="text-sm text-muted-foreground mb-3">Você não tem nenhum agendamento marcado.</p>
+                <Button onClick={() => navigate(`/public-booking/${userId}/new-appointment`)} size="sm">
+                  + Novo Agendamento
+                </Button>
+              </div>
+            )}
           </CardContent>
         </Card>
       </div>
 
+      {/* Empresas Parceiras Destaque */}
       <Card>
-        <CardHeader>
-          <CardTitle>Seus Agendamentos Futuros</CardTitle>
+        <CardHeader className="flex flex-row items-center justify-between">
+          <CardTitle className="text-xl flex items-center gap-2">
+            <Handshake className="h-5 w-5 text-primary" />
+            Empresas Parceiras
+          </CardTitle>
+          <Button 
+            variant="outline" 
+            size="sm"
+            onClick={() => navigate(`/public-booking/${userId}/partners`)}
+          >
+            Conheça todos
+          </Button>
         </CardHeader>
         <CardContent>
-          <div className="space-y-4">
-            {mockAppointments.map(apt => (
-              <div key={apt.id} className="flex justify-between items-center p-3 border rounded-lg">
-                <div>
-                  <p className="font-medium">{apt.service} com {apt.barber}</p>
-                  <p className="text-sm text-muted-foreground flex items-center gap-2 mt-1">
-                    <Calendar className="h-4 w-4" /> {apt.date} às {apt.time}
-                  </p>
-                </div>
-                <span className="text-sm font-semibold text-green-600">{apt.status}</span>
-              </div>
-            ))}
+          <div className="flex items-center gap-4 p-4 border rounded-lg">
+            <div className="w-12 h-12 bg-muted rounded-full flex items-center justify-center">
+              <Handshake className="h-6 w-6 text-primary" />
+            </div>
+            <div>
+              <p className="font-semibold">{mockPartner.name}</p>
+              <p className="text-sm text-muted-foreground">{mockPartner.discount}</p>
+            </div>
           </div>
         </CardContent>
       </Card>
