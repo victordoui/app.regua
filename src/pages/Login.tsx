@@ -8,6 +8,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useToast } from "@/hooks/use-toast";
 import { Eye, EyeOff, Mail, Lock, User, ArrowRight, Crown, Scissors } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
+import { ThemeToggle } from "@/components/ui/theme-toggle"; // Importando ThemeToggle
 
 const Login = () => {
   const [email, setEmail] = useState("");
@@ -131,6 +132,11 @@ const Login = () => {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-barber-black via-barber-dark to-barber-black flex items-center justify-center p-4 relative overflow-hidden">
+      {/* Theme Toggle no canto superior direito */}
+      <div className="absolute top-4 right-4 z-20">
+        <ThemeToggle />
+      </div>
+
       {/* Background with barber theme */}
       <div className="absolute inset-0 overflow-hidden">
         <div className="absolute -top-40 -right-40 w-80 h-80 bg-primary rounded-full mix-blend-multiply filter blur-xl opacity-20 animate-pulse"></div>
@@ -182,13 +188,13 @@ const Login = () => {
               <TabsList className="grid w-full grid-cols-2 bg-muted/50 backdrop-blur-sm border-border">
                 <TabsTrigger 
                   value="login" 
-                  className="data-[state=active]:bg-primary text-primary-foreground data-[state=inactive]:text-foreground data-[state=inactive]:bg-muted/50 transition-all duration-300"
+                  className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground data-[state=inactive]:text-foreground data-[state=inactive]:bg-muted/50 transition-all duration-300"
                 >
                   Entrar
                 </TabsTrigger>
                 <TabsTrigger 
                   value="register" 
-                  className="data-[state=active]:bg-primary text-primary-foreground data-[state=inactive]:text-foreground data-[state=inactive]:bg-muted/50 transition-all duration-300"
+                  className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground data-[state=inactive]:text-foreground data-[state=inactive]:bg-muted/50 transition-all duration-300"
                 >
                   Cadastrar
                 </TabsTrigger>
