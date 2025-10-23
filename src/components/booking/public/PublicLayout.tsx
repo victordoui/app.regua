@@ -64,15 +64,17 @@ const PublicLayout: React.FC<PublicLayoutProps> = ({ children, settings }) => {
       {/* Logo Grande no Topo */}
       <div className="p-6 border-b flex flex-col items-center justify-center">
         {settings.logo_url ? (
-          <img src={settings.logo_url} alt="Logo" className="h-20 w-20 object-contain mb-2" />
+          <img 
+            src={settings.logo_url} 
+            alt="Logo" 
+            className="h-auto w-full max-w-[180px] object-contain mb-4" 
+          />
         ) : (
-          <div className="h-16 w-16 bg-primary rounded-full flex items-center justify-center mb-2">
-            <Scissors className="h-8 w-8 text-primary-foreground" />
+          <div className="h-20 w-20 bg-primary rounded-full flex items-center justify-center mb-4">
+            <Scissors className="h-10 w-10 text-primary-foreground" />
           </div>
         )}
-        <h2 className="text-xl font-bold text-foreground text-center">
-          {settings.company_name || 'Barbearia'}
-        </h2>
+        {/* Removendo o nome da empresa aqui para dar destaque total ao logo, como na imagem */}
       </div>
       
       <nav className="flex-1 p-4 space-y-1">
