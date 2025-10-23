@@ -109,7 +109,7 @@ const PublicBookingPage = () => {
           } />
           
           {/* Rotas do Dashboard do Cliente */}
-          <Route path="home" element={<PublicDashboard />} />
+          <Route path="home" element={<PublicDashboard settings={settings} />} />
           <Route path="appointments" element={<PublicAppointments />} />
           <Route path="partners" element={<PublicPartners />} />
           <Route path="plans" element={<PublicPlans />} />

@@ -1,11 +1,28 @@
 import React from 'react';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Calendar, Clock, DollarSign, Plus, Crown, Handshake, ArrowRight } from 'lucide-react';
+import { Calendar, Clock, DollarSign, Plus, Crown, Handshake, ArrowRight, MapPin } from 'lucide-react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { Badge } from '@/components/ui/badge';
 
-const PublicDashboard = () => {
+interface PublicSettings {
+  company_name: string;
+  slogan: string | null;
+  logo_url: string | null;
+  banner_url: string | null;
+  primary_color_hex: string;
+  secondary_color_hex: string;
+  address: string | null;
+  phone: string | null;
+  email: string | null;
+  is_public_page_enabled: boolean;
+}
+
+interface PublicDashboardProps {
+  settings: PublicSettings;
+}
+
+const PublicDashboard: React.FC<PublicDashboardProps> = ({ settings }) => {
   const navigate = useNavigate();
   const { userId } = useParams<{ userId: string }>();
 
@@ -26,6 +43,21 @@ const PublicDashboard = () => {
 
   return (
     <div className="space-y-6">
+      {/* Banner de Capa Dinâmico */}
+      {settings.banner_url && (
+        <div 
+          className="relative h-48 bg-cover bg-center rounded-lg shadow-lg overflow-hidden"
+          style={{ backgroundImage: `url(${settings.banner_url})` }}
+        >
+          <div className="absolute inset-0 bg-black/40 flex items-center justify-center">
+            <div className="text-center text-white p-4">
+              <h2 className="text-3xl font-bold">{settings.company_name}</h2>
+              {settings.slogan && <p className="text-lg mt-1">{settings.slogan}</p>}
+            </div>
+          </div>
+        </div>
+      )}
+
       <div className="flex justify-between items-center">
         <h1 className="text-3xl font-bold">Bem-vindo, Cliente!</h1>
         <Button onClick={() => navigate(`/public-booking/${userId}/new-appointment`)}>
@@ -34,7 +66,7 @@ const PublicDashboard = () => {
         </Button>
       </div>
 
-      {/* Banner Promocional */}
+      {/* Banner Promocional (Mantido, mas abaixo da saudação) */}
       <Card className="bg-gradient-to-r from-primary to-primary-600 text-primary-foreground shadow-lg">
         <CardContent className="p-6 flex justify-between items-center">
           <div>

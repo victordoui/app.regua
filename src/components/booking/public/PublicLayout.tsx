@@ -24,6 +24,7 @@ interface PublicLayoutProps {
     logo_url: string | null;
     company_name: string;
     primary_color_hex: string;
+    banner_url: string | null; // Adicionando banner_url aqui para consistência
   };
 }
 
@@ -61,16 +62,16 @@ const PublicLayout: React.FC<PublicLayoutProps> = ({ children, settings }) => {
 
   const renderSidebarContent = (isMobileView: boolean) => (
     <>
-      {/* Logo Grande no Topo */}
+      {/* Logo Grande no Topo (Aumentado) */}
       <div className="p-6 border-b flex flex-col items-center justify-center">
         {settings.logo_url ? (
-          <img src={settings.logo_url} alt="Logo" className="h-20 w-20 object-contain mb-2" />
+          <img src={settings.logo_url} alt="Logo" className="h-24 w-24 object-contain mb-2" />
         ) : (
-          <div className="h-16 w-16 bg-primary rounded-full flex items-center justify-center mb-2">
-            <Scissors className="h-8 w-8 text-primary-foreground" />
+          <div className="h-24 w-24 bg-primary rounded-full flex items-center justify-center mb-2">
+            <Scissors className="h-10 w-10 text-primary-foreground" />
           </div>
         )}
-        <h2 className="text-xl font-bold text-foreground text-center">
+        <h2 className="text-2xl font-bold text-foreground text-center">
           {settings.company_name || 'Barbearia'}
         </h2>
       </div>
