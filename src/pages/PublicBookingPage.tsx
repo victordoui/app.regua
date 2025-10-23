@@ -1,10 +1,9 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { useParams } from 'react-router-dom';
 import { supabase } from '@/integrations/supabase/client';
-import { CompanySettings } from '@/hooks/useCompanySettings';
 import { Card, CardContent } from '@/components/ui/card';
 import { Clock, MapPin, Phone, Mail, Scissors } from 'lucide-react';
-import Booking from '@/components/Booking'; // Reutilizando o componente de agendamento
+import ClientBookingFlow from '@/components/booking/ClientBookingFlow'; // Importando o novo componente
 
 interface PublicSettings {
   company_name: string;
@@ -118,7 +117,7 @@ const PublicBookingPage = () => {
         <div className="relative z-10 text-white">
           <div className="flex items-center gap-4">
             {settings.logo_url ? (
-              <img src={settings.logo_url} alt="Logo" className="h-16 w-16 rounded-full border-4 border-white" />
+              <img src={settings.logo_url} alt="Logo" className="h-16 w-16 rounded-full border-4 border-white object-cover" />
             ) : (
               <div className="h-16 w-16 bg-white rounded-full flex items-center justify-center border-4 border-white">
                 <Scissors className="h-8 w-8 text-gray-800" />
@@ -158,8 +157,7 @@ const PublicBookingPage = () => {
 
       {/* Componente de Agendamento (Reutilizado) */}
       <div className="max-w-4xl mx-auto mt-8 pb-16">
-        {/* Nota: O componente Booking precisa ser adaptado para usar as cores dinâmicas e dados reais da barbearia */}
-        <Booking />
+        <ClientBookingFlow />
       </div>
     </div>
   );

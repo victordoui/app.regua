@@ -1,15 +1,22 @@
 import React from 'react';
-import { Check } from 'lucide-react';
-import { STEPS } from '@/types/booking';
+import { Check, LucideIcon } from 'lucide-react';
+import { STEPS } from '@/types/booking'; // Mantendo importação original para compatibilidade
+
+interface StepItem {
+  id: number;
+  name: string;
+  icon?: LucideIcon;
+}
 
 interface StepIndicatorProps {
   currentStep: number;
+  steps: StepItem[];
 }
 
-const StepIndicator: React.FC<StepIndicatorProps> = ({ currentStep }) => {
+const StepIndicator: React.FC<StepIndicatorProps> = ({ currentStep, steps }) => {
   return (
     <div className="flex items-center justify-between mb-8 px-4">
-      {STEPS.map((item, index) => (
+      {steps.map((item, index) => (
         <React.Fragment key={item.id}>
           <div className="flex flex-col items-center">
             <div 
@@ -27,7 +34,7 @@ const StepIndicator: React.FC<StepIndicatorProps> = ({ currentStep }) => {
               {item.name}
             </span>
           </div>
-          {index < STEPS.length - 1 && (
+          {index < steps.length - 1 && (
             <div 
               className={`flex-1 h-0.5 mx-2 transition-colors duration-300 ${
                 item.id < currentStep ? 'bg-primary' : 'bg-border'
