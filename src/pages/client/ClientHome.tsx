@@ -30,7 +30,7 @@ const ClientHome = () => {
               <h2 className="text-2xl font-bold mb-1">Promoção de Lançamento!</h2>
               <p className="text-sm opacity-90">Agende seu primeiro serviço e ganhe 10% de desconto.</p>
             </div>
-            <Button variant="secondary" className="bg-white text-primary hover:bg-gray-100">
+            <Button variant="secondary" className="bg-white text-primary hover:bg-gray-100" onClick={() => navigate('/client/booking')}>
               Agendar Agora
             </Button>
           </CardContent>
@@ -84,7 +84,7 @@ const ClientHome = () => {
             ) : (
               <div className="text-center py-4 space-y-3">
                 <p className="text-muted-foreground">Você não tem nenhum agendamento marcado.</p>
-                <Button onClick={() => navigate('/public-booking/seu-id-aqui')}>
+                <Button onClick={() => navigate('/client/booking')}>
                   <Plus className="h-4 w-4 mr-2" />
                   Novo Agendamento
                 </Button>
