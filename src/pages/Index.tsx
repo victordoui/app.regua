@@ -10,6 +10,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
 import { useToast } from "@/hooks/use-toast";
 import { useSubscriptions } from "@/hooks/useSubscriptions";
+import { motion } from "framer-motion";
 
 interface DashboardData {
   totalAppointments: number;
@@ -52,7 +53,7 @@ const Index = () => {
     const monthlyRevenue = (appointmentsData || [])
       .filter(a => a.status === 'completed')
       .reduce((sum, a) => sum + (a.total_price || 0), 0);
-    
+
     const occupancyRate = totalAppointments > 0 ? Math.min((completedAppointments / totalAppointments) * 100, 100) : 0;
 
     // 2. Clients Data (Total and New this Month)
@@ -160,6 +161,21 @@ const Index = () => {
     }
   };
 
+  const container = {
+    hidden: { opacity: 0 },
+    show: {
+      opacity: 1,
+      transition: {
+        staggerChildren: 0.1
+      }
+    }
+  };
+
+  const item = {
+    hidden: { opacity: 0, y: 20 },
+    show: { opacity: 1, y: 0 }
+  };
+
   if (isLoading) {
     return (
       <Layout>
@@ -188,44 +204,50 @@ const Index = () => {
           </div>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+        <motion.div
+          variants={container}
+          initial="hidden"
+          animate="show"
+          className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6"
+        >
           {stats.map((stat, index) => {
             const Icon = stat.icon;
             return (
-              <Card key={index} className="relative overflow-hidden hover:shadow-lg transition-shadow">
-                <CardContent className="p-4">
-                  <div className="flex justify-between items-start">
-                    <div className="space-y-2 flex-1">
-                      <p className="text-sm font-medium text-muted-foreground">{stat.title}</p>
-                      <p className="text-2xl font-bold text-foreground">{stat.value}</p>
-                    </div>
-                    <div className="flex items-center gap-2">
-                      <div className={`p-3 rounded-full bg-gradient-to-r ${getStatColor(stat.color)}`}>
-                        <Icon className="h-5 w-5 text-white" />
+              <motion.div key={index} variants={item}>
+                <Card className="relative overflow-hidden hover:shadow-lg transition-all duration-300 hover:-translate-y-1">
+                  <CardContent className="p-4">
+                    <div className="flex justify-between items-start">
+                      <div className="space-y-2 flex-1">
+                        <p className="text-sm font-medium text-muted-foreground">{stat.title}</p>
+                        <p className="text-2xl font-bold text-foreground">{stat.value}</p>
+                      </div>
+                      <div className="flex items-center gap-2">
+                        <div className={`p-3 rounded-full bg-gradient-to-r ${getStatColor(stat.color)} shadow-md`}>
+                          <Icon className="h-5 w-5 text-white" />
+                        </div>
                       </div>
                     </div>
-                  </div>
-                  <div className="space-y-2">
-                    <div className="flex items-center justify-between">
-                      <p className={`text-xs ${
-                        stat.trend === 'up' ? 'text-green-600' : 
-                        stat.trend === 'warning' ? 'text-orange-600' : 
-                        stat.trend === 'down' ? 'text-red-600' : 
-                        'text-muted-foreground'
-                      }`}>
-                        {stat.change}
-                      </p>
-                      <span className="text-xs text-muted-foreground">
-                        {stat.progress?.toFixed(0)}%
-                      </span>
+                    <div className="space-y-2 mt-4">
+                      <div className="flex items-center justify-between">
+                        <p className={`text-xs ${stat.trend === 'up' ? 'text-green-600' :
+                            stat.trend === 'warning' ? 'text-orange-600' :
+                              stat.trend === 'down' ? 'text-red-600' :
+                                'text-muted-foreground'
+                          }`}>
+                          {stat.change}
+                        </p>
+                        <span className="text-xs text-muted-foreground">
+                          {stat.progress?.toFixed(0)}%
+                        </span>
+                      </div>
+                      <Progress value={stat.progress || 0} className="h-2" />
                     </div>
-                    <Progress value={stat.progress || 0} className="h-2" />
-                  </div>
-                </CardContent>
-              </Card>
+                  </CardContent>
+                </Card>
+              </motion.div>
             );
           })}
-        </div>
+        </motion.div>
 
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
           <Card>

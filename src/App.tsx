@@ -5,6 +5,7 @@ import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { AuthProvider } from "@/contexts/AuthContext";
 import ProtectedRoute from "@/components/ProtectedRoute";
+import ErrorBoundary from "@/components/ErrorBoundary";
 
 // Pages
 import Login from "./pages/Login";
@@ -43,41 +44,41 @@ function AppContent() {
     <BrowserRouter>
       <Routes>
         <Route path="/login" element={<Login />} />
-        
+
         {/* Rota Pública de Agendamento (Agora aceita sub-rotas) */}
         <Route path="/public-booking/:userId/*" element={<PublicBookingPage />} />
-        
+
         {/* Dashboard / Visão Geral */}
         <Route path="/" element={<ProtectedRoute><Dashboard /></ProtectedRoute>} />
         <Route path="/customer-success" element={<ProtectedRoute><CustomerSuccess /></ProtectedRoute>} />
         <Route path="/barber-performance" element={<ProtectedRoute><BarberPerformance /></ProtectedRoute>} />
-        
+
         {/* Operações */}
         <Route path="/appointments" element={<ProtectedRoute><Appointments /></ProtectedRoute>} />
         <Route path="/clients" element={<ProtectedRoute><Clients /></ProtectedRoute>} />
         <Route path="/barbers" element={<ProtectedRoute><BarberManagement /></ProtectedRoute>} />
         <Route path="/services" element={<ProtectedRoute><Services /></ProtectedRoute>} />
-        
+
         {/* Comunicação */}
         <Route path="/conversations" element={<ProtectedRoute><Conversations /></ProtectedRoute>} />
         {/* Rota unificada para Notificações Avançadas (inclui Notificações Gerais) */}
         <Route path="/advanced-notifications" element={<ProtectedRoute><AdvancedNotifications /></ProtectedRoute>} />
         <Route path="/campaigns" element={<ProtectedRoute><Campaigns /></ProtectedRoute>} />
-        
+
         {/* Financeiro */}
         <Route path="/reports" element={<ProtectedRoute><Reports /></ProtectedRoute>} /> {/* Visão Financeira */}
         <Route path="/billing" element={<ProtectedRoute><Billing /></ProtectedRoute>} />
         <Route path="/commissions" element={<ProtectedRoute><Commissions /></ProtectedRoute>} />
-        
+
         {/* Assinaturas */}
         <Route path="/subscriptions" element={<ProtectedRoute><Subscriptions /></ProtectedRoute>} />
         <Route path="/subscriptions/new" element={<ProtectedRoute><SubscriptionCreation /></ProtectedRoute>} />
-        
+
         {/* Minha Empresa */}
         <Route path="/settings/company" element={<ProtectedRoute><CompanySettings /></ProtectedRoute>} />
         <Route path="/inventory" element={<ProtectedRoute><Inventory /></ProtectedRoute>} />
         <Route path="/integrations" element={<ProtectedRoute><Integrations /></ProtectedRoute>} />
-        
+
         {/* Administração */}
         <Route path="/users" element={<ProtectedRoute><Users /></ProtectedRoute>} />
         <Route path="/settings" element={<ProtectedRoute><Settings /></ProtectedRoute>} /> {/* Configurações Gerais */}
@@ -88,7 +89,7 @@ function AppContent() {
 
         {/* Rota de Agendamento Online (mantida, mas não aparece na sidebar de gestão) */}
         <Route path="/booking" element={<ProtectedRoute><OnlineBooking /></ProtectedRoute>} />
-        
+
         {/* Rota de fallback */}
         <Route path="*" element={<Navigate to="/" replace />} />
       </Routes>
@@ -105,11 +106,13 @@ function App() {
         enableSystem={false}
         disableTransitionOnChange
       >
-        <AuthProvider>
-          <AppContent />
-          <Toaster />
-          <Sonner />
-        </AuthProvider>
+        <ErrorBoundary>
+          <AuthProvider>
+            <AppContent />
+            <Toaster />
+            <Sonner />
+          </AuthProvider>
+        </ErrorBoundary>
       </ThemeProvider>
     </QueryClientProvider>
   );
