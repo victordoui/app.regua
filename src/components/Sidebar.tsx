@@ -293,33 +293,28 @@ const Sidebar = () => {
       {/* Sidebar */}
       <motion.div
         initial={false}
-        animate={{ width: isCollapsed ? 80 : 288, x: isMobile && !isOpen ? -288 : 0 }}
+        animate={{ width: isCollapsed ? 64 : 240, x: isMobile && !isOpen ? -240 : 0 }}
         transition={{ duration: 0.3, ease: "easeInOut" }}
         className={`fixed left-0 top-0 h-full bg-card/95 backdrop-blur-sm border-r border-border z-40 ${
           isMobile ? 'shadow-2xl' : ''
         } md:relative md:shadow-none md:bg-card flex flex-col`}
-        style={{ width: isMobile ? (isOpen ? 288 : 0) : (isCollapsed ? 80 : 288) }}
+        style={{ width: isMobile ? (isOpen ? 240 : 0) : (isCollapsed ? 64 : 240) }}
       >
         {/* Header */}
-        <div className={`p-6 border-b border-border flex items-center ${isCollapsed ? 'justify-center' : 'justify-between'}`}>
-          <div className="flex items-center gap-3 overflow-hidden">
-            {/* Ícone de Tesoura (Replicando o estilo do Login) */}
-            <div className="w-10 h-10 bg-gradient-to-r from-primary to-primary-600 rounded-lg flex items-center justify-center shadow-sm flex-shrink-0">
-              <Scissors className="h-5 w-5 text-primary-foreground" />
+        <div className={`p-4 border-b border-border flex items-center ${isCollapsed ? 'justify-center' : 'justify-between'}`}>
+          <div className="flex items-center gap-2 overflow-hidden">
+            <div className="w-8 h-8 bg-gradient-to-r from-primary to-primary/80 rounded-lg flex items-center justify-center shadow-sm flex-shrink-0">
+              <Scissors className="h-4 w-4 text-primary-foreground" />
             </div>
             {!isCollapsed && (
-              <div>
-                <h2 className="font-bold text-3xl text-foreground whitespace-nowrap">Na Régua</h2>
-              </div>
+              <h2 className="font-bold text-xl text-foreground whitespace-nowrap">Na Régua</h2>
             )}
           </div>
         </div>
 
         {/* Navigation */}
-        <nav className="p-4 overflow-y-auto flex-1">
-          <div 
-            className="space-y-2"
-          >
+        <nav className="p-3 overflow-y-auto flex-1">
+          <div className="space-y-1">
             {/* Categories */}
             {menuStructure.map((category, index) => (
               <div
