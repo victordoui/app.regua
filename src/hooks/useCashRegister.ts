@@ -60,11 +60,14 @@ export const useCashRegister = () => {
     if (!user) return [];
     const { data, error } = await supabase
       .from("profiles")
-      .select("id, name:display_name, email, phone") // Assuming 'name' is 'display_name' in profiles
+      .select("id, name:display_name, email, phone, created_at")
       .eq("user_id", user.id)
       .order("display_name", { ascending: true });
     if (error) throw error;
-    return data || [];
+    return (data || []).map(d => ({
+      ...d,
+      name: d.name || 'Cliente'
+    })) as Client[];
   }, [user]);
 
   const { data: clients, isLoading: isLoadingClients, error: clientsError } = useQuery<Client[], Error>({

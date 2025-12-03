@@ -93,9 +93,11 @@ export const useCommissions = () => {
       : appointments.filter((apt: any) => apt.barbeiro_id === selectedBarberId);
 
     for (const apt of filteredAppointments) {
-      const servicePrice = apt.services?.price || 0;
+      const service = Array.isArray(apt.services) ? apt.services[0] : apt.services;
+      const barberProfile = Array.isArray(apt.barber_profile) ? apt.barber_profile[0] : apt.barber_profile;
+      const servicePrice = service?.price || 0;
       const commissionAmount = servicePrice * DEFAULT_COMMISSION_RATE;
-      const barberName = `${apt.barber_profile?.first_name || ''} ${apt.barber_profile?.last_name || ''}`.trim() || 'Barbeiro Desconhecido';
+      const barberName = `${barberProfile?.first_name || ''} ${barberProfile?.last_name || ''}`.trim() || 'Barbeiro Desconhecido';
 
       if (apt.barbeiro_id) {
         if (!barberSummaries[apt.barbeiro_id]) {
@@ -110,10 +112,11 @@ export const useCommissions = () => {
         barberSummaries[apt.barbeiro_id].completed_appointments_count += 1;
       }
 
+      const client = Array.isArray(apt.clients) ? apt.clients[0] : apt.clients;
       commissionDetails.push({
         appointment_id: apt.id,
-        client_name: apt.clients?.name || 'Cliente Desconhecido',
-        service_name: apt.services?.name || 'Serviço Desconhecido',
+        client_name: client?.name || 'Cliente Desconhecido',
+        service_name: service?.name || 'Serviço Desconhecido',
         appointment_date: apt.appointment_date,
         appointment_time: apt.appointment_time,
         service_price: servicePrice,

@@ -23,9 +23,9 @@ import { useClients } from '@/hooks/useClients'; // Importando hook real de clie
 interface Client {
   id: string;
   name: string;
-  email: string;
+  email?: string;
   phone: string;
-  created_at: string;
+  created_at?: string;
   last_visit?: string;
   total_visits: number;
   subscription_type?: string;

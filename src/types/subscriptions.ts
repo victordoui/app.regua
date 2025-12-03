@@ -17,6 +17,7 @@ export interface UserSubscription {
   status: string;
   start_date: string;
   end_date: string;
+  credits_remaining: number;
   created_at: string;
   updated_at: string;
   subscription_plans?: SubscriptionPlan;
@@ -26,9 +27,9 @@ export interface UserSubscription {
 export interface Client {
   id: string;
   name: string;
-  email: string;
-  phone: string;
-  created_at: string;
+  email?: string;
+  phone?: string;
+  created_at?: string;
 }
 
 export interface PlanFormData {

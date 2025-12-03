@@ -4,7 +4,7 @@ export interface Client {
   phone: string;
   email?: string;
   notes?: string;
-  created_at: string;
+  created_at?: string;
 }
 
 export interface Service {
@@ -23,6 +23,9 @@ export interface Barber {
   email: string;
   phone?: string;
   role?: "admin" | "barbeiro" | "cliente";
+  active?: boolean;
+  specialties?: string[];
+  specializations?: string[];
 }
 
 export type BarberData = Barber; // Mantendo para compatibilidade, mas Barber é mais descritivo
