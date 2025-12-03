@@ -10,7 +10,7 @@ import { format } from 'date-fns';
 interface SubscriptionCreationDialogProps {
   isOpen: boolean;
   setIsOpen: (open: boolean) => void;
-  createSubscription: (formData: SubscriptionFormData) => Promise<void>;
+  createSubscription: (formData: SubscriptionFormData) => Promise<any>;
   clients: Client[];
   plans: SubscriptionPlan[];
 }

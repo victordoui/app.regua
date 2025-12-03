@@ -18,6 +18,7 @@ import {
   UserCheck, 
   UserX,
   Users as UsersIcon,
+  Scissors,
   Crown,
   Shield
 } from "lucide-react";

@@ -9,7 +9,7 @@ import { ptBR } from 'date-fns/locale';
 
 interface UserSubscriptionCardProps {
   subscription: UserSubscription;
-  onUpdateStatus: (id: string, newStatus: 'active' | 'cancelled' | 'paused' | 'expired') => Promise<void>;
+  onUpdateStatus: (params: { id: string; status: 'active' | 'cancelled' | 'paused' | 'expired' }) => Promise<any>;
 }
 
 const UserSubscriptionCard: React.FC<UserSubscriptionCardProps> = ({ subscription, onUpdateStatus }) => {
@@ -59,7 +59,7 @@ const UserSubscriptionCard: React.FC<UserSubscriptionCardProps> = ({ subscriptio
             <Button
               variant="outline"
               size="sm"
-              onClick={() => onUpdateStatus(subscription.id, 'cancelled')}
+              onClick={() => onUpdateStatus({ id: subscription.id, status: 'cancelled' })}
             >
               Cancelar
             </Button>
@@ -68,7 +68,7 @@ const UserSubscriptionCard: React.FC<UserSubscriptionCardProps> = ({ subscriptio
             <Button
               variant="outline"
               size="sm"
-              onClick={() => onUpdateStatus(subscription.id, 'active')}
+              onClick={() => onUpdateStatus({ id: subscription.id, status: 'active' })}
             >
               Reativar
             </Button>

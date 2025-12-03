@@ -1,5 +1,6 @@
 import React from 'react';
 import { format } from "date-fns";
+import { ptBR } from "date-fns/locale";
 import { Appointment, Barber, TimeSlot } from '@/types/appointments';
 import AppointmentCard from './AppointmentCard';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';

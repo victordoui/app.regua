@@ -8,7 +8,7 @@ import { SubscriptionPlan } from '@/types/subscriptions';
 interface SubscriptionPlanCardProps {
   plan: SubscriptionPlan;
   onEdit: (plan: SubscriptionPlan) => void;
-  onToggleStatus: (planId: string, currentStatus: boolean) => Promise<void>;
+  onToggleStatus: (params: { id: string; currentStatus: boolean }) => Promise<any>;
 }
 
 const SubscriptionPlanCard: React.FC<SubscriptionPlanCardProps> = ({ plan, onEdit, onToggleStatus }) => {
@@ -43,7 +43,7 @@ const SubscriptionPlanCard: React.FC<SubscriptionPlanCardProps> = ({ plan, onEdi
           <Button
             variant="outline"
             size="sm"
-            onClick={() => onToggleStatus(plan.id, plan.active)}
+            onClick={() => onToggleStatus({ id: plan.id, currentStatus: plan.active })}
           >
             {plan.active ? <PowerOff className="h-4 w-4" /> : <Power className="h-4 w-4" />}
           </Button>
