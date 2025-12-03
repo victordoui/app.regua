@@ -102,11 +102,14 @@ function CustomerSuccess() {
   
   // Mapeia clientes reais para o tipo Client local, adicionando dados mockados de visita/assinatura
   const clients: Client[] = realClients.map(c => ({
-    ...c,
-    name: c.name || c.email || 'Cliente',
+    id: c.id,
+    name: c.name || 'Cliente',
+    email: c.email || undefined,
+    phone: c.phone,
+    created_at: c.created_at,
     last_visit: '2024-12-20', // Mocked
     total_visits: 15, // Mocked
-    subscription_type: c.id === '1' ? 'premium' : undefined, // Mocked
+    subscription_type: undefined, // Mocked
   }));
 
   const [feedbacks, setFeedbacks] = useState<Feedback[]>(mockFeedbacks);

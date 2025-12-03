@@ -22,7 +22,7 @@ import {
   Crown,
   Shield
 } from "lucide-react";
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
 import { useToast } from "@/hooks/use-toast";
@@ -37,29 +37,28 @@ interface UserProfile {
   role: string;
   active: boolean;
   created_at: string;
-  last_login?: string; // Mocked for now
 }
 
 const Users = () => {
   const { user: currentUser } = useAuth();
   const { toast } = useToast();
+  const queryClient = useQueryClient();
   const [searchTerm, setSearchTerm] = useState("");
 
   const fetchAllProfiles = useCallback(async (): Promise<UserProfile[]> => {
     if (!currentUser) return [];
     
-    // Fetch all profiles managed by the current user
     const { data, error } = await supabase
       .from("profiles")
-      .select("id, user_id, display_name, email, role, active, created_at");
+      .select("id, user_id, display_name, email, role, active, created_at")
+      .order("created_at", { ascending: false });
 
     if (error) throw error;
     
     return (data || []).map(p => ({
       ...p,
       display_name: p.display_name || p.email || 'Usuário Desconhecido',
-      active: p.active ?? true, // Assuming active by default if not set
-      last_login: "N/A" // Mocked as we don't track last login in profiles table
+      active: p.active ?? true,
     })) as UserProfile[];
   }, [currentUser]);
 
@@ -68,6 +67,68 @@ const Users = () => {
     queryFn: fetchAllProfiles,
     enabled: !!currentUser,
   });
+
+  // Toggle user active status
+  const toggleStatusMutation = useMutation({
+    mutationFn: async ({ id, currentStatus }: { id: string; currentStatus: boolean }) => {
+      const { error } = await supabase
+        .from("profiles")
+        .update({ active: !currentStatus })
+        .eq("id", id);
+      
+      if (error) throw error;
+    },
+    onSuccess: (_, variables) => {
+      queryClient.invalidateQueries({ queryKey: ["allProfiles"] });
+      toast({ 
+        title: variables.currentStatus ? "Usuário desativado" : "Usuário ativado",
+        description: "Status atualizado com sucesso."
+      });
+    },
+    onError: (error: any) => {
+      toast({
+        title: "Erro ao atualizar status",
+        description: error.message,
+        variant: "destructive"
+      });
+    }
+  });
+
+  // Delete user profile
+  const deleteProfileMutation = useMutation({
+    mutationFn: async (id: string) => {
+      const { error } = await supabase
+        .from("profiles")
+        .delete()
+        .eq("id", id);
+      
+      if (error) throw error;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["allProfiles"] });
+      toast({ 
+        title: "Usuário excluído",
+        description: "O perfil foi removido com sucesso."
+      });
+    },
+    onError: (error: any) => {
+      toast({
+        title: "Erro ao excluir usuário",
+        description: error.message,
+        variant: "destructive"
+      });
+    }
+  });
+
+  const handleToggleStatus = (id: string, currentStatus: boolean) => {
+    toggleStatusMutation.mutate({ id, currentStatus });
+  };
+
+  const handleDelete = (id: string, displayName: string) => {
+    if (confirm(`Tem certeza que deseja excluir o usuário "${displayName}"?`)) {
+      deleteProfileMutation.mutate(id);
+    }
+  };
 
   const getInitials = (name: string) => {
     return name
@@ -120,7 +181,7 @@ const Users = () => {
 
   const filteredUsers = profiles.filter(user =>
     user.display_name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    user.email.toLowerCase().includes(searchTerm.toLowerCase())
+    user.email?.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
   const stats = [
@@ -210,7 +271,7 @@ const Users = () => {
           })}
         </div>
 
-        {/* Search and Filters */}
+        {/* Search */}
         <Card>
           <CardHeader>
             <div className="flex items-center gap-4">
@@ -233,68 +294,77 @@ const Users = () => {
             <CardTitle>Lista de Usuários</CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="space-y-4">
-              {filteredUsers.map((user) => (
-                <div key={user.id} className="flex items-center justify-between p-4 border border-border rounded-lg hover:bg-muted/50 transition-colors">
-                  <div className="flex items-center gap-4">
-                    <div className="w-12 h-12 bg-gray-200 rounded-full flex items-center justify-center">
-                      <span className="text-gray-500 font-medium">
-                        {getInitials(user.display_name)}
-                      </span>
+            {filteredUsers.length === 0 ? (
+              <div className="text-center py-8 text-muted-foreground">
+                Nenhum usuário encontrado.
+              </div>
+            ) : (
+              <div className="space-y-4">
+                {filteredUsers.map((user) => (
+                  <div key={user.id} className="flex items-center justify-between p-4 border border-border rounded-lg hover:bg-muted/50 transition-colors">
+                    <div className="flex items-center gap-4">
+                      <div className="w-12 h-12 bg-gray-200 rounded-full flex items-center justify-center">
+                        <span className="text-gray-500 font-medium">
+                          {getInitials(user.display_name)}
+                        </span>
+                      </div>
+                      
+                      <div className="space-y-1">
+                        <div className="flex items-center gap-2">
+                          <span className="font-medium">{user.display_name}</span>
+                          <Badge className={getRoleColor(user.role)}>
+                            {getRoleLabel(user.role)}
+                          </Badge>
+                          <Badge className={getStatusColor(user.active)}>
+                            {getStatusLabel(user.active)}
+                          </Badge>
+                        </div>
+                        <div className="text-sm text-muted-foreground">
+                          {user.email}
+                        </div>
+                        <div className="text-xs text-muted-foreground">
+                          Criado em: {new Date(user.created_at).toLocaleDateString('pt-BR')}
+                        </div>
+                      </div>
                     </div>
-                    
-                    <div className="space-y-1">
-                      <div className="flex items-center gap-2">
-                        <span className="font-medium">{user.display_name}</span>
-                        <Badge className={getRoleColor(user.role)}>
-                          {getRoleLabel(user.role)}
-                        </Badge>
-                        <Badge className={getStatusColor(user.active)}>
-                          {getStatusLabel(user.active)}
-                        </Badge>
-                      </div>
-                      <div className="text-sm text-muted-foreground">
-                        {user.email}
-                      </div>
-                      <div className="text-xs text-muted-foreground">
-                        Criado em: {new Date(user.created_at).toLocaleDateString('pt-BR')}
-                      </div>
-                    </div>
-                  </div>
 
-                  <DropdownMenu>
-                    <DropdownMenuTrigger asChild>
-                      <Button variant="ghost" size="sm">
-                        <MoreHorizontal className="h-4 w-4" />
-                      </Button>
-                    </DropdownMenuTrigger>
-                    <DropdownMenuContent align="end">
-                      <DropdownMenuItem>
-                        <Edit className="mr-2 h-4 w-4" />
-                        Editar
-                      </DropdownMenuItem>
-                      <DropdownMenuItem>
-                        {user.active ? (
-                          <>
-                            <UserX className="mr-2 h-4 w-4" />
-                            Desativar
-                          </>
-                        ) : (
-                          <>
-                            <UserCheck className="mr-2 h-4 w-4" />
-                            Ativar
-                          </>
-                        )}
-                      </DropdownMenuItem>
-                      <DropdownMenuItem className="text-destructive">
-                        <Trash2 className="mr-2 h-4 w-4" />
-                        Excluir
-                      </DropdownMenuItem>
-                    </DropdownMenuContent>
-                  </DropdownMenu>
-                </div>
-              ))}
-            </div>
+                    <DropdownMenu>
+                      <DropdownMenuTrigger asChild>
+                        <Button variant="ghost" size="sm">
+                          <MoreHorizontal className="h-4 w-4" />
+                        </Button>
+                      </DropdownMenuTrigger>
+                      <DropdownMenuContent align="end">
+                        <DropdownMenuItem>
+                          <Edit className="mr-2 h-4 w-4" />
+                          Editar
+                        </DropdownMenuItem>
+                        <DropdownMenuItem onClick={() => handleToggleStatus(user.id, user.active)}>
+                          {user.active ? (
+                            <>
+                              <UserX className="mr-2 h-4 w-4" />
+                              Desativar
+                            </>
+                          ) : (
+                            <>
+                              <UserCheck className="mr-2 h-4 w-4" />
+                              Ativar
+                            </>
+                          )}
+                        </DropdownMenuItem>
+                        <DropdownMenuItem 
+                          className="text-destructive"
+                          onClick={() => handleDelete(user.id, user.display_name)}
+                        >
+                          <Trash2 className="mr-2 h-4 w-4" />
+                          Excluir
+                        </DropdownMenuItem>
+                      </DropdownMenuContent>
+                    </DropdownMenu>
+                  </div>
+                ))}
+              </div>
+            )}
           </CardContent>
         </Card>
       </div>

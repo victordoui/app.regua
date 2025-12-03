@@ -360,32 +360,44 @@ export type Database = {
       }
       profiles: {
         Row: {
+          active: boolean | null
           avatar_url: string | null
           created_at: string
           display_name: string | null
           email: string | null
           id: string
+          notes: string | null
+          phone: string | null
           role: Database["public"]["Enums"]["user_role"] | null
+          specializations: string[] | null
           updated_at: string
           user_id: string
         }
         Insert: {
+          active?: boolean | null
           avatar_url?: string | null
           created_at?: string
           display_name?: string | null
           email?: string | null
           id?: string
+          notes?: string | null
+          phone?: string | null
           role?: Database["public"]["Enums"]["user_role"] | null
+          specializations?: string[] | null
           updated_at?: string
           user_id: string
         }
         Update: {
+          active?: boolean | null
           avatar_url?: string | null
           created_at?: string
           display_name?: string | null
           email?: string | null
           id?: string
+          notes?: string | null
+          phone?: string | null
           role?: Database["public"]["Enums"]["user_role"] | null
+          specializations?: string[] | null
           updated_at?: string
           user_id?: string
         }

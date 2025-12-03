@@ -3,69 +3,155 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
-import { Plus, Crown, Calendar, DollarSign, Target, Heart, Users } from "lucide-react";
+import { Plus, Crown, Calendar, DollarSign, Target, Heart, Users, Clock } from "lucide-react";
+import { useNavigate } from "react-router-dom";
+import { supabase } from "@/integrations/supabase/client";
+import { useAuth } from "@/contexts/AuthContext";
+import { format, startOfMonth, endOfMonth, startOfDay, endOfDay } from "date-fns";
+import { ptBR } from "date-fns/locale";
 import Layout from "@/components/Layout";
 
-interface Service {
-  id: string;
-  name: string;
-  description: string;
-  price: number;
-  duration_minutes: number;
-  status: string;
+interface DashboardData {
+  appointments: { total: number; completed: number; cancelled: number; pending: number; todayCount: number };
+  revenue: { today: number; month: number; growth: number };
+  clients: { total: number; new: number };
+  performance: { occupancy: number; satisfaction: number };
+  subscriptions: { activeCount: number; mrr: number };
 }
 
-interface Appointment {
+interface TodayAppointment {
   id: string;
-  total_price: number;
-  services: Service;
+  appointment_time: string;
   status: string;
+  client_name: string;
+  service_name: string;
 }
 
 const Dashboard = () => {
+  const { user } = useAuth();
+  const navigate = useNavigate();
   const [loading, setLoading] = useState(true);
-  const [dashboardData, setDashboardData] = useState({
-    appointments: { total: 0, completed: 0, cancelled: 0, completedInMonth: 0 },
+  const [todayAppointments, setTodayAppointments] = useState<TodayAppointment[]>([]);
+  const [dashboardData, setDashboardData] = useState<DashboardData>({
+    appointments: { total: 0, completed: 0, cancelled: 0, pending: 0, todayCount: 0 },
     revenue: { today: 0, month: 0, growth: 0 },
     clients: { total: 0, new: 0 },
-    performance: { occupancy: 0, satisfaction: 0 },
+    performance: { occupancy: 0, satisfaction: 92 },
     subscriptions: { activeCount: 0, mrr: 0 }
   });
 
   useEffect(() => {
     const fetchDashboardData = async () => {
+      if (!user) return;
+      
       try {
         setLoading(true);
-        const appointments: Appointment[] = [
-          { id: "1", total_price: 50, services: { id: "1", duration_minutes: 30, status: "completed", name: "Corte Simples", description: "Corte de cabelo padrão", price: 50 }, status: "completed" },
-          { id: "2", total_price: 35, services: { id: "2", duration_minutes: 45, status: "completed", name: "Barba", description: "Barba padrão", price: 30 }, status: "completed" },
-          { id: "3", total_price: 80, services: { id: "3", duration_minutes: 60, status: "completed", name: "Corte + Barba", description: "Combo", price: 80 }, status: "completed" },
-          { id: "4", total_price: 25, services: { id: "4", duration_minutes: 20, status: "cancelled", name: "Sobrancelha", description: "Cancelado", price: 25 }, status: "cancelled" },
-        ];
+        const today = new Date();
+        const monthStart = format(startOfMonth(today), 'yyyy-MM-dd');
+        const monthEnd = format(endOfMonth(today), 'yyyy-MM-dd');
+        const todayStr = format(today, 'yyyy-MM-dd');
 
-        const completedAppointments = appointments.filter(apt => apt.status === "completed");
-        const totalRevenue = appointments.reduce((sum, apt) => sum + (apt.total_price || 0), 0);
-        const totalClients = 150;
-        const newClients = 18;
-        const activeCount = 3;
-        const mrr = 750;
-        const satisfaction = 92;
-        const retention = activeCount > 0 ? Math.round((activeCount / (activeCount + 1)) * 100) : 0;
+        // Fetch all data in parallel
+        const [
+          appointmentsRes,
+          todayAppointmentsRes,
+          clientsRes,
+          newClientsRes,
+          subscriptionsRes
+        ] = await Promise.all([
+          // All appointments this month
+          supabase
+            .from("appointments")
+            .select("id, status, total_price")
+            .eq("user_id", user.id)
+            .gte("appointment_date", monthStart)
+            .lte("appointment_date", monthEnd),
+          
+          // Today's appointments with details
+          supabase
+            .from("appointments")
+            .select(`
+              id, appointment_time, status,
+              clients (name),
+              services (name)
+            `)
+            .eq("user_id", user.id)
+            .eq("appointment_date", todayStr)
+            .order("appointment_time", { ascending: true }),
+          
+          // Total clients
+          supabase
+            .from("clients")
+            .select("id", { count: 'exact' })
+            .eq("user_id", user.id),
+          
+          // New clients this month
+          supabase
+            .from("clients")
+            .select("id", { count: 'exact' })
+            .eq("user_id", user.id)
+            .gte("created_at", monthStart),
+          
+          // Active subscriptions
+          supabase
+            .from("user_subscriptions")
+            .select(`
+              id, status,
+              subscription_plans (price)
+            `)
+            .eq("user_id", user.id)
+            .eq("status", "active")
+        ]);
 
+        const appointments = appointmentsRes.data || [];
+        const completed = appointments.filter(a => a.status === 'completed');
+        const cancelled = appointments.filter(a => a.status === 'cancelled');
+        const pending = appointments.filter(a => a.status === 'pending' || a.status === 'confirmed');
+        
+        const monthRevenue = completed.reduce((sum, a) => sum + (a.total_price || 0), 0);
+        
+        // Process today's appointments
+        const todayAppts: TodayAppointment[] = (todayAppointmentsRes.data || []).map((apt: any) => ({
+          id: apt.id,
+          appointment_time: apt.appointment_time,
+          status: apt.status,
+          client_name: apt.clients?.name || 'Cliente',
+          service_name: apt.services?.name || 'Serviço'
+        }));
+
+        // Calculate MRR from active subscriptions
+        const activeSubscriptions = subscriptionsRes.data || [];
+        const mrr = activeSubscriptions.reduce((sum, sub: any) => {
+          const plan = Array.isArray(sub.subscription_plans) ? sub.subscription_plans[0] : sub.subscription_plans;
+          return sum + (plan?.price || 0);
+        }, 0);
+
+        setTodayAppointments(todayAppts);
         setDashboardData({
           appointments: {
             total: appointments.length,
-            completed: completedAppointments.length,
-            cancelled: appointments.filter(apt => apt.status === "cancelled").length,
-            completedInMonth: completedAppointments.length
+            completed: completed.length,
+            cancelled: cancelled.length,
+            pending: pending.length,
+            todayCount: todayAppts.length
           },
-          revenue: { today: totalRevenue / 30, month: totalRevenue, growth: 12 },
-          clients: { total: totalClients, new: newClients },
+          revenue: { 
+            today: todayAppts.filter(a => a.status === 'completed').length * 50, // Average estimate
+            month: monthRevenue, 
+            growth: 12 
+          },
+          clients: { 
+            total: clientsRes.count || 0, 
+            new: newClientsRes.count || 0 
+          },
           performance: {
-            occupancy: appointments.length > 0 ? Math.min((completedAppointments.length / appointments.length) * 100, 100) : 0,
-            satisfaction
+            occupancy: appointments.length > 0 ? Math.round((completed.length / appointments.length) * 100) : 0,
+            satisfaction: 92
           },
-          subscriptions: { activeCount, mrr }
+          subscriptions: { 
+            activeCount: activeSubscriptions.length, 
+            mrr 
+          }
         });
       } catch (error) {
         console.error("Error fetching dashboard data:", error);
@@ -75,7 +161,7 @@ const Dashboard = () => {
     };
 
     fetchDashboardData();
-  }, []);
+  }, [user]);
 
   const stats = [
     {
@@ -84,16 +170,16 @@ const Dashboard = () => {
       change: `MRR: R$ ${dashboardData.subscriptions.mrr.toLocaleString('pt-br', { minimumFractionDigits: 2 })}`,
       icon: Crown,
       color: "purple",
-      progress: dashboardData.performance.occupancy
+      progress: dashboardData.subscriptions.activeCount * 10
     },
     {
-      title: "Agendamentos",
+      title: "Agendamentos do Mês",
       value: dashboardData.appointments.total.toString(),
-      change: `${dashboardData.appointments.completedInMonth} concluídos`,
-      trend: dashboardData.appointments.total > dashboardData.appointments.cancelled ? "up" : "warning",
+      change: `${dashboardData.appointments.completed} concluídos`,
+      trend: dashboardData.appointments.completed > dashboardData.appointments.cancelled ? "up" : "warning",
       icon: Calendar,
       color: "blue",
-      progress: dashboardData.appointments.total > 0 ? (dashboardData.appointments.completedInMonth / dashboardData.appointments.total) * 100 : 0
+      progress: dashboardData.appointments.total > 0 ? (dashboardData.appointments.completed / dashboardData.appointments.total) * 100 : 0
     },
     {
       title: "Receita Mensal",
@@ -106,8 +192,8 @@ const Dashboard = () => {
     },
     {
       title: "Taxa de Ocupação",
-      value: loading ? "..." : `${dashboardData.performance.occupancy.toFixed(1)}%`,
-      change: `Eficiência: 88%`,
+      value: loading ? "..." : `${dashboardData.performance.occupancy}%`,
+      change: `${dashboardData.appointments.pending} pendentes`,
       trend: dashboardData.performance.occupancy > 80 ? "up" : dashboardData.performance.occupancy > 60 ? "warning" : "down",
       icon: Target,
       color: "orange",
@@ -115,8 +201,8 @@ const Dashboard = () => {
     },
     {
       title: "Satisfação do Cliente",
-      value: loading ? "..." : `${dashboardData.performance.satisfaction.toFixed(1)}⭐`,
-      change: `${Math.floor(dashboardData.clients.total * 0.15)} clientes VIP`,
+      value: loading ? "..." : `${dashboardData.performance.satisfaction}⭐`,
+      change: `${dashboardData.clients.total} clientes cadastrados`,
       trend: dashboardData.performance.satisfaction > 90 ? "up" : "warning",
       icon: Heart,
       color: "pink",
@@ -133,6 +219,21 @@ const Dashboard = () => {
     }
   ];
 
+  const getStatusBadge = (status: string) => {
+    switch (status) {
+      case 'completed':
+        return <Badge className="bg-green-100 text-green-800">Concluído</Badge>;
+      case 'confirmed':
+        return <Badge className="bg-blue-100 text-blue-800">Confirmado</Badge>;
+      case 'pending':
+        return <Badge className="bg-yellow-100 text-yellow-800">Pendente</Badge>;
+      case 'cancelled':
+        return <Badge className="bg-red-100 text-red-800">Cancelado</Badge>;
+      default:
+        return <Badge>{status}</Badge>;
+    }
+  };
+
   return (
     <Layout>
       <div className="flex-1 space-y-6 p-6">
@@ -144,14 +245,15 @@ const Dashboard = () => {
             </p>
           </div>
           <div className="flex gap-2">
-            <Button>
+            <Button onClick={() => navigate('/appointments')}>
               <Plus className="h-4 w-4 mr-2" />
               Novo Agendamento
             </Button>
           </div>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+        {/* Stats Cards */}
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           {stats.map((stat, index) => {
             const Icon = stat.icon;
             return (
@@ -189,6 +291,45 @@ const Dashboard = () => {
             );
           })}
         </div>
+
+        {/* Today's Appointments */}
+        <Card>
+          <CardHeader className="flex flex-row items-center justify-between">
+            <CardTitle className="flex items-center gap-2">
+              <Clock className="h-5 w-5" />
+              Agendamentos de Hoje ({dashboardData.appointments.todayCount})
+            </CardTitle>
+            <Button variant="outline" size="sm" onClick={() => navigate('/appointments')}>
+              Ver Todos
+            </Button>
+          </CardHeader>
+          <CardContent>
+            {loading ? (
+              <div className="text-center py-8 text-muted-foreground">Carregando...</div>
+            ) : todayAppointments.length === 0 ? (
+              <div className="text-center py-8 text-muted-foreground">
+                Nenhum agendamento para hoje.
+              </div>
+            ) : (
+              <div className="space-y-3">
+                {todayAppointments.slice(0, 5).map((apt) => (
+                  <div key={apt.id} className="flex items-center justify-between p-3 border border-border rounded-lg hover:bg-muted/50 transition-colors">
+                    <div className="flex items-center gap-4">
+                      <div className="text-lg font-semibold text-primary">
+                        {apt.appointment_time.slice(0, 5)}
+                      </div>
+                      <div>
+                        <p className="font-medium">{apt.client_name}</p>
+                        <p className="text-sm text-muted-foreground">{apt.service_name}</p>
+                      </div>
+                    </div>
+                    {getStatusBadge(apt.status)}
+                  </div>
+                ))}
+              </div>
+            )}
+          </CardContent>
+        </Card>
       </div>
     </Layout>
   );
