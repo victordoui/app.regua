@@ -7,7 +7,8 @@ import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
-import { Bell, Calendar, Clock, AlertCircle, CheckCircle2, Trash2, Settings, Filter } from "lucide-react";
+import { useAuth } from "@/contexts/AuthContext";
+import { Bell, Calendar, Clock, AlertCircle, CheckCircle2, Trash2, Settings, Filter, RefreshCw } from "lucide-react";
 import Layout from "@/components/Layout";
 
 interface Notification {
@@ -32,54 +33,56 @@ const Notifications = () => {
   });
 
   const { toast } = useToast();
+  const { user } = useAuth();
 
   useEffect(() => {
-    fetchNotifications();
-    createSampleNotifications();
-  }, []);
+    if (user) {
+      fetchNotifications();
+      setupRealtimeSubscription();
+    }
+  }, [user]);
+
+  const setupRealtimeSubscription = () => {
+    const channel = supabase
+      .channel('notifications-changes')
+      .on(
+        'postgres_changes',
+        {
+          event: 'INSERT',
+          schema: 'public',
+          table: 'notifications',
+          filter: `user_id=eq.${user?.id}`,
+        },
+        (payload) => {
+          console.log('New notification:', payload);
+          setNotifications(prev => [payload.new as Notification, ...prev]);
+          toast({
+            title: (payload.new as Notification).title,
+            description: (payload.new as Notification).message,
+          });
+        }
+      )
+      .subscribe();
+
+    return () => {
+      supabase.removeChannel(channel);
+    };
+  };
 
   const fetchNotifications = async () => {
+    if (!user) return;
+    
     try {
-      // Mock data for now
-      const mockNotifications: Notification[] = [
-        {
-          id: '1',
-          title: "Agendamento Confirmado",
-          message: "João Silva confirmou seu agendamento para hoje às 14:00",
-          type: "appointment",
-          action_url: "/appointments",
-          read_at: null,
-          created_at: "2024-01-20T10:00:00Z"
-        },
-        {
-          id: '2',
-          title: "Lembrete",
-          message: "Você tem 3 agendamentos programados para amanhã",
-          type: "reminder",
-          action_url: "/appointments",
-          read_at: "2024-01-20T09:00:00Z",
-          created_at: "2024-01-20T09:00:00Z"
-        },
-        {
-          id: '3',
-          title: "Novo Cliente",
-          message: "Maria Santos se cadastrou como nova cliente",
-          type: "info",
-          action_url: "/clients",
-          read_at: "2024-01-20T08:30:00Z",
-          created_at: "2024-01-20T08:30:00Z"
-        },
-        {
-          id: '4',
-          title: "Meta Atingida",
-          message: "Parabéns! Você atingiu a meta de vendas do mês",
-          type: "success",
-          action_url: "/reports",
-          read_at: null,
-          created_at: "2024-01-20T08:00:00Z"
-        }
-      ];
-      setNotifications(mockNotifications);
+      setLoading(true);
+      const { data, error } = await supabase
+        .from('notifications')
+        .select('*')
+        .eq('user_id', user.id)
+        .order('created_at', { ascending: false })
+        .limit(50);
+
+      if (error) throw error;
+      setNotifications(data || []);
     } catch (error: any) {
       toast({
         title: "Erro ao carregar notificações",
@@ -91,12 +94,36 @@ const Notifications = () => {
     }
   };
 
-  const createSampleNotifications = async () => {
-    // Mock function - no actual database operations needed
+  const triggerReminders = async () => {
+    try {
+      const { data, error } = await supabase.functions.invoke('send-appointment-reminders');
+      
+      if (error) throw error;
+      
+      toast({
+        title: "Lembretes enviados",
+        description: `${data?.notificationsSent || 0} lembretes foram criados.`,
+      });
+      
+      fetchNotifications();
+    } catch (error: any) {
+      toast({
+        title: "Erro ao enviar lembretes",
+        description: error.message,
+        variant: "destructive",
+      });
+    }
   };
 
   const markAsRead = async (notificationId: string) => {
     try {
+      const { error } = await supabase
+        .from('notifications')
+        .update({ read_at: new Date().toISOString() })
+        .eq('id', notificationId);
+
+      if (error) throw error;
+
       setNotifications(prev => 
         prev.map(notif => 
           notif.id === notificationId 
@@ -114,12 +141,21 @@ const Notifications = () => {
   };
 
   const markAllAsRead = async () => {
+    if (!user) return;
+    
     try {
       const unreadIds = notifications
         .filter(n => !n.read_at)
         .map(n => n.id);
 
       if (unreadIds.length === 0) return;
+
+      const { error } = await supabase
+        .from('notifications')
+        .update({ read_at: new Date().toISOString() })
+        .in('id', unreadIds);
+
+      if (error) throw error;
 
       setNotifications(prev => 
         prev.map(notif => ({ ...notif, read_at: new Date().toISOString() }))
@@ -139,6 +175,13 @@ const Notifications = () => {
 
   const deleteNotification = async (notificationId: string) => {
     try {
+      const { error } = await supabase
+        .from('notifications')
+        .delete()
+        .eq('id', notificationId);
+
+      if (error) throw error;
+
       setNotifications(prev => prev.filter(n => n.id !== notificationId));
 
       toast({
@@ -236,6 +279,10 @@ const Notifications = () => {
           </div>
 
           <div className="flex gap-2">
+            <Button variant="outline" onClick={triggerReminders}>
+              <RefreshCw className="h-4 w-4 mr-2" />
+              Enviar Lembretes
+            </Button>
             {unreadCount > 0 && (
               <Button variant="outline" onClick={markAllAsRead}>
                 <CheckCircle2 className="h-4 w-4 mr-2" />
@@ -388,8 +435,7 @@ const Notifications = () => {
                                 if (!notification.read_at) {
                                   markAsRead(notification.id);
                                 }
-                                // Navigate to action_url
-                                window.location.href = notification.action_url;
+                                window.location.href = notification.action_url!;
                               }}
                             >
                               Ver Detalhes

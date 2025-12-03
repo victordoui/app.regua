@@ -62,6 +62,10 @@ export type Database = {
           created_at: string
           id: string
           notes: string | null
+          parent_appointment_id: string | null
+          recurrence_end_date: string | null
+          recurrence_type: string | null
+          reminder_sent_at: string | null
           service_id: string
           status: string
           total_price: number | null
@@ -76,6 +80,10 @@ export type Database = {
           created_at?: string
           id?: string
           notes?: string | null
+          parent_appointment_id?: string | null
+          recurrence_end_date?: string | null
+          recurrence_type?: string | null
+          reminder_sent_at?: string | null
           service_id: string
           status?: string
           total_price?: number | null
@@ -90,6 +98,10 @@ export type Database = {
           created_at?: string
           id?: string
           notes?: string | null
+          parent_appointment_id?: string | null
+          recurrence_end_date?: string | null
+          recurrence_type?: string | null
+          reminder_sent_at?: string | null
           service_id?: string
           status?: string
           total_price?: number | null
@@ -102,6 +114,13 @@ export type Database = {
             columns: ["client_id"]
             isOneToOne: false
             referencedRelation: "clients"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "appointments_parent_appointment_id_fkey"
+            columns: ["parent_appointment_id"]
+            isOneToOne: false
+            referencedRelation: "appointments"
             referencedColumns: ["id"]
           },
           {

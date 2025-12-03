@@ -37,6 +37,8 @@ export interface TimeSlot {
   conflictReason?: string;
 }
 
+export type RecurrenceType = 'weekly' | 'biweekly' | 'monthly' | null;
+
 export interface Appointment {
   id: string;
   client_id: string;
@@ -50,6 +52,10 @@ export interface Appointment {
   user_id: string;
   created_at: string;
   updated_at: string;
+  recurrence_type?: RecurrenceType;
+  recurrence_end_date?: string | null;
+  parent_appointment_id?: string | null;
+  reminder_sent_at?: string | null;
   clients?: Client; // Populated via join
   services?: Service; // Populated via join
   barbers?: Barber; // Populated via join (assuming 'barbers' is the alias for the joined profile)
@@ -62,4 +68,6 @@ export interface AppointmentFormData {
   appointment_date: string;
   appointment_time: string;
   notes: string;
+  recurrence_type?: RecurrenceType;
+  recurrence_end_date?: string | null;
 }

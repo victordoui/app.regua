@@ -5,8 +5,9 @@ import { Textarea } from '@/components/ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { Appointment, AppointmentFormData, Barber, Client, Service } from '@/types/appointments';
+import { Appointment, AppointmentFormData, Barber, Client, Service, RecurrenceType } from '@/types/appointments';
 import { format } from "date-fns";
+import { Repeat } from 'lucide-react';
 
 interface AppointmentFormDialogProps {
   isOpen: boolean;
@@ -38,6 +39,8 @@ const AppointmentFormDialog: React.FC<AppointmentFormDialogProps> = ({
     appointment_date: initialDate ? format(initialDate, 'yyyy-MM-dd') : "",
     appointment_time: initialTime || "",
     notes: "",
+    recurrence_type: null,
+    recurrence_end_date: null,
   };
 
   const [formData, setFormData] = useState<AppointmentFormData>(defaultFormData);
@@ -52,6 +55,8 @@ const AppointmentFormDialog: React.FC<AppointmentFormDialogProps> = ({
         appointment_date: editingAppointment.appointment_date,
         appointment_time: editingAppointment.appointment_time,
         notes: editingAppointment.notes || "",
+        recurrence_type: editingAppointment.recurrence_type || null,
+        recurrence_end_date: editingAppointment.recurrence_end_date || null,
       });
     } else {
       setFormData({
@@ -73,9 +78,16 @@ const AppointmentFormDialog: React.FC<AppointmentFormDialogProps> = ({
     }
   };
 
+  const recurrenceOptions: { value: RecurrenceType | 'none'; label: string }[] = [
+    { value: 'none', label: 'Não repetir' },
+    { value: 'weekly', label: 'Toda semana' },
+    { value: 'biweekly', label: 'A cada 2 semanas' },
+    { value: 'monthly', label: 'Todo mês' },
+  ];
+
   return (
     <Dialog open={isOpen} onOpenChange={setIsOpen}>
-      <DialogContent className="sm:max-w-md">
+      <DialogContent className="sm:max-w-md max-h-[90vh] overflow-y-auto">
         <DialogHeader>
           <DialogTitle>
             {editingAppointment ? "Editar Agendamento" : "Novo Agendamento"}
@@ -153,6 +165,55 @@ const AppointmentFormDialog: React.FC<AppointmentFormDialogProps> = ({
               required
             />
           </div>
+
+          {/* Recurrence Section */}
+          {!editingAppointment && (
+            <div className="space-y-3 p-3 bg-muted/50 rounded-lg border">
+              <div className="flex items-center gap-2 text-sm font-medium">
+                <Repeat className="h-4 w-4" />
+                Repetir Agendamento
+              </div>
+              <div>
+                <Select 
+                  value={formData.recurrence_type || 'none'} 
+                  onValueChange={(value) => setFormData(prev => ({ 
+                    ...prev, 
+                    recurrence_type: value === 'none' ? null : value as RecurrenceType,
+                    recurrence_end_date: value === 'none' ? null : prev.recurrence_end_date
+                  }))}
+                >
+                  <SelectTrigger>
+                    <SelectValue placeholder="Frequência" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {recurrenceOptions.map(option => (
+                      <SelectItem key={option.value || 'none'} value={option.value || 'none'}>
+                        {option.label}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+              
+              {formData.recurrence_type && (
+                <div>
+                  <Label htmlFor="recurrence_end_date" className="text-xs text-muted-foreground">
+                    Repetir até
+                  </Label>
+                  <Input
+                    type="date"
+                    id="recurrence_end_date"
+                    value={formData.recurrence_end_date || ''}
+                    onChange={(e) => setFormData(prev => ({ ...prev, recurrence_end_date: e.target.value || null }))}
+                    min={formData.appointment_date}
+                    className="w-full"
+                    required
+                  />
+                </div>
+              )}
+            </div>
+          )}
+
           <div>
             <Label htmlFor="notes">Observações</Label>
             <Textarea
