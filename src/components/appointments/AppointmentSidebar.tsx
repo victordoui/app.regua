@@ -5,6 +5,19 @@ import { Label } from "@/components/ui/label";
 import { Calendar as ShadcnCalendar } from "@/components/ui/calendar";
 import { Plus } from "lucide-react";
 import { ptBR } from 'date-fns/locale';
+import { Barber } from '@/types/appointments';
+import { cn } from '@/lib/utils';
+
+export const BARBER_COLORS = [
+  '#3b82f6', // blue
+  '#10b981', // emerald
+  '#8b5cf6', // purple
+  '#f97316', // orange
+  '#ec4899', // pink
+  '#14b8a6', // teal
+  '#f59e0b', // amber
+  '#6366f1', // indigo
+];
 
 interface AppointmentSidebarProps {
   calendarDate: Date | undefined;
@@ -13,6 +26,10 @@ interface AppointmentSidebarProps {
   setStatusFilter: (status: string) => void;
   daysWithAppointments: string[];
   onManualSchedule: (initialTime?: string) => void;
+  barbers: Barber[];
+  selectedBarbers: string[];
+  setSelectedBarbers: (barbers: string[]) => void;
+  barberColorMap: Map<string, string>;
 }
 
 const AppointmentSidebar: React.FC<AppointmentSidebarProps> = ({
@@ -21,8 +38,28 @@ const AppointmentSidebar: React.FC<AppointmentSidebarProps> = ({
   statusFilter,
   setStatusFilter,
   daysWithAppointments,
-  onManualSchedule
+  onManualSchedule,
+  barbers,
+  selectedBarbers,
+  setSelectedBarbers,
+  barberColorMap
 }) => {
+  const toggleBarber = (barberId: string) => {
+    if (selectedBarbers.includes(barberId)) {
+      setSelectedBarbers(selectedBarbers.filter(id => id !== barberId));
+    } else {
+      setSelectedBarbers([...selectedBarbers, barberId]);
+    }
+  };
+
+  const toggleAllBarbers = () => {
+    if (selectedBarbers.length === barbers.length) {
+      setSelectedBarbers([]);
+    } else {
+      setSelectedBarbers(barbers.map(b => b.id));
+    }
+  };
+
   return (
     <div className="space-y-4">
       {/* Botão Criar - Estilo Google */}
@@ -40,7 +77,7 @@ const AppointmentSidebar: React.FC<AppointmentSidebarProps> = ({
           mode="single"
           selected={calendarDate}
           onSelect={setCalendarDate}
-          className="w-full"
+          className="w-full pointer-events-auto"
           classNames={{
             months: "w-full",
             month: "w-full space-y-2",
@@ -76,6 +113,68 @@ const AppointmentSidebar: React.FC<AppointmentSidebarProps> = ({
           locale={ptBR}
         />
       </div>
+
+      {/* Filtro por Barbeiro */}
+      {barbers.length > 0 && (
+        <div className="bg-card rounded-lg border p-3 space-y-2">
+          <div className="flex items-center justify-between">
+            <Label className="text-xs font-medium text-muted-foreground uppercase tracking-wide">
+              Minhas Agendas
+            </Label>
+            <button
+              onClick={toggleAllBarbers}
+              className="text-[10px] text-primary hover:underline"
+            >
+              {selectedBarbers.length === barbers.length ? 'Desmarcar' : 'Marcar'} todos
+            </button>
+          </div>
+          <div className="space-y-1.5">
+            {barbers.map((barber) => {
+              const color = barberColorMap.get(barber.id) || BARBER_COLORS[0];
+              const isSelected = selectedBarbers.includes(barber.id);
+              
+              return (
+                <label
+                  key={barber.id}
+                  className="flex items-center gap-2 cursor-pointer group py-1 px-1 rounded hover:bg-muted/50 transition-colors"
+                >
+                  <div className="relative">
+                    <input
+                      type="checkbox"
+                      checked={isSelected}
+                      onChange={() => toggleBarber(barber.id)}
+                      className="sr-only"
+                    />
+                    <div
+                      className={cn(
+                        "w-4 h-4 rounded border-2 flex items-center justify-center transition-all",
+                        isSelected ? "border-transparent" : "border-muted-foreground/40"
+                      )}
+                      style={{ backgroundColor: isSelected ? color : 'transparent' }}
+                    >
+                      {isSelected && (
+                        <svg className="w-3 h-3 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M5 13l4 4L19 7" />
+                        </svg>
+                      )}
+                    </div>
+                  </div>
+                  <span className={cn(
+                    "text-sm truncate flex-1",
+                    !isSelected && "text-muted-foreground"
+                  )}>
+                    {barber.full_name}
+                  </span>
+                  <div 
+                    className="w-2 h-2 rounded-full flex-shrink-0"
+                    style={{ backgroundColor: color }}
+                  />
+                </label>
+              );
+            })}
+          </div>
+        </div>
+      )}
 
       {/* Filtro de Status */}
       <div className="bg-card rounded-lg border p-3 space-y-2">
