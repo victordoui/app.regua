@@ -3,8 +3,42 @@ import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
 import { useToast } from "@/hooks/use-toast";
-import { Appointment, AppointmentFormData, Barber, Client, Service } from "@/types/appointments";
-import { format } from "date-fns";
+import { Appointment, AppointmentFormData, Barber, Client, Service, RecurrenceType } from "@/types/appointments";
+import { format, addWeeks, addMonths, isBefore, parseISO } from "date-fns";
+
+// Helper function to calculate recurrence dates
+const calculateRecurrenceDates = (
+  startDate: string,
+  endDate: string,
+  recurrenceType: RecurrenceType
+): string[] => {
+  if (!recurrenceType || !endDate) return [startDate];
+  
+  const dates: string[] = [startDate];
+  let currentDate = parseISO(startDate);
+  const finalDate = parseISO(endDate);
+  
+  while (true) {
+    if (recurrenceType === 'weekly') {
+      currentDate = addWeeks(currentDate, 1);
+    } else if (recurrenceType === 'biweekly') {
+      currentDate = addWeeks(currentDate, 2);
+    } else if (recurrenceType === 'monthly') {
+      currentDate = addMonths(currentDate, 1);
+    }
+    
+    if (isBefore(currentDate, finalDate) || format(currentDate, 'yyyy-MM-dd') === endDate) {
+      dates.push(format(currentDate, 'yyyy-MM-dd'));
+    } else {
+      break;
+    }
+    
+    // Safety limit - max 52 occurrences
+    if (dates.length >= 52) break;
+  }
+  
+  return dates;
+};
 
 export const useAppointments = () => {
   const { user } = useAuth();
@@ -103,31 +137,78 @@ export const useAppointments = () => {
     }
   }, [clientsError, servicesError, barbersError, toast]);
 
-  const addAppointmentMutation = useMutation<Appointment, Error, AppointmentFormData>({
+  const addAppointmentMutation = useMutation<Appointment[], Error, AppointmentFormData>({
     mutationFn: async (formData) => {
       if (!user) throw new Error("Usuário não autenticado.");
-      const { data, error } = await supabase
+      
+      const servicePrice = services?.find(s => s.id === formData.service_id)?.price || 0;
+      
+      // Calculate all dates for recurring appointments
+      const appointmentDates = calculateRecurrenceDates(
+        formData.appointment_date,
+        formData.recurrence_end_date || formData.appointment_date,
+        formData.recurrence_type || null
+      );
+      
+      // Create the first (parent) appointment
+      const { data: parentAppointment, error: parentError } = await supabase
         .from("appointments")
         .insert({
           user_id: user.id,
           client_id: formData.client_id,
           service_id: formData.service_id,
           barbeiro_id: formData.barbeiro_id,
-          appointment_date: formData.appointment_date,
+          appointment_date: appointmentDates[0],
           appointment_time: formData.appointment_time,
           notes: formData.notes,
-          status: 'pending', // Default status
-          total_price: services?.find(s => s.id === formData.service_id)?.price || 0,
+          status: 'pending',
+          total_price: servicePrice,
+          recurrence_type: formData.recurrence_type,
+          recurrence_end_date: formData.recurrence_end_date,
         })
         .select()
         .single();
 
-      if (error) throw error;
-      return data;
+      if (parentError) throw parentError;
+      
+      const createdAppointments: Appointment[] = [parentAppointment];
+      
+      // Create child appointments if recurring
+      if (appointmentDates.length > 1) {
+        const childAppointments = appointmentDates.slice(1).map(date => ({
+          user_id: user.id,
+          client_id: formData.client_id,
+          service_id: formData.service_id,
+          barbeiro_id: formData.barbeiro_id,
+          appointment_date: date,
+          appointment_time: formData.appointment_time,
+          notes: formData.notes,
+          status: 'pending' as const,
+          total_price: servicePrice,
+          recurrence_type: formData.recurrence_type,
+          recurrence_end_date: formData.recurrence_end_date,
+          parent_appointment_id: parentAppointment.id,
+        }));
+        
+        const { data: childData, error: childError } = await supabase
+          .from("appointments")
+          .insert(childAppointments)
+          .select();
+        
+        if (childError) throw childError;
+        if (childData) createdAppointments.push(...childData);
+      }
+
+      return createdAppointments;
     },
-    onSuccess: () => {
+    onSuccess: (data) => {
       queryClient.invalidateQueries({ queryKey: ["appointments", user?.id] });
-      toast({ title: "Agendamento criado com sucesso!" });
+      const count = data.length;
+      toast({ 
+        title: count > 1 
+          ? `${count} agendamentos criados com sucesso!` 
+          : "Agendamento criado com sucesso!" 
+      });
     },
     onError: (err) => {
       toast({
@@ -200,20 +281,43 @@ export const useAppointments = () => {
     },
   });
 
-  const deleteAppointmentMutation = useMutation<void, Error, string>({
-    mutationFn: async (id) => {
+  const deleteAppointmentMutation = useMutation<void, Error, { id: string; deleteAll?: boolean }>({
+    mutationFn: async ({ id, deleteAll }) => {
       if (!user) throw new Error("Usuário não autenticado.");
-      const { error } = await supabase
-        .from("appointments")
-        .delete()
-        .eq("id", id)
-        .eq("user_id", user.id);
+      
+      if (deleteAll) {
+        // Get the appointment to check if it's a parent or child
+        const { data: appointment } = await supabase
+          .from("appointments")
+          .select("parent_appointment_id")
+          .eq("id", id)
+          .single();
+        
+        const parentId = appointment?.parent_appointment_id || id;
+        
+        // Delete all related appointments (children and parent)
+        await supabase
+          .from("appointments")
+          .delete()
+          .or(`id.eq.${parentId},parent_appointment_id.eq.${parentId}`)
+          .eq("user_id", user.id);
+      } else {
+        const { error } = await supabase
+          .from("appointments")
+          .delete()
+          .eq("id", id)
+          .eq("user_id", user.id);
 
-      if (error) throw error;
+        if (error) throw error;
+      }
     },
-    onSuccess: () => {
+    onSuccess: (_, variables) => {
       queryClient.invalidateQueries({ queryKey: ["appointments", user?.id] });
-      toast({ title: "Agendamento excluído com sucesso!" });
+      toast({ 
+        title: variables.deleteAll 
+          ? "Todos os agendamentos da série excluídos!" 
+          : "Agendamento excluído com sucesso!" 
+      });
     },
     onError: (err) => {
       toast({
@@ -235,6 +339,6 @@ export const useAppointments = () => {
     addAppointment: addAppointmentMutation.mutateAsync,
     updateAppointment: updateAppointmentMutation.mutateAsync,
     updateAppointmentStatus: updateAppointmentStatusMutation.mutateAsync,
-    deleteAppointment: deleteAppointmentMutation.mutateAsync,
+    deleteAppointment: (id: string, deleteAll?: boolean) => deleteAppointmentMutation.mutateAsync({ id, deleteAll }),
   };
 };

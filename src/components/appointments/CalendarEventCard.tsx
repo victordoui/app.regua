@@ -9,6 +9,7 @@ interface CalendarEventCardProps {
     barberColor?: string;
     draggable?: boolean;
     onDragStart?: (e: React.DragEvent, appointment: Appointment) => void;
+    onDragEnd?: () => void;
 }
 
 const CalendarEventCard: React.FC<CalendarEventCardProps> = ({ 
@@ -17,7 +18,8 @@ const CalendarEventCard: React.FC<CalendarEventCardProps> = ({
     style, 
     barberColor,
     draggable = false,
-    onDragStart
+    onDragStart,
+    onDragEnd
 }) => {
     const getStatusIndicator = (status: string) => {
         switch (status) {
@@ -54,6 +56,7 @@ const CalendarEventCard: React.FC<CalendarEventCardProps> = ({
             }}
             draggable={draggable}
             onDragStart={handleDragStart}
+            onDragEnd={onDragEnd}
             className={cn(
                 "absolute rounded-md cursor-pointer transition-all text-[11px] leading-tight overflow-hidden px-1.5 py-1 text-white",
                 draggable && "hover:shadow-lg active:opacity-70 active:cursor-grabbing",

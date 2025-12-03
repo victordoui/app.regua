@@ -4,6 +4,7 @@ import { ptBR } from 'date-fns/locale';
 import { Appointment } from '@/types/appointments';
 import CalendarEventCard from './CalendarEventCard';
 import MonthView from './MonthView';
+import DragPreview from './DragPreview';
 import { Button } from '@/components/ui/button';
 import { ChevronLeft, ChevronRight } from 'lucide-react';
 import { cn } from '@/lib/utils';
@@ -33,6 +34,8 @@ const CalendarView: React.FC<CalendarViewProps> = ({
 }) => {
     const [currentViewMode, setCurrentViewMode] = useState<'week' | 'day' | 'month'>(viewMode);
     const [dragOverSlot, setDragOverSlot] = useState<string | null>(null);
+    const [draggingAppointment, setDraggingAppointment] = useState<Appointment | null>(null);
+    const [previewPosition, setPreviewPosition] = useState<{ date: Date; hour: number } | null>(null);
     const scrollRef = useRef<HTMLDivElement>(null);
 
     useEffect(() => {
@@ -117,21 +120,32 @@ const CalendarView: React.FC<CalendarViewProps> = ({
     const handleDragStart = (e: React.DragEvent, appointment: Appointment) => {
         e.dataTransfer.setData('appointmentId', appointment.id);
         e.dataTransfer.effectAllowed = 'move';
+        setDraggingAppointment(appointment);
     };
 
-    const handleDragOver = (e: React.DragEvent, slotKey: string) => {
+    const handleDragOver = (e: React.DragEvent, slotKey: string, day: Date, hour: number) => {
         e.preventDefault();
         e.dataTransfer.dropEffect = 'move';
         setDragOverSlot(slotKey);
+        setPreviewPosition({ date: day, hour });
     };
 
     const handleDragLeave = () => {
+        setDragOverSlot(null);
+        setPreviewPosition(null);
+    };
+
+    const handleDragEnd = () => {
+        setDraggingAppointment(null);
+        setPreviewPosition(null);
         setDragOverSlot(null);
     };
 
     const handleDrop = (e: React.DragEvent, day: Date, hour: number) => {
         e.preventDefault();
         setDragOverSlot(null);
+        setPreviewPosition(null);
+        setDraggingAppointment(null);
         
         const appointmentId = e.dataTransfer.getData('appointmentId');
         if (appointmentId && onAppointmentMove) {
@@ -144,6 +158,17 @@ const CalendarView: React.FC<CalendarViewProps> = ({
     const handleMonthDayClick = (day: Date) => {
         onDateChange(day);
         handleViewModeChange('day');
+    };
+
+    // Get preview style for drag preview
+    const getPreviewStyle = (day: Date, hour: number) => {
+        const pixelsPerMinute = 48 / 60;
+        const top = hour * 60 * pixelsPerMinute;
+        return {
+            top: `${top}px`,
+            left: '2px',
+            right: '2px',
+        };
     };
 
     return (
@@ -303,7 +328,7 @@ const CalendarView: React.FC<CalendarViewProps> = ({
                                                         isDragOver && "bg-primary/10 border-2 border-dashed border-primary"
                                                     )}
                                                     onClick={() => onTimeSlotClick(day, `${hour.toString().padStart(2, '0')}:00`)}
-                                                    onDragOver={(e) => handleDragOver(e, slotKey)}
+                                                    onDragOver={(e) => handleDragOver(e, slotKey, day, hour)}
                                                     onDragLeave={handleDragLeave}
                                                     onDrop={(e) => handleDrop(e, day, hour)}
                                                 />
@@ -316,12 +341,27 @@ const CalendarView: React.FC<CalendarViewProps> = ({
                                                 key={apt.id}
                                                 appointment={apt}
                                                 onClick={onEventClick}
-                                                style={getEventStyle(apt)}
+                                                style={{
+                                                    ...getEventStyle(apt),
+                                                    opacity: draggingAppointment?.id === apt.id ? 0.4 : 1,
+                                                }}
                                                 barberColor={getBarberColor(apt.barbeiro_id)}
                                                 draggable={true}
                                                 onDragStart={handleDragStart}
+                                                onDragEnd={handleDragEnd}
                                             />
                                         ))}
+
+                                        {/* Drag Preview */}
+                                        {draggingAppointment && previewPosition && isSameDay(previewPosition.date, day) && (
+                                            <DragPreview
+                                                appointment={draggingAppointment}
+                                                targetDate={previewPosition.date}
+                                                targetHour={previewPosition.hour}
+                                                barberColor={getBarberColor(draggingAppointment.barbeiro_id)}
+                                                style={getPreviewStyle(day, previewPosition.hour)}
+                                            />
+                                        )}
 
                                         {/* Current Time Indicator */}
                                         {isToday(day) && (

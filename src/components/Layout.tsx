@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
@@ -23,7 +23,9 @@ import {
 } from "lucide-react";
 import { useAuth } from '@/contexts/AuthContext';
 import { useToast } from '@/hooks/use-toast';
-import { ThemeToggle } from '@/components/ui/theme-toggle'; // Importando ThemeToggle
+import { ThemeToggle } from '@/components/ui/theme-toggle';
+import { supabase } from '@/integrations/supabase/client';
+import { Badge } from '@/components/ui/badge';
 
 interface LayoutProps {
   children?: React.ReactNode;
@@ -32,9 +34,53 @@ interface LayoutProps {
 const Layout: React.FC<LayoutProps> = ({ children }) => {
   const [sidebarOpen, setSidebarOpen] = React.useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = React.useState(false);
+  const [unreadCount, setUnreadCount] = useState(0);
   const navigate = useNavigate();
   const { user, signOut } = useAuth();
   const { toast } = useToast();
+
+  useEffect(() => {
+    if (user) {
+      fetchUnreadCount();
+      setupRealtimeSubscription();
+    }
+  }, [user]);
+
+  const fetchUnreadCount = async () => {
+    if (!user) return;
+    
+    const { count, error } = await supabase
+      .from('notifications')
+      .select('*', { count: 'exact', head: true })
+      .eq('user_id', user.id)
+      .is('read_at', null);
+
+    if (!error && count !== null) {
+      setUnreadCount(count);
+    }
+  };
+
+  const setupRealtimeSubscription = () => {
+    const channel = supabase
+      .channel('layout-notifications')
+      .on(
+        'postgres_changes',
+        {
+          event: '*',
+          schema: 'public',
+          table: 'notifications',
+          filter: `user_id=eq.${user?.id}`,
+        },
+        () => {
+          fetchUnreadCount();
+        }
+      )
+      .subscribe();
+
+    return () => {
+      supabase.removeChannel(channel);
+    };
+  };
 
   const handleSignOut = async () => {
     try {
@@ -60,7 +106,7 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
     }
     return user.user_metadata.full_name
       .split(' ')
-      .map(word => word.charAt(0))
+      .map((word: string) => word.charAt(0))
       .join('')
       .toUpperCase()
       .slice(0, 2);
@@ -84,10 +130,22 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
         {/* Header */}
         <header className="bg-card border-b border-border px-4 lg:px-6 h-14 flex items-center justify-end">
           <div className="flex items-center gap-3">
-            <ThemeToggle /> {/* Adicionando o botão de alternância de tema */}
+            <ThemeToggle />
             
-            <Button variant="ghost" size="sm">
+            <Button 
+              variant="ghost" 
+              size="sm" 
+              className="relative"
+              onClick={() => handleNavigate('/notifications')}
+            >
               <Bell className="h-4 w-4" />
+              {unreadCount > 0 && (
+                <Badge 
+                  className="absolute -top-1 -right-1 h-5 w-5 flex items-center justify-center p-0 text-[10px] bg-destructive text-destructive-foreground"
+                >
+                  {unreadCount > 9 ? '9+' : unreadCount}
+                </Badge>
+              )}
             </Button>
             
             {/* User Profile Dropdown */}
