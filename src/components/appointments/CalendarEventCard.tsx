@@ -1,9 +1,6 @@
 import React from 'react';
 import { Appointment } from '@/types/appointments';
-import { format, parseISO } from 'date-fns';
-import { ptBR } from 'date-fns/locale';
 import { cn } from '@/lib/utils';
-import { Clock, User, Scissors } from 'lucide-react';
 
 interface CalendarEventCardProps {
     appointment: Appointment;
@@ -12,16 +9,16 @@ interface CalendarEventCardProps {
 }
 
 const CalendarEventCard: React.FC<CalendarEventCardProps> = ({ appointment, onClick, style }) => {
-    const getStatusColor = (status: string) => {
+    const getStatusStyles = (status: string) => {
         switch (status) {
             case 'confirmed':
-                return 'bg-green-100 text-green-800 border-green-300 dark:bg-green-900/30 dark:text-green-300 dark:border-green-800';
+                return 'bg-emerald-500/90 hover:bg-emerald-500 text-white border-l-emerald-700';
             case 'completed':
-                return 'bg-blue-100 text-blue-800 border-blue-300 dark:bg-blue-900/30 dark:text-blue-300 dark:border-blue-800';
+                return 'bg-blue-500/90 hover:bg-blue-500 text-white border-l-blue-700';
             case 'cancelled':
-                return 'bg-red-100 text-red-800 border-red-300 dark:bg-red-900/30 dark:text-red-300 dark:border-red-800';
-            default:
-                return 'bg-yellow-100 text-yellow-800 border-yellow-300 dark:bg-yellow-900/30 dark:text-yellow-300 dark:border-yellow-800';
+                return 'bg-red-400/90 hover:bg-red-400 text-white border-l-red-600 opacity-60';
+            default: // pending
+                return 'bg-amber-500/90 hover:bg-amber-500 text-white border-l-amber-700';
         }
     };
 
@@ -33,21 +30,15 @@ const CalendarEventCard: React.FC<CalendarEventCardProps> = ({ appointment, onCl
             }}
             style={style}
             className={cn(
-                "absolute p-2 rounded-md border text-xs cursor-pointer hover:brightness-95 transition-all shadow-sm overflow-hidden flex flex-col gap-1",
-                getStatusColor(appointment.status)
+                "absolute rounded-md cursor-pointer transition-all text-[11px] leading-tight overflow-hidden border-l-4 px-1.5 py-1",
+                getStatusStyles(appointment.status)
             )}
         >
-            <div className="font-semibold truncate flex items-center gap-1">
-                <User className="h-3 w-3" />
-                {appointment.clients?.name || 'Cliente Desconhecido'}
+            <div className="font-semibold truncate">
+                {appointment.clients?.name || 'Cliente'}
             </div>
-            <div className="truncate flex items-center gap-1 opacity-90">
-                <Scissors className="h-3 w-3" />
+            <div className="truncate opacity-90">
                 {appointment.services?.name || 'Serviço'}
-            </div>
-            <div className="truncate flex items-center gap-1 opacity-75">
-                <Clock className="h-3 w-3" />
-                {appointment.appointment_time}
             </div>
         </div>
     );
