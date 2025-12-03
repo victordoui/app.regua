@@ -6,21 +6,41 @@ interface CalendarEventCardProps {
     appointment: Appointment;
     onClick: (appointment: Appointment) => void;
     style?: React.CSSProperties;
+    barberColor?: string;
+    draggable?: boolean;
+    onDragStart?: (e: React.DragEvent, appointment: Appointment) => void;
 }
 
-const CalendarEventCard: React.FC<CalendarEventCardProps> = ({ appointment, onClick, style }) => {
-    const getStatusStyles = (status: string) => {
+const CalendarEventCard: React.FC<CalendarEventCardProps> = ({ 
+    appointment, 
+    onClick, 
+    style, 
+    barberColor,
+    draggable = false,
+    onDragStart
+}) => {
+    const getStatusIndicator = (status: string) => {
         switch (status) {
             case 'confirmed':
-                return 'bg-emerald-500/90 hover:bg-emerald-500 text-white border-l-emerald-700';
+                return 'bg-emerald-400';
             case 'completed':
-                return 'bg-blue-500/90 hover:bg-blue-500 text-white border-l-blue-700';
+                return 'bg-blue-400';
             case 'cancelled':
-                return 'bg-red-400/90 hover:bg-red-400 text-white border-l-red-600 opacity-60';
+                return 'bg-red-400';
             default: // pending
-                return 'bg-amber-500/90 hover:bg-amber-500 text-white border-l-amber-700';
+                return 'bg-amber-400';
         }
     };
+
+    const handleDragStart = (e: React.DragEvent) => {
+        if (onDragStart) {
+            onDragStart(e, appointment);
+        }
+        e.dataTransfer.setData('appointmentId', appointment.id);
+        e.dataTransfer.effectAllowed = 'move';
+    };
+
+    const bgColor = barberColor || 'hsl(var(--primary))';
 
     return (
         <div
@@ -28,14 +48,23 @@ const CalendarEventCard: React.FC<CalendarEventCardProps> = ({ appointment, onCl
                 e.stopPropagation();
                 onClick(appointment);
             }}
-            style={style}
+            style={{
+                ...style,
+                backgroundColor: bgColor,
+            }}
+            draggable={draggable}
+            onDragStart={handleDragStart}
             className={cn(
-                "absolute rounded-md cursor-pointer transition-all text-[11px] leading-tight overflow-hidden border-l-4 px-1.5 py-1",
-                getStatusStyles(appointment.status)
+                "absolute rounded-md cursor-pointer transition-all text-[11px] leading-tight overflow-hidden px-1.5 py-1 text-white",
+                draggable && "hover:shadow-lg active:opacity-70 active:cursor-grabbing",
+                appointment.status === 'cancelled' && "opacity-60"
             )}
         >
-            <div className="font-semibold truncate">
-                {appointment.clients?.name || 'Cliente'}
+            <div className="flex items-center gap-1">
+                <div className={cn("w-1.5 h-1.5 rounded-full flex-shrink-0", getStatusIndicator(appointment.status))} />
+                <span className="font-semibold truncate">
+                    {appointment.clients?.name || 'Cliente'}
+                </span>
             </div>
             <div className="truncate opacity-90">
                 {appointment.services?.name || 'Serviço'}

@@ -1,11 +1,13 @@
-import { useState, useMemo } from 'react';
+import { useState, useMemo, useEffect } from 'react';
 import { useAppointments } from '@/hooks/useAppointments';
 import AppointmentFormDialog from '@/components/appointments/AppointmentFormDialog';
-import AppointmentSidebar from '@/components/appointments/AppointmentSidebar';
+import AppointmentSidebar, { BARBER_COLORS } from '@/components/appointments/AppointmentSidebar';
 import CalendarView from '@/components/appointments/CalendarView';
 import Layout from '@/components/Layout';
 import { Appointment, AppointmentFormData } from '@/types/appointments';
 import { useQuery } from '@tanstack/react-query';
+import { toast } from '@/hooks/use-toast';
+import { format } from 'date-fns';
 
 const Appointments = () => {
   const [isDialogOpen, setIsDialogOpen] = useState(false);
@@ -13,7 +15,8 @@ const Appointments = () => {
   const [selectedDate, setSelectedDate] = useState<Date | undefined>(new Date());
   const [selectedTime, setSelectedTime] = useState<string>('');
   const [statusFilter, setStatusFilter] = useState<string>('all');
-  const [viewMode, setViewMode] = useState<'week' | 'day'>('week');
+  const [viewMode, setViewMode] = useState<'week' | 'day' | 'month'>('week');
+  const [selectedBarbers, setSelectedBarbers] = useState<string[]>([]);
 
   const {
     clients,
@@ -29,16 +32,44 @@ const Appointments = () => {
     deleteAppointment,
   } = useAppointments();
 
+  // Initialize selectedBarbers when barbers load
+  useEffect(() => {
+    if (barbers && barbers.length > 0 && selectedBarbers.length === 0) {
+      setSelectedBarbers(barbers.map(b => b.id));
+    }
+  }, [barbers]);
+
+  // Create barber color map
+  const barberColorMap = useMemo(() => {
+    const map = new Map<string, string>();
+    if (barbers) {
+      barbers.forEach((barber, index) => {
+        map.set(barber.id, BARBER_COLORS[index % BARBER_COLORS.length]);
+      });
+    }
+    return map;
+  }, [barbers]);
+
   const { data: appointments = [], isLoading: isLoadingAppointments, refetch: refetchAppointments } = useQuery<Appointment[], Error>({
     queryKey: ["appointments", "calendar", statusFilter],
     queryFn: () => fetchAppointments(undefined, statusFilter),
   });
 
+  // Filter appointments by selected barbers
+  const filteredAppointments = useMemo(() => {
+    if (selectedBarbers.length === 0) return [];
+    return appointments.filter(apt => {
+      // Show appointments without barber or with selected barbers
+      if (!apt.barbeiro_id) return true;
+      return selectedBarbers.includes(apt.barbeiro_id);
+    });
+  }, [appointments, selectedBarbers]);
+
   const daysWithAppointments = useMemo(() => {
     const dates = new Set<string>();
-    appointments.forEach(apt => dates.add(apt.appointment_date));
+    filteredAppointments.forEach(apt => dates.add(apt.appointment_date));
     return Array.from(dates);
-  }, [appointments]);
+  }, [filteredAppointments]);
 
   const handleManualSchedule = (initialDate?: Date, initialTime?: string) => {
     setEditingAppointment(null);
@@ -77,6 +108,44 @@ const Appointments = () => {
     handleManualSchedule(date, time);
   };
 
+  // Drag and Drop handler
+  const handleAppointmentMove = async (appointmentId: string, newDate: string, newTime: string) => {
+    const appointment = appointments.find(apt => apt.id === appointmentId);
+    if (!appointment) return;
+
+    // Check if date/time actually changed
+    if (appointment.appointment_date === newDate && appointment.appointment_time === newTime) {
+      return;
+    }
+
+    try {
+      await updateAppointment({
+        id: appointmentId,
+        formData: {
+          client_id: appointment.client_id,
+          service_id: appointment.service_id,
+          barbeiro_id: appointment.barbeiro_id,
+          appointment_date: newDate,
+          appointment_time: newTime,
+          notes: appointment.notes || '',
+        }
+      });
+      
+      toast({
+        title: "Agendamento movido",
+        description: `Movido para ${format(new Date(newDate), 'dd/MM/yyyy')} às ${newTime}`,
+      });
+      
+      refetchAppointments();
+    } catch (error) {
+      toast({
+        title: "Erro ao mover",
+        description: "Não foi possível mover o agendamento",
+        variant: "destructive",
+      });
+    }
+  };
+
   const isLoading = isLoadingClients || isLoadingServices || isLoadingBarbers || isLoadingAppointments;
 
   return (
@@ -91,6 +160,10 @@ const Appointments = () => {
             setStatusFilter={setStatusFilter}
             daysWithAppointments={daysWithAppointments}
             onManualSchedule={() => handleManualSchedule(selectedDate)}
+            barbers={barbers || []}
+            selectedBarbers={selectedBarbers}
+            setSelectedBarbers={setSelectedBarbers}
+            barberColorMap={barberColorMap}
           />
         </div>
 
@@ -105,13 +178,15 @@ const Appointments = () => {
             </div>
           ) : (
             <CalendarView
-              appointments={appointments}
+              appointments={filteredAppointments}
               selectedDate={selectedDate || new Date()}
               onDateChange={setSelectedDate}
               onTimeSlotClick={handleTimeSlotClick}
               onEventClick={handleEdit}
               viewMode={viewMode}
               onViewModeChange={setViewMode}
+              barberColorMap={barberColorMap}
+              onAppointmentMove={handleAppointmentMove}
             />
           )}
         </div>
