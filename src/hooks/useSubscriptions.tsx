@@ -20,18 +20,27 @@ export const useSubscriptions = () => {
         supabase.from("user_subscriptions").select(`
           *,
           subscription_plans (*),
-          clients:profiles (id, name, email, phone)
+          clients:profiles (id, display_name, email, phone)
         `).eq("user_id", user.id).order("created_at", { ascending: false }),
-        supabase.from("profiles").select("id, name, email, phone").eq("user_id", user.id), // Fetch clients associated with the current user
+        supabase.from("clients").select("id, name, email, phone").eq("user_id", user.id),
       ]);
 
       if (plansRes.error) throw plansRes.error;
       if (subscriptionsRes.error) throw subscriptionsRes.error;
       if (clientsRes.error) throw clientsRes.error;
 
+      // Map subscriptions to include proper client name
+      const mappedSubscriptions = (subscriptionsRes.data || []).map(sub => ({
+        ...sub,
+        clients: sub.clients ? {
+          ...sub.clients,
+          name: sub.clients.display_name || sub.clients.email || 'Cliente'
+        } : null
+      }));
+
       return {
         plans: plansRes.data as SubscriptionPlan[] || [],
-        subscriptions: subscriptionsRes.data as UserSubscription[] || [],
+        subscriptions: mappedSubscriptions as UserSubscription[] || [],
         clients: clientsRes.data as Client[] || [],
       };
     } catch (error: any) {
@@ -177,7 +186,7 @@ export const useSubscriptions = () => {
           start_date: formData.start_date,
           end_date: format(endDate, 'yyyy-MM-dd'),
           status: 'active',
-          credits_remaining: 0, // Adjust based on plan features if needed
+          credits_remaining: 0,
         })
         .select()
         .single();

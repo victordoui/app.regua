@@ -55,19 +55,16 @@ export const useCashRegister = () => {
     enabled: !!user,
   });
 
-  // Fetch Clients
+  // Fetch Clients from the clients table
   const fetchClients = useCallback(async (): Promise<Client[]> => {
     if (!user) return [];
     const { data, error } = await supabase
-      .from("profiles")
-      .select("id, name:display_name, email, phone, created_at")
+      .from("clients")
+      .select("id, name, email, phone, created_at")
       .eq("user_id", user.id)
-      .order("display_name", { ascending: true });
+      .order("name", { ascending: true });
     if (error) throw error;
-    return (data || []).map(d => ({
-      ...d,
-      name: d.name || 'Cliente'
-    })) as Client[];
+    return (data || []) as Client[];
   }, [user]);
 
   const { data: clients, isLoading: isLoadingClients, error: clientsError } = useQuery<Client[], Error>({
