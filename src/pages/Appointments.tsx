@@ -3,6 +3,7 @@ import { useAppointments } from '@/hooks/useAppointments';
 import AppointmentFormDialog from '@/components/appointments/AppointmentFormDialog';
 import AppointmentSidebar, { BARBER_COLORS } from '@/components/appointments/AppointmentSidebar';
 import CalendarView from '@/components/appointments/CalendarView';
+import DeleteAppointmentDialog from '@/components/appointments/DeleteAppointmentDialog';
 import Layout from '@/components/Layout';
 import { Appointment, AppointmentFormData } from '@/types/appointments';
 import { useQuery } from '@tanstack/react-query';
@@ -17,6 +18,8 @@ const Appointments = () => {
   const [statusFilter, setStatusFilter] = useState<string>('all');
   const [viewMode, setViewMode] = useState<'week' | 'day' | 'month'>('week');
   const [selectedBarbers, setSelectedBarbers] = useState<string[]>([]);
+  const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
+  const [deletingAppointment, setDeletingAppointment] = useState<Appointment | null>(null);
 
   const {
     clients,
@@ -83,11 +86,19 @@ const Appointments = () => {
     setIsDialogOpen(true);
   };
 
-  const handleDelete = async (id: string) => {
-    if (window.confirm("Tem certeza que deseja excluir este agendamento?")) {
-      await deleteAppointment(id);
-      refetchAppointments();
-    }
+  const handleDeleteClick = (appointment: Appointment) => {
+    setDeletingAppointment(appointment);
+    setDeleteDialogOpen(true);
+  };
+
+  const handleDeleteSingle = async (id: string) => {
+    await deleteAppointment(id, false);
+    refetchAppointments();
+  };
+
+  const handleDeleteSeries = async (id: string) => {
+    await deleteAppointment(id, true);
+    refetchAppointments();
   };
 
   const handleUpdateStatus = async (id: string, newStatus: 'pending' | 'confirmed' | 'completed' | 'cancelled') => {
@@ -181,6 +192,7 @@ const Appointments = () => {
               appointments={filteredAppointments}
               selectedDate={selectedDate || new Date()}
               onDateChange={setSelectedDate}
+              onDeleteAppointment={handleDeleteClick}
               onTimeSlotClick={handleTimeSlotClick}
               onEventClick={handleEdit}
               viewMode={viewMode}
@@ -201,6 +213,14 @@ const Appointments = () => {
           clients={clients}
           services={services}
           barbers={barbers}
+        />
+
+        <DeleteAppointmentDialog
+          isOpen={deleteDialogOpen}
+          onClose={() => setDeleteDialogOpen(false)}
+          appointment={deletingAppointment}
+          onDeleteSingle={handleDeleteSingle}
+          onDeleteSeries={handleDeleteSeries}
         />
       </div>
     </Layout>

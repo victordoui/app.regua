@@ -305,6 +305,45 @@ export type Database = {
           },
         ]
       }
+      notification_preferences: {
+        Row: {
+          created_at: string | null
+          email_address: string | null
+          email_enabled: boolean | null
+          id: string
+          reminder_hours_before: number | null
+          system_enabled: boolean | null
+          updated_at: string | null
+          user_id: string
+          whatsapp_enabled: boolean | null
+          whatsapp_number: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          email_address?: string | null
+          email_enabled?: boolean | null
+          id?: string
+          reminder_hours_before?: number | null
+          system_enabled?: boolean | null
+          updated_at?: string | null
+          user_id: string
+          whatsapp_enabled?: boolean | null
+          whatsapp_number?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          email_address?: string | null
+          email_enabled?: boolean | null
+          id?: string
+          reminder_hours_before?: number | null
+          system_enabled?: boolean | null
+          updated_at?: string | null
+          user_id?: string
+          whatsapp_enabled?: boolean | null
+          whatsapp_number?: string | null
+        }
+        Relationships: []
+      }
       notifications: {
         Row: {
           action_url: string | null
