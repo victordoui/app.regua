@@ -192,7 +192,6 @@ const Appointments = () => {
               appointments={filteredAppointments}
               selectedDate={selectedDate || new Date()}
               onDateChange={setSelectedDate}
-              onDeleteAppointment={handleDeleteClick}
               onTimeSlotClick={handleTimeSlotClick}
               onEventClick={handleEdit}
               viewMode={viewMode}

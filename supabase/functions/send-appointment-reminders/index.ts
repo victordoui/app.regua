@@ -1,6 +1,6 @@
 import { serve } from "https://deno.land/std@0.190.0/http/server.ts";
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2';
-import { Resend } from "npm:resend@2.0.0";
+// Note: Resend integration requires RESEND_API_KEY secret
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
@@ -28,7 +28,6 @@ serve(async (req) => {
     const resendApiKey = Deno.env.get('RESEND_API_KEY');
     
     const supabase = createClient(supabaseUrl, supabaseServiceKey);
-    const resend = resendApiKey ? new Resend(resendApiKey) : null;
 
     // Get current date and time
     const now = new Date();
@@ -39,7 +38,7 @@ serve(async (req) => {
     const tomorrowStr = tomorrow.toISOString().split('T')[0];
 
     console.log(`[${now.toISOString()}] Checking appointments for ${todayStr} and ${tomorrowStr}`);
-    console.log(`Email service available: ${!!resend}`);
+    console.log(`Email service available: ${!!resendApiKey}`);
 
     // Fetch appointments for today and tomorrow that haven't been reminded
     const { data: appointments, error: fetchError } = await supabase
@@ -132,48 +131,56 @@ serve(async (req) => {
           }
         }
 
-        // 2. Send email notification if enabled
-        if (preferences.email_enabled && resend) {
+        // 2. Send email notification if enabled (using Resend REST API)
+        if (preferences.email_enabled && resendApiKey) {
           const emailTo = preferences.email_address || clientEmail;
           
           if (emailTo) {
             try {
               const dateFormatted = isToday ? 'hoje' : 'amanhã';
-              const { error: emailError } = await resend.emails.send({
-                from: 'Barbearia <onboarding@resend.dev>',
-                to: [emailTo],
-                subject: title,
-                html: `
-                  <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px;">
-                    <h1 style="color: #333; border-bottom: 2px solid #0ea5e9; padding-bottom: 10px;">
-                      ${title}
-                    </h1>
-                    <div style="padding: 20px 0;">
-                      <p style="font-size: 16px; color: #555;">
-                        Olá <strong>${clientName}</strong>,
-                      </p>
-                      <p style="font-size: 16px; color: #555;">
-                        Este é um lembrete do seu agendamento:
-                      </p>
-                      <div style="background: #f8fafc; border-left: 4px solid #0ea5e9; padding: 15px; margin: 20px 0;">
-                        <p style="margin: 5px 0;"><strong>📅 Data:</strong> ${dateFormatted}</p>
-                        <p style="margin: 5px 0;"><strong>🕐 Horário:</strong> ${appointment.appointment_time}</p>
-                        <p style="margin: 5px 0;"><strong>✂️ Serviço:</strong> ${serviceName}</p>
+              const emailResponse = await fetch('https://api.resend.com/emails', {
+                method: 'POST',
+                headers: {
+                  'Authorization': `Bearer ${resendApiKey}`,
+                  'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                  from: 'Barbearia <onboarding@resend.dev>',
+                  to: [emailTo],
+                  subject: title,
+                  html: `
+                    <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px;">
+                      <h1 style="color: #333; border-bottom: 2px solid #0ea5e9; padding-bottom: 10px;">
+                        ${title}
+                      </h1>
+                      <div style="padding: 20px 0;">
+                        <p style="font-size: 16px; color: #555;">
+                          Olá <strong>${clientName}</strong>,
+                        </p>
+                        <p style="font-size: 16px; color: #555;">
+                          Este é um lembrete do seu agendamento:
+                        </p>
+                        <div style="background: #f8fafc; border-left: 4px solid #0ea5e9; padding: 15px; margin: 20px 0;">
+                          <p style="margin: 5px 0;"><strong>📅 Data:</strong> ${dateFormatted}</p>
+                          <p style="margin: 5px 0;"><strong>🕐 Horário:</strong> ${appointment.appointment_time}</p>
+                          <p style="margin: 5px 0;"><strong>✂️ Serviço:</strong> ${serviceName}</p>
+                        </div>
+                        <p style="font-size: 14px; color: #888;">
+                          Em caso de dúvidas, entre em contato conosco.
+                        </p>
                       </div>
-                      <p style="font-size: 14px; color: #888;">
-                        Em caso de dúvidas, entre em contato conosco.
-                      </p>
+                      <div style="border-top: 1px solid #eee; padding-top: 15px; text-align: center; color: #888; font-size: 12px;">
+                        Este é um email automático, por favor não responda.
+                      </div>
                     </div>
-                    <div style="border-top: 1px solid #eee; padding-top: 15px; text-align: center; color: #888; font-size: 12px;">
-                      Este é um email automático, por favor não responda.
-                    </div>
-                  </div>
-                `,
+                  `,
+                }),
               });
 
-              if (emailError) {
-                console.error(`Error sending email for appointment ${appointment.id}:`, emailError);
-                errors.push(`Email ${appointment.id}: ${emailError.message}`);
+              if (!emailResponse.ok) {
+                const errorData = await emailResponse.text();
+                console.error(`Error sending email for appointment ${appointment.id}:`, errorData);
+                errors.push(`Email ${appointment.id}: ${errorData}`);
               } else {
                 emailsSent++;
                 console.log(`Email sent to ${emailTo} for appointment ${appointment.id}`);
