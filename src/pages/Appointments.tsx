@@ -4,6 +4,7 @@ import AppointmentFormDialog from '@/components/appointments/AppointmentFormDial
 import AppointmentSidebar, { BARBER_COLORS } from '@/components/appointments/AppointmentSidebar';
 import CalendarView from '@/components/appointments/CalendarView';
 import DeleteAppointmentDialog from '@/components/appointments/DeleteAppointmentDialog';
+import EditSeriesDialog from '@/components/appointments/EditSeriesDialog';
 import Layout from '@/components/Layout';
 import { Appointment, AppointmentFormData } from '@/types/appointments';
 import { useQuery } from '@tanstack/react-query';
@@ -20,6 +21,9 @@ const Appointments = () => {
   const [selectedBarbers, setSelectedBarbers] = useState<string[]>([]);
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
   const [deletingAppointment, setDeletingAppointment] = useState<Appointment | null>(null);
+  const [editSeriesDialogOpen, setEditSeriesDialogOpen] = useState(false);
+  const [pendingEditAppointment, setPendingEditAppointment] = useState<Appointment | null>(null);
+  const [editMode, setEditMode] = useState<'single' | 'series'>('single');
 
   const {
     clients,
@@ -33,6 +37,7 @@ const Appointments = () => {
     updateAppointment,
     updateAppointmentStatus,
     deleteAppointment,
+    updateAppointmentSeries,
   } = useAppointments();
 
   // Initialize selectedBarbers when barbers load
@@ -82,7 +87,29 @@ const Appointments = () => {
   };
 
   const handleEdit = (appointment: Appointment) => {
-    setEditingAppointment(appointment);
+    const isRecurring = appointment.recurrence_type || appointment.parent_appointment_id;
+    
+    if (isRecurring) {
+      setPendingEditAppointment(appointment);
+      setEditSeriesDialogOpen(true);
+    } else {
+      setEditMode('single');
+      setEditingAppointment(appointment);
+      setIsDialogOpen(true);
+    }
+  };
+
+  const handleEditSingle = () => {
+    setEditMode('single');
+    setEditingAppointment(pendingEditAppointment);
+    setEditSeriesDialogOpen(false);
+    setIsDialogOpen(true);
+  };
+
+  const handleEditSeries = () => {
+    setEditMode('series');
+    setEditingAppointment(pendingEditAppointment);
+    setEditSeriesDialogOpen(false);
     setIsDialogOpen(true);
   };
 
@@ -107,11 +134,14 @@ const Appointments = () => {
   };
 
   const handleSave = async (formData: AppointmentFormData, id: string | null): Promise<void> => {
-    if (id) {
+    if (id && editMode === 'series') {
+      await updateAppointmentSeries({ id, formData, updateFutureOnly: true });
+    } else if (id) {
       await updateAppointment({ id, formData });
     } else {
       await addAppointment(formData);
     }
+    setEditMode('single');
     refetchAppointments();
   };
 
@@ -204,7 +234,10 @@ const Appointments = () => {
 
         <AppointmentFormDialog
           isOpen={isDialogOpen}
-          setIsOpen={setIsDialogOpen}
+          setIsOpen={(open) => {
+            setIsDialogOpen(open);
+            if (!open) setEditMode('single');
+          }}
           editingAppointment={editingAppointment}
           saveAppointment={handleSave}
           initialDate={selectedDate}
@@ -212,6 +245,15 @@ const Appointments = () => {
           clients={clients}
           services={services}
           barbers={barbers}
+          editMode={editMode}
+        />
+
+        <EditSeriesDialog
+          isOpen={editSeriesDialogOpen}
+          onClose={() => setEditSeriesDialogOpen(false)}
+          appointment={pendingEditAppointment}
+          onEditSingle={handleEditSingle}
+          onEditSeries={handleEditSeries}
         />
 
         <DeleteAppointmentDialog

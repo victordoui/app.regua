@@ -328,6 +328,90 @@ export const useAppointments = () => {
     },
   });
 
+  // Mutation to update an entire series of recurring appointments
+  const updateSeriesMutation = useMutation<Appointment[], Error, { 
+    id: string; 
+    formData: Partial<AppointmentFormData>;
+    updateFutureOnly?: boolean;
+  }>({
+    mutationFn: async ({ id, formData, updateFutureOnly = true }) => {
+      if (!user) throw new Error("Usuário não autenticado.");
+      
+      // Get the appointment to find the parent
+      const { data: currentAppointment } = await supabase
+        .from("appointments")
+        .select("parent_appointment_id, appointment_date")
+        .eq("id", id)
+        .single();
+      
+      if (!currentAppointment) throw new Error("Agendamento não encontrado.");
+      
+      const parentId = currentAppointment.parent_appointment_id || id;
+      
+      // Fetch all appointments in the series
+      const { data: seriesAppointments, error: fetchError } = await supabase
+        .from("appointments")
+        .select("id, appointment_date")
+        .or(`id.eq.${parentId},parent_appointment_id.eq.${parentId}`)
+        .eq("user_id", user.id);
+      
+      if (fetchError) throw fetchError;
+      if (!seriesAppointments || seriesAppointments.length === 0) {
+        throw new Error("Nenhum agendamento encontrado na série.");
+      }
+      
+      // Filter for future appointments only if requested
+      let appointmentsToUpdate = seriesAppointments;
+      if (updateFutureOnly) {
+        const today = format(new Date(), 'yyyy-MM-dd');
+        appointmentsToUpdate = seriesAppointments.filter(apt => apt.appointment_date >= today);
+      }
+      
+      if (appointmentsToUpdate.length === 0) {
+        throw new Error("Nenhum agendamento futuro encontrado para atualizar.");
+      }
+      
+      // Prepare update data (exclude appointment_date as each has its own)
+      const updateData: Record<string, unknown> = {};
+      if (formData.service_id) updateData.service_id = formData.service_id;
+      if (formData.barbeiro_id !== undefined) updateData.barbeiro_id = formData.barbeiro_id;
+      if (formData.appointment_time) updateData.appointment_time = formData.appointment_time;
+      if (formData.notes !== undefined) updateData.notes = formData.notes;
+      if (formData.client_id) updateData.client_id = formData.client_id;
+      
+      // Update price if service changed
+      if (formData.service_id) {
+        const servicePrice = services?.find(s => s.id === formData.service_id)?.price || 0;
+        updateData.total_price = servicePrice;
+      }
+      
+      // Update each appointment
+      const ids = appointmentsToUpdate.map(apt => apt.id);
+      const { data, error } = await supabase
+        .from("appointments")
+        .update(updateData)
+        .in("id", ids)
+        .eq("user_id", user.id)
+        .select();
+      
+      if (error) throw error;
+      return data || [];
+    },
+    onSuccess: (data) => {
+      queryClient.invalidateQueries({ queryKey: ["appointments", user?.id] });
+      toast({ 
+        title: `${data.length} agendamentos da série atualizados!` 
+      });
+    },
+    onError: (err) => {
+      toast({
+        title: "Erro ao atualizar série",
+        description: err.message,
+        variant: "destructive",
+      });
+    },
+  });
+
   return {
     clients: clients || [],
     services: services || [],
@@ -335,10 +419,11 @@ export const useAppointments = () => {
     isLoadingClients,
     isLoadingServices,
     isLoadingBarbers,
-    fetchAppointments, // Expose fetch function for specific date/filter
+    fetchAppointments,
     addAppointment: addAppointmentMutation.mutateAsync,
     updateAppointment: updateAppointmentMutation.mutateAsync,
     updateAppointmentStatus: updateAppointmentStatusMutation.mutateAsync,
     deleteAppointment: (id: string, deleteAll?: boolean) => deleteAppointmentMutation.mutateAsync({ id, deleteAll }),
+    updateAppointmentSeries: updateSeriesMutation.mutateAsync,
   };
 };
