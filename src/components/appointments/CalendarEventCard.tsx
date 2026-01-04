@@ -1,6 +1,13 @@
 import React from 'react';
 import { Appointment } from '@/types/appointments';
 import { cn } from '@/lib/utils';
+import { Repeat } from 'lucide-react';
+import {
+    Tooltip,
+    TooltipContent,
+    TooltipProvider,
+    TooltipTrigger,
+} from '@/components/ui/tooltip';
 
 interface CalendarEventCardProps {
     appointment: Appointment;
@@ -43,6 +50,17 @@ const CalendarEventCard: React.FC<CalendarEventCardProps> = ({
     };
 
     const bgColor = barberColor || 'hsl(var(--primary))';
+    
+    const isRecurring = appointment.recurrence_type || appointment.parent_appointment_id;
+    
+    const getRecurrenceLabel = (type: string | null | undefined) => {
+        switch (type) {
+            case 'weekly': return 'Semanal';
+            case 'biweekly': return 'Quinzenal';
+            case 'monthly': return 'Mensal';
+            default: return 'Parte de série';
+        }
+    };
 
     return (
         <div
@@ -65,6 +83,18 @@ const CalendarEventCard: React.FC<CalendarEventCardProps> = ({
         >
             <div className="flex items-center gap-1">
                 <div className={cn("w-1.5 h-1.5 rounded-full flex-shrink-0", getStatusIndicator(appointment.status))} />
+                {isRecurring && (
+                    <TooltipProvider delayDuration={200}>
+                        <Tooltip>
+                            <TooltipTrigger asChild>
+                                <Repeat className="w-3 h-3 flex-shrink-0 opacity-80" />
+                            </TooltipTrigger>
+                            <TooltipContent side="top" className="text-xs">
+                                {getRecurrenceLabel(appointment.recurrence_type)}
+                            </TooltipContent>
+                        </Tooltip>
+                    </TooltipProvider>
+                )}
                 <span className="font-semibold truncate">
                     {appointment.clients?.name || 'Cliente'}
                 </span>

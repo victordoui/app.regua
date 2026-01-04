@@ -8,6 +8,7 @@ import { Input } from '@/components/ui/input';
 import { Appointment, AppointmentFormData, Barber, Client, Service, RecurrenceType } from '@/types/appointments';
 import { format } from "date-fns";
 import { Repeat } from 'lucide-react';
+import { cn } from '@/lib/utils';
 
 interface AppointmentFormDialogProps {
   isOpen: boolean;
@@ -19,6 +20,7 @@ interface AppointmentFormDialogProps {
   clients: Client[];
   services: Service[];
   barbers: Barber[];
+  editMode?: 'single' | 'series';
 }
 
 const AppointmentFormDialog: React.FC<AppointmentFormDialogProps> = ({
@@ -31,6 +33,7 @@ const AppointmentFormDialog: React.FC<AppointmentFormDialogProps> = ({
   clients,
   services,
   barbers,
+  editMode = 'single',
 }) => {
   const defaultFormData: AppointmentFormData = {
     client_id: "",
@@ -85,14 +88,28 @@ const AppointmentFormDialog: React.FC<AppointmentFormDialogProps> = ({
     { value: 'monthly', label: 'Todo mês' },
   ];
 
+  const isSeriesMode = editMode === 'series';
+
   return (
     <Dialog open={isOpen} onOpenChange={setIsOpen}>
       <DialogContent className="sm:max-w-md max-h-[90vh] overflow-y-auto">
         <DialogHeader>
           <DialogTitle>
-            {editingAppointment ? "Editar Agendamento" : "Novo Agendamento"}
+            {isSeriesMode 
+              ? "Editar Série de Agendamentos" 
+              : editingAppointment 
+                ? "Editar Agendamento" 
+                : "Novo Agendamento"}
           </DialogTitle>
         </DialogHeader>
+        
+        {isSeriesMode && (
+          <div className="flex items-center gap-2 p-3 bg-primary/10 border border-primary/20 rounded-lg text-sm">
+            <Repeat className="h-4 w-4 text-primary flex-shrink-0" />
+            <span>Alterações serão aplicadas a todos os agendamentos futuros da série</span>
+          </div>
+        )}
+        
         <form onSubmit={handleSubmit} className="space-y-4">
           <div>
             <Label htmlFor="client_id">Cliente</Label>
@@ -150,9 +167,15 @@ const AppointmentFormDialog: React.FC<AppointmentFormDialogProps> = ({
               id="appointment_date"
               value={formData.appointment_date}
               onChange={(e) => setFormData(prev => ({ ...prev, appointment_date: e.target.value }))}
-              className="w-full p-2 border rounded"
-              required
+              className={cn("w-full p-2 border rounded", isSeriesMode && "opacity-50 cursor-not-allowed")}
+              disabled={isSeriesMode}
+              required={!isSeriesMode}
             />
+            {isSeriesMode && (
+              <p className="text-xs text-muted-foreground mt-1">
+                Cada agendamento mantém sua data original
+              </p>
+            )}
           </div>
           <div>
             <Label htmlFor="appointment_time">Hora</Label>
