@@ -63,24 +63,6 @@ const CompanySettings = () => {
     await saveSettings(formData);
   };
 
-  const handleCopyLink = () => {
-    const publicUrl = `${window.location.origin}/public-booking/${settings?.user_id || 'seu-id'}`;
-    navigator.clipboard.writeText(publicUrl);
-    toast.success("Link da página pública copiado!");
-  };
-
-  const handleViewPage = () => {
-    if (settings?.user_id) {
-      const publicUrl = `${window.location.origin}/public-booking/${settings.user_id}`;
-      window.open(publicUrl, '_blank');
-    } else {
-      toast.error("Salve as configurações primeiro para gerar o link.");
-    }
-  };
-
-  const publicLink = settings?.user_id 
-    ? `${window.location.origin}/public-booking/${settings.user_id}`
-    : 'Salve para gerar o link';
 
   const getTabTitle = () => {
     if (activeTab === "dados") return "Dados da Empresa";
@@ -90,7 +72,7 @@ const CompanySettings = () => {
 
   const getTabDescription = () => {
     if (activeTab === "dados") return "Gerencie as informações básicas e de contato da sua empresa.";
-    if (activeTab === "identidade") return "Personalize a aparência visual da sua página pública.";
+    if (activeTab === "identidade") return "Personalize a aparência visual da sua página.";
     return "Compartilhe o link de agendamento com seus clientes.";
   };
 
@@ -155,25 +137,8 @@ const CompanySettings = () => {
                 <div>
                   <h1 className="text-3xl font-bold tracking-tight">{getTabTitle()}</h1>
                   <p className="text-sm text-muted-foreground">{getTabDescription()}</p>
-                  {activeTab === "identidade" && (
-                    <p className="text-xs text-primary mt-1">
-                      Link Público: <span className="font-mono">{publicLink}</span>
-                    </p>
-                  )}
                 </div>
                 <div className="flex gap-2">
-                  {activeTab === "identidade" && settings?.user_id && (
-                    <>
-                      <Button type="button" variant="outline" onClick={handleCopyLink}>
-                        <Link className="h-4 w-4 mr-2" />
-                        Copiar Link
-                      </Button>
-                      <Button type="button" onClick={handleViewPage} variant="default">
-                        <Eye className="h-4 w-4 mr-2" />
-                        Ver Página
-                      </Button>
-                    </>
-                  )}
                   <Button type="submit" form="company-settings-form" disabled={isSaving} variant="secondary">
                     <Save className="h-4 w-4 mr-2" />
                     {isSaving ? "Salvando..." : "Salvar Tudo"}
@@ -509,7 +474,7 @@ const CompanySettings = () => {
                         <div className="rounded-[1.8rem] overflow-hidden bg-white" style={{ height: '550px' }}>
                           {clientBookingLink ? (
                             <iframe 
-                              src={`/b/${settings?.user_id}/login`}
+                              src={`/b/${settings?.user_id}/login?preview=true`}
                               className="w-full h-full border-0"
                               title="Preview do Agendamento"
                             />
