@@ -14,6 +14,7 @@ export interface Service {
   price: number;
   duration_minutes: number;
   active: boolean;
+  image_url?: string;
 }
 
 export interface Barber {
