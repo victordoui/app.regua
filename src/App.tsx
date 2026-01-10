@@ -34,8 +34,15 @@ import Inventory from "./pages/Inventory";
 import Integrations from "./pages/Integrations";
 import Cash from "./pages/Cash";
 import SalesReports from "./pages/SalesReports";
-import PublicBookingPage from "./pages/PublicBookingPage"; // Importação da nova página pública
+import PublicBookingPage from "./pages/PublicBookingPage";
 
+// Client Mobile Pages
+import ClientLogin from "./pages/client/ClientLogin";
+import ClientRegister from "./pages/client/ClientRegister";
+import ClientHome from "./pages/client/ClientHome";
+import ClientAppointments from "./pages/client/ClientAppointments";
+import ClientBooking from "./pages/client/ClientBooking";
+import ClientProfile from "./pages/client/ClientProfile";
 
 const queryClient = new QueryClient();
 
@@ -45,7 +52,16 @@ function AppContent() {
       <Routes>
         <Route path="/login" element={<Login />} />
 
-        {/* Rota Pública de Agendamento (Agora aceita sub-rotas) */}
+        {/* Rotas Mobile para Clientes - /b/:userId */}
+        <Route path="/b/:userId/login" element={<ClientLogin />} />
+        <Route path="/b/:userId/cadastro" element={<ClientRegister />} />
+        <Route path="/b/:userId/home" element={<ClientHome />} />
+        <Route path="/b/:userId/agendamentos" element={<ClientAppointments />} />
+        <Route path="/b/:userId/agendar" element={<ClientBooking />} />
+        <Route path="/b/:userId/perfil" element={<ClientProfile />} />
+        <Route path="/b/:userId" element={<Navigate to="login" replace />} />
+
+        {/* Rota Pública Legacy */}
         <Route path="/public-booking/:userId/*" element={<PublicBookingPage />} />
 
         {/* Dashboard / Visão Geral */}

@@ -2,15 +2,18 @@ import React, { useMemo, useCallback } from "react";
 import Layout from "@/components/Layout";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
-import { Plus, Crown, Calendar, DollarSign, Target, Heart, Users, TrendingUp } from "lucide-react";
+import { Plus, Crown, Calendar, DollarSign, Target, Heart, Users } from "lucide-react";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
 import { useToast } from "@/hooks/use-toast";
 import { useSubscriptions } from "@/hooks/useSubscriptions";
 import { motion } from "framer-motion";
+import AppointmentsChart from "@/components/charts/AppointmentsChart";
+import RevenueChart from "@/components/charts/RevenueChart";
+import ServicesChart from "@/components/charts/ServicesChart";
+import OccupancyChart from "@/components/charts/OccupancyChart";
 
 interface DashboardData {
   totalAppointments: number;
@@ -249,10 +252,21 @@ const Index = () => {
           })}
         </motion.div>
 
+        {/* Charts Section */}
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+          <AppointmentsChart />
+          <RevenueChart />
+        </div>
+
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+          <ServicesChart />
+          <OccupancyChart />
+        </div>
+
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
           <Card>
             <CardHeader>
-              <CardTitle>Atividades Recentes (Mock)</CardTitle>
+              <CardTitle>Atividades Recentes</CardTitle>
             </CardHeader>
             <CardContent>
               <div className="space-y-4">
@@ -286,7 +300,7 @@ const Index = () => {
 
           <Card>
             <CardHeader>
-              <CardTitle>Agendamentos de Hoje (Mock)</CardTitle>
+              <CardTitle>Agendamentos de Hoje</CardTitle>
             </CardHeader>
             <CardContent>
               <div className="space-y-4">
@@ -308,16 +322,6 @@ const Index = () => {
                   <div className="text-right">
                     <p className="text-sm font-medium">15:30</p>
                     <p className="text-xs text-green-600">Confirmado</p>
-                  </div>
-                </div>
-                <div className="flex items-center justify-between p-3 bg-muted/50 rounded-lg">
-                  <div>
-                    <p className="text-sm font-medium">Pedro Oliveira</p>
-                    <p className="text-xs text-muted-foreground">Barba</p>
-                  </div>
-                  <div className="text-right">
-                    <p className="text-sm font-medium">17:00</p>
-                    <p className="text-xs text-yellow-600">Pendente</p>
                   </div>
                 </div>
               </div>

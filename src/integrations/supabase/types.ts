@@ -210,6 +210,60 @@ export type Database = {
         }
         Relationships: []
       }
+      client_profiles: {
+        Row: {
+          address_cep: string | null
+          address_city: string | null
+          address_number: string | null
+          address_state: string | null
+          address_street: string | null
+          avatar_url: string | null
+          barbershop_user_id: string
+          birth_date: string | null
+          cpf: string | null
+          created_at: string | null
+          full_name: string
+          id: string
+          phone: string | null
+          updated_at: string | null
+          user_id: string
+        }
+        Insert: {
+          address_cep?: string | null
+          address_city?: string | null
+          address_number?: string | null
+          address_state?: string | null
+          address_street?: string | null
+          avatar_url?: string | null
+          barbershop_user_id: string
+          birth_date?: string | null
+          cpf?: string | null
+          created_at?: string | null
+          full_name: string
+          id?: string
+          phone?: string | null
+          updated_at?: string | null
+          user_id: string
+        }
+        Update: {
+          address_cep?: string | null
+          address_city?: string | null
+          address_number?: string | null
+          address_state?: string | null
+          address_street?: string | null
+          avatar_url?: string | null
+          barbershop_user_id?: string
+          birth_date?: string | null
+          cpf?: string | null
+          created_at?: string | null
+          full_name?: string
+          id?: string
+          phone?: string | null
+          updated_at?: string | null
+          user_id?: string
+        }
+        Relationships: []
+      }
       clients: {
         Row: {
           created_at: string
@@ -647,6 +701,30 @@ export type Database = {
         }
         Relationships: []
       }
+      user_roles: {
+        Row: {
+          barbershop_user_id: string | null
+          created_at: string | null
+          id: string
+          role: Database["public"]["Enums"]["app_role"]
+          user_id: string
+        }
+        Insert: {
+          barbershop_user_id?: string | null
+          created_at?: string | null
+          id?: string
+          role: Database["public"]["Enums"]["app_role"]
+          user_id: string
+        }
+        Update: {
+          barbershop_user_id?: string | null
+          created_at?: string | null
+          id?: string
+          role?: Database["public"]["Enums"]["app_role"]
+          user_id?: string
+        }
+        Relationships: []
+      }
       user_subscriptions: {
         Row: {
           client_id: string
@@ -708,9 +786,21 @@ export type Database = {
     Functions: {
       create_dev_profile_if_not_exists: { Args: never; Returns: undefined }
       create_dev_user_and_profile: { Args: never; Returns: undefined }
+      has_role: {
+        Args: {
+          _role: Database["public"]["Enums"]["app_role"]
+          _user_id: string
+        }
+        Returns: boolean
+      }
       inserir_3x_e_parar: { Args: never; Returns: undefined }
+      is_client_of: {
+        Args: { _barbershop_user_id: string; _user_id: string }
+        Returns: boolean
+      }
     }
     Enums: {
+      app_role: "admin" | "barbeiro" | "cliente"
       billing_cycle_type: "monthly" | "yearly"
       subscription_status: "active" | "cancelled" | "paused" | "expired"
       transaction_status:
@@ -848,6 +938,7 @@ export type CompositeTypes<
 export const Constants = {
   public: {
     Enums: {
+      app_role: ["admin", "barbeiro", "cliente"],
       billing_cycle_type: ["monthly", "yearly"],
       subscription_status: ["active", "cancelled", "paused", "expired"],
       transaction_status: [
