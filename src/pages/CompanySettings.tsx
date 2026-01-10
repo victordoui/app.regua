@@ -6,7 +6,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Switch } from '@/components/ui/switch';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Building, Settings, Palette, Link, Save, Image, Eye, Share2, Instagram, Facebook, MessageCircle } from 'lucide-react';
+import { Building, Settings, Palette, Link, Save, Image, Eye, Share2, Instagram, Facebook, MessageCircle, Smartphone, Copy, ExternalLink, CheckCircle } from 'lucide-react';
 import { useCompanySettings, CompanySettingsFormData } from '@/hooks/useCompanySettings';
 import { toast } from 'sonner';
 import CompanyPagePreview from '@/components/CompanyPagePreview';
@@ -83,13 +83,39 @@ const CompanySettings = () => {
     : 'Salve para gerar o link';
 
   const getTabTitle = () => {
-    return activeTab === "dados" ? "Dados da Empresa" : "Identidade Visual";
+    if (activeTab === "dados") return "Dados da Empresa";
+    if (activeTab === "identidade") return "Identidade Visual";
+    return "Link de Agendamento";
   };
 
   const getTabDescription = () => {
-    return activeTab === "dados" 
-      ? "Gerencie as informações básicas e de contato da sua empresa."
-      : "Personalize a aparência visual da sua página pública.";
+    if (activeTab === "dados") return "Gerencie as informações básicas e de contato da sua empresa.";
+    if (activeTab === "identidade") return "Personalize a aparência visual da sua página pública.";
+    return "Compartilhe o link de agendamento com seus clientes.";
+  };
+
+  const clientBookingLink = settings?.user_id 
+    ? `${window.location.origin}/b/${settings.user_id}/login`
+    : null;
+
+  const handleCopyClientLink = () => {
+    if (clientBookingLink) {
+      navigator.clipboard.writeText(clientBookingLink);
+      toast.success("Link de agendamento copiado!");
+    }
+  };
+
+  const handleOpenClientLink = () => {
+    if (clientBookingLink) {
+      window.open(clientBookingLink, '_blank');
+    }
+  };
+
+  const handleShareWhatsApp = () => {
+    if (clientBookingLink) {
+      const message = encodeURIComponent(`Agende seu horário em ${formData.company_name || 'nossa barbearia'}: ${clientBookingLink}`);
+      window.open(`https://wa.me/?text=${message}`, '_blank');
+    }
   };
 
   if (isLoading) {
@@ -116,6 +142,10 @@ const CompanySettings = () => {
               <TabsTrigger value="identidade" className="flex items-center gap-2">
                 <Palette className="h-4 w-4" />
                 Identidade Visual
+              </TabsTrigger>
+              <TabsTrigger value="link" className="flex items-center gap-2">
+                <Smartphone className="h-4 w-4" />
+                Link de Agendamento
               </TabsTrigger>
             </TabsList>
 
@@ -387,6 +417,110 @@ const CompanySettings = () => {
                 <div className="lg:col-span-1">
                   <div className="sticky top-28">
                     <CompanyPagePreview data={formData} />
+                  </div>
+                </div>
+              </div>
+            </TabsContent>
+
+            {/* Aba Link de Agendamento */}
+            <TabsContent value="link" className="space-y-6 mt-0">
+              <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                {/* Coluna de Links e Instruções */}
+                <div className="space-y-6">
+                  {/* Link Principal */}
+                  <Card>
+                    <CardHeader>
+                      <CardTitle className="flex items-center gap-2">
+                        <Link className="h-5 w-5" />
+                        Link para Clientes
+                      </CardTitle>
+                      <CardDescription>
+                        Compartilhe este link para seus clientes fazerem agendamentos.
+                      </CardDescription>
+                    </CardHeader>
+                    <CardContent className="space-y-4">
+                      {clientBookingLink ? (
+                        <>
+                          <div className="p-3 bg-muted rounded-lg font-mono text-sm break-all">
+                            {clientBookingLink}
+                          </div>
+                          <div className="flex flex-wrap gap-2">
+                            <Button type="button" variant="outline" onClick={handleCopyClientLink}>
+                              <Copy className="h-4 w-4 mr-2" />
+                              Copiar Link
+                            </Button>
+                            <Button type="button" variant="outline" onClick={handleOpenClientLink}>
+                              <ExternalLink className="h-4 w-4 mr-2" />
+                              Abrir Link
+                            </Button>
+                            <Button type="button" variant="outline" onClick={handleShareWhatsApp} className="text-green-600 border-green-600 hover:bg-green-50">
+                              <MessageCircle className="h-4 w-4 mr-2" />
+                              WhatsApp
+                            </Button>
+                          </div>
+                        </>
+                      ) : (
+                        <p className="text-muted-foreground">Salve as configurações primeiro para gerar o link.</p>
+                      )}
+                    </CardContent>
+                  </Card>
+
+                  {/* Como Funciona */}
+                  <Card>
+                    <CardHeader>
+                      <CardTitle className="flex items-center gap-2">
+                        <CheckCircle className="h-5 w-5" />
+                        Como Funciona
+                      </CardTitle>
+                    </CardHeader>
+                    <CardContent>
+                      <ol className="space-y-3 text-sm text-muted-foreground">
+                        <li className="flex gap-3">
+                          <span className="flex items-center justify-center w-6 h-6 rounded-full bg-primary text-primary-foreground text-xs font-bold shrink-0">1</span>
+                          <span>Compartilhe o link com seus clientes via WhatsApp, Instagram ou outros canais</span>
+                        </li>
+                        <li className="flex gap-3">
+                          <span className="flex items-center justify-center w-6 h-6 rounded-full bg-primary text-primary-foreground text-xs font-bold shrink-0">2</span>
+                          <span>Seus clientes criam uma conta ou fazem login com Google</span>
+                        </li>
+                        <li className="flex gap-3">
+                          <span className="flex items-center justify-center w-6 h-6 rounded-full bg-primary text-primary-foreground text-xs font-bold shrink-0">3</span>
+                          <span>Eles escolhem o serviço, profissional e horário desejado</span>
+                        </li>
+                        <li className="flex gap-3">
+                          <span className="flex items-center justify-center w-6 h-6 rounded-full bg-primary text-primary-foreground text-xs font-bold shrink-0">4</span>
+                          <span>Você recebe o agendamento automaticamente no sistema</span>
+                        </li>
+                      </ol>
+                    </CardContent>
+                  </Card>
+                </div>
+
+                {/* Coluna de Preview Mobile */}
+                <div className="flex justify-center">
+                  <div className="sticky top-28">
+                    <p className="text-center text-sm text-muted-foreground mb-4">Preview da Tela de Login</p>
+                    <div className="relative mx-auto" style={{ width: '300px' }}>
+                      {/* Moldura do celular */}
+                      <div className="rounded-[2.5rem] border-[12px] border-gray-800 bg-gray-800 p-1 shadow-2xl">
+                        {/* Notch */}
+                        <div className="absolute top-0 left-1/2 -translate-x-1/2 w-24 h-6 bg-gray-800 rounded-b-2xl z-10" />
+                        {/* Tela */}
+                        <div className="rounded-[1.8rem] overflow-hidden bg-white" style={{ height: '550px' }}>
+                          {clientBookingLink ? (
+                            <iframe 
+                              src={`/b/${settings?.user_id}/login`}
+                              className="w-full h-full border-0"
+                              title="Preview do Agendamento"
+                            />
+                          ) : (
+                            <div className="w-full h-full flex items-center justify-center text-muted-foreground text-sm p-4 text-center">
+                              Salve as configurações para ver o preview
+                            </div>
+                          )}
+                        </div>
+                      </div>
+                    </div>
                   </div>
                 </div>
               </div>
