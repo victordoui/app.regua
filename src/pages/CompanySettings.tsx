@@ -5,6 +5,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Switch } from '@/components/ui/switch';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Building, Settings, Palette, Link, Save, Image, Eye } from 'lucide-react';
 import { useCompanySettings, CompanySettingsFormData } from '@/hooks/useCompanySettings';
 import { toast } from 'sonner';
@@ -52,7 +53,6 @@ const CompanySettings = () => {
       return;
     }
     
-    // Prepare payload, including logo_url and banner_url
     const payload = {
       company_name: formData.company_name,
       slogan: formData.slogan,
@@ -131,177 +131,198 @@ const CompanySettings = () => {
           </div>
         </div>
 
-        <form id="company-settings-form" onSubmit={handleSubmit} className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-          {/* Coluna de Configurações (2/3) */}
-          <div className="lg:col-span-2 space-y-6">
-            {/* Dados Básicos */}
-            <Card>
-              <CardHeader>
-                <CardTitle className="flex items-center gap-2">
-                  <Building className="h-5 w-5" />
-                  Informações Básicas
-                </CardTitle>
-              </CardHeader>
-              <CardContent className="space-y-4">
-                <div>
-                  <Label htmlFor="company_name">Nome da Barbearia *</Label>
-                  <Input 
-                    id="company_name" 
-                    value={formData.company_name}
-                    onChange={(e) => setFormData(prev => ({ ...prev, company_name: e.target.value }))}
-                    placeholder="Na Régua Barbearia"
-                    required
-                  />
-                </div>
-                <div>
-                  <Label htmlFor="slogan">Slogan / Dizeres da Barbearia</Label>
-                  <Input
-                    id="slogan"
-                    value={formData.slogan}
-                    onChange={(e) => setFormData(prev => ({ ...prev, slogan: e.target.value }))}
-                    placeholder="Ex: Sempre Na Régua"
-                  />
-                </div>
-                <div>
-                  <Label htmlFor="address">Endereço</Label>
-                  <Input 
-                    id="address" 
-                    value={formData.address}
-                    onChange={(e) => setFormData(prev => ({ ...prev, address: e.target.value }))}
-                    placeholder="Rua dos Barbeiros, 123"
-                  />
-                </div>
-                <div className="grid grid-cols-2 gap-4">
-                  <div>
-                    <Label htmlFor="phone">Telefone</Label>
-                    <Input 
-                      id="phone" 
-                      value={formData.phone}
-                      onChange={(e) => setFormData(prev => ({ ...prev, phone: e.target.value }))}
-                      placeholder="(11) 99999-9999"
-                    />
-                  </div>
-                  <div>
-                    <Label htmlFor="email">Email</Label>
-                    <Input 
-                      id="email" 
-                      type="email"
-                      value={formData.email}
-                      onChange={(e) => setFormData(prev => ({ ...prev, email: e.target.value }))}
-                      placeholder="contato@empresa.com"
-                    />
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
+        <form id="company-settings-form" onSubmit={handleSubmit}>
+          <Tabs defaultValue="dados" className="w-full">
+            <TabsList className="mb-6">
+              <TabsTrigger value="dados" className="flex items-center gap-2">
+                <Building className="h-4 w-4" />
+                Dados da Empresa
+              </TabsTrigger>
+              <TabsTrigger value="identidade" className="flex items-center gap-2">
+                <Palette className="h-4 w-4" />
+                Identidade Visual
+              </TabsTrigger>
+            </TabsList>
 
-            {/* Customização de Imagens - Substituído por ImageUploadField */}
-            <Card>
-              <CardHeader>
-                <CardTitle className="flex items-center gap-2">
-                  <Image className="h-5 w-5" />
-                  Imagens da Página Pública
-                </CardTitle>
-                <CardDescription>
-                  Faça upload da logo e do banner para personalizar sua página de agendamento.
-                </CardDescription>
-              </CardHeader>
-              <CardContent className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <ImageUploadField
-                  label="Logo / Imagem de Perfil"
-                  currentUrl={formData.logo_url}
-                  folder="logos"
-                  aspectRatio="square"
-                  onUploadSuccess={(url) => setFormData(prev => ({ ...prev, logo_url: url }))}
-                  uploadFile={uploadFileToStorage}
-                />
-                <ImageUploadField
-                  label="Banner / Imagem de Capa"
-                  currentUrl={formData.banner_url}
-                  folder="banners"
-                  aspectRatio="wide"
-                  onUploadSuccess={(url) => setFormData(prev => ({ ...prev, banner_url: url }))}
-                  uploadFile={uploadFileToStorage}
-                />
-              </CardContent>
-            </Card>
+            <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+              {/* Coluna de Configurações (2/3) */}
+              <div className="lg:col-span-2">
+                {/* Aba Dados da Empresa */}
+                <TabsContent value="dados" className="space-y-6 mt-0">
+                  {/* Informações Básicas */}
+                  <Card>
+                    <CardHeader>
+                      <CardTitle className="flex items-center gap-2">
+                        <Building className="h-5 w-5" />
+                        Informações Básicas
+                      </CardTitle>
+                    </CardHeader>
+                    <CardContent className="space-y-4">
+                      <div>
+                        <Label htmlFor="company_name">Nome da Barbearia *</Label>
+                        <Input 
+                          id="company_name" 
+                          value={formData.company_name}
+                          onChange={(e) => setFormData(prev => ({ ...prev, company_name: e.target.value }))}
+                          placeholder="Na Régua Barbearia"
+                          required
+                        />
+                      </div>
+                      <div>
+                        <Label htmlFor="slogan">Slogan / Dizeres da Barbearia</Label>
+                        <Input
+                          id="slogan"
+                          value={formData.slogan}
+                          onChange={(e) => setFormData(prev => ({ ...prev, slogan: e.target.value }))}
+                          placeholder="Ex: Sempre Na Régua"
+                        />
+                      </div>
+                      <div>
+                        <Label htmlFor="address">Endereço</Label>
+                        <Input 
+                          id="address" 
+                          value={formData.address}
+                          onChange={(e) => setFormData(prev => ({ ...prev, address: e.target.value }))}
+                          placeholder="Rua dos Barbeiros, 123"
+                        />
+                      </div>
+                      <div className="grid grid-cols-2 gap-4">
+                        <div>
+                          <Label htmlFor="phone">Telefone</Label>
+                          <Input 
+                            id="phone" 
+                            value={formData.phone}
+                            onChange={(e) => setFormData(prev => ({ ...prev, phone: e.target.value }))}
+                            placeholder="(11) 99999-9999"
+                          />
+                        </div>
+                        <div>
+                          <Label htmlFor="email">Email</Label>
+                          <Input 
+                            id="email" 
+                            type="email"
+                            value={formData.email}
+                            onChange={(e) => setFormData(prev => ({ ...prev, email: e.target.value }))}
+                            placeholder="contato@empresa.com"
+                          />
+                        </div>
+                      </div>
+                    </CardContent>
+                  </Card>
 
-            {/* Customização de Cores */}
-            <Card>
-              <CardHeader>
-                <CardTitle className="flex items-center gap-2">
-                  <Palette className="h-5 w-5" />
-                  Customização de Cores
-                </CardTitle>
-                <CardDescription>
-                  Defina as cores primária e secundária para a sua página pública.
-                </CardDescription>
-              </CardHeader>
-              <CardContent className="grid grid-cols-2 gap-4">
-                <div>
-                  <Label htmlFor="primary_color_hex">Cor Primária</Label>
-                  <div className="flex items-center gap-2">
-                    <Input
-                      id="primary_color_hex"
-                      type="color"
-                      value={formData.primary_color_hex}
-                      onChange={(e) => setFormData(prev => ({ ...prev, primary_color_hex: e.target.value }))}
-                      className="w-12 h-10 p-0"
-                    />
-                    <Input
-                      type="text"
-                      value={formData.primary_color_hex}
-                      onChange={(e) => setFormData(prev => ({ ...prev, primary_color_hex: e.target.value }))}
-                      placeholder="#RRGGBB"
-                    />
-                  </div>
-                </div>
-                <div>
-                  <Label htmlFor="secondary_color_hex">Cor Secundária</Label>
-                  <div className="flex items-center gap-2">
-                    <Input
-                      id="secondary_color_hex"
-                      type="color"
-                      value={formData.secondary_color_hex}
-                      onChange={(e) => setFormData(prev => ({ ...prev, secondary_color_hex: e.target.value }))}
-                      className="w-12 h-10 p-0"
-                    />
-                    <Input
-                      type="text"
-                      value={formData.secondary_color_hex}
-                      onChange={(e) => setFormData(prev => ({ ...prev, secondary_color_hex: e.target.value }))}
-                      placeholder="#RRGGBB"
-                    />
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
-            
-            {/* Status da Página */}
-            <Card>
-              <CardHeader>
-                <CardTitle className="flex items-center gap-2">
-                  <Settings className="h-5 w-5" />
-                  Status
-                </CardTitle>
-              </CardHeader>
-              <CardContent>
-                <div className="flex items-center justify-between">
-                  <Label htmlFor="public-page-switch">Página de Agendamento Ativa</Label>
-                  <Switch
-                    id="public-page-switch"
-                    checked={formData.is_public_page_enabled}
-                    onCheckedChange={(checked) => setFormData(prev => ({ ...prev, is_public_page_enabled: checked }))}
-                  />
-                </div>
-              </CardContent>
-            </Card>
-          </div>
+                  {/* Status da Página */}
+                  <Card>
+                    <CardHeader>
+                      <CardTitle className="flex items-center gap-2">
+                        <Settings className="h-5 w-5" />
+                        Status
+                      </CardTitle>
+                    </CardHeader>
+                    <CardContent>
+                      <div className="flex items-center justify-between">
+                        <Label htmlFor="public-page-switch">Página de Agendamento Ativa</Label>
+                        <Switch
+                          id="public-page-switch"
+                          checked={formData.is_public_page_enabled}
+                          onCheckedChange={(checked) => setFormData(prev => ({ ...prev, is_public_page_enabled: checked }))}
+                        />
+                      </div>
+                    </CardContent>
+                  </Card>
+                </TabsContent>
 
-          {/* Coluna de Preview (1/3) */}
-          <div className="lg:col-span-1 space-y-6">
-            <CompanyPagePreview data={formData} />
-          </div>
+                {/* Aba Identidade Visual */}
+                <TabsContent value="identidade" className="space-y-6 mt-0">
+                  {/* Customização de Imagens */}
+                  <Card>
+                    <CardHeader>
+                      <CardTitle className="flex items-center gap-2">
+                        <Image className="h-5 w-5" />
+                        Imagens da Página Pública
+                      </CardTitle>
+                      <CardDescription>
+                        Faça upload da logo e do banner para personalizar sua página de agendamento.
+                      </CardDescription>
+                    </CardHeader>
+                    <CardContent className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                      <ImageUploadField
+                        label="Logo / Imagem de Perfil"
+                        currentUrl={formData.logo_url}
+                        folder="logos"
+                        aspectRatio="square"
+                        onUploadSuccess={(url) => setFormData(prev => ({ ...prev, logo_url: url }))}
+                        uploadFile={uploadFileToStorage}
+                      />
+                      <ImageUploadField
+                        label="Banner / Imagem de Capa"
+                        currentUrl={formData.banner_url}
+                        folder="banners"
+                        aspectRatio="wide"
+                        onUploadSuccess={(url) => setFormData(prev => ({ ...prev, banner_url: url }))}
+                        uploadFile={uploadFileToStorage}
+                      />
+                    </CardContent>
+                  </Card>
+
+                  {/* Customização de Cores */}
+                  <Card>
+                    <CardHeader>
+                      <CardTitle className="flex items-center gap-2">
+                        <Palette className="h-5 w-5" />
+                        Customização de Cores
+                      </CardTitle>
+                      <CardDescription>
+                        Defina as cores primária e secundária para a sua página pública.
+                      </CardDescription>
+                    </CardHeader>
+                    <CardContent className="grid grid-cols-2 gap-4">
+                      <div>
+                        <Label htmlFor="primary_color_hex">Cor Primária</Label>
+                        <div className="flex items-center gap-2">
+                          <Input
+                            id="primary_color_hex"
+                            type="color"
+                            value={formData.primary_color_hex}
+                            onChange={(e) => setFormData(prev => ({ ...prev, primary_color_hex: e.target.value }))}
+                            className="w-12 h-10 p-0"
+                          />
+                          <Input
+                            type="text"
+                            value={formData.primary_color_hex}
+                            onChange={(e) => setFormData(prev => ({ ...prev, primary_color_hex: e.target.value }))}
+                            placeholder="#RRGGBB"
+                          />
+                        </div>
+                      </div>
+                      <div>
+                        <Label htmlFor="secondary_color_hex">Cor Secundária</Label>
+                        <div className="flex items-center gap-2">
+                          <Input
+                            id="secondary_color_hex"
+                            type="color"
+                            value={formData.secondary_color_hex}
+                            onChange={(e) => setFormData(prev => ({ ...prev, secondary_color_hex: e.target.value }))}
+                            className="w-12 h-10 p-0"
+                          />
+                          <Input
+                            type="text"
+                            value={formData.secondary_color_hex}
+                            onChange={(e) => setFormData(prev => ({ ...prev, secondary_color_hex: e.target.value }))}
+                            placeholder="#RRGGBB"
+                          />
+                        </div>
+                      </div>
+                    </CardContent>
+                  </Card>
+                </TabsContent>
+              </div>
+
+              {/* Coluna de Preview (1/3) - Sempre visível */}
+              <div className="lg:col-span-1">
+                <CompanyPagePreview data={formData} />
+              </div>
+            </div>
+          </Tabs>
         </form>
       </div>
     </Layout>
