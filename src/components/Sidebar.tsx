@@ -123,7 +123,7 @@ const Sidebar = () => {
       label: "Minha Empresa",
       icon: Building,
       items: [
-        { icon: Building, label: "Dados da Empresa", path: "/settings/company" },
+        { icon: Building, label: "Empresa", path: "/settings/company" },
         { icon: Warehouse, label: "Estoque", path: "/inventory" },
       ]
     },

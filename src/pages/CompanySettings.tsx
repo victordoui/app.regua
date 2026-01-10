@@ -6,7 +6,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Switch } from '@/components/ui/switch';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Building, Settings, Palette, Link, Save, Image, Eye } from 'lucide-react';
+import { Building, Settings, Palette, Link, Save, Image, Eye, Share2, Instagram, Facebook, MessageCircle } from 'lucide-react';
 import { useCompanySettings, CompanySettingsFormData } from '@/hooks/useCompanySettings';
 import { toast } from 'sonner';
 import CompanyPagePreview from '@/components/CompanyPagePreview';
@@ -15,8 +15,9 @@ import { uploadFileToStorage } from '@/lib/supabaseStorage';
 
 const CompanySettings = () => {
   const { settings, isLoading, saveSettings, isSaving } = useCompanySettings();
+  const [activeTab, setActiveTab] = useState("dados");
   
-  const [formData, setFormData] = useState<CompanySettingsFormData & { logo_url: string, banner_url: string }>({
+  const [formData, setFormData] = useState<CompanySettingsFormData>({
     company_name: '',
     slogan: '',
     primary_color_hex: '#0ea5e9',
@@ -27,6 +28,9 @@ const CompanySettings = () => {
     is_public_page_enabled: true,
     logo_url: '',
     banner_url: '',
+    instagram_url: '',
+    facebook_url: '',
+    whatsapp_number: '',
   });
 
   useEffect(() => {
@@ -42,6 +46,9 @@ const CompanySettings = () => {
         is_public_page_enabled: settings.is_public_page_enabled,
         logo_url: settings.logo_url || '',
         banner_url: settings.banner_url || '',
+        instagram_url: settings.instagram_url || '',
+        facebook_url: settings.facebook_url || '',
+        whatsapp_number: settings.whatsapp_number || '',
       });
     }
   }, [settings]);
@@ -53,20 +60,7 @@ const CompanySettings = () => {
       return;
     }
     
-    const payload = {
-      company_name: formData.company_name,
-      slogan: formData.slogan,
-      primary_color_hex: formData.primary_color_hex,
-      secondary_color_hex: formData.secondary_color_hex,
-      address: formData.address,
-      phone: formData.phone,
-      email: formData.email,
-      is_public_page_enabled: formData.is_public_page_enabled,
-      logo_url: formData.logo_url,
-      banner_url: formData.banner_url,
-    };
-
-    await saveSettings(payload);
+    await saveSettings(formData);
   };
 
   const handleCopyLink = () => {
@@ -88,6 +82,16 @@ const CompanySettings = () => {
     ? `${window.location.origin}/public-booking/${settings.user_id}`
     : 'Salve para gerar o link';
 
+  const getTabTitle = () => {
+    return activeTab === "dados" ? "Dados da Empresa" : "Identidade Visual";
+  };
+
+  const getTabDescription = () => {
+    return activeTab === "dados" 
+      ? "Gerencie as informações básicas e de contato da sua empresa."
+      : "Personalize a aparência visual da sua página pública.";
+  };
+
   if (isLoading) {
     return (
       <Layout>
@@ -101,39 +105,10 @@ const CompanySettings = () => {
   return (
     <Layout>
       <div className="flex-1 space-y-6 p-6">
-        {/* Header Fixo com Link */}
-        <div className="sticky top-0 z-10 bg-background/90 backdrop-blur-sm py-4 border-b border-border -mx-6 px-6">
-          <div className="flex items-center justify-between flex-wrap gap-3">
-            <div>
-              <h1 className="text-3xl font-bold tracking-tight">Dados da Empresa</h1>
-              <p className="text-sm text-muted-foreground">
-                Link Público: <span className="font-mono text-xs text-primary break-all">{publicLink}</span>
-              </p>
-            </div>
-            <div className="flex gap-2">
-              {settings?.user_id && (
-                <>
-                  <Button type="button" variant="outline" onClick={handleCopyLink}>
-                    <Link className="h-4 w-4 mr-2" />
-                    Copiar Link
-                  </Button>
-                  <Button type="button" onClick={handleViewPage} variant="default">
-                    <Eye className="h-4 w-4 mr-2" />
-                    Ver Página
-                  </Button>
-                </>
-              )}
-              <Button type="submit" form="company-settings-form" disabled={isSaving} variant="secondary">
-                <Save className="h-4 w-4 mr-2" />
-                {isSaving ? "Salvando..." : "Salvar Tudo"}
-              </Button>
-            </div>
-          </div>
-        </div>
-
         <form id="company-settings-form" onSubmit={handleSubmit}>
-          <Tabs defaultValue="dados" className="w-full">
-            <TabsList className="mb-6">
+          {/* Tabs no topo */}
+          <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
+            <TabsList className="mb-4">
               <TabsTrigger value="dados" className="flex items-center gap-2">
                 <Building className="h-4 w-4" />
                 Dados da Empresa
@@ -144,95 +119,128 @@ const CompanySettings = () => {
               </TabsTrigger>
             </TabsList>
 
-            <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-              {/* Coluna de Configurações (2/3) */}
-              <div className="lg:col-span-2">
-                {/* Aba Dados da Empresa */}
-                <TabsContent value="dados" className="space-y-6 mt-0">
-                  {/* Informações Básicas */}
-                  <Card>
-                    <CardHeader>
-                      <CardTitle className="flex items-center gap-2">
-                        <Building className="h-5 w-5" />
-                        Informações Básicas
-                      </CardTitle>
-                    </CardHeader>
-                    <CardContent className="space-y-4">
-                      <div>
-                        <Label htmlFor="company_name">Nome da Barbearia *</Label>
-                        <Input 
-                          id="company_name" 
-                          value={formData.company_name}
-                          onChange={(e) => setFormData(prev => ({ ...prev, company_name: e.target.value }))}
-                          placeholder="Na Régua Barbearia"
-                          required
-                        />
-                      </div>
-                      <div>
-                        <Label htmlFor="slogan">Slogan / Dizeres da Barbearia</Label>
-                        <Input
-                          id="slogan"
-                          value={formData.slogan}
-                          onChange={(e) => setFormData(prev => ({ ...prev, slogan: e.target.value }))}
-                          placeholder="Ex: Sempre Na Régua"
-                        />
-                      </div>
-                      <div>
-                        <Label htmlFor="address">Endereço</Label>
-                        <Input 
-                          id="address" 
-                          value={formData.address}
-                          onChange={(e) => setFormData(prev => ({ ...prev, address: e.target.value }))}
-                          placeholder="Rua dos Barbeiros, 123"
-                        />
-                      </div>
-                      <div className="grid grid-cols-2 gap-4">
-                        <div>
-                          <Label htmlFor="phone">Telefone</Label>
-                          <Input 
-                            id="phone" 
-                            value={formData.phone}
-                            onChange={(e) => setFormData(prev => ({ ...prev, phone: e.target.value }))}
-                            placeholder="(11) 99999-9999"
-                          />
-                        </div>
-                        <div>
-                          <Label htmlFor="email">Email</Label>
-                          <Input 
-                            id="email" 
-                            type="email"
-                            value={formData.email}
-                            onChange={(e) => setFormData(prev => ({ ...prev, email: e.target.value }))}
-                            placeholder="contato@empresa.com"
-                          />
-                        </div>
-                      </div>
-                    </CardContent>
-                  </Card>
+            {/* Header dinâmico */}
+            <div className="sticky top-0 z-10 bg-background/90 backdrop-blur-sm py-4 border-b border-border -mx-6 px-6 mb-6">
+              <div className="flex items-center justify-between flex-wrap gap-3">
+                <div>
+                  <h1 className="text-3xl font-bold tracking-tight">{getTabTitle()}</h1>
+                  <p className="text-sm text-muted-foreground">{getTabDescription()}</p>
+                  {activeTab === "identidade" && (
+                    <p className="text-xs text-primary mt-1">
+                      Link Público: <span className="font-mono">{publicLink}</span>
+                    </p>
+                  )}
+                </div>
+                <div className="flex gap-2">
+                  {activeTab === "identidade" && settings?.user_id && (
+                    <>
+                      <Button type="button" variant="outline" onClick={handleCopyLink}>
+                        <Link className="h-4 w-4 mr-2" />
+                        Copiar Link
+                      </Button>
+                      <Button type="button" onClick={handleViewPage} variant="default">
+                        <Eye className="h-4 w-4 mr-2" />
+                        Ver Página
+                      </Button>
+                    </>
+                  )}
+                  <Button type="submit" form="company-settings-form" disabled={isSaving} variant="secondary">
+                    <Save className="h-4 w-4 mr-2" />
+                    {isSaving ? "Salvando..." : "Salvar Tudo"}
+                  </Button>
+                </div>
+              </div>
+            </div>
 
-                  {/* Status da Página */}
-                  <Card>
-                    <CardHeader>
-                      <CardTitle className="flex items-center gap-2">
-                        <Settings className="h-5 w-5" />
-                        Status
-                      </CardTitle>
-                    </CardHeader>
-                    <CardContent>
-                      <div className="flex items-center justify-between">
-                        <Label htmlFor="public-page-switch">Página de Agendamento Ativa</Label>
-                        <Switch
-                          id="public-page-switch"
-                          checked={formData.is_public_page_enabled}
-                          onCheckedChange={(checked) => setFormData(prev => ({ ...prev, is_public_page_enabled: checked }))}
-                        />
-                      </div>
-                    </CardContent>
-                  </Card>
-                </TabsContent>
+            {/* Aba Dados da Empresa */}
+            <TabsContent value="dados" className="space-y-6 mt-0">
+              {/* Informações Básicas */}
+              <Card>
+                <CardHeader>
+                  <CardTitle className="flex items-center gap-2">
+                    <Building className="h-5 w-5" />
+                    Informações Básicas
+                  </CardTitle>
+                </CardHeader>
+                <CardContent className="space-y-4">
+                  <div>
+                    <Label htmlFor="company_name">Nome da Barbearia *</Label>
+                    <Input 
+                      id="company_name" 
+                      value={formData.company_name}
+                      onChange={(e) => setFormData(prev => ({ ...prev, company_name: e.target.value }))}
+                      placeholder="Na Régua Barbearia"
+                      required
+                    />
+                  </div>
+                  <div>
+                    <Label htmlFor="slogan">Slogan / Dizeres da Barbearia</Label>
+                    <Input
+                      id="slogan"
+                      value={formData.slogan}
+                      onChange={(e) => setFormData(prev => ({ ...prev, slogan: e.target.value }))}
+                      placeholder="Ex: Sempre Na Régua"
+                    />
+                  </div>
+                  <div>
+                    <Label htmlFor="address">Endereço</Label>
+                    <Input 
+                      id="address" 
+                      value={formData.address}
+                      onChange={(e) => setFormData(prev => ({ ...prev, address: e.target.value }))}
+                      placeholder="Rua dos Barbeiros, 123"
+                    />
+                  </div>
+                  <div className="grid grid-cols-2 gap-4">
+                    <div>
+                      <Label htmlFor="phone">Telefone</Label>
+                      <Input 
+                        id="phone" 
+                        value={formData.phone}
+                        onChange={(e) => setFormData(prev => ({ ...prev, phone: e.target.value }))}
+                        placeholder="(11) 99999-9999"
+                      />
+                    </div>
+                    <div>
+                      <Label htmlFor="email">Email</Label>
+                      <Input 
+                        id="email" 
+                        type="email"
+                        value={formData.email}
+                        onChange={(e) => setFormData(prev => ({ ...prev, email: e.target.value }))}
+                        placeholder="contato@empresa.com"
+                      />
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
 
-                {/* Aba Identidade Visual */}
-                <TabsContent value="identidade" className="space-y-6 mt-0">
+              {/* Status da Página */}
+              <Card>
+                <CardHeader>
+                  <CardTitle className="flex items-center gap-2">
+                    <Settings className="h-5 w-5" />
+                    Status
+                  </CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <div className="flex items-center justify-between">
+                    <Label htmlFor="public-page-switch">Página de Agendamento Ativa</Label>
+                    <Switch
+                      id="public-page-switch"
+                      checked={formData.is_public_page_enabled}
+                      onCheckedChange={(checked) => setFormData(prev => ({ ...prev, is_public_page_enabled: checked }))}
+                    />
+                  </div>
+                </CardContent>
+              </Card>
+            </TabsContent>
+
+            {/* Aba Identidade Visual */}
+            <TabsContent value="identidade" className="space-y-6 mt-0">
+              <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                {/* Coluna de Configurações (2/3) */}
+                <div className="lg:col-span-2 space-y-6">
                   {/* Customização de Imagens */}
                   <Card>
                     <CardHeader>
@@ -314,14 +322,75 @@ const CompanySettings = () => {
                       </div>
                     </CardContent>
                   </Card>
-                </TabsContent>
-              </div>
 
-              {/* Coluna de Preview (1/3) - Sempre visível */}
-              <div className="lg:col-span-1">
-                <CompanyPagePreview data={formData} />
+                  {/* Redes Sociais */}
+                  <Card>
+                    <CardHeader>
+                      <CardTitle className="flex items-center gap-2">
+                        <Share2 className="h-5 w-5" />
+                        Redes Sociais
+                      </CardTitle>
+                      <CardDescription>
+                        Adicione links das redes sociais para exibir na página pública.
+                      </CardDescription>
+                    </CardHeader>
+                    <CardContent className="space-y-4">
+                      <div className="flex items-center gap-3">
+                        <div className="flex items-center justify-center w-10 h-10 rounded-lg bg-gradient-to-br from-purple-500 to-pink-500">
+                          <Instagram className="h-5 w-5 text-white" />
+                        </div>
+                        <div className="flex-1">
+                          <Label htmlFor="instagram_url">Instagram</Label>
+                          <Input 
+                            id="instagram_url"
+                            placeholder="@seuperfil ou https://instagram.com/seuperfil"
+                            value={formData.instagram_url}
+                            onChange={(e) => setFormData(prev => ({ ...prev, instagram_url: e.target.value }))}
+                          />
+                        </div>
+                      </div>
+                      
+                      <div className="flex items-center gap-3">
+                        <div className="flex items-center justify-center w-10 h-10 rounded-lg bg-blue-600">
+                          <Facebook className="h-5 w-5 text-white" />
+                        </div>
+                        <div className="flex-1">
+                          <Label htmlFor="facebook_url">Facebook</Label>
+                          <Input 
+                            id="facebook_url"
+                            placeholder="https://facebook.com/suapagina"
+                            value={formData.facebook_url}
+                            onChange={(e) => setFormData(prev => ({ ...prev, facebook_url: e.target.value }))}
+                          />
+                        </div>
+                      </div>
+                      
+                      <div className="flex items-center gap-3">
+                        <div className="flex items-center justify-center w-10 h-10 rounded-lg bg-green-500">
+                          <MessageCircle className="h-5 w-5 text-white" />
+                        </div>
+                        <div className="flex-1">
+                          <Label htmlFor="whatsapp_number">WhatsApp</Label>
+                          <Input 
+                            id="whatsapp_number"
+                            placeholder="(11) 99999-9999"
+                            value={formData.whatsapp_number}
+                            onChange={(e) => setFormData(prev => ({ ...prev, whatsapp_number: e.target.value }))}
+                          />
+                        </div>
+                      </div>
+                    </CardContent>
+                  </Card>
+                </div>
+
+                {/* Coluna de Preview (1/3) - Só na aba Identidade Visual */}
+                <div className="lg:col-span-1">
+                  <div className="sticky top-28">
+                    <CompanyPagePreview data={formData} />
+                  </div>
+                </div>
               </div>
-            </div>
+            </TabsContent>
           </Tabs>
         </form>
       </div>
