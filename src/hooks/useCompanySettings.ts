@@ -17,6 +17,9 @@ export interface CompanySettings {
   phone: string | null;
   email: string | null;
   is_public_page_enabled: boolean;
+  instagram_url: string | null;
+  facebook_url: string | null;
+  whatsapp_number: string | null;
 }
 
 export interface CompanySettingsFormData {
@@ -28,9 +31,11 @@ export interface CompanySettingsFormData {
   phone: string;
   email: string;
   is_public_page_enabled: boolean;
-  // Adicionando campos de imagem
   logo_url: string;
   banner_url: string;
+  instagram_url: string;
+  facebook_url: string;
+  whatsapp_number: string;
 }
 
 export const useCompanySettings = () => {
@@ -86,6 +91,9 @@ export const useCompanySettings = () => {
         is_public_page_enabled: formData.is_public_page_enabled,
         logo_url: formData.logo_url || null,
         banner_url: formData.banner_url || null,
+        instagram_url: formData.instagram_url || null,
+        facebook_url: formData.facebook_url || null,
+        whatsapp_number: formData.whatsapp_number || null,
       };
 
       if (settings?.id) {

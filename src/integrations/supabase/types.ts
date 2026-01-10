@@ -139,7 +139,9 @@ export type Database = {
           company_name: string
           created_at: string | null
           email: string | null
+          facebook_url: string | null
           id: string
+          instagram_url: string | null
           is_public_page_enabled: boolean | null
           logo_url: string | null
           phone: string | null
@@ -148,6 +150,7 @@ export type Database = {
           slogan: string | null
           updated_at: string | null
           user_id: string
+          whatsapp_number: string | null
         }
         Insert: {
           address?: string | null
@@ -155,7 +158,9 @@ export type Database = {
           company_name: string
           created_at?: string | null
           email?: string | null
+          facebook_url?: string | null
           id?: string
+          instagram_url?: string | null
           is_public_page_enabled?: boolean | null
           logo_url?: string | null
           phone?: string | null
@@ -164,6 +169,7 @@ export type Database = {
           slogan?: string | null
           updated_at?: string | null
           user_id: string
+          whatsapp_number?: string | null
         }
         Update: {
           address?: string | null
@@ -171,7 +177,9 @@ export type Database = {
           company_name?: string
           created_at?: string | null
           email?: string | null
+          facebook_url?: string | null
           id?: string
+          instagram_url?: string | null
           is_public_page_enabled?: boolean | null
           logo_url?: string | null
           phone?: string | null
@@ -180,6 +188,7 @@ export type Database = {
           slogan?: string | null
           updated_at?: string | null
           user_id?: string
+          whatsapp_number?: string | null
         }
         Relationships: []
       }
