@@ -71,18 +71,21 @@ const ClientLogin = () => {
     fetchSettings();
   }, [userId]);
 
-  // Check if user is already logged in
+  // Check if user is already logged in (skip in preview mode)
   useEffect(() => {
+    const searchParams = new URLSearchParams(window.location.search);
+    const isPreview = searchParams.get('preview') === 'true';
+
     const checkSession = async () => {
       const { data: { session } } = await supabase.auth.getSession();
-      if (session?.user) {
+      if (session?.user && !isPreview) {
         navigate(`/b/${userId}/home`);
       }
     };
     checkSession();
 
     const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
-      if (session?.user) {
+      if (session?.user && !isPreview) {
         navigate(`/b/${userId}/home`);
       }
     });
