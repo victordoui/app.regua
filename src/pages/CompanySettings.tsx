@@ -9,7 +9,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Building, Settings, Palette, Link, Save, Image, Eye, Share2, Instagram, Facebook, MessageCircle, Smartphone, Copy, ExternalLink, CheckCircle } from 'lucide-react';
 import { useCompanySettings, CompanySettingsFormData } from '@/hooks/useCompanySettings';
 import { toast } from 'sonner';
-import CompanyPagePreview from '@/components/CompanyPagePreview';
+
 import ImageUploadField from '@/components/ImageUploadField';
 import { uploadFileToStorage } from '@/lib/supabaseStorage';
 
@@ -233,9 +233,7 @@ const CompanySettings = () => {
 
             {/* Aba Identidade Visual */}
             <TabsContent value="identidade" className="space-y-6 mt-0">
-              <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-                {/* Coluna de Configurações (2/3) */}
-                <div className="lg:col-span-2 space-y-6">
+              <div className="space-y-6">
                   {/* Customização de Imagens */}
                   <Card>
                     <CardHeader>
@@ -376,14 +374,6 @@ const CompanySettings = () => {
                       </div>
                     </CardContent>
                   </Card>
-                </div>
-
-                {/* Coluna de Preview (1/3) - Só na aba Identidade Visual */}
-                <div className="lg:col-span-1">
-                  <div className="sticky top-28">
-                    <CompanyPagePreview data={formData} />
-                  </div>
-                </div>
               </div>
             </TabsContent>
 
