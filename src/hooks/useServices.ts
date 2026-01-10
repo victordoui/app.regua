@@ -11,6 +11,7 @@ interface ServiceFormData {
   price: string;
   duration_minutes: string;
   active: boolean;
+  image_url?: string;
 }
 
 export const useServices = () => {
@@ -60,6 +61,7 @@ export const useServices = () => {
           price: parseFloat(formData.price),
           duration_minutes: parseInt(formData.duration_minutes),
           active: formData.active,
+          image_url: formData.image_url || null,
         })
         .select()
         .single();
@@ -92,6 +94,7 @@ export const useServices = () => {
           price: parseFloat(formData.price),
           duration_minutes: parseInt(formData.duration_minutes),
           active: formData.active,
+          image_url: formData.image_url || null,
         })
         .eq("id", id)
         .eq("user_id", user.id)

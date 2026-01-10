@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -9,9 +9,11 @@ import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, D
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Switch } from "@/components/ui/switch";
 import { useServices } from "@/hooks/useServices";
-import { Scissors, Plus, Edit, Trash2, Clock, DollarSign, Search, Filter, Power, PowerOff } from "lucide-react";
+import { Scissors, Plus, Edit, Trash2, Clock, DollarSign, Search, Filter, Power, PowerOff, ImageIcon, Upload, X, Loader2 } from "lucide-react";
 import Layout from "@/components/Layout";
 import { Service } from "@/types/appointments";
+import { supabase } from "@/integrations/supabase/client";
+import { toast } from "sonner";
 
 interface ServiceFormData {
   name: string;
@@ -19,6 +21,7 @@ interface ServiceFormData {
   price: string;
   duration_minutes: string;
   active: boolean;
+  image_url: string;
 }
 
 const Services = () => {
@@ -29,12 +32,15 @@ const Services = () => {
   const [dialogOpen, setDialogOpen] = useState(false);
   const [editingService, setEditingService] = useState<Service | null>(null);
   const [submitting, setSubmitting] = useState(false);
+  const [uploadingImage, setUploadingImage] = useState(false);
+  const fileInputRef = useRef<HTMLInputElement>(null);
   const [formData, setFormData] = useState<ServiceFormData>({
     name: "",
     description: "",
     price: "",
     duration_minutes: "",
-    active: true
+    active: true,
+    image_url: ""
   });
 
   useEffect(() => {
@@ -44,7 +50,8 @@ const Services = () => {
         description: editingService.description || "",
         price: editingService.price.toString(),
         duration_minutes: editingService.duration_minutes.toString(),
-        active: editingService.active
+        active: editingService.active,
+        image_url: editingService.image_url || ""
       });
     } else {
       setFormData({
@@ -52,7 +59,8 @@ const Services = () => {
         description: "",
         price: "",
         duration_minutes: "",
-        active: true
+        active: true,
+        image_url: ""
       });
     }
   }, [editingService, dialogOpen]);
@@ -61,7 +69,6 @@ const Services = () => {
     e.preventDefault();
 
     if (!formData.name || !formData.price || !formData.duration_minutes) {
-      // Validation handled by hook/toast internally, but good to have a quick check
       return;
     }
 
@@ -101,9 +108,46 @@ const Services = () => {
       description: service.description || "",
       price: service.price.toString(),
       duration_minutes: service.duration_minutes.toString(),
-      active: !service.active
+      active: !service.active,
+      image_url: service.image_url || ""
     };
     await updateService({ id: service.id, formData: serviceData });
+  };
+
+  // Upload service image
+  const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    setUploadingImage(true);
+    try {
+      const fileExt = file.name.split('.').pop();
+      const fileName = `service_${Date.now()}.${fileExt}`;
+      const filePath = `services/${fileName}`;
+
+      const { error: uploadError } = await supabase.storage
+        .from('public-assets')
+        .upload(filePath, file, { upsert: true });
+
+      if (uploadError) throw uploadError;
+
+      const { data: { publicUrl } } = supabase.storage
+        .from('public-assets')
+        .getPublicUrl(filePath);
+
+      setFormData(prev => ({ ...prev, image_url: publicUrl }));
+      toast.success("Imagem carregada com sucesso!");
+    } catch (error: any) {
+      console.error("Upload error:", error);
+      toast.error("Erro ao fazer upload da imagem.");
+    } finally {
+      setUploadingImage(false);
+      if (e.target) e.target.value = '';
+    }
+  };
+
+  const handleRemoveImage = () => {
+    setFormData(prev => ({ ...prev, image_url: '' }));
   };
 
   const filteredServices = services.filter(service => {
@@ -153,7 +197,7 @@ const Services = () => {
                 Novo Serviço
               </Button>
             </DialogTrigger>
-            <DialogContent className="sm:max-w-[500px]">
+            <DialogContent className="sm:max-w-[500px] max-h-[90vh] overflow-y-auto">
               <form onSubmit={handleSubmit}>
                 <DialogHeader>
                   <DialogTitle>
@@ -167,6 +211,60 @@ const Services = () => {
                 </DialogHeader>
 
                 <div className="grid gap-4 py-4">
+                  {/* Imagem do Serviço */}
+                  <div className="space-y-2">
+                    <Label>Imagem do Serviço</Label>
+                    <div className="border-2 border-dashed rounded-lg p-4">
+                      {formData.image_url ? (
+                        <div className="relative">
+                          <img 
+                            src={formData.image_url} 
+                            alt="Preview" 
+                            className="w-full h-32 object-cover rounded-lg"
+                          />
+                          <Button
+                            type="button"
+                            variant="destructive"
+                            size="icon"
+                            className="absolute top-2 right-2 h-8 w-8"
+                            onClick={handleRemoveImage}
+                          >
+                            <X className="h-4 w-4" />
+                          </Button>
+                        </div>
+                      ) : (
+                        <div className="flex flex-col items-center justify-center py-4">
+                          <ImageIcon className="h-10 w-10 text-muted-foreground mb-2" />
+                          <p className="text-sm text-muted-foreground mb-2">Nenhuma imagem selecionada</p>
+                          <Input
+                            type="file"
+                            accept="image/*"
+                            onChange={handleImageUpload}
+                            className="hidden"
+                            ref={fileInputRef}
+                            disabled={uploadingImage}
+                          />
+                          <Button
+                            type="button"
+                            variant="outline"
+                            size="sm"
+                            onClick={() => fileInputRef.current?.click()}
+                            disabled={uploadingImage}
+                          >
+                            {uploadingImage ? (
+                              <><Loader2 className="h-4 w-4 mr-2 animate-spin" /> Carregando...</>
+                            ) : (
+                              <><Upload className="h-4 w-4 mr-2" /> Selecionar Imagem</>
+                            )}
+                          </Button>
+                        </div>
+                      )}
+                    </div>
+                    <p className="text-xs text-muted-foreground">
+                      Opcional - Adicione uma foto mostrando o resultado do serviço
+                    </p>
+                  </div>
+
                   <div className="space-y-2">
                     <Label htmlFor="name">Nome do Serviço *</Label>
                     <Input
@@ -273,7 +371,22 @@ const Services = () => {
         {/* Services Grid */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           {filteredServices.map((service) => (
-            <Card key={service.id} className="relative transition-all hover:shadow-lg">
+            <Card key={service.id} className="relative transition-all hover:shadow-lg overflow-hidden">
+              {/* Imagem do serviço */}
+              {service.image_url ? (
+                <div className="aspect-video overflow-hidden">
+                  <img 
+                    src={service.image_url} 
+                    alt={service.name}
+                    className="w-full h-full object-cover"
+                  />
+                </div>
+              ) : (
+                <div className="aspect-video bg-muted flex items-center justify-center">
+                  <ImageIcon className="h-12 w-12 text-muted-foreground/50" />
+                </div>
+              )}
+
               <CardHeader className="pb-4">
                 <div className="flex items-start justify-between">
                   <div className="flex items-center gap-2">

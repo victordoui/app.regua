@@ -1,7 +1,8 @@
 import React, { useState, useMemo, useCallback, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Check, ArrowLeft, ArrowRight, Loader2 } from 'lucide-react';
+import { Progress } from '@/components/ui/progress';
+import { Check, ArrowLeft, ArrowRight, Loader2, CheckCircle, Calendar, Clock, User, Scissors } from 'lucide-react';
 import { ClientBookingForm, PUBLIC_STEPS, Branch, PublicService, PublicBarber, PublicTimeSlot } from '@/types/publicBooking';
 import { useToast } from '@/hooks/use-toast';
 import { supabase } from '@/integrations/supabase/client';
@@ -12,15 +13,27 @@ import StepServiceSelection from './public/StepServiceSelection';
 import StepDateTimeSelection from './public/StepDateTimeSelection';
 import StepConfirmation from './public/StepConfirmation';
 import { format, addMinutes, parse, isBefore, isAfter, setHours, setMinutes } from 'date-fns';
+import { ptBR } from 'date-fns/locale';
 
 interface ClientBookingFlowProps {
-  userId?: string; // ID do dono da barbearia para buscar dados reais
+  userId?: string;
+}
+
+interface CompletedBookingData {
+  date: string;
+  time: string;
+  services: string[];
+  barber: string;
+  totalPrice: number;
 }
 
 const ClientBookingFlow: React.FC<ClientBookingFlowProps> = ({ userId }) => {
   const [currentStep, setCurrentStep] = useState(1);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
+  const [bookingCompleted, setBookingCompleted] = useState(false);
+  const [completedBookingData, setCompletedBookingData] = useState<CompletedBookingData | null>(null);
+  const [countdown, setCountdown] = useState(100);
   const { toast } = useToast();
 
   // Real data from Supabase
@@ -42,6 +55,28 @@ const ClientBookingFlow: React.FC<ClientBookingFlowProps> = ({ userId }) => {
     clientEmail: '',
     notes: '',
   });
+
+  // Countdown timer for redirect
+  useEffect(() => {
+    if (bookingCompleted && countdown > 0) {
+      const timer = setInterval(() => {
+        setCountdown(prev => {
+          if (prev <= 0) {
+            clearInterval(timer);
+            // Redirect to home
+            if (userId) {
+              window.location.href = `/b/${userId}/home`;
+            } else {
+              window.location.href = '/';
+            }
+            return 0;
+          }
+          return prev - 20; // Decreases by 20% every second (5 seconds total)
+        });
+      }, 1000);
+      return () => clearInterval(timer);
+    }
+  }, [bookingCompleted, userId]);
 
   // Fetch initial data
   useEffect(() => {
@@ -71,10 +106,10 @@ const ClientBookingFlow: React.FC<ClientBookingFlowProps> = ({ userId }) => {
           }]);
         }
 
-        // Fetch active services
+        // Fetch active services WITH image_url
         const { data: servicesData } = await supabase
           .from("services")
-          .select("id, name, description, price, duration_minutes")
+          .select("id, name, description, price, duration_minutes, image_url")
           .eq("active", true)
           .order("price", { ascending: true });
 
@@ -84,7 +119,8 @@ const ClientBookingFlow: React.FC<ClientBookingFlowProps> = ({ userId }) => {
             name: s.name,
             description: s.description || '',
             price: Number(s.price),
-            duration_minutes: s.duration_minutes
+            duration_minutes: s.duration_minutes,
+            image_url: s.image_url || undefined
           })));
         }
 
@@ -295,27 +331,22 @@ const ClientBookingFlow: React.FC<ClientBookingFlowProps> = ({ userId }) => {
         });
 
       if (appointmentError) throw appointmentError;
-      
-      toast({
-        title: "Agendamento Concluído!",
-        description: "Seu horário foi reservado com sucesso. Você receberá uma confirmação.",
-        variant: "default",
-      });
 
-      // Reset form
-      setFormData({
-        step: 1,
-        selectedBranch: '',
-        selectedBarber: '',
-        selectedServices: [],
-        selectedDate: undefined,
-        selectedTime: '',
-        clientName: '',
-        clientPhone: '',
-        clientEmail: '',
-        notes: '',
+      // Set completed booking data for confirmation screen
+      const selectedBarber = barbers.find(b => b.id === formData.selectedBarber);
+      const selectedServiceNames = services
+        .filter(s => formData.selectedServices.includes(s.id))
+        .map(s => s.name);
+
+      setCompletedBookingData({
+        date: format(formData.selectedDate!, "dd 'de' MMMM 'de' yyyy", { locale: ptBR }),
+        time: formData.selectedTime,
+        services: selectedServiceNames,
+        barber: selectedBarber?.name || 'Profissional',
+        totalPrice: calculateTotalPrice
       });
-      setCurrentStep(1);
+      
+      setBookingCompleted(true);
 
     } catch (error: any) {
       console.error("Booking error:", error);
@@ -328,6 +359,85 @@ const ClientBookingFlow: React.FC<ClientBookingFlowProps> = ({ userId }) => {
       setIsSubmitting(false);
     }
   };
+
+  // Render confirmation screen after booking is complete
+  if (bookingCompleted && completedBookingData) {
+    return (
+      <section className="py-10 bg-background">
+        <div className="container mx-auto px-4">
+          <div className="max-w-lg mx-auto">
+            <Card className="shadow-elegant text-center">
+              <CardContent className="pt-12 pb-8">
+                {/* Success Icon */}
+                <div className="w-24 h-24 mx-auto mb-6 rounded-full bg-green-100 dark:bg-green-900/30 flex items-center justify-center">
+                  <CheckCircle className="h-14 w-14 text-green-500" />
+                </div>
+
+                <h2 className="text-2xl font-bold text-foreground mb-2">
+                  Agendamento Confirmado!
+                </h2>
+                <p className="text-muted-foreground mb-8">
+                  Seu horário foi reservado com sucesso.
+                </p>
+
+                {/* Booking Details */}
+                <div className="bg-muted/50 rounded-xl p-6 text-left space-y-4 mb-8">
+                  <div className="flex items-center gap-3">
+                    <Calendar className="h-5 w-5 text-primary" />
+                    <div>
+                      <p className="text-sm text-muted-foreground">Data</p>
+                      <p className="font-semibold">{completedBookingData.date}</p>
+                    </div>
+                  </div>
+
+                  <div className="flex items-center gap-3">
+                    <Clock className="h-5 w-5 text-primary" />
+                    <div>
+                      <p className="text-sm text-muted-foreground">Horário</p>
+                      <p className="font-semibold">{completedBookingData.time}</p>
+                    </div>
+                  </div>
+
+                  <div className="flex items-center gap-3">
+                    <Scissors className="h-5 w-5 text-primary" />
+                    <div>
+                      <p className="text-sm text-muted-foreground">Serviços</p>
+                      <p className="font-semibold">{completedBookingData.services.join(', ')}</p>
+                    </div>
+                  </div>
+
+                  <div className="flex items-center gap-3">
+                    <User className="h-5 w-5 text-primary" />
+                    <div>
+                      <p className="text-sm text-muted-foreground">Profissional</p>
+                      <p className="font-semibold">{completedBookingData.barber}</p>
+                    </div>
+                  </div>
+
+                  <div className="border-t border-border pt-4 mt-4">
+                    <div className="flex justify-between items-center">
+                      <span className="text-muted-foreground">Total</span>
+                      <span className="text-2xl font-bold text-primary">
+                        R$ {completedBookingData.totalPrice.toFixed(2)}
+                      </span>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Redirect notice */}
+                <div className="space-y-3">
+                  <p className="text-sm text-muted-foreground">
+                    Redirecionando para a página inicial em breve...
+                  </p>
+                  <Progress value={countdown} className="h-2" />
+                </div>
+              </CardContent>
+            </Card>
+          </div>
+        </div>
+      </section>
+    );
+  }
 
   const renderStepContent = () => {
     if (isLoading) {
