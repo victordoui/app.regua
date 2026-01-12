@@ -40,6 +40,8 @@ import Gallery from "./pages/Gallery";
 import Loyalty from "./pages/Loyalty";
 import Waitlist from "./pages/Waitlist";
 import Coupons from "./pages/Coupons";
+import Referrals from "./pages/Referrals";
+import CommissionRules from "./pages/CommissionRules";
 
 // Client Mobile Pages
 import ClientLogin from "./pages/client/ClientLogin";
@@ -106,6 +108,8 @@ function AppContent() {
         <Route path="/reviews" element={<ProtectedRoute><Reviews /></ProtectedRoute>} />
         <Route path="/loyalty" element={<ProtectedRoute><Loyalty /></ProtectedRoute>} />
         <Route path="/waitlist" element={<ProtectedRoute><Waitlist /></ProtectedRoute>} />
+        <Route path="/referrals" element={<ProtectedRoute><Referrals /></ProtectedRoute>} />
+        <Route path="/commission-rules" element={<ProtectedRoute><CommissionRules /></ProtectedRoute>} />
 
         {/* Administração */}
         <Route path="/users" element={<ProtectedRoute><Users /></ProtectedRoute>} />

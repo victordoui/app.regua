@@ -22,6 +22,7 @@ export interface CampaignFormData {
   content: string;
   target_segment?: 'all' | 'inactive' | 'birthday' | 'new';
   scheduled_at?: string | null;
+  status?: 'draft' | 'scheduled' | 'sent' | 'failed';
 }
 
 export const TARGET_SEGMENTS = {
@@ -94,7 +95,8 @@ export const useEmailCampaigns = () => {
           subject: formData.subject,
           content: formData.content,
           target_segment: formData.target_segment,
-          scheduled_at: formData.scheduled_at
+          scheduled_at: formData.scheduled_at,
+          status: formData.status
         })
         .eq('id', id)
         .eq('user_id', user.id)
