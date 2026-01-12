@@ -18,6 +18,10 @@ export interface ClientBookingForm {
   clientPhone: string;
   clientEmail: string;
   notes: string;
+  // Coupon fields
+  couponCode?: string;
+  discountAmount?: number;
+  appliedCouponId?: string;
 }
 
 export const PUBLIC_STEPS = [
