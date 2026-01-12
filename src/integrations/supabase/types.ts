@@ -53,6 +53,45 @@ export type Database = {
         }
         Relationships: []
       }
+      appointment_services: {
+        Row: {
+          appointment_id: string
+          created_at: string | null
+          id: string
+          price: number
+          service_id: string
+        }
+        Insert: {
+          appointment_id: string
+          created_at?: string | null
+          id?: string
+          price: number
+          service_id: string
+        }
+        Update: {
+          appointment_id?: string
+          created_at?: string | null
+          id?: string
+          price?: number
+          service_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "appointment_services_appointment_id_fkey"
+            columns: ["appointment_id"]
+            isOneToOne: false
+            referencedRelation: "appointments"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "appointment_services_service_id_fkey"
+            columns: ["service_id"]
+            isOneToOne: false
+            referencedRelation: "services"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       appointments: {
         Row: {
           appointment_date: string
@@ -66,6 +105,7 @@ export type Database = {
           recurrence_end_date: string | null
           recurrence_type: string | null
           reminder_sent_at: string | null
+          result_photo_url: string | null
           service_id: string
           status: string
           total_price: number | null
@@ -84,6 +124,7 @@ export type Database = {
           recurrence_end_date?: string | null
           recurrence_type?: string | null
           reminder_sent_at?: string | null
+          result_photo_url?: string | null
           service_id: string
           status?: string
           total_price?: number | null
@@ -102,6 +143,7 @@ export type Database = {
           recurrence_end_date?: string | null
           recurrence_type?: string | null
           reminder_sent_at?: string | null
+          result_photo_url?: string | null
           service_id?: string
           status?: string
           total_price?: number | null
@@ -132,10 +174,46 @@ export type Database = {
           },
         ]
       }
+      barber_absences: {
+        Row: {
+          barber_id: string
+          created_at: string | null
+          end_date: string
+          id: string
+          notes: string | null
+          start_date: string
+          type: string | null
+          user_id: string
+        }
+        Insert: {
+          barber_id: string
+          created_at?: string | null
+          end_date: string
+          id?: string
+          notes?: string | null
+          start_date: string
+          type?: string | null
+          user_id: string
+        }
+        Update: {
+          barber_id?: string
+          created_at?: string | null
+          end_date?: string
+          id?: string
+          notes?: string | null
+          start_date?: string
+          type?: string | null
+          user_id?: string
+        }
+        Relationships: []
+      }
       barbershop_settings: {
         Row: {
           address: string | null
+          allow_online_cancellation: boolean | null
           banner_url: string | null
+          buffer_minutes: number | null
+          cancellation_hours_before: number | null
           company_name: string
           created_at: string | null
           email: string | null
@@ -144,6 +222,8 @@ export type Database = {
           instagram_url: string | null
           is_public_page_enabled: boolean | null
           logo_url: string | null
+          noshow_fee_amount: number | null
+          noshow_fee_enabled: boolean | null
           phone: string | null
           primary_color_hex: string | null
           secondary_color_hex: string | null
@@ -154,7 +234,10 @@ export type Database = {
         }
         Insert: {
           address?: string | null
+          allow_online_cancellation?: boolean | null
           banner_url?: string | null
+          buffer_minutes?: number | null
+          cancellation_hours_before?: number | null
           company_name: string
           created_at?: string | null
           email?: string | null
@@ -163,6 +246,8 @@ export type Database = {
           instagram_url?: string | null
           is_public_page_enabled?: boolean | null
           logo_url?: string | null
+          noshow_fee_amount?: number | null
+          noshow_fee_enabled?: boolean | null
           phone?: string | null
           primary_color_hex?: string | null
           secondary_color_hex?: string | null
@@ -173,7 +258,10 @@ export type Database = {
         }
         Update: {
           address?: string | null
+          allow_online_cancellation?: boolean | null
           banner_url?: string | null
+          buffer_minutes?: number | null
+          cancellation_hours_before?: number | null
           company_name?: string
           created_at?: string | null
           email?: string | null
@@ -182,6 +270,8 @@ export type Database = {
           instagram_url?: string | null
           is_public_page_enabled?: boolean | null
           logo_url?: string | null
+          noshow_fee_amount?: number | null
+          noshow_fee_enabled?: boolean | null
           phone?: string | null
           primary_color_hex?: string | null
           secondary_color_hex?: string | null
@@ -207,6 +297,66 @@ export type Database = {
           created_at?: string
           id?: number
           num?: number | null
+        }
+        Relationships: []
+      }
+      blocked_slots: {
+        Row: {
+          barber_id: string
+          created_at: string | null
+          end_datetime: string
+          id: string
+          reason: string | null
+          start_datetime: string
+          user_id: string
+        }
+        Insert: {
+          barber_id: string
+          created_at?: string | null
+          end_datetime: string
+          id?: string
+          reason?: string | null
+          start_datetime: string
+          user_id: string
+        }
+        Update: {
+          barber_id?: string
+          created_at?: string | null
+          end_datetime?: string
+          id?: string
+          reason?: string | null
+          start_datetime?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      business_hours: {
+        Row: {
+          close_time: string | null
+          created_at: string | null
+          day_of_week: number
+          id: string
+          is_closed: boolean | null
+          open_time: string | null
+          user_id: string
+        }
+        Insert: {
+          close_time?: string | null
+          created_at?: string | null
+          day_of_week: number
+          id?: string
+          is_closed?: boolean | null
+          open_time?: string | null
+          user_id: string
+        }
+        Update: {
+          close_time?: string | null
+          created_at?: string | null
+          day_of_week?: number
+          id?: string
+          is_closed?: boolean | null
+          open_time?: string | null
+          user_id?: string
         }
         Relationships: []
       }
@@ -272,6 +422,7 @@ export type Database = {
           name: string
           notes: string | null
           phone: string
+          referral_code: string | null
           updated_at: string
           user_id: string
         }
@@ -282,6 +433,7 @@ export type Database = {
           name: string
           notes?: string | null
           phone: string
+          referral_code?: string | null
           updated_at?: string
           user_id: string
         }
@@ -292,10 +444,90 @@ export type Database = {
           name?: string
           notes?: string | null
           phone?: string
+          referral_code?: string | null
           updated_at?: string
           user_id?: string
         }
         Relationships: []
+      }
+      commission_rules: {
+        Row: {
+          barber_id: string | null
+          commission_type: string | null
+          commission_value: number
+          created_at: string | null
+          id: string
+          service_id: string | null
+          user_id: string
+        }
+        Insert: {
+          barber_id?: string | null
+          commission_type?: string | null
+          commission_value: number
+          created_at?: string | null
+          id?: string
+          service_id?: string | null
+          user_id: string
+        }
+        Update: {
+          barber_id?: string | null
+          commission_type?: string | null
+          commission_value?: number
+          created_at?: string | null
+          id?: string
+          service_id?: string | null
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "commission_rules_service_id_fkey"
+            columns: ["service_id"]
+            isOneToOne: false
+            referencedRelation: "services"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      commissions: {
+        Row: {
+          amount: number
+          appointment_id: string | null
+          barber_id: string
+          created_at: string | null
+          id: string
+          paid_at: string | null
+          status: string | null
+          user_id: string
+        }
+        Insert: {
+          amount: number
+          appointment_id?: string | null
+          barber_id: string
+          created_at?: string | null
+          id?: string
+          paid_at?: string | null
+          status?: string | null
+          user_id: string
+        }
+        Update: {
+          amount?: number
+          appointment_id?: string | null
+          barber_id?: string
+          created_at?: string | null
+          id?: string
+          paid_at?: string | null
+          status?: string | null
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "commissions_appointment_id_fkey"
+            columns: ["appointment_id"]
+            isOneToOne: false
+            referencedRelation: "appointments"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       conversations: {
         Row: {
@@ -329,6 +561,122 @@ export type Database = {
           user_id?: string
         }
         Relationships: []
+      }
+      discount_coupons: {
+        Row: {
+          active: boolean | null
+          code: string
+          created_at: string | null
+          current_uses: number | null
+          discount_type: string
+          discount_value: number
+          id: string
+          max_uses: number | null
+          min_purchase: number | null
+          user_id: string
+          valid_from: string | null
+          valid_until: string | null
+        }
+        Insert: {
+          active?: boolean | null
+          code: string
+          created_at?: string | null
+          current_uses?: number | null
+          discount_type: string
+          discount_value: number
+          id?: string
+          max_uses?: number | null
+          min_purchase?: number | null
+          user_id: string
+          valid_from?: string | null
+          valid_until?: string | null
+        }
+        Update: {
+          active?: boolean | null
+          code?: string
+          created_at?: string | null
+          current_uses?: number | null
+          discount_type?: string
+          discount_value?: number
+          id?: string
+          max_uses?: number | null
+          min_purchase?: number | null
+          user_id?: string
+          valid_from?: string | null
+          valid_until?: string | null
+        }
+        Relationships: []
+      }
+      email_campaigns: {
+        Row: {
+          content: string
+          created_at: string | null
+          id: string
+          recipients_count: number | null
+          scheduled_at: string | null
+          sent_at: string | null
+          status: string | null
+          subject: string
+          target_segment: string | null
+          user_id: string
+        }
+        Insert: {
+          content: string
+          created_at?: string | null
+          id?: string
+          recipients_count?: number | null
+          scheduled_at?: string | null
+          sent_at?: string | null
+          status?: string | null
+          subject: string
+          target_segment?: string | null
+          user_id: string
+        }
+        Update: {
+          content?: string
+          created_at?: string | null
+          id?: string
+          recipients_count?: number | null
+          scheduled_at?: string | null
+          sent_at?: string | null
+          status?: string | null
+          subject?: string
+          target_segment?: string | null
+          user_id?: string
+        }
+        Relationships: []
+      }
+      favorite_barbers: {
+        Row: {
+          barber_id: string
+          barbershop_user_id: string
+          client_profile_id: string
+          created_at: string | null
+          id: string
+        }
+        Insert: {
+          barber_id: string
+          barbershop_user_id: string
+          client_profile_id: string
+          created_at?: string | null
+          id?: string
+        }
+        Update: {
+          barber_id?: string
+          barbershop_user_id?: string
+          client_profile_id?: string
+          created_at?: string | null
+          id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "favorite_barbers_client_profile_id_fkey"
+            columns: ["client_profile_id"]
+            isOneToOne: false
+            referencedRelation: "client_profiles"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       gallery: {
         Row: {
@@ -544,6 +892,8 @@ export type Database = {
           email_address: string | null
           email_enabled: boolean | null
           id: string
+          push_enabled: boolean | null
+          push_subscription: Json | null
           reminder_hours_before: number | null
           system_enabled: boolean | null
           updated_at: string | null
@@ -556,6 +906,8 @@ export type Database = {
           email_address?: string | null
           email_enabled?: boolean | null
           id?: string
+          push_enabled?: boolean | null
+          push_subscription?: Json | null
           reminder_hours_before?: number | null
           system_enabled?: boolean | null
           updated_at?: string | null
@@ -568,6 +920,8 @@ export type Database = {
           email_address?: string | null
           email_enabled?: boolean | null
           id?: string
+          push_enabled?: boolean | null
+          push_subscription?: Json | null
           reminder_hours_before?: number | null
           system_enabled?: boolean | null
           updated_at?: string | null
@@ -612,6 +966,53 @@ export type Database = {
           user_id?: string
         }
         Relationships: []
+      }
+      payments: {
+        Row: {
+          amount: number
+          appointment_id: string | null
+          created_at: string | null
+          id: string
+          payment_method: string | null
+          pix_code: string | null
+          status: string | null
+          stripe_payment_id: string | null
+          updated_at: string | null
+          user_id: string
+        }
+        Insert: {
+          amount: number
+          appointment_id?: string | null
+          created_at?: string | null
+          id?: string
+          payment_method?: string | null
+          pix_code?: string | null
+          status?: string | null
+          stripe_payment_id?: string | null
+          updated_at?: string | null
+          user_id: string
+        }
+        Update: {
+          amount?: number
+          appointment_id?: string | null
+          created_at?: string | null
+          id?: string
+          payment_method?: string | null
+          pix_code?: string | null
+          status?: string | null
+          stripe_payment_id?: string | null
+          updated_at?: string | null
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "payments_appointment_id_fkey"
+            columns: ["appointment_id"]
+            isOneToOne: false
+            referencedRelation: "appointments"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       products: {
         Row: {
@@ -702,6 +1103,54 @@ export type Database = {
           user_id?: string
         }
         Relationships: []
+      }
+      referrals: {
+        Row: {
+          created_at: string | null
+          id: string
+          referral_code: string
+          referred_client_id: string
+          referrer_client_id: string
+          reward_amount: number | null
+          reward_given: boolean | null
+          user_id: string
+        }
+        Insert: {
+          created_at?: string | null
+          id?: string
+          referral_code: string
+          referred_client_id: string
+          referrer_client_id: string
+          reward_amount?: number | null
+          reward_given?: boolean | null
+          user_id: string
+        }
+        Update: {
+          created_at?: string | null
+          id?: string
+          referral_code?: string
+          referred_client_id?: string
+          referrer_client_id?: string
+          reward_amount?: number | null
+          reward_given?: boolean | null
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "referrals_referred_client_id_fkey"
+            columns: ["referred_client_id"]
+            isOneToOne: false
+            referencedRelation: "clients"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "referrals_referrer_client_id_fkey"
+            columns: ["referrer_client_id"]
+            isOneToOne: false
+            referencedRelation: "clients"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       reviews: {
         Row: {
