@@ -20,7 +20,7 @@ const Inventory = () => {
   const { 
     products, movements, isLoading, 
     addProduct, updateProduct, deleteProduct, addMovement,
-    isAdding, isUpdating, isDeleting, isAddingMovement 
+    isAddingProduct, isUpdatingProduct, isAddingMovement 
   } = useInventory();
   
   const [dialogOpen, setDialogOpen] = useState(false);
@@ -147,8 +147,8 @@ const Inventory = () => {
                   <div><Label>Categoria</Label><Input value={formData.category} onChange={e => setFormData(prev => ({ ...prev, category: e.target.value }))} placeholder="Ex: Pomadas" /></div>
                 </div>
                 <div><Label>Código de Barras</Label><Input value={formData.barcode} onChange={e => setFormData(prev => ({ ...prev, barcode: e.target.value }))} /></div>
-                <Button onClick={handleSubmit} disabled={isAdding || isUpdating} className="w-full">
-                  {(isAdding || isUpdating) && <Loader2 className="h-4 w-4 animate-spin mr-2" />}
+                <Button onClick={handleSubmit} disabled={isAddingProduct || isUpdatingProduct} className="w-full">
+                  {(isAddingProduct || isUpdatingProduct) && <Loader2 className="h-4 w-4 animate-spin mr-2" />}
                   {editingProduct ? 'Salvar' : 'Adicionar'}
                 </Button>
               </div>

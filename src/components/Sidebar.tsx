@@ -22,6 +22,7 @@ import {
   // Financeiro
   DollarSign,
   CreditCard,
+  Ticket,
   Receipt,
   // Assinaturas
   Crown,
@@ -112,7 +113,8 @@ const Sidebar = () => {
       items: [
         { icon: BarChart3, label: "Visão Financeira", path: "/reports" }, // Reutilizando Reports
         { icon: CreditCard, label: "Contas a Pagar / Receber", path: "/billing" },
-        { icon: Receipt, label: "Comissões", path: "/commissions" }
+        { icon: Receipt, label: "Comissões", path: "/commissions" },
+        { icon: Ticket, label: "Cupons", path: "/coupons" }
       ]
     },
     {

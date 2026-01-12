@@ -6,7 +6,8 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Switch } from '@/components/ui/switch';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Building, Settings, Palette, Link, Save, Image, Eye, Share2, Instagram, Facebook, MessageCircle, Smartphone, Copy, ExternalLink, CheckCircle } from 'lucide-react';
+import { Building, Settings, Palette, Link, Save, Image, Eye, Share2, Instagram, Facebook, MessageCircle, Smartphone, Copy, ExternalLink, CheckCircle, QrCode } from 'lucide-react';
+import QRCodeGenerator from '@/components/QRCodeGenerator';
 import { useCompanySettings, CompanySettingsFormData } from '@/hooks/useCompanySettings';
 import { toast } from 'sonner';
 
@@ -449,6 +450,14 @@ const CompanySettings = () => {
                       </ol>
                     </CardContent>
                   </Card>
+
+                  {/* QR Code Generator */}
+                  {clientBookingLink && (
+                    <QRCodeGenerator 
+                      url={clientBookingLink} 
+                      companyName={formData.company_name || 'Sua Barbearia'} 
+                    />
+                  )}
                 </div>
 
                 {/* Coluna de Preview Mobile */}
