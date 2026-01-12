@@ -64,11 +64,20 @@ export interface Appointment {
 
 export interface AppointmentFormData {
   client_id: string;
-  service_id: string;
+  service_id: string; // Primary service (for backward compatibility)
+  service_ids?: string[]; // Multiple services (new feature)
   barbeiro_id: string | null; // Pode ser nulo se o cliente não escolher um barbeiro específico
   appointment_date: string;
   appointment_time: string;
   notes: string;
   recurrence_type?: RecurrenceType;
   recurrence_end_date?: string | null;
+}
+
+export interface AppointmentService {
+  id: string;
+  appointment_id: string;
+  service_id: string;
+  price: number;
+  created_at?: string;
 }

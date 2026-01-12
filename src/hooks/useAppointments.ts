@@ -141,7 +141,10 @@ export const useAppointments = () => {
     mutationFn: async (formData) => {
       if (!user) throw new Error("Usuário não autenticado.");
       
-      const servicePrice = services?.find(s => s.id === formData.service_id)?.price || 0;
+      // Calculate total price from all services
+      const serviceIds = formData.service_ids?.length ? formData.service_ids : [formData.service_id];
+      const selectedServices = services?.filter(s => serviceIds.includes(s.id)) || [];
+      const totalPrice = selectedServices.reduce((sum, s) => sum + s.price, 0);
       
       // Calculate all dates for recurring appointments
       const appointmentDates = calculateRecurrenceDates(
@@ -156,13 +159,13 @@ export const useAppointments = () => {
         .insert({
           user_id: user.id,
           client_id: formData.client_id,
-          service_id: formData.service_id,
+          service_id: formData.service_id || serviceIds[0], // Primary service for backward compat
           barbeiro_id: formData.barbeiro_id,
           appointment_date: appointmentDates[0],
           appointment_time: formData.appointment_time,
           notes: formData.notes,
           status: 'pending',
-          total_price: servicePrice,
+          total_price: totalPrice,
           recurrence_type: formData.recurrence_type,
           recurrence_end_date: formData.recurrence_end_date,
         })
@@ -171,6 +174,21 @@ export const useAppointments = () => {
 
       if (parentError) throw parentError;
       
+      // Insert into appointment_services for multi-service support
+      if (serviceIds.length > 0) {
+        const appointmentServices = selectedServices.map(service => ({
+          appointment_id: parentAppointment.id,
+          service_id: service.id,
+          price: service.price
+        }));
+        
+        const { error: servicesError } = await supabase
+          .from("appointment_services")
+          .insert(appointmentServices);
+        
+        if (servicesError) console.error("Error inserting appointment services:", servicesError);
+      }
+      
       const createdAppointments: Appointment[] = [parentAppointment];
       
       // Create child appointments if recurring
@@ -178,13 +196,13 @@ export const useAppointments = () => {
         const childAppointments = appointmentDates.slice(1).map(date => ({
           user_id: user.id,
           client_id: formData.client_id,
-          service_id: formData.service_id,
+          service_id: formData.service_id || serviceIds[0],
           barbeiro_id: formData.barbeiro_id,
           appointment_date: date,
           appointment_time: formData.appointment_time,
           notes: formData.notes,
           status: 'pending' as const,
-          total_price: servicePrice,
+          total_price: totalPrice,
           recurrence_type: formData.recurrence_type,
           recurrence_end_date: formData.recurrence_end_date,
           parent_appointment_id: parentAppointment.id,
@@ -196,7 +214,20 @@ export const useAppointments = () => {
           .select();
         
         if (childError) throw childError;
-        if (childData) createdAppointments.push(...childData);
+        
+        // Insert appointment_services for each child appointment
+        if (childData && serviceIds.length > 0) {
+          for (const child of childData) {
+            const childServices = selectedServices.map(service => ({
+              appointment_id: child.id,
+              service_id: service.id,
+              price: service.price
+            }));
+            
+            await supabase.from("appointment_services").insert(childServices);
+          }
+          createdAppointments.push(...childData);
+        }
       }
 
       return createdAppointments;
