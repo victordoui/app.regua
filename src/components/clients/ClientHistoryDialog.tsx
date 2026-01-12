@@ -8,7 +8,7 @@ import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/contexts/AuthContext';
 import { format } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
-import { Calendar, Clock, DollarSign, Scissors, TrendingUp, User, Star } from 'lucide-react';
+import { Calendar, Clock, DollarSign, Scissors, TrendingUp, User, Star, Camera } from 'lucide-react';
 import { Loader2 } from 'lucide-react';
 
 interface ClientHistoryDialogProps {
@@ -24,6 +24,7 @@ interface AppointmentHistory {
   appointment_time: string;
   status: string;
   total_price: number | null;
+  result_photo_url: string | null;
   service: { name: string; price: number } | null;
   barber: { display_name: string } | null;
 }
@@ -70,6 +71,7 @@ const ClientHistoryDialog = ({ open, onOpenChange, clientId, clientName }: Clien
           appointment_time,
           status,
           total_price,
+          result_photo_url,
           service_id,
           barbeiro_id
         `)
@@ -99,6 +101,7 @@ const ClientHistoryDialog = ({ open, onOpenChange, clientId, clientName }: Clien
 
       const enrichedAppointments: AppointmentHistory[] = (appointmentsData || []).map(apt => ({
         ...apt,
+        result_photo_url: apt.result_photo_url,
         service: apt.service_id ? servicesMap.get(apt.service_id) ?? null : null,
         barber: apt.barbeiro_id ? barbersMap.get(apt.barbeiro_id) ?? null : null
       }));
@@ -279,6 +282,17 @@ const ClientHistoryDialog = ({ open, onOpenChange, clientId, clientName }: Clien
                                 {new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' })
                                   .format(apt.total_price || apt.service?.price || 0)}
                               </p>
+                              {apt.result_photo_url && (
+                                <a 
+                                  href={apt.result_photo_url} 
+                                  target="_blank" 
+                                  rel="noopener noreferrer"
+                                  className="text-xs text-primary hover:underline flex items-center gap-1 mt-1"
+                                >
+                                  <Camera className="h-3 w-3" />
+                                  Ver foto
+                                </a>
+                              )}
                             </div>
                           </div>
                         </CardContent>

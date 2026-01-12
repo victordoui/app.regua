@@ -6,7 +6,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Switch } from '@/components/ui/switch';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Building, Settings, Palette, Link, Save, Image, Eye, Share2, Instagram, Facebook, MessageCircle, Smartphone, Copy, ExternalLink, CheckCircle, QrCode } from 'lucide-react';
+import { Building, Settings, Palette, Link, Save, Image, Eye, Share2, Instagram, Facebook, MessageCircle, Smartphone, Copy, ExternalLink, CheckCircle, QrCode, Clock, AlertTriangle } from 'lucide-react';
 import QRCodeGenerator from '@/components/QRCodeGenerator';
 import { useCompanySettings, CompanySettingsFormData } from '@/hooks/useCompanySettings';
 import { toast } from 'sonner';
@@ -32,6 +32,12 @@ const CompanySettings = () => {
     instagram_url: '',
     facebook_url: '',
     whatsapp_number: '',
+    // Cancellation settings
+    cancellation_hours_before: 24,
+    allow_online_cancellation: true,
+    buffer_minutes: 0,
+    noshow_fee_enabled: false,
+    noshow_fee_amount: 0,
   });
 
   useEffect(() => {
@@ -50,6 +56,12 @@ const CompanySettings = () => {
         instagram_url: settings.instagram_url || '',
         facebook_url: settings.facebook_url || '',
         whatsapp_number: settings.whatsapp_number || '',
+        // Cancellation settings
+        cancellation_hours_before: settings.cancellation_hours_before ?? 24,
+        allow_online_cancellation: settings.allow_online_cancellation ?? true,
+        buffer_minutes: settings.buffer_minutes ?? 0,
+        noshow_fee_enabled: settings.noshow_fee_enabled ?? false,
+        noshow_fee_amount: settings.noshow_fee_amount ?? 0,
       });
     }
   }, [settings]);
@@ -227,6 +239,97 @@ const CompanySettings = () => {
                       checked={formData.is_public_page_enabled}
                       onCheckedChange={(checked) => setFormData(prev => ({ ...prev, is_public_page_enabled: checked }))}
                     />
+                  </div>
+                </CardContent>
+              </Card>
+
+              {/* Regras de Cancelamento */}
+              <Card>
+                <CardHeader>
+                  <CardTitle className="flex items-center gap-2">
+                    <Clock className="h-5 w-5" />
+                    Regras de Cancelamento
+                  </CardTitle>
+                  <CardDescription>
+                    Configure as regras de cancelamento para agendamentos online.
+                  </CardDescription>
+                </CardHeader>
+                <CardContent className="space-y-4">
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <Label htmlFor="allow-cancellation-switch">Permitir Cancelamento Online</Label>
+                      <p className="text-sm text-muted-foreground">Clientes podem cancelar pelo app</p>
+                    </div>
+                    <Switch
+                      id="allow-cancellation-switch"
+                      checked={formData.allow_online_cancellation}
+                      onCheckedChange={(checked) => setFormData(prev => ({ ...prev, allow_online_cancellation: checked }))}
+                    />
+                  </div>
+                  
+                  {formData.allow_online_cancellation && (
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4 pt-2">
+                      <div>
+                        <Label htmlFor="cancellation_hours">Antecedência Mínima (horas)</Label>
+                        <Input
+                          id="cancellation_hours"
+                          type="number"
+                          min="0"
+                          max="168"
+                          value={formData.cancellation_hours_before}
+                          onChange={(e) => setFormData(prev => ({ ...prev, cancellation_hours_before: parseInt(e.target.value) || 0 }))}
+                        />
+                        <p className="text-xs text-muted-foreground mt-1">
+                          Clientes só podem cancelar com {formData.cancellation_hours_before}h de antecedência
+                        </p>
+                      </div>
+                      <div>
+                        <Label htmlFor="buffer_minutes">Tempo de Buffer (minutos)</Label>
+                        <Input
+                          id="buffer_minutes"
+                          type="number"
+                          min="0"
+                          max="60"
+                          value={formData.buffer_minutes}
+                          onChange={(e) => setFormData(prev => ({ ...prev, buffer_minutes: parseInt(e.target.value) || 0 }))}
+                        />
+                        <p className="text-xs text-muted-foreground mt-1">
+                          Intervalo entre agendamentos
+                        </p>
+                      </div>
+                    </div>
+                  )}
+
+                  <div className="border-t pt-4 mt-4">
+                    <div className="flex items-center justify-between">
+                      <div>
+                        <Label htmlFor="noshow-fee-switch" className="flex items-center gap-2">
+                          <AlertTriangle className="h-4 w-4 text-amber-500" />
+                          Taxa de No-Show
+                        </Label>
+                        <p className="text-sm text-muted-foreground">Cobrar taxa para faltas sem aviso</p>
+                      </div>
+                      <Switch
+                        id="noshow-fee-switch"
+                        checked={formData.noshow_fee_enabled}
+                        onCheckedChange={(checked) => setFormData(prev => ({ ...prev, noshow_fee_enabled: checked }))}
+                      />
+                    </div>
+                    
+                    {formData.noshow_fee_enabled && (
+                      <div className="mt-3">
+                        <Label htmlFor="noshow_fee_amount">Valor da Taxa (R$)</Label>
+                        <Input
+                          id="noshow_fee_amount"
+                          type="number"
+                          min="0"
+                          step="0.01"
+                          value={formData.noshow_fee_amount}
+                          onChange={(e) => setFormData(prev => ({ ...prev, noshow_fee_amount: parseFloat(e.target.value) || 0 }))}
+                          className="max-w-[200px]"
+                        />
+                      </div>
+                    )}
                   </div>
                 </CardContent>
               </Card>

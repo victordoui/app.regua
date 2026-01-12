@@ -20,6 +20,12 @@ export interface CompanySettings {
   instagram_url: string | null;
   facebook_url: string | null;
   whatsapp_number: string | null;
+  // Cancellation settings
+  cancellation_hours_before: number;
+  allow_online_cancellation: boolean;
+  buffer_minutes: number;
+  noshow_fee_enabled: boolean;
+  noshow_fee_amount: number;
 }
 
 export interface CompanySettingsFormData {
@@ -36,6 +42,12 @@ export interface CompanySettingsFormData {
   instagram_url: string;
   facebook_url: string;
   whatsapp_number: string;
+  // Cancellation settings
+  cancellation_hours_before: number;
+  allow_online_cancellation: boolean;
+  buffer_minutes: number;
+  noshow_fee_enabled: boolean;
+  noshow_fee_amount: number;
 }
 
 export const useCompanySettings = () => {
@@ -94,6 +106,12 @@ export const useCompanySettings = () => {
         instagram_url: formData.instagram_url || null,
         facebook_url: formData.facebook_url || null,
         whatsapp_number: formData.whatsapp_number || null,
+        // Cancellation settings
+        cancellation_hours_before: formData.cancellation_hours_before ?? 24,
+        allow_online_cancellation: formData.allow_online_cancellation ?? true,
+        buffer_minutes: formData.buffer_minutes ?? 0,
+        noshow_fee_enabled: formData.noshow_fee_enabled ?? false,
+        noshow_fee_amount: formData.noshow_fee_amount ?? 0,
       };
 
       if (settings?.id) {
