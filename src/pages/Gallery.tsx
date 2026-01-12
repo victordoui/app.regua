@@ -89,7 +89,7 @@ const Gallery = () => {
                 <div><Label>Título</Label><Input value={formData.title} onChange={e => setFormData(prev => ({ ...prev, title: e.target.value }))} /></div>
                 <div><Label>Descrição</Label><Textarea value={formData.description} onChange={e => setFormData(prev => ({ ...prev, description: e.target.value }))} /></div>
                 <div className="grid grid-cols-2 gap-4">
-                  <div><Label>Barbeiro</Label><Select value={formData.barber_id} onValueChange={v => setFormData(prev => ({ ...prev, barber_id: v }))}><SelectTrigger><SelectValue placeholder="Selecione" /></SelectTrigger><SelectContent>{barbers.map(b => <SelectItem key={b.id} value={b.id}>{b.display_name}</SelectItem>)}</SelectContent></Select></div>
+                  <div><Label>Barbeiro</Label><Select value={formData.barber_id} onValueChange={v => setFormData(prev => ({ ...prev, barber_id: v }))}><SelectTrigger><SelectValue placeholder="Selecione" /></SelectTrigger><SelectContent>{barbers.map(b => <SelectItem key={b.id} value={b.id}>{b.full_name || b.email}</SelectItem>)}</SelectContent></Select></div>
                   <div><Label>Serviço</Label><Select value={formData.service_id} onValueChange={v => setFormData(prev => ({ ...prev, service_id: v }))}><SelectTrigger><SelectValue placeholder="Selecione" /></SelectTrigger><SelectContent>{services.map(s => <SelectItem key={s.id} value={s.id}>{s.name}</SelectItem>)}</SelectContent></Select></div>
                 </div>
                 <Button onClick={handleSubmit} disabled={!formData.image_url || isAdding} className="w-full">{isAdding ? <Loader2 className="h-4 w-4 animate-spin mr-2" /> : null}Salvar</Button>
