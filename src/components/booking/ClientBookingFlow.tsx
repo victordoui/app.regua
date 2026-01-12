@@ -428,6 +428,10 @@ const ClientBookingFlow: React.FC<ClientBookingFlowProps> = ({ userId }) => {
     }
   };
 
+  // Calculate points to earn (1 point per R$10 spent)
+  const POINTS_PER_REAL = 0.1; // 1 point per R$10 = 0.1 points per R$1
+  const pointsToEarn = Math.floor(calculateTotalPrice * POINTS_PER_REAL);
+
   // Render confirmation screen after booking is complete
   if (bookingCompleted && completedBookingData) {
     return (
@@ -447,6 +451,19 @@ const ClientBookingFlow: React.FC<ClientBookingFlowProps> = ({ userId }) => {
                 <p className="text-muted-foreground mb-8">
                   Seu horário foi reservado com sucesso.
                 </p>
+
+                {/* Loyalty Points Earned */}
+                {pointsToEarn > 0 && (
+                  <div className="bg-primary/10 rounded-lg p-4 mb-6 flex items-center justify-center gap-3">
+                    <div className="w-10 h-10 rounded-full bg-primary/20 flex items-center justify-center">
+                      <span className="text-lg">🎁</span>
+                    </div>
+                    <div className="text-left">
+                      <p className="text-sm text-muted-foreground">Você ganhará</p>
+                      <p className="text-lg font-bold text-primary">+{pointsToEarn} pontos de fidelidade!</p>
+                    </div>
+                  </div>
+                )}
 
                 {/* Booking Details */}
                 <div className="bg-muted/50 rounded-xl p-6 text-left space-y-4 mb-8">

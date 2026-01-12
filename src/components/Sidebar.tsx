@@ -124,7 +124,8 @@ const Sidebar = () => {
       items: [
         { icon: Crown, label: "Gerenciar Planos", path: "/subscriptions" },
         { icon: PlusCircle, label: "Criar / Editar Plano", path: "/subscriptions/new" },
-        { icon: Heart, label: "Fidelidade", path: "/loyalty" }
+        { icon: Heart, label: "Fidelidade", path: "/loyalty" },
+        { icon: UserCheck, label: "Indicações", path: "/referrals" }
       ]
     },
     {
