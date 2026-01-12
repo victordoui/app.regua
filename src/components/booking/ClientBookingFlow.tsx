@@ -175,6 +175,21 @@ const ClientBookingFlow: React.FC<ClientBookingFlowProps> = ({ userId }) => {
           .eq("appointment_date", dateStr)
           .neq("status", "cancelled");
 
+        // Fetch buffer_minutes from settings
+        const { data: settingsData } = await supabase
+          .from("barbershop_settings")
+          .select("buffer_minutes")
+          .limit(1)
+          .single();
+        
+        const bufferMinutes = settingsData?.buffer_minutes || 0;
+
+        // Fetch blocked slots for the barber
+        const { data: blockedSlots } = await supabase
+          .from("blocked_slots")
+          .select("*")
+          .eq("barber_id", formData.selectedBarber);
+
         // Generate time slots from 9:00 to 19:00
         const slots: PublicTimeSlot[] = [];
         const startHour = 9;
@@ -184,10 +199,40 @@ const ClientBookingFlow: React.FC<ClientBookingFlowProps> = ({ userId }) => {
           for (let minute = 0; minute < 60; minute += 30) {
             const timeStr = `${hour.toString().padStart(2, '0')}:${minute.toString().padStart(2, '0')}`;
             
-            // Check if slot is occupied
+            // Check if slot is blocked
+            const slotDateTime = new Date(formData.selectedDate);
+            slotDateTime.setHours(hour, minute, 0, 0);
+            
+            const isBlocked = blockedSlots?.some((block: any) => {
+              const blockStart = new Date(block.start_datetime);
+              const blockEnd = new Date(block.end_datetime);
+              return slotDateTime >= blockStart && slotDateTime < blockEnd;
+            });
+
+            if (isBlocked) {
+              slots.push({
+                time: timeStr,
+                available: false,
+                barberId: formData.selectedBarber,
+                conflictReason: 'Horário bloqueado'
+              });
+              continue;
+            }
+            
+            // Check if slot is occupied (considering duration + buffer)
             const isOccupied = existingAppointments?.some((apt: any) => {
               const aptTime = apt.appointment_time.slice(0, 5);
-              return aptTime === timeStr;
+              const aptDuration = apt.services?.duration_minutes || 30;
+              const aptParts = aptTime.split(':').map(Number);
+              const slotParts = timeStr.split(':').map(Number);
+              
+              const aptStartMinutes = aptParts[0] * 60 + aptParts[1];
+              const aptEndMinutes = aptStartMinutes + aptDuration + bufferMinutes;
+              const slotMinutes = slotParts[0] * 60 + slotParts[1];
+              const slotEndMinutes = slotMinutes + calculateTotalDuration;
+              
+              // Check overlap
+              return (slotMinutes < aptEndMinutes && slotEndMinutes > aptStartMinutes);
             });
 
             slots.push({
@@ -208,7 +253,7 @@ const ClientBookingFlow: React.FC<ClientBookingFlowProps> = ({ userId }) => {
     };
 
     fetchTimeSlots();
-  }, [formData.selectedDate, formData.selectedBarber]);
+  }, [formData.selectedDate, formData.selectedBarber, calculateTotalDuration]);
 
   const currentStepData = PUBLIC_STEPS.find(s => s.id === currentStep);
 
@@ -265,7 +310,7 @@ const ClientBookingFlow: React.FC<ClientBookingFlowProps> = ({ userId }) => {
   const handleFinalizeBooking = async () => {
     setIsSubmitting(true);
     try {
-      // Get the first service for the appointment (or create multiple appointments)
+      // Get the first service for the primary appointment
       const selectedService = services.find(s => formData.selectedServices.includes(s.id));
       if (!selectedService) throw new Error("Serviço não encontrado");
 
@@ -316,7 +361,7 @@ const ClientBookingFlow: React.FC<ClientBookingFlowProps> = ({ userId }) => {
       if (!settingsData) throw new Error("Configurações da barbearia não encontradas");
 
       // Create the appointment
-      const { error: appointmentError } = await supabase
+      const { data: appointment, error: appointmentError } = await supabase
         .from("appointments")
         .insert({
           user_id: settingsData.user_id,
@@ -328,9 +373,31 @@ const ClientBookingFlow: React.FC<ClientBookingFlowProps> = ({ userId }) => {
           status: 'pending',
           total_price: calculateTotalPrice,
           notes: formData.notes
-        });
+        })
+        .select('id')
+        .single();
 
       if (appointmentError) throw appointmentError;
+
+      // Insert all selected services into appointment_services
+      if (appointment && formData.selectedServices.length > 0) {
+        const appointmentServices = formData.selectedServices.map(serviceId => {
+          const service = services.find(s => s.id === serviceId);
+          return {
+            appointment_id: appointment.id,
+            service_id: serviceId,
+            price: service?.price || 0
+          };
+        });
+
+        const { error: servicesError } = await supabase
+          .from("appointment_services")
+          .insert(appointmentServices);
+
+        if (servicesError) {
+          console.error("Error inserting appointment services:", servicesError);
+        }
+      }
 
       // Set completed booking data for confirmation screen
       const selectedBarber = barbers.find(b => b.id === formData.selectedBarber);

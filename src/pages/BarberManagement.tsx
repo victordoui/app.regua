@@ -8,9 +8,14 @@ import { Label } from '@/components/ui/label';
 import { Input } from '@/components/ui/input';
 import { Switch } from '@/components/ui/switch';
 import Layout from '@/components/Layout';
-import { Plus, Power, PowerOff } from 'lucide-react';
+import { Plus, Power, PowerOff, Clock, Calendar, AlertTriangle } from 'lucide-react';
 import { useBarbers } from '@/hooks/useBarbers';
+import { useBlockedSlots } from '@/hooks/useBlockedSlots';
+import { useBarberAbsences } from '@/hooks/useBarberAbsences';
 import { Barber } from '@/types/appointments';
+import BlockedSlotsManager from '@/components/barbers/BlockedSlotsManager';
+import BarberAbsencesManager from '@/components/barbers/BarberAbsencesManager';
+import { format } from 'date-fns';
 
 interface BarberFormData {
   full_name: string;
@@ -22,10 +27,37 @@ interface BarberFormData {
 
 const BarberManagement = () => {
   const { barbers, isLoading, addBarber, updateBarber, toggleBarberStatus } = useBarbers();
+  const { blockedSlots, getBlockedSlotsForBarber } = useBlockedSlots();
+  const { absences, getAbsencesForBarber, isBarberAbsent } = useBarberAbsences();
   
   const [dialogOpen, setDialogOpen] = useState(false);
   const [editingBarber, setEditingBarber] = useState<Barber | null>(null);
   const [submitting, setSubmitting] = useState(false);
+  
+  // Manager dialogs state
+  const [blockedSlotsDialogOpen, setBlockedSlotsDialogOpen] = useState(false);
+  const [absencesDialogOpen, setAbsencesDialogOpen] = useState(false);
+  const [selectedBarberForManager, setSelectedBarberForManager] = useState<Barber | null>(null);
+
+  const today = format(new Date(), 'yyyy-MM-dd');
+
+  const openBlockedSlotsManager = (barber: Barber) => {
+    setSelectedBarberForManager(barber);
+    setBlockedSlotsDialogOpen(true);
+  };
+
+  const openAbsencesManager = (barber: Barber) => {
+    setSelectedBarberForManager(barber);
+    setAbsencesDialogOpen(true);
+  };
+
+  const getNextAbsence = (barberId: string) => {
+    const barberAbsences = getAbsencesForBarber(barberId);
+    const futureAbsences = barberAbsences
+      .filter(a => a.start_date >= today)
+      .sort((a, b) => a.start_date.localeCompare(b.start_date));
+    return futureAbsences[0] || null;
+  };
 
   const [formData, setFormData] = useState<BarberFormData>({
     full_name: "",
@@ -117,50 +149,98 @@ const BarberManagement = () => {
         </div>
 
         <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
-          {barbers.map((barber) => (
-            <Card key={barber.id} className="transition-all hover:shadow-lg">
-              <CardHeader>
-                <div className="flex justify-between items-start">
-                  <div>
-                    <CardTitle className="text-lg">{barber.full_name}</CardTitle>
-                    <p className="text-sm text-muted-foreground">{barber.email}</p>
-                  </div>
-                  <Badge variant={barber.active ? "default" : "secondary"}>
-                    {barber.active ? "Ativo" : "Inativo"}
-                  </Badge>
-                </div>
-              </CardHeader>
-              <CardContent>
-                <div className="space-y-2">
-                  <div className="text-sm">
-                    <span className="font-medium">Telefone:</span> {barber.phone || 'Não informado'}
-                  </div>
-                  <div className="text-sm">
-                    <span className="font-medium">Especializações:</span>
-                    <div className="flex flex-wrap gap-1 mt-1">
-                      {barber.specialties?.map((spec, index) => (
-                        <Badge key={index} variant="outline" className="text-xs">
-                          {spec}
+          {barbers.map((barber) => {
+            const barberBlockedSlots = getBlockedSlotsForBarber(barber.id);
+            const isAbsentToday = isBarberAbsent(barber.id, today);
+            const nextAbsence = getNextAbsence(barber.id);
+
+            return (
+              <Card key={barber.id} className={`transition-all hover:shadow-lg ${isAbsentToday ? 'border-orange-500/50 bg-orange-50/5' : ''}`}>
+                <CardHeader>
+                  <div className="flex justify-between items-start">
+                    <div>
+                      <CardTitle className="text-lg">{barber.full_name}</CardTitle>
+                      <p className="text-sm text-muted-foreground">{barber.email}</p>
+                    </div>
+                    <div className="flex flex-col gap-1 items-end">
+                      <Badge variant={barber.active ? "default" : "secondary"}>
+                        {barber.active ? "Ativo" : "Inativo"}
+                      </Badge>
+                      {isAbsentToday && (
+                        <Badge variant="outline" className="text-xs bg-orange-500/10 text-orange-600 border-orange-500/30">
+                          <AlertTriangle className="h-3 w-3 mr-1" />
+                          Ausente hoje
                         </Badge>
-                      )) || <span className="text-muted-foreground">Nenhuma</span>}
+                      )}
                     </div>
                   </div>
-                </div>
-                <div className="flex gap-2 mt-4">
-                  <Button variant="outline" size="sm" onClick={() => handleEdit(barber)}>
-                    Editar
-                  </Button>
-                  <Button 
-                    variant={barber.active ? "secondary" : "default"}
-                    size="sm"
-                    onClick={() => handleToggleStatus(barber)}
-                  >
-                    {barber.active ? <PowerOff className="h-4 w-4" /> : <Power className="h-4 w-4" />}
-                  </Button>
-                </div>
-              </CardContent>
-            </Card>
-          ))}
+                </CardHeader>
+                <CardContent>
+                  <div className="space-y-2">
+                    <div className="text-sm">
+                      <span className="font-medium">Telefone:</span> {barber.phone || 'Não informado'}
+                    </div>
+                    <div className="text-sm">
+                      <span className="font-medium">Especializações:</span>
+                      <div className="flex flex-wrap gap-1 mt-1">
+                        {barber.specialties?.map((spec, index) => (
+                          <Badge key={index} variant="outline" className="text-xs">
+                            {spec}
+                          </Badge>
+                        )) || <span className="text-muted-foreground">Nenhuma</span>}
+                      </div>
+                    </div>
+                    
+                    {/* Quick stats */}
+                    <div className="flex gap-2 mt-2">
+                      {barberBlockedSlots.length > 0 && (
+                        <Badge variant="secondary" className="text-xs">
+                          <Clock className="h-3 w-3 mr-1" />
+                          {barberBlockedSlots.length} bloqueio(s)
+                        </Badge>
+                      )}
+                      {nextAbsence && (
+                        <Badge variant="secondary" className="text-xs">
+                          <Calendar className="h-3 w-3 mr-1" />
+                          Ausência: {format(new Date(nextAbsence.start_date), 'dd/MM')}
+                        </Badge>
+                      )}
+                    </div>
+                  </div>
+                  
+                  {/* Action buttons */}
+                  <div className="flex flex-wrap gap-2 mt-4">
+                    <Button variant="outline" size="sm" onClick={() => handleEdit(barber)}>
+                      Editar
+                    </Button>
+                    <Button 
+                      variant="outline" 
+                      size="sm"
+                      onClick={() => openBlockedSlotsManager(barber)}
+                    >
+                      <Clock className="h-4 w-4 mr-1" />
+                      Bloqueios
+                    </Button>
+                    <Button 
+                      variant="outline" 
+                      size="sm"
+                      onClick={() => openAbsencesManager(barber)}
+                    >
+                      <Calendar className="h-4 w-4 mr-1" />
+                      Ausências
+                    </Button>
+                    <Button 
+                      variant={barber.active ? "secondary" : "default"}
+                      size="sm"
+                      onClick={() => handleToggleStatus(barber)}
+                    >
+                      {barber.active ? <PowerOff className="h-4 w-4" /> : <Power className="h-4 w-4" />}
+                    </Button>
+                  </div>
+                </CardContent>
+              </Card>
+            );
+          })}
         </div>
 
         <Dialog open={dialogOpen} onOpenChange={(open) => {
@@ -232,6 +312,32 @@ const BarberManagement = () => {
             </form>
           </DialogContent>
         </Dialog>
+
+        {/* Blocked Slots Manager Dialog */}
+        {selectedBarberForManager && (
+          <BlockedSlotsManager
+            isOpen={blockedSlotsDialogOpen}
+            onClose={() => {
+              setBlockedSlotsDialogOpen(false);
+              setSelectedBarberForManager(null);
+            }}
+            barberId={selectedBarberForManager.id}
+            barberName={selectedBarberForManager.full_name}
+          />
+        )}
+
+        {/* Absences Manager Dialog */}
+        {selectedBarberForManager && (
+          <BarberAbsencesManager
+            isOpen={absencesDialogOpen}
+            onClose={() => {
+              setAbsencesDialogOpen(false);
+              setSelectedBarberForManager(null);
+            }}
+            barberId={selectedBarberForManager.id}
+            barberName={selectedBarberForManager.full_name}
+          />
+        )}
       </div>
     </Layout>
   );
