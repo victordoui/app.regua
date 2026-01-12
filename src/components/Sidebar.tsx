@@ -25,13 +25,17 @@ import {
   Receipt,
   // Assinaturas
   Crown,
+  Heart,
   // Minha Empresa
   Building,
+  Image,
   Warehouse,
   Plug,
   // Administração
   Settings,
   Shield,
+  Star,
+  ListOrdered,
   UserCheck,
   // Vendas / Caixa
   ShoppingCart,
@@ -75,7 +79,8 @@ const Sidebar = () => {
       items: [
         { icon: BarChart3, label: "Visão Geral", path: "/" },
         { icon: TrendingUp, label: "Sucesso do Cliente", path: "/customer-success" },
-        { icon: Target, label: "Desempenho dos Barbeiros", path: "/barber-performance" }
+        { icon: Target, label: "Desempenho dos Barbeiros", path: "/barber-performance" },
+        { icon: Star, label: "Avaliações", path: "/reviews" }
       ]
     },
     {
@@ -86,7 +91,8 @@ const Sidebar = () => {
         { icon: Calendar, label: "Agendamentos", path: "/appointments" },
         { icon: Users, label: "Clientes", path: "/clients" },
         { icon: Scissors, label: "Barbeiros", path: "/barbers" },
-        { icon: Package, label: "Serviços", path: "/services" }
+        { icon: Package, label: "Serviços", path: "/services" },
+        { icon: ListOrdered, label: "Lista de Espera", path: "/waitlist" }
       ]
     },
     {
@@ -115,7 +121,8 @@ const Sidebar = () => {
       icon: Crown,
       items: [
         { icon: Crown, label: "Gerenciar Planos", path: "/subscriptions" },
-        { icon: PlusCircle, label: "Criar / Editar Plano", path: "/subscriptions/new" } // Nova rota para criação/edição
+        { icon: PlusCircle, label: "Criar / Editar Plano", path: "/subscriptions/new" },
+        { icon: Heart, label: "Fidelidade", path: "/loyalty" }
       ]
     },
     {
@@ -125,6 +132,7 @@ const Sidebar = () => {
       items: [
         { icon: Building, label: "Empresa", path: "/settings/company" },
         { icon: Warehouse, label: "Estoque", path: "/inventory" },
+        { icon: Image, label: "Galeria", path: "/gallery" }
       ]
     },
     {

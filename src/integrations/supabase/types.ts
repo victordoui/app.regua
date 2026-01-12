@@ -330,6 +330,176 @@ export type Database = {
         }
         Relationships: []
       }
+      gallery: {
+        Row: {
+          barber_id: string | null
+          created_at: string
+          description: string | null
+          id: string
+          image_url: string
+          service_id: string | null
+          title: string | null
+          user_id: string
+        }
+        Insert: {
+          barber_id?: string | null
+          created_at?: string
+          description?: string | null
+          id?: string
+          image_url: string
+          service_id?: string | null
+          title?: string | null
+          user_id: string
+        }
+        Update: {
+          barber_id?: string | null
+          created_at?: string
+          description?: string | null
+          id?: string
+          image_url?: string
+          service_id?: string | null
+          title?: string | null
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "gallery_barber_id_fkey"
+            columns: ["barber_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "gallery_service_id_fkey"
+            columns: ["service_id"]
+            isOneToOne: false
+            referencedRelation: "services"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      loyalty_points: {
+        Row: {
+          client_id: string | null
+          created_at: string
+          id: string
+          points: number
+          total_earned: number
+          total_redeemed: number
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          client_id?: string | null
+          created_at?: string
+          id?: string
+          points?: number
+          total_earned?: number
+          total_redeemed?: number
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          client_id?: string | null
+          created_at?: string
+          id?: string
+          points?: number
+          total_earned?: number
+          total_redeemed?: number
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "loyalty_points_client_id_fkey"
+            columns: ["client_id"]
+            isOneToOne: false
+            referencedRelation: "clients"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      loyalty_rewards: {
+        Row: {
+          active: boolean
+          created_at: string
+          id: string
+          name: string
+          points_required: number
+          reward_type: string
+          reward_value: number | null
+          user_id: string
+        }
+        Insert: {
+          active?: boolean
+          created_at?: string
+          id?: string
+          name: string
+          points_required: number
+          reward_type: string
+          reward_value?: number | null
+          user_id: string
+        }
+        Update: {
+          active?: boolean
+          created_at?: string
+          id?: string
+          name?: string
+          points_required?: number
+          reward_type?: string
+          reward_value?: number | null
+          user_id?: string
+        }
+        Relationships: []
+      }
+      loyalty_transactions: {
+        Row: {
+          appointment_id: string | null
+          created_at: string
+          description: string | null
+          id: string
+          loyalty_points_id: string | null
+          points: number
+          type: string
+          user_id: string
+        }
+        Insert: {
+          appointment_id?: string | null
+          created_at?: string
+          description?: string | null
+          id?: string
+          loyalty_points_id?: string | null
+          points: number
+          type: string
+          user_id: string
+        }
+        Update: {
+          appointment_id?: string | null
+          created_at?: string
+          description?: string | null
+          id?: string
+          loyalty_points_id?: string | null
+          points?: number
+          type?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "loyalty_transactions_appointment_id_fkey"
+            columns: ["appointment_id"]
+            isOneToOne: false
+            referencedRelation: "appointments"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "loyalty_transactions_loyalty_points_id_fkey"
+            columns: ["loyalty_points_id"]
+            isOneToOne: false
+            referencedRelation: "loyalty_points"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       messages: {
         Row: {
           content: string
@@ -446,9 +616,12 @@ export type Database = {
       products: {
         Row: {
           active: boolean
+          barcode: string | null
+          category: string | null
           created_at: string
           description: string | null
           id: string
+          min_stock: number | null
           name: string
           price: number
           stock: number
@@ -457,9 +630,12 @@ export type Database = {
         }
         Insert: {
           active?: boolean
+          barcode?: string | null
+          category?: string | null
           created_at?: string
           description?: string | null
           id?: string
+          min_stock?: number | null
           name: string
           price: number
           stock?: number
@@ -468,9 +644,12 @@ export type Database = {
         }
         Update: {
           active?: boolean
+          barcode?: string | null
+          category?: string | null
           created_at?: string
           description?: string | null
           id?: string
+          min_stock?: number | null
           name?: string
           price?: number
           stock?: number
@@ -523,6 +702,61 @@ export type Database = {
           user_id?: string
         }
         Relationships: []
+      }
+      reviews: {
+        Row: {
+          appointment_id: string | null
+          barber_id: string | null
+          client_id: string | null
+          comment: string | null
+          created_at: string
+          id: string
+          rating: number
+          user_id: string
+        }
+        Insert: {
+          appointment_id?: string | null
+          barber_id?: string | null
+          client_id?: string | null
+          comment?: string | null
+          created_at?: string
+          id?: string
+          rating: number
+          user_id: string
+        }
+        Update: {
+          appointment_id?: string | null
+          barber_id?: string | null
+          client_id?: string | null
+          comment?: string | null
+          created_at?: string
+          id?: string
+          rating?: number
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "reviews_appointment_id_fkey"
+            columns: ["appointment_id"]
+            isOneToOne: false
+            referencedRelation: "appointments"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "reviews_barber_id_fkey"
+            columns: ["barber_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "reviews_client_id_fkey"
+            columns: ["client_id"]
+            isOneToOne: false
+            referencedRelation: "clients"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       sale_items: {
         Row: {
@@ -668,6 +902,44 @@ export type Database = {
         }
         Relationships: []
       }
+      stock_movements: {
+        Row: {
+          created_at: string
+          id: string
+          product_id: string | null
+          quantity: number
+          reason: string | null
+          type: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          product_id?: string | null
+          quantity: number
+          reason?: string | null
+          type: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          product_id?: string | null
+          quantity?: number
+          reason?: string | null
+          type?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "stock_movements_product_id_fkey"
+            columns: ["product_id"]
+            isOneToOne: false
+            referencedRelation: "products"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       subscription_plans: {
         Row: {
           active: boolean
@@ -778,6 +1050,76 @@ export type Database = {
             columns: ["plan_id"]
             isOneToOne: false
             referencedRelation: "subscription_plans"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      waitlist: {
+        Row: {
+          barber_id: string | null
+          client_id: string | null
+          client_name: string
+          client_phone: string
+          created_at: string
+          id: string
+          notified_at: string | null
+          preferred_date: string | null
+          preferred_time_end: string | null
+          preferred_time_start: string | null
+          service_id: string | null
+          status: string
+          user_id: string
+        }
+        Insert: {
+          barber_id?: string | null
+          client_id?: string | null
+          client_name: string
+          client_phone: string
+          created_at?: string
+          id?: string
+          notified_at?: string | null
+          preferred_date?: string | null
+          preferred_time_end?: string | null
+          preferred_time_start?: string | null
+          service_id?: string | null
+          status?: string
+          user_id: string
+        }
+        Update: {
+          barber_id?: string | null
+          client_id?: string | null
+          client_name?: string
+          client_phone?: string
+          created_at?: string
+          id?: string
+          notified_at?: string | null
+          preferred_date?: string | null
+          preferred_time_end?: string | null
+          preferred_time_start?: string | null
+          service_id?: string | null
+          status?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "waitlist_barber_id_fkey"
+            columns: ["barber_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "waitlist_client_id_fkey"
+            columns: ["client_id"]
+            isOneToOne: false
+            referencedRelation: "clients"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "waitlist_service_id_fkey"
+            columns: ["service_id"]
+            isOneToOne: false
+            referencedRelation: "services"
             referencedColumns: ["id"]
           },
         ]
