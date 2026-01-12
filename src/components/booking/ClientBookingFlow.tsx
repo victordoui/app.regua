@@ -155,6 +155,17 @@ const ClientBookingFlow: React.FC<ClientBookingFlowProps> = ({ userId }) => {
     fetchInitialData();
   }, [userId, toast]);
 
+  // Calculate total duration and price from selected services
+  const calculateTotalDuration = useMemo(() => {
+    const selected = services.filter(s => formData.selectedServices.includes(s.id));
+    return selected.reduce((sum, s) => sum + s.duration_minutes, 0);
+  }, [formData.selectedServices, services]);
+
+  const calculateTotalPrice = useMemo(() => {
+    const selected = services.filter(s => formData.selectedServices.includes(s.id));
+    return selected.reduce((sum, s) => sum + s.price, 0);
+  }, [formData.selectedServices, services]);
+
   // Fetch available time slots when date and barber are selected
   useEffect(() => {
     const fetchTimeSlots = async () => {
@@ -256,16 +267,6 @@ const ClientBookingFlow: React.FC<ClientBookingFlowProps> = ({ userId }) => {
   }, [formData.selectedDate, formData.selectedBarber, calculateTotalDuration]);
 
   const currentStepData = PUBLIC_STEPS.find(s => s.id === currentStep);
-
-  const calculateTotalDuration = useMemo(() => {
-    const selected = services.filter(s => formData.selectedServices.includes(s.id));
-    return selected.reduce((sum, s) => sum + s.duration_minutes, 0);
-  }, [formData.selectedServices, services]);
-
-  const calculateTotalPrice = useMemo(() => {
-    const selected = services.filter(s => formData.selectedServices.includes(s.id));
-    return selected.reduce((sum, s) => sum + s.price, 0);
-  }, [formData.selectedServices, services]);
 
   const handleNext = () => {
     switch (currentStep) {
