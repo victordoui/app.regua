@@ -35,6 +35,10 @@ import Integrations from "./pages/Integrations";
 import Cash from "./pages/Cash";
 import SalesReports from "./pages/SalesReports";
 import PublicBookingPage from "./pages/PublicBookingPage";
+import Reviews from "./pages/Reviews";
+import Gallery from "./pages/Gallery";
+import Loyalty from "./pages/Loyalty";
+import Waitlist from "./pages/Waitlist";
 
 // Client Mobile Pages
 import ClientLogin from "./pages/client/ClientLogin";
@@ -94,6 +98,12 @@ function AppContent() {
         <Route path="/settings/company" element={<ProtectedRoute><CompanySettings /></ProtectedRoute>} />
         <Route path="/inventory" element={<ProtectedRoute><Inventory /></ProtectedRoute>} />
         <Route path="/integrations" element={<ProtectedRoute><Integrations /></ProtectedRoute>} />
+        <Route path="/gallery" element={<ProtectedRoute><Gallery /></ProtectedRoute>} />
+        
+        {/* Novas Funcionalidades */}
+        <Route path="/reviews" element={<ProtectedRoute><Reviews /></ProtectedRoute>} />
+        <Route path="/loyalty" element={<ProtectedRoute><Loyalty /></ProtectedRoute>} />
+        <Route path="/waitlist" element={<ProtectedRoute><Waitlist /></ProtectedRoute>} />
 
         {/* Administração */}
         <Route path="/users" element={<ProtectedRoute><Users /></ProtectedRoute>} />
