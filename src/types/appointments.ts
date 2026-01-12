@@ -47,7 +47,7 @@ export interface Appointment {
   barbeiro_id: string | null;
   appointment_date: string;
   appointment_time: string;
-  status: 'pending' | 'confirmed' | 'completed' | 'cancelled';
+  status: 'pending' | 'confirmed' | 'completed' | 'cancelled' | 'no_show';
   notes?: string;
   total_price?: number;
   user_id: string;

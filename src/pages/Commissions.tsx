@@ -1,18 +1,21 @@
 import React, { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import Layout from '@/components/Layout';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
-import { Calendar as CalendarIcon, DollarSign, Users, Percent, Scissors } from 'lucide-react';
+import { Calendar as CalendarIcon, DollarSign, Users, Percent, Scissors, Settings2 } from 'lucide-react';
 import { useCommissions } from '@/hooks/useCommissions';
+import { useCommissionRules } from '@/hooks/useCommissionRules';
 import { format, parseISO } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
 import { Calendar } from '@/components/ui/calendar';
 import { cn } from '@/lib/utils';
 
 const Commissions = () => {
+  const navigate = useNavigate();
   const {
     barbers,
     startDate,
@@ -24,6 +27,9 @@ const Commissions = () => {
     calculatedCommissions,
     isLoading,
   } = useCommissions();
+  
+  const { rules } = useCommissionRules();
+  const defaultRule = rules.find(r => r.is_default);
 
   const { barberSummaries, totalOverallCommission } = calculatedCommissions;
 
@@ -44,6 +50,10 @@ const Commissions = () => {
               Calcule e gerencie as comissões dos barbeiros.
             </p>
           </div>
+          <Button onClick={() => navigate('/commission-rules')}>
+            <Settings2 className="h-4 w-4 mr-2" />
+            Gerenciar Regras
+          </Button>
         </div>
 
         {/* Summary Cards */}
@@ -74,8 +84,17 @@ const Commissions = () => {
               <Percent className="h-4 w-4 text-green-500" />
             </CardHeader>
             <CardContent>
-              <div className="text-2xl font-bold">40%</div>
-              <p className="text-xs text-muted-foreground">Sobre o valor do serviço</p>
+              <div className="text-2xl font-bold">
+                {defaultRule 
+                  ? defaultRule.commission_type === 'percentage'
+                    ? `${defaultRule.commission_value}%`
+                    : `R$ ${defaultRule.commission_value.toFixed(2)}`
+                  : '40%'
+                }
+              </div>
+              <p className="text-xs text-muted-foreground">
+                {defaultRule ? 'Regra configurada' : 'Valor padrão do sistema'}
+              </p>
             </CardContent>
           </Card>
         </div>

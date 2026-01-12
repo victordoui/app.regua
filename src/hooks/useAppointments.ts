@@ -285,7 +285,7 @@ export const useAppointments = () => {
     },
   });
 
-  const updateAppointmentStatusMutation = useMutation<Appointment, Error, { id: string; status: 'pending' | 'confirmed' | 'completed' | 'cancelled' }>({
+  const updateAppointmentStatusMutation = useMutation<Appointment, Error, { id: string; status: 'pending' | 'confirmed' | 'completed' | 'cancelled' | 'no_show' }>({
     mutationFn: async ({ id, status }) => {
       if (!user) throw new Error("Usuário não autenticado.");
       const { data, error } = await supabase
