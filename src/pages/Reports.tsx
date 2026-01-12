@@ -16,6 +16,9 @@ import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/contexts/AuthContext';
 import { useToast } from '@/hooks/use-toast';
+import RevenueChart from '@/components/charts/RevenueChart';
+import ServicesChart from '@/components/charts/ServicesChart';
+import OccupancyChart from '@/components/charts/OccupancyChart';
 
 interface ReportData {
   monthlyRevenue: number;
@@ -210,6 +213,11 @@ const Reports = () => {
           </TabsList>
 
           <TabsContent value="overview" className="space-y-4">
+            <div className="grid gap-4 md:grid-cols-2">
+              <RevenueChart />
+              <OccupancyChart />
+            </div>
+            
             <Card>
               <CardHeader>
                 <CardTitle>Serviços Mais Populares (Mês Atual)</CardTitle>
@@ -235,25 +243,45 @@ const Reports = () => {
           </TabsContent>
 
           <TabsContent value="services" className="space-y-4">
-            <Card>
-              <CardHeader>
-                <CardTitle>Análise de Serviços</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <p className="text-muted-foreground">Análise detalhada dos serviços...</p>
-              </CardContent>
-            </Card>
+            <ServicesChart />
           </TabsContent>
 
           <TabsContent value="clients" className="space-y-4">
-            <Card>
-              <CardHeader>
-                <CardTitle>Análise de Clientes</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <p className="text-muted-foreground">Análise detalhada dos clientes...</p>
-              </CardContent>
-            </Card>
+            <div className="grid gap-4 md:grid-cols-2">
+              <Card>
+                <CardHeader>
+                  <CardTitle>Métricas de Clientes</CardTitle>
+                </CardHeader>
+                <CardContent className="space-y-4">
+                  <div className="flex items-center justify-between">
+                    <span className="text-muted-foreground">Novos clientes (mês)</span>
+                    <span className="font-bold text-lg">{reportData.newClients}</span>
+                  </div>
+                  <div className="flex items-center justify-between">
+                    <span className="text-muted-foreground">Taxa de retenção</span>
+                    <span className="font-bold text-lg">{reportData.clientRetention}%</span>
+                  </div>
+                  <div className="flex items-center justify-between">
+                    <span className="text-muted-foreground">Agendamentos concluídos</span>
+                    <span className="font-bold text-lg">{reportData.completedAppointments}</span>
+                  </div>
+                </CardContent>
+              </Card>
+              <Card>
+                <CardHeader>
+                  <CardTitle>Ticket Médio</CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <div className="text-4xl font-bold text-primary">
+                    R$ {reportData.completedAppointments > 0 
+                      ? (reportData.monthlyRevenue / reportData.completedAppointments).toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 })
+                      : '0,00'
+                    }
+                  </div>
+                  <p className="text-sm text-muted-foreground mt-2">Valor médio por atendimento</p>
+                </CardContent>
+              </Card>
+            </div>
           </TabsContent>
         </Tabs>
       </div>

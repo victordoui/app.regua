@@ -39,6 +39,7 @@ import Reviews from "./pages/Reviews";
 import Gallery from "./pages/Gallery";
 import Loyalty from "./pages/Loyalty";
 import Waitlist from "./pages/Waitlist";
+import Coupons from "./pages/Coupons";
 
 // Client Mobile Pages
 import ClientLogin from "./pages/client/ClientLogin";
@@ -89,6 +90,7 @@ function AppContent() {
         <Route path="/reports" element={<ProtectedRoute><Reports /></ProtectedRoute>} /> {/* Visão Financeira */}
         <Route path="/billing" element={<ProtectedRoute><Billing /></ProtectedRoute>} />
         <Route path="/commissions" element={<ProtectedRoute><Commissions /></ProtectedRoute>} />
+        <Route path="/coupons" element={<ProtectedRoute><Coupons /></ProtectedRoute>} />
 
         {/* Assinaturas */}
         <Route path="/subscriptions" element={<ProtectedRoute><Subscriptions /></ProtectedRoute>} />
