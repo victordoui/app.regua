@@ -5,6 +5,7 @@ import { Appointment } from '@/types/appointments';
 import { useQueryClient } from '@tanstack/react-query';
 import { useToast } from '@/hooks/use-toast';
 import { format, isToday, parseISO } from 'date-fns';
+import { ptBR } from 'date-fns/locale';
 
 interface RealtimePayload {
   eventType: 'INSERT' | 'UPDATE' | 'DELETE';
@@ -78,10 +79,21 @@ export const useRealtimeAppointments = () => {
     if (payload.eventType === 'INSERT') {
       const newAppointment = payload.new;
       
-      // Show toast for new appointment
+      // Play notification sound (optional)
+      try {
+        const audio = new Audio('/notification.mp3');
+        audio.volume = 0.3;
+        audio.play().catch(() => {});
+      } catch {}
+      
+      // Format date for display
+      const formattedDate = format(parseISO(newAppointment.appointment_date), "dd 'de' MMMM", { locale: ptBR });
+      
+      // Show detailed toast for new appointment
       toast({
-        title: "Novo Agendamento!",
-        description: `Agendamento criado para ${format(parseISO(newAppointment.appointment_date), 'dd/MM')} às ${newAppointment.appointment_time}`,
+        title: "🎉 Novo Agendamento na Marshals Barber!",
+        description: `📅 ${formattedDate} às ${newAppointment.appointment_time} • Um cliente acabou de agendar!`,
+        duration: 8000,
       });
 
       // Refetch to get complete data with joins

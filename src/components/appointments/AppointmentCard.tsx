@@ -1,10 +1,10 @@
 import React from 'react';
-import { Edit, Trash2, Check, X, Phone, User, Clock, Calendar as CalendarIcon, DollarSign } from 'lucide-react';
+import { Edit, Trash2, Check, X, User, Clock, Calendar as CalendarIcon, DollarSign, CalendarPlus, Sparkles } from 'lucide-react';
 import { Appointment } from '@/types/appointments';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
-import { format } from 'date-fns';
+import { format, parseISO, formatDistanceToNow, differenceInHours } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
 
 interface AppointmentCardProps {
@@ -47,8 +47,36 @@ const AppointmentCard: React.FC<AppointmentCardProps> = ({ appointment, onEdit, 
     }).format(value);
   };
 
+  // Check if appointment was created within last 24 hours
+  const isNew = appointment.created_at 
+    ? differenceInHours(new Date(), parseISO(appointment.created_at)) < 24 
+    : false;
+
+  const getRelativeCreatedTime = () => {
+    if (!appointment.created_at) return null;
+    return formatDistanceToNow(parseISO(appointment.created_at), { 
+      addSuffix: true, 
+      locale: ptBR 
+    });
+  };
+
+  const getFormattedCreatedAt = () => {
+    if (!appointment.created_at) return null;
+    return format(parseISO(appointment.created_at), "dd/MM/yyyy 'às' HH:mm", { locale: ptBR });
+  };
+
   return (
-    <div className="border rounded-lg p-4 space-y-3 shadow-sm hover:shadow-md transition-shadow">
+    <div className="border rounded-lg p-4 space-y-3 shadow-sm hover:shadow-md transition-shadow relative">
+      {/* New Badge */}
+      {isNew && (
+        <div className="absolute -top-2 -right-2">
+          <Badge className="bg-amber-500 text-amber-950 animate-pulse flex items-center gap-1">
+            <Sparkles className="w-3 h-3" />
+            Novo
+          </Badge>
+        </div>
+      )}
+
       <div className="flex justify-between items-start">
         <div>
           <h3 className="font-semibold text-lg">{appointment.clients?.name || 'Cliente Desconhecido'}</h3>
@@ -101,6 +129,17 @@ const AppointmentCard: React.FC<AppointmentCardProps> = ({ appointment, onEdit, 
           <DollarSign className="h-4 w-4" />
           <span>{formatCurrency(appointment.total_price)}</span>
         </div>
+      </div>
+
+      {/* Created at info */}
+      <div className="flex items-center gap-2 text-xs text-muted-foreground border-t pt-2 mt-2">
+        <CalendarPlus className="h-3 w-3" />
+        <span>
+          Agendado {getRelativeCreatedTime() || 'N/A'}
+          {getFormattedCreatedAt() && (
+            <span className="text-muted-foreground/70"> • {getFormattedCreatedAt()}</span>
+          )}
+        </span>
       </div>
 
       {appointment.notes && (

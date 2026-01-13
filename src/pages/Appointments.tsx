@@ -1,15 +1,20 @@
 import { useState, useMemo, useEffect } from 'react';
 import { useAppointments } from '@/hooks/useAppointments';
 import AppointmentFormDialog from '@/components/appointments/AppointmentFormDialog';
-import AppointmentSidebar, { BARBER_COLORS } from '@/components/appointments/AppointmentSidebar';
+import AppointmentSidebar, { BARBER_COLORS, CreatedFilter } from '@/components/appointments/AppointmentSidebar';
 import CalendarView from '@/components/appointments/CalendarView';
 import DeleteAppointmentDialog from '@/components/appointments/DeleteAppointmentDialog';
 import EditSeriesDialog from '@/components/appointments/EditSeriesDialog';
+import RecentBookingsPanel from '@/components/appointments/RecentBookingsPanel';
+import AppointmentTableView from '@/components/appointments/AppointmentTableView';
 import Layout from '@/components/Layout';
 import { Appointment, AppointmentFormData } from '@/types/appointments';
 import { useQuery } from '@tanstack/react-query';
 import { toast } from '@/hooks/use-toast';
-import { format } from 'date-fns';
+import { format, parseISO, isToday, isThisWeek, subDays, differenceInHours } from 'date-fns';
+import { Button } from '@/components/ui/button';
+import { Badge } from '@/components/ui/badge';
+import { CalendarDays, Table2, Radio } from 'lucide-react';
 
 const Appointments = () => {
   const [isDialogOpen, setIsDialogOpen] = useState(false);
@@ -18,12 +23,15 @@ const Appointments = () => {
   const [selectedTime, setSelectedTime] = useState<string>('');
   const [statusFilter, setStatusFilter] = useState<string>('all');
   const [viewMode, setViewMode] = useState<'week' | 'day' | 'month'>('week');
+  const [displayMode, setDisplayMode] = useState<'calendar' | 'table'>('calendar');
   const [selectedBarbers, setSelectedBarbers] = useState<string[]>([]);
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
   const [deletingAppointment, setDeletingAppointment] = useState<Appointment | null>(null);
   const [editSeriesDialogOpen, setEditSeriesDialogOpen] = useState(false);
   const [pendingEditAppointment, setPendingEditAppointment] = useState<Appointment | null>(null);
   const [editMode, setEditMode] = useState<'single' | 'series'>('single');
+  const [createdFilter, setCreatedFilter] = useState<CreatedFilter>('all');
+  const [showRecentBookings, setShowRecentBookings] = useState(false);
 
   const {
     clients,
@@ -63,15 +71,47 @@ const Appointments = () => {
     queryFn: () => fetchAppointments(undefined, statusFilter),
   });
 
-  // Filter appointments by selected barbers
+  // Filter appointments by selected barbers and created date
   const filteredAppointments = useMemo(() => {
     if (selectedBarbers.length === 0) return [];
-    return appointments.filter(apt => {
-      // Show appointments without barber or with selected barbers
-      if (!apt.barbeiro_id) return true;
-      return selectedBarbers.includes(apt.barbeiro_id);
+    
+    let result = appointments.filter(apt => {
+      // Filter by barber
+      if (apt.barbeiro_id && !selectedBarbers.includes(apt.barbeiro_id)) {
+        return false;
+      }
+      return true;
     });
-  }, [appointments, selectedBarbers]);
+
+    // Filter by created date
+    if (createdFilter !== 'all') {
+      result = result.filter(apt => {
+        if (!apt.created_at) return false;
+        const createdDate = parseISO(apt.created_at);
+        
+        switch (createdFilter) {
+          case 'today':
+            return isToday(createdDate);
+          case 'week':
+            return isThisWeek(createdDate, { weekStartsOn: 1 });
+          case 'month':
+            return createdDate >= subDays(new Date(), 30);
+          default:
+            return true;
+        }
+      });
+    }
+
+    return result;
+  }, [appointments, selectedBarbers, createdFilter]);
+
+  // Count new appointments (created in last 24h)
+  const newAppointmentsCount = useMemo(() => {
+    return appointments.filter(apt => {
+      if (!apt.created_at) return false;
+      return differenceInHours(new Date(), parseISO(apt.created_at)) < 24;
+    }).length;
+  }, [appointments]);
 
   const daysWithAppointments = useMemo(() => {
     const dates = new Set<string>();
@@ -191,46 +231,106 @@ const Appointments = () => {
 
   return (
     <Layout>
-      <div className="h-[calc(100vh-56px)] flex gap-4">
-        {/* Sidebar compacta - Estilo Google */}
-        <div className="hidden lg:block w-56 flex-shrink-0 py-4 pl-2">
-          <AppointmentSidebar
-            calendarDate={selectedDate}
-            setCalendarDate={setSelectedDate}
-            statusFilter={statusFilter}
-            setStatusFilter={setStatusFilter}
-            daysWithAppointments={daysWithAppointments}
-            onManualSchedule={() => handleManualSchedule(selectedDate)}
-            barbers={barbers || []}
-            selectedBarbers={selectedBarbers}
-            setSelectedBarbers={setSelectedBarbers}
-            barberColorMap={barberColorMap}
-          />
+      <div className="h-[calc(100vh-56px)] flex flex-col">
+        {/* Header personalizado */}
+        <div className="px-4 py-3 border-b bg-card/50 flex items-center justify-between gap-4 flex-shrink-0">
+          <div className="flex items-center gap-3">
+            <h1 className="text-xl font-bold tracking-tight">
+              Agenda - <span className="text-primary">Marshals Barber</span>
+            </h1>
+            <Badge variant="outline" className="gap-1.5 animate-pulse">
+              <Radio className="w-3 h-3 text-emerald-500 fill-emerald-500" />
+              Ao Vivo
+            </Badge>
+          </div>
+
+          <div className="flex items-center gap-2">
+            {/* Toggle Calendar/Table View */}
+            <div className="bg-muted rounded-lg p-1 flex gap-1">
+              <Button
+                variant={displayMode === 'calendar' ? 'default' : 'ghost'}
+                size="sm"
+                onClick={() => setDisplayMode('calendar')}
+                className="gap-1.5"
+              >
+                <CalendarDays className="h-4 w-4" />
+                <span className="hidden sm:inline">Calendário</span>
+              </Button>
+              <Button
+                variant={displayMode === 'table' ? 'default' : 'ghost'}
+                size="sm"
+                onClick={() => setDisplayMode('table')}
+                className="gap-1.5"
+              >
+                <Table2 className="h-4 w-4" />
+                <span className="hidden sm:inline">Tabela</span>
+              </Button>
+            </div>
+          </div>
         </div>
 
-        {/* Área principal do calendário */}
-        <div className="flex-1 py-4 pr-2 lg:pr-4">
-          {isLoading ? (
-            <div className="flex items-center justify-center h-full bg-card rounded-lg border">
-              <div className="flex flex-col items-center gap-3">
-                <div className="animate-spin rounded-full h-8 w-8 border-2 border-primary border-t-transparent"></div>
-                <span className="text-sm text-muted-foreground">Carregando...</span>
-              </div>
-            </div>
-          ) : (
-            <CalendarView
-              appointments={filteredAppointments}
-              selectedDate={selectedDate || new Date()}
-              onDateChange={setSelectedDate}
-              onTimeSlotClick={handleTimeSlotClick}
-              onEventClick={handleEdit}
-              viewMode={viewMode}
-              onViewModeChange={setViewMode}
+        <div className="flex-1 flex gap-4 overflow-hidden">
+          {/* Sidebar compacta - Estilo Google */}
+          <div className="hidden lg:block w-56 flex-shrink-0 py-4 pl-2 overflow-y-auto">
+            <AppointmentSidebar
+              calendarDate={selectedDate}
+              setCalendarDate={setSelectedDate}
+              statusFilter={statusFilter}
+              setStatusFilter={setStatusFilter}
+              daysWithAppointments={daysWithAppointments}
+              onManualSchedule={() => handleManualSchedule(selectedDate)}
+              barbers={barbers || []}
+              selectedBarbers={selectedBarbers}
+              setSelectedBarbers={setSelectedBarbers}
               barberColorMap={barberColorMap}
-              onAppointmentMove={handleAppointmentMove}
+              createdFilter={createdFilter}
+              setCreatedFilter={setCreatedFilter}
+              newAppointmentsCount={newAppointmentsCount}
+              onShowRecentBookings={() => setShowRecentBookings(true)}
             />
-          )}
+          </div>
+
+          {/* Área principal */}
+          <div className="flex-1 py-4 pr-2 lg:pr-4 overflow-hidden">
+            {isLoading ? (
+              <div className="flex items-center justify-center h-full bg-card rounded-lg border">
+                <div className="flex flex-col items-center gap-3">
+                  <div className="animate-spin rounded-full h-8 w-8 border-2 border-primary border-t-transparent"></div>
+                  <span className="text-sm text-muted-foreground">Carregando...</span>
+                </div>
+              </div>
+            ) : displayMode === 'calendar' ? (
+              <CalendarView
+                appointments={filteredAppointments}
+                selectedDate={selectedDate || new Date()}
+                onDateChange={setSelectedDate}
+                onTimeSlotClick={handleTimeSlotClick}
+                onEventClick={handleEdit}
+                viewMode={viewMode}
+                onViewModeChange={setViewMode}
+                barberColorMap={barberColorMap}
+                onAppointmentMove={handleAppointmentMove}
+              />
+            ) : (
+              <AppointmentTableView
+                appointments={filteredAppointments}
+                onEditAppointment={handleEdit}
+              />
+            )}
+          </div>
         </div>
+
+        {/* Recent Bookings Panel */}
+        {showRecentBookings && (
+          <RecentBookingsPanel
+            appointments={appointments}
+            onClose={() => setShowRecentBookings(false)}
+            onSelectAppointment={(apt) => {
+              setShowRecentBookings(false);
+              handleEdit(apt);
+            }}
+          />
+        )}
 
         <AppointmentFormDialog
           isOpen={isDialogOpen}
