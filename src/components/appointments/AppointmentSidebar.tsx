@@ -3,7 +3,7 @@ import { Button } from "@/components/ui/button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Label } from "@/components/ui/label";
 import { Calendar as ShadcnCalendar } from "@/components/ui/calendar";
-import { Plus } from "lucide-react";
+import { Plus, CalendarPlus } from "lucide-react";
 import { ptBR } from 'date-fns/locale';
 import { Barber } from '@/types/appointments';
 import { cn } from '@/lib/utils';
@@ -19,6 +19,8 @@ export const BARBER_COLORS = [
   '#6366f1', // indigo
 ];
 
+export type CreatedFilter = 'all' | 'today' | 'week' | 'month';
+
 interface AppointmentSidebarProps {
   calendarDate: Date | undefined;
   setCalendarDate: (date: Date | undefined) => void;
@@ -30,6 +32,10 @@ interface AppointmentSidebarProps {
   selectedBarbers: string[];
   setSelectedBarbers: (barbers: string[]) => void;
   barberColorMap: Map<string, string>;
+  createdFilter?: CreatedFilter;
+  setCreatedFilter?: (filter: CreatedFilter) => void;
+  newAppointmentsCount?: number;
+  onShowRecentBookings?: () => void;
 }
 
 const AppointmentSidebar: React.FC<AppointmentSidebarProps> = ({
@@ -42,7 +48,11 @@ const AppointmentSidebar: React.FC<AppointmentSidebarProps> = ({
   barbers,
   selectedBarbers,
   setSelectedBarbers,
-  barberColorMap
+  barberColorMap,
+  createdFilter = 'all',
+  setCreatedFilter,
+  newAppointmentsCount = 0,
+  onShowRecentBookings
 }) => {
   const toggleBarber = (barberId: string) => {
     if (selectedBarbers.includes(barberId)) {
@@ -173,6 +183,58 @@ const AppointmentSidebar: React.FC<AppointmentSidebarProps> = ({
               );
             })}
           </div>
+        </div>
+      )}
+
+      {/* Button for Recent Bookings */}
+      {onShowRecentBookings && (
+        <Button
+          variant="outline"
+          onClick={onShowRecentBookings}
+          className="w-full justify-start gap-2 relative"
+        >
+          <CalendarPlus className="h-4 w-4" />
+          <span>Novos Agendamentos</span>
+          {newAppointmentsCount > 0 && (
+            <span className="absolute right-2 flex h-5 w-5 items-center justify-center rounded-full bg-amber-500 text-[10px] font-bold text-amber-950 animate-pulse">
+              {newAppointmentsCount > 9 ? '9+' : newAppointmentsCount}
+            </span>
+          )}
+        </Button>
+      )}
+
+      {/* Filtro por Data de Criação */}
+      {setCreatedFilter && (
+        <div className="bg-card rounded-lg border p-3 space-y-2">
+          <Label className="text-xs font-medium text-muted-foreground uppercase tracking-wide">
+            Criados em
+          </Label>
+          <Select value={createdFilter} onValueChange={(v) => setCreatedFilter(v as CreatedFilter)}>
+            <SelectTrigger className="h-9 text-sm">
+              <SelectValue placeholder="Todos" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="all">Todos os períodos</SelectItem>
+              <SelectItem value="today">
+                <span className="flex items-center gap-2">
+                  <span className="w-2 h-2 rounded-full bg-amber-500" />
+                  Criados Hoje
+                </span>
+              </SelectItem>
+              <SelectItem value="week">
+                <span className="flex items-center gap-2">
+                  <span className="w-2 h-2 rounded-full bg-blue-500" />
+                  Esta Semana
+                </span>
+              </SelectItem>
+              <SelectItem value="month">
+                <span className="flex items-center gap-2">
+                  <span className="w-2 h-2 rounded-full bg-purple-500" />
+                  Último Mês
+                </span>
+              </SelectItem>
+            </SelectContent>
+          </Select>
         </div>
       )}
 
