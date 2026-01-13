@@ -1,4 +1,4 @@
-import { useMemo } from 'react';
+import { useMemo, useState, useEffect, useCallback } from 'react';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Avatar, AvatarFallback } from '@/components/ui/avatar';
@@ -6,6 +6,8 @@ import { Badge } from '@/components/ui/badge';
 import { Cake, MessageCircle, Gift } from 'lucide-react';
 import { format, isSameMonth, parseISO } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
+import { supabase } from '@/integrations/supabase/client';
+import { useAuth } from '@/contexts/AuthContext';
 
 interface Client {
   id: string;
@@ -15,10 +17,70 @@ interface Client {
 }
 
 interface BirthdayClientsProps {
-  clients: Client[];
+  clients?: Client[];
 }
 
-const BirthdayClients = ({ clients }: BirthdayClientsProps) => {
+const BirthdayClients = ({ clients: propClients }: BirthdayClientsProps = {}) => {
+  const { user } = useAuth();
+  const [fetchedClients, setFetchedClients] = useState<Client[]>([]);
+  const [isLoading, setIsLoading] = useState(!propClients);
+
+  const fetchClients = useCallback(async () => {
+    if (!user?.id || propClients) return;
+
+    try {
+      setIsLoading(true);
+      const { data, error } = await supabase
+        .from('clients')
+        .select('id, first_name, last_name, phone, birth_date')
+        .eq('user_id', user.id);
+
+      if (error) throw error;
+
+      const formattedClients = (data || []).map(c => ({
+        id: c.id,
+        name: `${c.first_name || ''} ${c.last_name || ''}`.trim(),
+        phone: c.phone || '',
+        birth_date: c.birth_date
+      }));
+
+      setFetchedClients(formattedClients);
+    } catch (error) {
+      console.error('Error fetching clients for birthdays:', error);
+    } finally {
+      setIsLoading(false);
+    }
+  }, [user?.id, propClients]);
+
+  useEffect(() => {
+    fetchClients();
+  }, [fetchClients]);
+
+  // Setup realtime subscription
+  useEffect(() => {
+    if (!user?.id || propClients) return;
+
+    const channel = supabase
+      .channel('birthday-clients')
+      .on(
+        'postgres_changes',
+        {
+          event: '*',
+          schema: 'public',
+          table: 'clients',
+          filter: `user_id=eq.${user.id}`
+        },
+        () => fetchClients()
+      )
+      .subscribe();
+
+    return () => {
+      supabase.removeChannel(channel);
+    };
+  }, [user?.id, propClients, fetchClients]);
+
+  const clients = propClients || fetchedClients;
+
   const birthdayClients = useMemo(() => {
     const today = new Date();
     return clients.filter(client => {
@@ -32,12 +94,12 @@ const BirthdayClients = ({ clients }: BirthdayClientsProps) => {
     }).map(client => {
       const birthDate = parseISO(client.birth_date!);
       const dayOfMonth = birthDate.getDate();
-      const today = new Date().getDate();
+      const todayDate = new Date().getDate();
       return {
         ...client,
         dayOfMonth,
-        isToday: dayOfMonth === today,
-        isPast: dayOfMonth < today
+        isToday: dayOfMonth === todayDate,
+        isPast: dayOfMonth < todayDate
       };
     }).sort((a, b) => a.dayOfMonth - b.dayOfMonth);
   }, [clients]);
@@ -47,8 +109,40 @@ const BirthdayClients = ({ clients }: BirthdayClientsProps) => {
     window.open(`https://wa.me/${client.phone.replace(/\D/g, '')}?text=${message}`, '_blank');
   };
 
+  if (isLoading) {
+    return (
+      <Card>
+        <CardHeader className="pb-3">
+          <CardTitle className="flex items-center gap-2 text-lg">
+            <Cake className="h-5 w-5 text-pink-500" />
+            Aniversariantes do Mês
+          </CardTitle>
+        </CardHeader>
+        <CardContent>
+          <div className="text-center py-4 text-muted-foreground">
+            Carregando...
+          </div>
+        </CardContent>
+      </Card>
+    );
+  }
+
   if (birthdayClients.length === 0) {
-    return null;
+    return (
+      <Card>
+        <CardHeader className="pb-3">
+          <CardTitle className="flex items-center gap-2 text-lg">
+            <Cake className="h-5 w-5 text-pink-500" />
+            Aniversariantes do Mês
+          </CardTitle>
+        </CardHeader>
+        <CardContent>
+          <div className="text-center py-4 text-muted-foreground">
+            Nenhum aniversariante este mês
+          </div>
+        </CardContent>
+      </Card>
+    );
   }
 
   return (

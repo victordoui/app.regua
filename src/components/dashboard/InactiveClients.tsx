@@ -1,11 +1,13 @@
-import { useMemo } from 'react';
+import { useMemo, useState, useEffect, useCallback } from 'react';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Avatar, AvatarFallback } from '@/components/ui/avatar';
 import { Badge } from '@/components/ui/badge';
 import { UserX, MessageCircle, Clock } from 'lucide-react';
-import { formatDistanceToNow } from 'date-fns';
+import { formatDistanceToNow, subDays } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
+import { supabase } from '@/integrations/supabase/client';
+import { useAuth } from '@/contexts/AuthContext';
 
 interface Client {
   id: string;
@@ -15,14 +17,104 @@ interface Client {
 }
 
 interface InactiveClientsProps {
-  clients: Client[];
+  clients?: Client[];
   inactiveDays?: number;
 }
 
-const InactiveClients = ({ clients, inactiveDays = 30 }: InactiveClientsProps) => {
+const InactiveClients = ({ clients: propClients, inactiveDays = 30 }: InactiveClientsProps = {}) => {
+  const { user } = useAuth();
+  const [fetchedClients, setFetchedClients] = useState<Client[]>([]);
+  const [isLoading, setIsLoading] = useState(!propClients);
+
+  const fetchClientsWithLastAppointment = useCallback(async () => {
+    if (!user?.id || propClients) return;
+
+    try {
+      setIsLoading(true);
+
+      // Get all clients
+      const { data: clientsData, error: clientsError } = await supabase
+        .from('clients')
+        .select('id, first_name, last_name, phone')
+        .eq('user_id', user.id);
+
+      if (clientsError) throw clientsError;
+
+      // Get last appointment for each client
+      const clientsWithLastAppointment = await Promise.all(
+        (clientsData || []).map(async (client) => {
+          const { data: lastApt } = await supabase
+            .from('appointments')
+            .select('appointment_date')
+            .eq('client_id', client.id)
+            .eq('status', 'completed')
+            .order('appointment_date', { ascending: false })
+            .limit(1)
+            .single();
+
+          return {
+            id: client.id,
+            name: `${client.first_name || ''} ${client.last_name || ''}`.trim(),
+            phone: client.phone || '',
+            lastAppointment: lastApt?.appointment_date
+          };
+        })
+      );
+
+      setFetchedClients(clientsWithLastAppointment);
+    } catch (error) {
+      console.error('Error fetching inactive clients:', error);
+    } finally {
+      setIsLoading(false);
+    }
+  }, [user?.id, propClients]);
+
+  useEffect(() => {
+    fetchClientsWithLastAppointment();
+  }, [fetchClientsWithLastAppointment]);
+
+  // Setup realtime subscription
+  useEffect(() => {
+    if (!user?.id || propClients) return;
+
+    const clientsChannel = supabase
+      .channel('inactive-clients')
+      .on(
+        'postgres_changes',
+        {
+          event: '*',
+          schema: 'public',
+          table: 'clients',
+          filter: `user_id=eq.${user.id}`
+        },
+        () => fetchClientsWithLastAppointment()
+      )
+      .subscribe();
+
+    const appointmentsChannel = supabase
+      .channel('inactive-appointments')
+      .on(
+        'postgres_changes',
+        {
+          event: '*',
+          schema: 'public',
+          table: 'appointments',
+          filter: `user_id=eq.${user.id}`
+        },
+        () => fetchClientsWithLastAppointment()
+      )
+      .subscribe();
+
+    return () => {
+      supabase.removeChannel(clientsChannel);
+      supabase.removeChannel(appointmentsChannel);
+    };
+  }, [user?.id, propClients, fetchClientsWithLastAppointment]);
+
+  const clients = propClients || fetchedClients;
+
   const inactiveClients = useMemo(() => {
-    const cutoffDate = new Date();
-    cutoffDate.setDate(cutoffDate.getDate() - inactiveDays);
+    const cutoffDate = subDays(new Date(), inactiveDays);
     
     return clients
       .filter(client => {
@@ -44,8 +136,40 @@ const InactiveClients = ({ clients, inactiveDays = 30 }: InactiveClientsProps) =
     window.open(`https://wa.me/${client.phone.replace(/\D/g, '')}?text=${message}`, '_blank');
   };
 
+  if (isLoading) {
+    return (
+      <Card>
+        <CardHeader className="pb-3">
+          <CardTitle className="flex items-center gap-2 text-lg">
+            <UserX className="h-5 w-5 text-orange-500" />
+            Clientes Inativos
+          </CardTitle>
+        </CardHeader>
+        <CardContent>
+          <div className="text-center py-4 text-muted-foreground">
+            Carregando...
+          </div>
+        </CardContent>
+      </Card>
+    );
+  }
+
   if (inactiveClients.length === 0) {
-    return null;
+    return (
+      <Card>
+        <CardHeader className="pb-3">
+          <CardTitle className="flex items-center gap-2 text-lg">
+            <UserX className="h-5 w-5 text-orange-500" />
+            Clientes Inativos
+          </CardTitle>
+        </CardHeader>
+        <CardContent>
+          <div className="text-center py-4 text-muted-foreground">
+            Todos os clientes estão ativos! 🎉
+          </div>
+        </CardContent>
+      </Card>
+    );
   }
 
   return (
