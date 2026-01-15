@@ -4,7 +4,7 @@ import { supabase } from '@/integrations/supabase/client';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { CalendarPlus, Clock, Scissors, MapPin, Phone, Star, ChevronRight, Loader2 } from 'lucide-react';
+import { CalendarPlus, Clock, Scissors, MapPin, Phone, Star, ChevronRight, Loader2, Wallet } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { format } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
@@ -209,20 +209,27 @@ const ClientHome = () => {
           transition={{ delay: 0.2 }}
         >
           <h2 className="text-lg font-semibold mb-3">Acesso Rápido</h2>
-          <div className="grid grid-cols-2 gap-3">
+          <div className="grid grid-cols-3 gap-3">
             <Card 
               className="p-4 rounded-xl cursor-pointer hover:shadow-md transition-shadow"
               onClick={() => navigate(`/b/${userId}/agendar`)}
             >
-              <CalendarPlus className="h-8 w-8 mb-2" style={{ color: settings.primary_color_hex }} />
-              <p className="font-medium text-sm">Novo Agendamento</p>
+              <CalendarPlus className="h-7 w-7 mb-2" style={{ color: settings.primary_color_hex }} />
+              <p className="font-medium text-xs">Agendar</p>
             </Card>
             <Card 
               className="p-4 rounded-xl cursor-pointer hover:shadow-md transition-shadow"
               onClick={() => navigate(`/b/${userId}/agendamentos`)}
             >
-              <Clock className="h-8 w-8 mb-2" style={{ color: settings.primary_color_hex }} />
-              <p className="font-medium text-sm">Meus Cortes</p>
+              <Clock className="h-7 w-7 mb-2" style={{ color: settings.primary_color_hex }} />
+              <p className="font-medium text-xs">Meus Cortes</p>
+            </Card>
+            <Card 
+              className="p-4 rounded-xl cursor-pointer hover:shadow-md transition-shadow"
+              onClick={() => navigate(`/b/${userId}/pagamentos`)}
+            >
+              <Wallet className="h-7 w-7 mb-2" style={{ color: settings.primary_color_hex }} />
+              <p className="font-medium text-xs">Pagamentos</p>
             </Card>
           </div>
         </motion.div>
