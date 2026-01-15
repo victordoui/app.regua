@@ -274,7 +274,7 @@ const Shifts = () => {
             <SelectContent>
               <SelectItem value="all">Todos os barbeiros</SelectItem>
               {barbers.map(barber => (
-                <SelectItem key={barber.id} value={barber.id}>{barber.display_name}</SelectItem>
+                        <SelectItem key={barber.id} value={barber.id}>{barber.full_name}</SelectItem>
               ))}
             </SelectContent>
           </Select>
@@ -300,7 +300,7 @@ const Shifts = () => {
                       <User className="h-5 w-5 text-primary" />
                     </div>
                     <div>
-                      <CardTitle className="text-lg">{barber.display_name}</CardTitle>
+                      <CardTitle className="text-lg">{barber.full_name}</CardTitle>
                       <p className="text-sm text-muted-foreground">Escala Semanal</p>
                     </div>
                   </div>
@@ -331,7 +331,7 @@ const Shifts = () => {
                             <Badge variant="outline">
                               {shift.specific_date && format(new Date(shift.specific_date), 'dd/MM/yyyy', { locale: ptBR })}
                             </Badge>
-                            <span className="font-medium">{barber?.display_name}</span>
+                            <span className="font-medium">{barber?.full_name}</span>
                             <span className="text-muted-foreground">
                               {shift.start_time.slice(0, 5)} - {shift.end_time.slice(0, 5)}
                             </span>
