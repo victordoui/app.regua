@@ -42,6 +42,12 @@ import Waitlist from "./pages/Waitlist";
 import Coupons from "./pages/Coupons";
 import Referrals from "./pages/Referrals";
 import CommissionRules from "./pages/CommissionRules";
+import GiftCards from "./pages/GiftCards";
+import DynamicPricing from "./pages/DynamicPricing";
+import Shifts from "./pages/Shifts";
+import TeamChat from "./pages/TeamChat";
+import ClientHistory from "./pages/client/ClientHistory";
+import ClientLoyalty from "./pages/client/ClientLoyalty";
 
 // Client Mobile Pages
 import ClientLogin from "./pages/client/ClientLogin";
@@ -66,6 +72,8 @@ function AppContent() {
         <Route path="/b/:userId/agendamentos" element={<ClientAppointments />} />
         <Route path="/b/:userId/agendar" element={<ClientBooking />} />
         <Route path="/b/:userId/perfil" element={<ClientProfile />} />
+        <Route path="/b/:userId/historico" element={<ClientHistory />} />
+        <Route path="/b/:userId/fidelidade" element={<ClientLoyalty />} />
         <Route path="/b/:userId" element={<Navigate to="login" replace />} />
 
         {/* Rota Pública Legacy */}
@@ -110,6 +118,10 @@ function AppContent() {
         <Route path="/waitlist" element={<ProtectedRoute><Waitlist /></ProtectedRoute>} />
         <Route path="/referrals" element={<ProtectedRoute><Referrals /></ProtectedRoute>} />
         <Route path="/commission-rules" element={<ProtectedRoute><CommissionRules /></ProtectedRoute>} />
+        <Route path="/gift-cards" element={<ProtectedRoute><GiftCards /></ProtectedRoute>} />
+        <Route path="/dynamic-pricing" element={<ProtectedRoute><DynamicPricing /></ProtectedRoute>} />
+        <Route path="/shifts" element={<ProtectedRoute><Shifts /></ProtectedRoute>} />
+        <Route path="/team-chat" element={<ProtectedRoute><TeamChat /></ProtectedRoute>} />
 
         {/* Administração */}
         <Route path="/users" element={<ProtectedRoute><Users /></ProtectedRoute>} />

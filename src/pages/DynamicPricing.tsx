@@ -181,7 +181,7 @@ const PricingRuleForm = ({
             </SelectTrigger>
             <SelectContent>
               {barbers.map(barber => (
-                <SelectItem key={barber.id} value={barber.id}>{barber.display_name}</SelectItem>
+                <SelectItem key={barber.id} value={barber.id}>{barber.full_name}</SelectItem>
               ))}
             </SelectContent>
           </Select>
@@ -295,7 +295,7 @@ const PricingRuleCard = ({ rule, onToggle, onDelete }: {
               <p>🕐 {rule.start_time} - {rule.end_time}</p>
             )}
             {service && <p>✂️ {service.name}</p>}
-            {barber && <p>👤 {barber.display_name}</p>}
+            {barber && <p>👤 {barber.full_name}</p>}
             {rule.valid_from && rule.valid_until && (
               <p>📆 {format(new Date(rule.valid_from), 'dd/MM/yyyy')} - {format(new Date(rule.valid_until), 'dd/MM/yyyy')}</p>
             )}

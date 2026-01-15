@@ -40,6 +40,11 @@ import {
   UserCheck,
   // Vendas / Caixa
   ShoppingCart,
+  // Novas Funcionalidades
+  Gift,
+  Clock,
+  MessageCircle,
+  Tag,
   // Gerais
   PlusCircle,
   Menu,
@@ -93,7 +98,8 @@ const Sidebar = () => {
         { icon: Users, label: "Clientes", path: "/clients" },
         { icon: Scissors, label: "Barbeiros", path: "/barbers" },
         { icon: Package, label: "Serviços", path: "/services" },
-        { icon: ListOrdered, label: "Lista de Espera", path: "/waitlist" }
+        { icon: ListOrdered, label: "Lista de Espera", path: "/waitlist" },
+        { icon: Clock, label: "Turnos / Escalas", path: "/shifts" }
       ]
     },
     {
@@ -102,8 +108,9 @@ const Sidebar = () => {
       icon: MessageSquare,
       items: [
         { icon: MessageSquare, label: "Conversas", path: "/conversations" },
-        { icon: Bell, label: "Notificações", path: "/advanced-notifications" }, // Unificado
-        { icon: Megaphone, label: "Campanhas / Marketing", path: "/campaigns" }
+        { icon: Bell, label: "Notificações", path: "/advanced-notifications" },
+        { icon: Megaphone, label: "Campanhas / Marketing", path: "/campaigns" },
+        { icon: MessageCircle, label: "Chat da Equipe", path: "/team-chat" }
       ]
     },
     {
@@ -114,7 +121,9 @@ const Sidebar = () => {
         { icon: BarChart3, label: "Visão Financeira", path: "/reports" }, // Reutilizando Reports
         { icon: CreditCard, label: "Contas a Pagar / Receber", path: "/billing" },
         { icon: Receipt, label: "Comissões", path: "/commissions" },
-        { icon: Ticket, label: "Cupons", path: "/coupons" }
+        { icon: Ticket, label: "Cupons", path: "/coupons" },
+        { icon: Gift, label: "Gift Cards", path: "/gift-cards" },
+        { icon: Tag, label: "Preços Dinâmicos", path: "/dynamic-pricing" }
       ]
     },
     {
