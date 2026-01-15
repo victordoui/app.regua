@@ -107,7 +107,7 @@ serve(async (req) => {
   } catch (error) {
     console.error('Error in send-whatsapp-notification:', error);
     return new Response(
-      JSON.stringify({ success: false, error: error.message }),
+      JSON.stringify({ success: false, error: error instanceof Error ? error.message : 'Unknown error' }),
       { headers: { ...corsHeaders, 'Content-Type': 'application/json' }, status: 500 }
     );
   }

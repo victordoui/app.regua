@@ -106,13 +106,16 @@ export const useSalesReports = () => {
 
       // Service stats
       if (apt.services) {
-        const service = apt.services as { id: string; name: string; price: number };
-        const existingService = serviceStats.get(service.id) || { name: service.name, count: 0, revenue: 0 };
-        serviceStats.set(service.id, {
-          name: service.name,
-          count: existingService.count + 1,
-          revenue: existingService.revenue + (apt.total_price || service.price || 0)
-        });
+        const serviceData = apt.services as unknown;
+        const service = (Array.isArray(serviceData) ? serviceData[0] : serviceData) as { id: string; name: string; price: number } | undefined;
+        if (service?.id) {
+          const existingService = serviceStats.get(service.id) || { name: service.name, count: 0, revenue: 0 };
+          serviceStats.set(service.id, {
+            name: service.name,
+            count: existingService.count + 1,
+            revenue: existingService.revenue + (apt.total_price || service.price || 0)
+          });
+        }
       }
     });
 
