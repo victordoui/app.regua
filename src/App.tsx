@@ -52,6 +52,7 @@ import ClientLoyalty from "./pages/client/ClientLoyalty";
 // Client Mobile Pages
 import ClientLogin from "./pages/client/ClientLogin";
 import ClientRegister from "./pages/client/ClientRegister";
+import ClientPayments from "./pages/client/ClientPayments";
 import ClientHome from "./pages/client/ClientHome";
 import ClientAppointments from "./pages/client/ClientAppointments";
 import ClientBooking from "./pages/client/ClientBooking";
@@ -74,6 +75,7 @@ function AppContent() {
         <Route path="/b/:userId/perfil" element={<ClientProfile />} />
         <Route path="/b/:userId/historico" element={<ClientHistory />} />
         <Route path="/b/:userId/fidelidade" element={<ClientLoyalty />} />
+        <Route path="/b/:userId/pagamentos" element={<ClientPayments />} />
         <Route path="/b/:userId" element={<Navigate to="login" replace />} />
 
         {/* Rota Pública Legacy */}
