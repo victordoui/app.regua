@@ -35,7 +35,7 @@ const InactiveClients = ({ clients: propClients, inactiveDays = 30 }: InactiveCl
       // Get all clients
       const { data: clientsData, error: clientsError } = await supabase
         .from('clients')
-        .select('id, first_name, last_name, phone')
+        .select('id, name, phone')
         .eq('user_id', user.id);
 
       if (clientsError) throw clientsError;
@@ -54,7 +54,7 @@ const InactiveClients = ({ clients: propClients, inactiveDays = 30 }: InactiveCl
 
           return {
             id: client.id,
-            name: `${client.first_name || ''} ${client.last_name || ''}`.trim(),
+            name: client.name || '',
             phone: client.phone || '',
             lastAppointment: lastApt?.appointment_date
           };

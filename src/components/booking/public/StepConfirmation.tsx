@@ -54,7 +54,7 @@ const StepConfirmation: React.FC<StepConfirmationProps> = ({
         .from('discount_coupons')
         .select('*')
         .eq('code', couponInput.toUpperCase())
-        .eq('is_active', true)
+        .eq('active', true)
         .maybeSingle();
 
       if (error) throw error;
@@ -84,10 +84,10 @@ const StepConfirmation: React.FC<StepConfirmationProps> = ({
         return;
       }
 
-      if (coupon.min_purchase_amount && totalPrice < coupon.min_purchase_amount) {
+      if (coupon.min_purchase && totalPrice < coupon.min_purchase) {
         toast({ 
           title: 'Valor mínimo não atingido', 
-          description: `Este cupom requer compra mínima de R$ ${coupon.min_purchase_amount.toFixed(2)}`,
+          description: `Este cupom requer compra mínima de R$ ${coupon.min_purchase.toFixed(2)}`,
           variant: 'destructive' 
         });
         return;

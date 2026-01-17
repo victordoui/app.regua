@@ -71,7 +71,7 @@ export const useAppointments = () => {
     const { data, error } = await query;
 
     if (error) throw error;
-    return data || [];
+    return (data || []) as Appointment[];
   }, [user]);
 
   const fetchClients = useCallback(async (): Promise<Client[]> => {
@@ -226,7 +226,7 @@ export const useAppointments = () => {
             
             await supabase.from("appointment_services").insert(childServices);
           }
-          createdAppointments.push(...childData);
+          createdAppointments.push(...(childData as Appointment[]));
         }
       }
 
@@ -270,7 +270,7 @@ export const useAppointments = () => {
         .single();
 
       if (error) throw error;
-      return data;
+      return data as Appointment;
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["appointments", user?.id] });
@@ -297,7 +297,7 @@ export const useAppointments = () => {
         .single();
 
       if (error) throw error;
-      return data;
+      return data as Appointment;
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["appointments", user?.id] });
@@ -426,7 +426,7 @@ export const useAppointments = () => {
         .select();
       
       if (error) throw error;
-      return data || [];
+      return (data || []) as Appointment[];
     },
     onSuccess: (data) => {
       queryClient.invalidateQueries({ queryKey: ["appointments", user?.id] });

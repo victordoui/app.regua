@@ -88,7 +88,7 @@ const RecentActivities: React.FC = () => {
       // Fetch recent clients
       const { data: clients } = await supabase
         .from('clients')
-        .select('id, first_name, last_name, created_at')
+        .select('id, name, created_at')
         .eq('user_id', user.id)
         .order('created_at', { ascending: false })
         .limit(5);
@@ -122,7 +122,7 @@ const RecentActivities: React.FC = () => {
           id: client.id,
           type: 'client_created',
           title: 'Novo cliente',
-          description: `${client.first_name || ''} ${client.last_name || ''}`.trim(),
+          description: client.name || 'Cliente',
           timestamp: new Date(client.created_at)
         });
       });

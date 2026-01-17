@@ -32,14 +32,14 @@ const BirthdayClients = ({ clients: propClients }: BirthdayClientsProps = {}) =>
       setIsLoading(true);
       const { data, error } = await supabase
         .from('clients')
-        .select('id, first_name, last_name, phone, birth_date')
+        .select('id, name, phone, birth_date')
         .eq('user_id', user.id);
 
       if (error) throw error;
 
       const formattedClients = (data || []).map(c => ({
         id: c.id,
-        name: `${c.first_name || ''} ${c.last_name || ''}`.trim(),
+        name: c.name || '',
         phone: c.phone || '',
         birth_date: c.birth_date
       }));
