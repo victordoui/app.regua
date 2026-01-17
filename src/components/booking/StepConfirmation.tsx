@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -8,6 +8,7 @@ import { Gift } from 'lucide-react';
 import { BookingForm, Service, Barber, UserSubscription } from '@/types/booking';
 import { format } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
+import { formatPhoneBR, guestContactSchema } from '@/lib/utils';
 
 interface StepConfirmationProps {
   bookingForm: BookingForm;
@@ -30,9 +31,50 @@ const StepConfirmation: React.FC<StepConfirmationProps> = ({
   checkSubscriptionEligibility,
   calculateFinalPrice
 }) => {
+  const [fieldErrors, setFieldErrors] = useState<{
+    clientName?: string;
+    clientPhone?: string;
+    clientEmail?: string;
+  }>({});
+
   const selectedService = services.find(s => s.id === bookingForm.selectedService);
   const selectedBarber = barbers.find(b => b.id === bookingForm.selectedBarber);
   const finalPrice = calculateFinalPrice();
+
+  const handleNameChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setBookingForm(prev => ({ ...prev, clientName: e.target.value }));
+    if (fieldErrors.clientName) {
+      setFieldErrors(prev => ({ ...prev, clientName: undefined }));
+    }
+  };
+
+  const handlePhoneChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const formatted = formatPhoneBR(e.target.value);
+    setBookingForm(prev => ({ ...prev, clientPhone: formatted }));
+    if (fieldErrors.clientPhone) {
+      setFieldErrors(prev => ({ ...prev, clientPhone: undefined }));
+    }
+  };
+
+  const handleEmailChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setBookingForm(prev => ({ ...prev, clientEmail: e.target.value }));
+    if (fieldErrors.clientEmail) {
+      setFieldErrors(prev => ({ ...prev, clientEmail: undefined }));
+    }
+  };
+
+  const validateField = (field: 'clientName' | 'clientPhone' | 'clientEmail') => {
+    const value = bookingForm[field];
+    const result = guestContactSchema.shape[field].safeParse(value);
+    if (!result.success) {
+      setFieldErrors(prev => ({ 
+        ...prev, 
+        [field]: result.error.errors[0].message 
+      }));
+    } else {
+      setFieldErrors(prev => ({ ...prev, [field]: undefined }));
+    }
+  };
 
   return (
     <div className="space-y-6">
@@ -87,20 +129,32 @@ const StepConfirmation: React.FC<StepConfirmationProps> = ({
             <Input
               id="clientName"
               value={bookingForm.clientName}
-              onChange={(e) => setBookingForm(prev => ({ ...prev, clientName: e.target.value }))}
+              onChange={handleNameChange}
+              onBlur={() => validateField('clientName')}
               placeholder="Seu nome completo"
+              className={fieldErrors.clientName ? 'border-destructive' : ''}
+              maxLength={100}
               required
             />
+            {fieldErrors.clientName && (
+              <p className="text-sm text-destructive mt-1">{fieldErrors.clientName}</p>
+            )}
           </div>
           <div>
             <Label htmlFor="clientPhone">Telefone *</Label>
             <Input
               id="clientPhone"
               value={bookingForm.clientPhone}
-              onChange={(e) => setBookingForm(prev => ({ ...prev, clientPhone: e.target.value }))}
+              onChange={handlePhoneChange}
+              onBlur={() => validateField('clientPhone')}
               placeholder="(11) 99999-9999"
+              className={fieldErrors.clientPhone ? 'border-destructive' : ''}
+              maxLength={15}
               required
             />
+            {fieldErrors.clientPhone && (
+              <p className="text-sm text-destructive mt-1">{fieldErrors.clientPhone}</p>
+            )}
           </div>
           <div className="flex gap-2">
             <div className="flex-1">
@@ -109,10 +163,16 @@ const StepConfirmation: React.FC<StepConfirmationProps> = ({
                 id="clientEmail"
                 type="email"
                 value={bookingForm.clientEmail}
-                onChange={(e) => setBookingForm(prev => ({ ...prev, clientEmail: e.target.value }))}
+                onChange={handleEmailChange}
+                onBlur={() => validateField('clientEmail')}
                 placeholder="seu@email.com"
+                className={fieldErrors.clientEmail ? 'border-destructive' : ''}
+                maxLength={255}
                 required
               />
+              {fieldErrors.clientEmail && (
+                <p className="text-sm text-destructive mt-1">{fieldErrors.clientEmail}</p>
+              )}
             </div>
             <div className="flex items-end">
               <Button 

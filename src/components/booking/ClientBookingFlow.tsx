@@ -17,6 +17,7 @@ import { ptBR } from 'date-fns/locale';
 import { usePublicCombos, ServiceCombo, calculateComboPrice } from '@/hooks/useServiceCombos';
 import { CalendarExport } from '@/components/booking/CalendarExport';
 import { useDynamicPricing, PricingRule } from '@/hooks/useDynamicPricing';
+import { guestContactSchema, cleanPhone } from '@/lib/utils';
 interface ClientBookingFlowProps {
   userId?: string;
 }
@@ -335,8 +336,18 @@ const ClientBookingFlow: React.FC<ClientBookingFlowProps> = ({ userId }) => {
         }
         break;
       case 5:
-        if (!formData.clientName || !formData.clientPhone || !formData.clientEmail) {
-          toast({ title: "Preencha seus dados de contato.", variant: "destructive" });
+        const validation = guestContactSchema.safeParse({
+          clientName: formData.clientName,
+          clientPhone: formData.clientPhone,
+          clientEmail: formData.clientEmail,
+        });
+        
+        if (!validation.success) {
+          toast({ 
+            title: "Dados inválidos", 
+            description: validation.error.errors[0].message,
+            variant: "destructive" 
+          });
           return;
         }
         break;
@@ -380,10 +391,10 @@ const ClientBookingFlow: React.FC<ClientBookingFlowProps> = ({ userId }) => {
           .from("clients")
           .insert({
             user_id: settingsData.user_id,
-            name: formData.clientName,
-            phone: formData.clientPhone,
-            email: formData.clientEmail,
-            notes: formData.notes
+            name: formData.clientName.trim(),
+            phone: cleanPhone(formData.clientPhone),
+            email: formData.clientEmail.trim().toLowerCase(),
+            notes: formData.notes?.trim()
           })
           .select("id")
           .single();
