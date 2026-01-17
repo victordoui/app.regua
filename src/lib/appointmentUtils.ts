@@ -1,4 +1,4 @@
-import { addMinutes, parse, format, isAfter, isBefore, isEqual } from 'date-fns';
+import { addMinutes, parse, format, isAfter, isBefore, isEqual, getDay } from 'date-fns';
 
 interface Appointment {
   id: string;
@@ -15,11 +15,106 @@ interface BlockedSlot {
   end_datetime: string;
 }
 
+interface BarberShift {
+  id: string;
+  barber_id: string;
+  day_of_week: number | null;
+  specific_date: string | null;
+  start_time: string;
+  end_time: string;
+  is_recurring: boolean;
+  break_start: string | null;
+  break_end: string | null;
+  status: string;
+}
+
 interface TimeSlot {
   time: string;
   available: boolean;
   conflictReason?: string;
 }
+
+/**
+ * Get the shift for a barber on a specific date
+ */
+export const getShiftForDate = (
+  barberId: string,
+  date: Date,
+  shifts: BarberShift[]
+): BarberShift | null => {
+  const dateStr = format(date, 'yyyy-MM-dd');
+  const dayOfWeek = getDay(date);
+
+  // Filter shifts for this barber that are active
+  const barberShifts = shifts.filter(
+    s => s.barber_id === barberId && s.status === 'active'
+  );
+
+  // First check for specific date exception
+  const specificShift = barberShifts.find(
+    s => !s.is_recurring && s.specific_date === dateStr
+  );
+  if (specificShift) return specificShift;
+
+  // Then check for recurring shift
+  const recurringShift = barberShifts.find(
+    s => s.is_recurring && s.day_of_week === dayOfWeek
+  );
+  return recurringShift || null;
+};
+
+/**
+ * Check if a time slot is within a barber's shift (considering duration)
+ */
+export const isSlotWithinShift = (
+  slotTime: string,
+  date: Date,
+  barberId: string,
+  shifts: BarberShift[],
+  serviceDuration: number
+): { withinShift: boolean; reason?: string } => {
+  const shift = getShiftForDate(barberId, date, shifts);
+  
+  if (!shift) {
+    return { withinShift: false, reason: 'Barbeiro não trabalha neste dia' };
+  }
+
+  const slotStart = parse(slotTime, 'HH:mm', date);
+  const slotEnd = addMinutes(slotStart, serviceDuration);
+  const shiftStart = parse(shift.start_time.substring(0, 5), 'HH:mm', date);
+  const shiftEnd = parse(shift.end_time.substring(0, 5), 'HH:mm', date);
+
+  // Check if slot starts before shift
+  if (isBefore(slotStart, shiftStart)) {
+    return { withinShift: false, reason: 'Antes do início do turno' };
+  }
+
+  // Check if slot ends after shift
+  if (isAfter(slotEnd, shiftEnd)) {
+    return { withinShift: false, reason: 'Após o fim do turno' };
+  }
+
+  // Check if slot overlaps with break
+  if (shift.break_start && shift.break_end) {
+    const breakStart = parse(shift.break_start.substring(0, 5), 'HH:mm', date);
+    const breakEnd = parse(shift.break_end.substring(0, 5), 'HH:mm', date);
+
+    // Check if any part of the slot overlaps with break
+    const overlapsBreak = (
+      (isAfter(slotStart, breakStart) || isEqual(slotStart, breakStart)) && isBefore(slotStart, breakEnd)
+    ) || (
+      isAfter(slotEnd, breakStart) && (isBefore(slotEnd, breakEnd) || isEqual(slotEnd, breakEnd))
+    ) || (
+      (isBefore(slotStart, breakStart) || isEqual(slotStart, breakStart)) && (isAfter(slotEnd, breakEnd) || isEqual(slotEnd, breakEnd))
+    );
+    
+    if (overlapsBreak) {
+      return { withinShift: false, reason: 'Durante intervalo' };
+    }
+  }
+
+  return { withinShift: true };
+};
 
 /**
  * Check if a time slot is available considering existing appointments, duration, and buffer time
@@ -119,7 +214,7 @@ export const getEndTimeWithBuffer = (
 };
 
 /**
- * Generate available time slots for a day
+ * Generate available time slots for a day considering shifts
  */
 export const generateTimeSlots = (
   date: Date,
@@ -130,14 +225,60 @@ export const generateTimeSlots = (
   blockedSlots: BlockedSlot[],
   barberId: string,
   serviceDuration: number,
-  bufferMinutes: number = 0
+  bufferMinutes: number = 0,
+  barberShifts: BarberShift[] = []
 ): TimeSlot[] => {
   const slots: TimeSlot[] = [];
 
-  for (let hour = startHour; hour < endHour; hour++) {
+  // Check if barber has any shifts configured
+  const hasShifts = barberShifts.some(s => s.barber_id === barberId && s.status === 'active');
+  
+  // Get shift for this specific date
+  const shift = hasShifts ? getShiftForDate(barberId, date, barberShifts) : null;
+
+  // If barber has shifts configured but no shift for this date, they're not working
+  if (hasShifts && !shift) {
+    // Return empty slots with message - this date has no availability
+    return [];
+  }
+
+  // Determine the hours to generate slots for
+  let effectiveStartHour = startHour;
+  let effectiveEndHour = endHour;
+
+  if (shift) {
+    // Use shift hours if available
+    const shiftStartParts = shift.start_time.substring(0, 5).split(':');
+    const shiftEndParts = shift.end_time.substring(0, 5).split(':');
+    effectiveStartHour = parseInt(shiftStartParts[0], 10);
+    effectiveEndHour = parseInt(shiftEndParts[0], 10);
+    
+    // If end has minutes > 0, include that hour
+    if (parseInt(shiftEndParts[1], 10) > 0) {
+      effectiveEndHour += 1;
+    }
+  }
+
+  for (let hour = effectiveStartHour; hour < effectiveEndHour; hour++) {
     for (let minute = 0; minute < 60; minute += intervalMinutes) {
       const timeStr = `${hour.toString().padStart(2, '0')}:${minute.toString().padStart(2, '0')}`;
       
+      // If shifts are configured, check if slot is within shift
+      if (hasShifts && shift) {
+        const { withinShift, reason: shiftReason } = isSlotWithinShift(
+          timeStr,
+          date,
+          barberId,
+          barberShifts,
+          serviceDuration
+        );
+
+        if (!withinShift) {
+          slots.push({ time: timeStr, available: false, conflictReason: shiftReason });
+          continue;
+        }
+      }
+
       // Check for blocked slots
       const { blocked, reason: blockReason } = isSlotBlocked(
         timeStr,

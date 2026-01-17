@@ -207,6 +207,54 @@ export type Database = {
         }
         Relationships: []
       }
+      barber_shifts: {
+        Row: {
+          barber_id: string
+          break_end: string | null
+          break_start: string | null
+          created_at: string | null
+          day_of_week: number | null
+          end_time: string
+          id: string
+          is_recurring: boolean
+          specific_date: string | null
+          start_time: string
+          status: string
+          updated_at: string | null
+          user_id: string
+        }
+        Insert: {
+          barber_id: string
+          break_end?: string | null
+          break_start?: string | null
+          created_at?: string | null
+          day_of_week?: number | null
+          end_time: string
+          id?: string
+          is_recurring?: boolean
+          specific_date?: string | null
+          start_time: string
+          status?: string
+          updated_at?: string | null
+          user_id: string
+        }
+        Update: {
+          barber_id?: string
+          break_end?: string | null
+          break_start?: string | null
+          created_at?: string | null
+          day_of_week?: number | null
+          end_time?: string
+          id?: string
+          is_recurring?: boolean
+          specific_date?: string | null
+          start_time?: string
+          status?: string
+          updated_at?: string | null
+          user_id?: string
+        }
+        Relationships: []
+      }
       barbershop_settings: {
         Row: {
           address: string | null

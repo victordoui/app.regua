@@ -173,7 +173,7 @@ const WeeklySchedule = ({ barberId, shifts, onDelete }: {
   shifts: BarberShift[];
   onDelete: (id: string) => void;
 }) => {
-  const barberShifts = shifts.filter(s => s.barber_id === barberId && s.is_recurring);
+const barberShifts = shifts.filter(s => s.barber_id === barberId && s.is_recurring && s.status === 'active');
 
   return (
     <div className="grid grid-cols-7 gap-2">
@@ -230,7 +230,7 @@ const Shifts = () => {
     ? shifts 
     : shifts.filter(s => s.barber_id === selectedBarber);
 
-  const specificDateShifts = filteredShifts.filter(s => !s.is_recurring);
+  const specificDateShifts = filteredShifts.filter(s => !s.is_recurring && s.status === 'active');
 
   return (
     <Layout>
