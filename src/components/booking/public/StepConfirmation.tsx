@@ -11,6 +11,7 @@ import { ptBR } from 'date-fns/locale';
 import { Tag, X, Check, Loader2 } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
+import { formatPhoneBR, guestContactSchema } from '@/lib/utils';
 
 interface StepConfirmationProps {
   formData: ClientBookingForm;
@@ -19,7 +20,7 @@ interface StepConfirmationProps {
   barbers: PublicBarber[];
   services: PublicService[];
   totalPrice: number;
-  userId?: string; // Owner's user ID for coupon validation
+  userId?: string;
 }
 
 const StepConfirmation: React.FC<StepConfirmationProps> = ({
@@ -34,10 +35,50 @@ const StepConfirmation: React.FC<StepConfirmationProps> = ({
   const { toast } = useToast();
   const [couponInput, setCouponInput] = useState('');
   const [isValidating, setIsValidating] = useState(false);
+  const [fieldErrors, setFieldErrors] = useState<{
+    clientName?: string;
+    clientPhone?: string;
+    clientEmail?: string;
+  }>({});
   
   const selectedBranch = branches.find(b => b.id === formData.selectedBranch);
   const selectedBarber = barbers.find(b => b.id === formData.selectedBarber);
   const selectedServices = services.filter(s => formData.selectedServices.includes(s.id));
+
+  const handleNameChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setFormData(prev => ({ ...prev, clientName: e.target.value }));
+    if (fieldErrors.clientName) {
+      setFieldErrors(prev => ({ ...prev, clientName: undefined }));
+    }
+  };
+
+  const handlePhoneChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const formatted = formatPhoneBR(e.target.value);
+    setFormData(prev => ({ ...prev, clientPhone: formatted }));
+    if (fieldErrors.clientPhone) {
+      setFieldErrors(prev => ({ ...prev, clientPhone: undefined }));
+    }
+  };
+
+  const handleEmailChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setFormData(prev => ({ ...prev, clientEmail: e.target.value }));
+    if (fieldErrors.clientEmail) {
+      setFieldErrors(prev => ({ ...prev, clientEmail: undefined }));
+    }
+  };
+
+  const validateField = (field: 'clientName' | 'clientPhone' | 'clientEmail') => {
+    const value = formData[field];
+    const result = guestContactSchema.shape[field].safeParse(value);
+    if (!result.success) {
+      setFieldErrors(prev => ({ 
+        ...prev, 
+        [field]: result.error.errors[0].message 
+      }));
+    } else {
+      setFieldErrors(prev => ({ ...prev, [field]: undefined }));
+    }
+  };
 
   const finalPrice = totalPrice - (formData.discountAmount || 0);
 
@@ -251,20 +292,32 @@ const StepConfirmation: React.FC<StepConfirmationProps> = ({
             <Input
               id="clientName"
               value={formData.clientName}
-              onChange={(e) => setFormData(prev => ({ ...prev, clientName: e.target.value }))}
+              onChange={handleNameChange}
+              onBlur={() => validateField('clientName')}
               placeholder="Seu nome completo"
+              className={fieldErrors.clientName ? 'border-destructive' : ''}
+              maxLength={100}
               required
             />
+            {fieldErrors.clientName && (
+              <p className="text-sm text-destructive mt-1">{fieldErrors.clientName}</p>
+            )}
           </div>
           <div>
             <Label htmlFor="clientPhone">Telefone *</Label>
             <Input
               id="clientPhone"
               value={formData.clientPhone}
-              onChange={(e) => setFormData(prev => ({ ...prev, clientPhone: e.target.value }))}
+              onChange={handlePhoneChange}
+              onBlur={() => validateField('clientPhone')}
               placeholder="(11) 99999-9999"
+              className={fieldErrors.clientPhone ? 'border-destructive' : ''}
+              maxLength={15}
               required
             />
+            {fieldErrors.clientPhone && (
+              <p className="text-sm text-destructive mt-1">{fieldErrors.clientPhone}</p>
+            )}
           </div>
           <div>
             <Label htmlFor="clientEmail">Email *</Label>
@@ -272,10 +325,16 @@ const StepConfirmation: React.FC<StepConfirmationProps> = ({
               id="clientEmail"
               type="email"
               value={formData.clientEmail}
-              onChange={(e) => setFormData(prev => ({ ...prev, clientEmail: e.target.value }))}
+              onChange={handleEmailChange}
+              onBlur={() => validateField('clientEmail')}
               placeholder="seu@email.com"
+              className={fieldErrors.clientEmail ? 'border-destructive' : ''}
+              maxLength={255}
               required
             />
+            {fieldErrors.clientEmail && (
+              <p className="text-sm text-destructive mt-1">{fieldErrors.clientEmail}</p>
+            )}
           </div>
           
           <div>
