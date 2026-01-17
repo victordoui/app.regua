@@ -47,7 +47,7 @@ export const useEmailCampaigns = () => {
       .order('created_at', { ascending: false });
 
     if (error) throw error;
-    return data || [];
+    return (data || []) as EmailCampaign[];
   }, [user]);
 
   const { data: campaigns = [], isLoading, error } = useQuery({

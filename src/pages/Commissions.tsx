@@ -29,7 +29,7 @@ const Commissions = () => {
   } = useCommissions();
   
   const { rules } = useCommissionRules();
-  const defaultRule = rules.find(r => r.is_default);
+  const defaultRule = rules.length > 0 ? rules[0] : null;
 
   const { barberSummaries, totalOverallCommission } = calculatedCommissions;
 

@@ -91,7 +91,7 @@ export const useLoyalty = () => {
       .order('points_required', { ascending: true });
 
     if (error) throw error;
-    return data || [];
+    return (data || []) as LoyaltyReward[];
   }, [user]);
 
   const { data: loyaltyPoints = [], isLoading: isLoadingPoints } = useQuery({
