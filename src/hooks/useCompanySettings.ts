@@ -26,6 +26,8 @@ export interface CompanySettings {
   buffer_minutes: number;
   noshow_fee_enabled: boolean;
   noshow_fee_amount: number;
+  // Onboarding
+  onboarding_completed: boolean;
 }
 
 export interface CompanySettingsFormData {
@@ -48,6 +50,8 @@ export interface CompanySettingsFormData {
   buffer_minutes: number;
   noshow_fee_enabled: boolean;
   noshow_fee_amount: number;
+  // Onboarding
+  onboarding_completed?: boolean;
 }
 
 export const useCompanySettings = () => {
@@ -112,6 +116,8 @@ export const useCompanySettings = () => {
         buffer_minutes: formData.buffer_minutes ?? 0,
         noshow_fee_enabled: formData.noshow_fee_enabled ?? false,
         noshow_fee_amount: formData.noshow_fee_amount ?? 0,
+        // Onboarding
+        onboarding_completed: formData.onboarding_completed ?? false,
       };
 
       if (settings?.id) {

@@ -273,6 +273,7 @@ export type Database = {
           logo_url: string | null
           noshow_fee_amount: number | null
           noshow_fee_enabled: boolean | null
+          onboarding_completed: boolean | null
           phone: string | null
           primary_color_hex: string | null
           secondary_color_hex: string | null
@@ -298,6 +299,7 @@ export type Database = {
           logo_url?: string | null
           noshow_fee_amount?: number | null
           noshow_fee_enabled?: boolean | null
+          onboarding_completed?: boolean | null
           phone?: string | null
           primary_color_hex?: string | null
           secondary_color_hex?: string | null
@@ -323,6 +325,7 @@ export type Database = {
           logo_url?: string | null
           noshow_fee_amount?: number | null
           noshow_fee_enabled?: boolean | null
+          onboarding_completed?: boolean | null
           phone?: string | null
           primary_color_hex?: string | null
           secondary_color_hex?: string | null
