@@ -732,6 +732,108 @@ export type Database = {
           },
         ]
       }
+      gift_card_transactions: {
+        Row: {
+          amount: number
+          appointment_id: string | null
+          created_at: string
+          gift_card_id: string
+          id: string
+          notes: string | null
+          type: string
+          user_id: string
+        }
+        Insert: {
+          amount: number
+          appointment_id?: string | null
+          created_at?: string
+          gift_card_id: string
+          id?: string
+          notes?: string | null
+          type: string
+          user_id: string
+        }
+        Update: {
+          amount?: number
+          appointment_id?: string | null
+          created_at?: string
+          gift_card_id?: string
+          id?: string
+          notes?: string | null
+          type?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "gift_card_transactions_appointment_id_fkey"
+            columns: ["appointment_id"]
+            isOneToOne: false
+            referencedRelation: "appointments"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "gift_card_transactions_gift_card_id_fkey"
+            columns: ["gift_card_id"]
+            isOneToOne: false
+            referencedRelation: "gift_cards"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      gift_cards: {
+        Row: {
+          buyer_email: string | null
+          buyer_name: string | null
+          code: string
+          created_at: string
+          current_balance: number
+          expires_at: string | null
+          id: string
+          message: string | null
+          original_value: number
+          recipient_email: string | null
+          recipient_name: string | null
+          redeemed_at: string | null
+          status: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          buyer_email?: string | null
+          buyer_name?: string | null
+          code: string
+          created_at?: string
+          current_balance: number
+          expires_at?: string | null
+          id?: string
+          message?: string | null
+          original_value: number
+          recipient_email?: string | null
+          recipient_name?: string | null
+          redeemed_at?: string | null
+          status?: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          buyer_email?: string | null
+          buyer_name?: string | null
+          code?: string
+          created_at?: string
+          current_balance?: number
+          expires_at?: string | null
+          id?: string
+          message?: string | null
+          original_value?: number
+          recipient_email?: string | null
+          recipient_name?: string | null
+          redeemed_at?: string | null
+          status?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       loyalty_points: {
         Row: {
           client_id: string | null
