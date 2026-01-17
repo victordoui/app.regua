@@ -165,7 +165,7 @@ const RedeemDialog = ({ onRedeem }: { onRedeem: (code: string, amount: number) =
               {validation.valid && validation.giftCard ? (
                 <div className="space-y-2">
                   <p className="text-green-800 font-medium">✓ Vale válido!</p>
-                  <p className="text-sm">Saldo disponível: <strong>R$ {validation.giftCard.current_balance.toFixed(2)}</strong></p>
+                  <p className="text-sm">Saldo disponível: <strong>R$ {Number(validation.giftCard.current_balance).toFixed(2)}</strong></p>
                   {validation.giftCard.recipient_name && (
                     <p className="text-sm">Presenteado: {validation.giftCard.recipient_name}</p>
                   )}
@@ -235,9 +235,9 @@ const GiftCardCard = ({ giftCard }: { giftCard: GiftCard }) => {
           <Gift className="h-8 w-8" />
           <Badge className={statusColors[giftCard.status]}>{statusLabels[giftCard.status]}</Badge>
         </div>
-        <p className="text-2xl font-bold mt-2">R$ {giftCard.current_balance.toFixed(2)}</p>
-        {giftCard.current_balance !== giftCard.original_value && (
-          <p className="text-sm opacity-80">de R$ {giftCard.original_value.toFixed(2)}</p>
+        <p className="text-2xl font-bold mt-2">R$ {Number(giftCard.current_balance).toFixed(2)}</p>
+        {Number(giftCard.current_balance) !== Number(giftCard.original_value) && (
+          <p className="text-sm opacity-80">de R$ {Number(giftCard.original_value).toFixed(2)}</p>
         )}
       </div>
       <CardContent className="p-4 space-y-3">
@@ -262,7 +262,7 @@ const GiftCardCard = ({ giftCard }: { giftCard: GiftCard }) => {
             <div className="flex flex-col items-center gap-4 p-4">
               <QRCodeSVG value={giftCard.code} size={200} />
               <p className="text-sm text-muted-foreground">Escaneie para resgatar</p>
-              <p className="text-2xl font-bold">R$ {giftCard.current_balance.toFixed(2)}</p>
+              <p className="text-2xl font-bold">R$ {Number(giftCard.current_balance).toFixed(2)}</p>
             </div>
           </DialogContent>
         </Dialog>
