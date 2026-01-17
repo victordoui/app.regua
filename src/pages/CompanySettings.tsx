@@ -13,6 +13,9 @@ import { toast } from 'sonner';
 
 import ImageUploadField from '@/components/ImageUploadField';
 import { uploadFileToStorage } from '@/lib/supabaseStorage';
+import { BusinessHoursEditor } from '@/components/settings/BusinessHoursEditor';
+import { ColorPaletteSelector } from '@/components/settings/ColorPaletteSelector';
+import { SeoMetaFields } from '@/components/settings/SeoMetaFields';
 
 const CompanySettings = () => {
   const { settings, isLoading, saveSettings, isSaving } = useCompanySettings();
@@ -39,6 +42,10 @@ const CompanySettings = () => {
     noshow_fee_enabled: false,
     noshow_fee_amount: 0,
   });
+
+  // Local state for SEO fields (not yet in database, preview-only)
+  const [metaTitle, setMetaTitle] = useState('');
+  const [metaDescription, setMetaDescription] = useState('');
 
   useEffect(() => {
     if (settings) {
@@ -333,6 +340,9 @@ const CompanySettings = () => {
                   </div>
                 </CardContent>
               </Card>
+
+              {/* Business Hours Editor */}
+              <BusinessHoursEditor />
             </TabsContent>
 
             {/* Aba Identidade Visual */}
@@ -368,6 +378,17 @@ const CompanySettings = () => {
                       />
                     </CardContent>
                   </Card>
+
+                  {/* Color Palettes */}
+                  <ColorPaletteSelector
+                    currentPrimary={formData.primary_color_hex}
+                    currentSecondary={formData.secondary_color_hex}
+                    onSelect={(primary, secondary) => setFormData(prev => ({ 
+                      ...prev, 
+                      primary_color_hex: primary, 
+                      secondary_color_hex: secondary 
+                    }))}
+                  />
 
                   {/* Customização de Cores */}
                   <Card>
@@ -478,6 +499,15 @@ const CompanySettings = () => {
                       </div>
                     </CardContent>
                   </Card>
+
+                  {/* SEO Meta Fields */}
+                  <SeoMetaFields
+                    metaTitle={metaTitle}
+                    metaDescription={metaDescription}
+                    companyName={formData.company_name}
+                    onMetaTitleChange={setMetaTitle}
+                    onMetaDescriptionChange={setMetaDescription}
+                  />
               </div>
             </TabsContent>
 

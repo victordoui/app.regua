@@ -4,11 +4,13 @@ import { supabase } from '@/integrations/supabase/client';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { CalendarPlus, Clock, Scissors, MapPin, Phone, Star, ChevronRight, Loader2, Wallet } from 'lucide-react';
+import { CalendarPlus, Clock, Scissors, MapPin, Phone, Star, ChevronRight, Loader2, Wallet, RotateCcw } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { format } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
 import MobileLayout from '@/components/mobile/MobileLayout';
+import { DigitalWallet } from '@/components/client/DigitalWallet';
+import { WhatsAppButton } from '@/components/client/WhatsAppButton';
 
 interface BarbershopSettings {
   company_name: string;
@@ -19,6 +21,7 @@ interface BarbershopSettings {
   slogan: string | null;
   address: string | null;
   phone: string | null;
+  whatsapp_number: string | null;
 }
 
 interface Appointment {
@@ -30,12 +33,21 @@ interface Appointment {
   barber: { display_name: string } | null;
 }
 
+interface LastAppointment {
+  id: string;
+  appointment_date: string;
+  service_id: string;
+  barber_id: string | null;
+  service_name: string;
+}
+
 const ClientHome = () => {
   const { userId } = useParams<{ userId: string }>();
   const navigate = useNavigate();
   
   const [settings, setSettings] = useState<BarbershopSettings | null>(null);
   const [nextAppointment, setNextAppointment] = useState<Appointment | null>(null);
+  const [lastAppointment, setLastAppointment] = useState<LastAppointment | null>(null);
   const [loading, setLoading] = useState(true);
   const [userName, setUserName] = useState<string>('');
 
@@ -148,6 +160,21 @@ const ClientHome = () => {
           </Card>
         </motion.div>
 
+        {/* Digital Wallet */}
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.1 }}
+        >
+          <DigitalWallet 
+            loyaltyPoints={45}
+            giftCardBalance={0}
+            availableCoupons={1}
+            nextRewardAt={100}
+            onViewDetails={() => navigate(`/b/${userId}/pagamentos`)}
+          />
+        </motion.div>
+
         {/* Next Appointment */}
         <motion.div
           initial={{ opacity: 0, y: 20 }}
@@ -229,8 +256,31 @@ const ClientHome = () => {
               onClick={() => navigate(`/b/${userId}/pagamentos`)}
             >
               <Wallet className="h-7 w-7 mb-2" style={{ color: settings.primary_color_hex }} />
-              <p className="font-medium text-xs">Pagamentos</p>
+              <p className="font-medium text-xs">Carteira</p>
             </Card>
+            {lastAppointment && (
+              <Card 
+                className="p-4 rounded-xl cursor-pointer hover:shadow-md transition-shadow col-span-3"
+                onClick={() => {
+                  // Navigate to booking with pre-filled data
+                  navigate(`/b/${userId}/agendar`, { 
+                    state: { 
+                      rebookServiceId: lastAppointment.service_id,
+                      rebookBarberId: lastAppointment.barber_id 
+                    } 
+                  });
+                }}
+              >
+                <div className="flex items-center gap-3">
+                  <RotateCcw className="h-6 w-6" style={{ color: settings.primary_color_hex }} />
+                  <div className="flex-1">
+                    <p className="font-medium text-sm">Repetir último agendamento</p>
+                    <p className="text-xs text-muted-foreground">{lastAppointment.service_name}</p>
+                  </div>
+                  <ChevronRight className="h-5 w-5 text-muted-foreground" />
+                </div>
+              </Card>
+            )}
           </div>
         </motion.div>
 
@@ -294,6 +344,15 @@ const ClientHome = () => {
           </Card>
         </motion.div>
       </div>
+
+      {/* Floating WhatsApp Button */}
+      {settings.whatsapp_number && (
+        <WhatsAppButton 
+          phoneNumber={settings.whatsapp_number}
+          companyName={settings.company_name}
+          floating
+        />
+      )}
     </MobileLayout>
   );
 };
