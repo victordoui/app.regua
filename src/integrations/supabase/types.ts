@@ -1042,6 +1042,156 @@ export type Database = {
           },
         ]
       }
+      notification_campaigns: {
+        Row: {
+          channels: string[]
+          click_rate: number | null
+          created_at: string | null
+          custom_message: string | null
+          description: string | null
+          failed_count: number | null
+          id: string
+          name: string
+          open_rate: number | null
+          recipients_count: number | null
+          scheduled_date: string | null
+          sent_at: string | null
+          sent_count: number | null
+          status: string
+          target_audience: string
+          template_id: string | null
+          type: string
+          updated_at: string | null
+          user_id: string
+        }
+        Insert: {
+          channels?: string[]
+          click_rate?: number | null
+          created_at?: string | null
+          custom_message?: string | null
+          description?: string | null
+          failed_count?: number | null
+          id?: string
+          name: string
+          open_rate?: number | null
+          recipients_count?: number | null
+          scheduled_date?: string | null
+          sent_at?: string | null
+          sent_count?: number | null
+          status?: string
+          target_audience: string
+          template_id?: string | null
+          type: string
+          updated_at?: string | null
+          user_id: string
+        }
+        Update: {
+          channels?: string[]
+          click_rate?: number | null
+          created_at?: string | null
+          custom_message?: string | null
+          description?: string | null
+          failed_count?: number | null
+          id?: string
+          name?: string
+          open_rate?: number | null
+          recipients_count?: number | null
+          scheduled_date?: string | null
+          sent_at?: string | null
+          sent_count?: number | null
+          status?: string
+          target_audience?: string
+          template_id?: string | null
+          type?: string
+          updated_at?: string | null
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "notification_campaigns_template_id_fkey"
+            columns: ["template_id"]
+            isOneToOne: false
+            referencedRelation: "notification_templates"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      notification_logs: {
+        Row: {
+          campaign_id: string | null
+          channel: string
+          client_id: string | null
+          created_at: string | null
+          delivered_at: string | null
+          error_message: string | null
+          id: string
+          message: string
+          metadata: Json | null
+          read_at: string | null
+          recipient: string
+          status: string
+          subject: string | null
+          template_id: string | null
+          user_id: string
+        }
+        Insert: {
+          campaign_id?: string | null
+          channel: string
+          client_id?: string | null
+          created_at?: string | null
+          delivered_at?: string | null
+          error_message?: string | null
+          id?: string
+          message: string
+          metadata?: Json | null
+          read_at?: string | null
+          recipient: string
+          status?: string
+          subject?: string | null
+          template_id?: string | null
+          user_id: string
+        }
+        Update: {
+          campaign_id?: string | null
+          channel?: string
+          client_id?: string | null
+          created_at?: string | null
+          delivered_at?: string | null
+          error_message?: string | null
+          id?: string
+          message?: string
+          metadata?: Json | null
+          read_at?: string | null
+          recipient?: string
+          status?: string
+          subject?: string | null
+          template_id?: string | null
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "notification_logs_campaign_id_fkey"
+            columns: ["campaign_id"]
+            isOneToOne: false
+            referencedRelation: "notification_campaigns"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "notification_logs_client_id_fkey"
+            columns: ["client_id"]
+            isOneToOne: false
+            referencedRelation: "clients"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "notification_logs_template_id_fkey"
+            columns: ["template_id"]
+            isOneToOne: false
+            referencedRelation: "notification_templates"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       notification_preferences: {
         Row: {
           created_at: string | null
@@ -1084,6 +1234,51 @@ export type Database = {
           user_id?: string
           whatsapp_enabled?: boolean | null
           whatsapp_number?: string | null
+        }
+        Relationships: []
+      }
+      notification_templates: {
+        Row: {
+          active: boolean | null
+          created_at: string | null
+          id: string
+          message: string
+          name: string
+          subject: string | null
+          timing_hours: number
+          trigger: string
+          type: string
+          updated_at: string | null
+          user_id: string
+          variables: Json | null
+        }
+        Insert: {
+          active?: boolean | null
+          created_at?: string | null
+          id?: string
+          message: string
+          name: string
+          subject?: string | null
+          timing_hours?: number
+          trigger: string
+          type: string
+          updated_at?: string | null
+          user_id: string
+          variables?: Json | null
+        }
+        Update: {
+          active?: boolean | null
+          created_at?: string | null
+          id?: string
+          message?: string
+          name?: string
+          subject?: string | null
+          timing_hours?: number
+          trigger?: string
+          type?: string
+          updated_at?: string | null
+          user_id?: string
+          variables?: Json | null
         }
         Relationships: []
       }
