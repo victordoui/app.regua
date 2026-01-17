@@ -330,11 +330,8 @@ const TeamChat = () => {
   const [selectedConversation, setSelectedConversation] = useState<string | null>(null);
 
   const handleCreateConversation = (participantIds: string[], isGroup: boolean, groupName?: string) => {
-    createConversation.mutate({ participantIds, isGroup, groupName }, {
-      onSuccess: (data) => {
-        setSelectedConversation(data.id);
-      }
-    });
+    createConversation.mutate({ participantIds, isGroup, groupName });
+    // Note: Since this is a mock, we can't get the actual conversation ID back
   };
 
   return (

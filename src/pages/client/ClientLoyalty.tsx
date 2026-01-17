@@ -73,15 +73,22 @@ const ClientLoyalty = () => {
         setSettings(settingsData as BarbershopSettings);
       }
 
-      // Fetch client profile with loyalty points
+      // Fetch client profile
       const { data: clientProfile } = await supabase
         .from('client_profiles')
-        .select('id, loyalty_points')
+        .select('id')
         .eq('user_id', user.id)
-        .single();
+        .maybeSingle();
 
       if (clientProfile) {
-        const points = clientProfile.loyalty_points || 0;
+        // Fetch loyalty points from separate table
+        const { data: loyaltyData } = await supabase
+          .from('loyalty_points')
+          .select('points, total_earned, total_redeemed')
+          .eq('client_id', clientProfile.id)
+          .maybeSingle();
+
+        const points = loyaltyData?.points || 0;
         
         // Calculate tier
         const currentTier = [...TIERS].reverse().find(t => points >= t.minPoints) || TIERS[0];
@@ -92,7 +99,7 @@ const ClientLoyalty = () => {
         const { data: historyData } = await supabase
           .from('loyalty_transactions')
           .select('*')
-          .eq('client_id', clientProfile.id)
+          .eq('loyalty_points_id', clientProfile.id)
           .order('created_at', { ascending: false })
           .limit(20);
 

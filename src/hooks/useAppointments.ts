@@ -189,7 +189,7 @@ export const useAppointments = () => {
         if (servicesError) console.error("Error inserting appointment services:", servicesError);
       }
       
-      const createdAppointments: Appointment[] = [parentAppointment];
+      const createdAppointments: Appointment[] = [parentAppointment as Appointment];
       
       // Create child appointments if recurring
       if (appointmentDates.length > 1) {

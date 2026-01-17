@@ -106,11 +106,24 @@ const ClientPayments = () => {
                   .from('appointments')
                   .select(`
                     appointment_date,
-                    services:service_id (name, price),
-                    profiles:barber_id (full_name)
+                    barbeiro_id,
+                    services:service_id (name, price)
                   `)
                   .eq('id', payment.appointment_id)
                   .single();
+
+                // Fetch barber name separately if barbeiro_id exists
+                let barberProfile: { full_name: string } | null = null;
+                if (appointmentDetails?.barbeiro_id) {
+                  const { data: barber } = await supabase
+                    .from('profiles')
+                    .select('display_name')
+                    .eq('user_id', appointmentDetails.barbeiro_id)
+                    .maybeSingle();
+                  if (barber?.display_name) {
+                    barberProfile = { full_name: barber.display_name };
+                  }
+                }
 
                 paymentsWithDetails.push({
                   ...payment,
@@ -120,9 +133,7 @@ const ClientPayments = () => {
                     services: Array.isArray(appointmentDetails.services) 
                       ? appointmentDetails.services[0] as { name: string; price: number } | null
                       : appointmentDetails.services as { name: string; price: number } | null,
-                    profiles: Array.isArray(appointmentDetails.profiles)
-                      ? appointmentDetails.profiles[0] as { full_name: string } | null
-                      : appointmentDetails.profiles as { full_name: string } | null
+                    profiles: barberProfile
                   } : null
                 });
               } else {
