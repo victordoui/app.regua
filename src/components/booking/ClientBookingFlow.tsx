@@ -15,7 +15,8 @@ import StepConfirmation from './public/StepConfirmation';
 import { format, addMinutes, parse, isBefore, isAfter, setHours, setMinutes } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
 import { usePublicCombos, ServiceCombo, calculateComboPrice } from '@/hooks/useServiceCombos';
-
+import { CalendarExport } from '@/components/booking/CalendarExport';
+import { useDynamicPricing, PricingRule } from '@/hooks/useDynamicPricing';
 interface ClientBookingFlowProps {
   userId?: string;
 }
@@ -26,6 +27,11 @@ interface CompletedBookingData {
   services: string[];
   barber: string;
   totalPrice: number;
+  rawDate: Date;
+  rawTime: string;
+  totalDuration: number;
+  branchName: string;
+  appliedRules: PricingRule[];
 }
 
 const ClientBookingFlow: React.FC<ClientBookingFlowProps> = ({ userId }) => {
@@ -45,8 +51,9 @@ const ClientBookingFlow: React.FC<ClientBookingFlowProps> = ({ userId }) => {
   const [timeSlots, setTimeSlots] = useState<PublicTimeSlot[]>([]);
   const [loadingSlots, setLoadingSlots] = useState(false);
 
-  // Fetch combos
+  // Fetch combos and dynamic pricing
   const { data: combos = [] } = usePublicCombos(userId);
+  const { pricingRules, calculatePrice } = useDynamicPricing(userId);
 
   const [formData, setFormData] = useState<ClientBookingForm>({
     step: 1,
@@ -166,18 +173,38 @@ const ClientBookingFlow: React.FC<ClientBookingFlowProps> = ({ userId }) => {
     return selected.reduce((sum, s) => sum + s.duration_minutes, 0);
   }, [formData.selectedServices, services]);
 
-  // Calculate total price considering combo discount
-  const calculateTotalPrice = useMemo(() => {
+  // Calculate total price considering combo discount and dynamic pricing
+  const { totalPrice: calculateTotalPrice, appliedRules } = useMemo(() => {
+    let basePrice = 0;
+    let rules: PricingRule[] = [];
+
     if (selectedComboId) {
       const combo = combos.find(c => c.id === selectedComboId);
       if (combo && combo.services) {
         const pricing = calculateComboPrice(combo.services, combo.discount_type, combo.discount_value);
-        return pricing.finalPrice;
+        basePrice = pricing.finalPrice;
       }
+    } else {
+      const selected = services.filter(s => formData.selectedServices.includes(s.id));
+      basePrice = selected.reduce((sum, s) => sum + s.price, 0);
     }
-    const selected = services.filter(s => formData.selectedServices.includes(s.id));
-    return selected.reduce((sum, s) => sum + s.price, 0);
-  }, [formData.selectedServices, services, selectedComboId, combos]);
+
+    // Apply dynamic pricing if date and time are selected
+    if (formData.selectedDate && formData.selectedTime && formData.selectedBarber) {
+      // Calculate dynamic pricing for the first service (rules apply to total)
+      const primaryServiceId = formData.selectedServices[0] || null;
+      const result = calculatePrice(
+        basePrice,
+        primaryServiceId,
+        formData.selectedBarber,
+        formData.selectedDate,
+        formData.selectedTime
+      );
+      return { totalPrice: result.finalPrice, appliedRules: result.appliedRules };
+    }
+
+    return { totalPrice: basePrice, appliedRules: [] };
+  }, [formData.selectedServices, formData.selectedDate, formData.selectedTime, formData.selectedBarber, services, selectedComboId, combos, calculatePrice]);
 
   // Fetch available time slots when date and barber are selected
   useEffect(() => {
@@ -415,6 +442,7 @@ const ClientBookingFlow: React.FC<ClientBookingFlowProps> = ({ userId }) => {
 
       // Set completed booking data for confirmation screen
       const selectedBarber = barbers.find(b => b.id === formData.selectedBarber);
+      const selectedBranch = branches.find(b => b.id === formData.selectedBranch);
       const selectedServiceNames = services
         .filter(s => formData.selectedServices.includes(s.id))
         .map(s => s.name);
@@ -424,7 +452,12 @@ const ClientBookingFlow: React.FC<ClientBookingFlowProps> = ({ userId }) => {
         time: formData.selectedTime,
         services: selectedServiceNames,
         barber: selectedBarber?.name || 'Profissional',
-        totalPrice: calculateTotalPrice
+        totalPrice: calculateTotalPrice,
+        rawDate: formData.selectedDate!,
+        rawTime: formData.selectedTime,
+        totalDuration: calculateTotalDuration,
+        branchName: selectedBranch?.name || 'Na Régua',
+        appliedRules: appliedRules
       });
       
       setBookingCompleted(true);
@@ -445,8 +478,24 @@ const ClientBookingFlow: React.FC<ClientBookingFlowProps> = ({ userId }) => {
   const POINTS_PER_REAL = 0.1; // 1 point per R$10 = 0.1 points per R$1
   const pointsToEarn = Math.floor(calculateTotalPrice * POINTS_PER_REAL);
 
+  // Helper functions for calendar export
+  const createStartDate = (date: Date, time: string): Date => {
+    const [hours, minutes] = time.split(':').map(Number);
+    const startDate = new Date(date);
+    startDate.setHours(hours, minutes, 0, 0);
+    return startDate;
+  };
+
+  const createEndDate = (date: Date, time: string, duration: number): Date => {
+    const start = createStartDate(date, time);
+    return addMinutes(start, duration);
+  };
+
   // Render confirmation screen after booking is complete
   if (bookingCompleted && completedBookingData) {
+    const calendarStartDate = createStartDate(completedBookingData.rawDate, completedBookingData.rawTime);
+    const calendarEndDate = createEndDate(completedBookingData.rawDate, completedBookingData.rawTime, completedBookingData.totalDuration);
+
     return (
       <section className="py-10 bg-background">
         <div className="container mx-auto px-4">
@@ -479,7 +528,7 @@ const ClientBookingFlow: React.FC<ClientBookingFlowProps> = ({ userId }) => {
                 )}
 
                 {/* Booking Details */}
-                <div className="bg-muted/50 rounded-xl p-6 text-left space-y-4 mb-8">
+                <div className="bg-muted/50 rounded-xl p-6 text-left space-y-4 mb-6">
                   <div className="flex items-center gap-3">
                     <Calendar className="h-5 w-5 text-primary" />
                     <div>
@@ -512,6 +561,27 @@ const ClientBookingFlow: React.FC<ClientBookingFlowProps> = ({ userId }) => {
                     </div>
                   </div>
 
+                  {/* Applied Dynamic Pricing Rules */}
+                  {completedBookingData.appliedRules.length > 0 && (
+                    <div className="border-t border-border pt-3 mt-3">
+                      <p className="text-xs text-muted-foreground mb-2">Regras aplicadas:</p>
+                      <div className="flex flex-wrap gap-1">
+                        {completedBookingData.appliedRules.map(rule => (
+                          <span 
+                            key={rule.id} 
+                            className={`text-xs px-2 py-0.5 rounded-full ${
+                              rule.price_modifier_value < 0 
+                                ? 'bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400' 
+                                : 'bg-orange-100 text-orange-700 dark:bg-orange-900/30 dark:text-orange-400'
+                            }`}
+                          >
+                            {rule.name} ({rule.price_modifier_value > 0 ? '+' : ''}{rule.price_modifier_value}%)
+                          </span>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+
                   <div className="border-t border-border pt-4 mt-4">
                     <div className="flex justify-between items-center">
                       <span className="text-muted-foreground">Total</span>
@@ -520,6 +590,18 @@ const ClientBookingFlow: React.FC<ClientBookingFlowProps> = ({ userId }) => {
                       </span>
                     </div>
                   </div>
+                </div>
+
+                {/* Calendar Export */}
+                <div className="mb-6">
+                  <CalendarExport
+                    title={`Agendamento - ${completedBookingData.services.join(', ')}`}
+                    description={`Serviços: ${completedBookingData.services.join(', ')}\nProfissional: ${completedBookingData.barber}\nTotal: R$ ${completedBookingData.totalPrice.toFixed(2)}`}
+                    location={completedBookingData.branchName}
+                    startDate={calendarStartDate}
+                    endDate={calendarEndDate}
+                    className="w-full"
+                  />
                 </div>
 
                 {/* Redirect notice */}
@@ -552,7 +634,16 @@ const ClientBookingFlow: React.FC<ClientBookingFlowProps> = ({ userId }) => {
       case 2:
         return <StepBarberSelection formData={formData} setFormData={setFormData} barbers={barbers} />;
       case 3:
-        return <StepServiceSelection formData={formData} setFormData={setFormData} services={services} />;
+        return (
+          <StepServiceSelection 
+            formData={formData} 
+            setFormData={setFormData} 
+            services={services} 
+            combos={combos}
+            selectedComboId={selectedComboId || undefined}
+            onSelectCombo={setSelectedComboId}
+          />
+        );
       case 4:
         return <StepDateTimeSelection 
           formData={formData} 
