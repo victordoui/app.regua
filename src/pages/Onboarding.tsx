@@ -142,8 +142,8 @@ const Onboarding: React.FC = () => {
     await addService({
       name: service.name,
       description: service.description || '',
-      price: service.price,
-      duration: service.duration,
+      price: String(service.price),
+      duration_minutes: String(service.duration),
       active: true,
       image_url: '',
     });
@@ -151,9 +151,11 @@ const Onboarding: React.FC = () => {
 
   const handleAddBarber = async (barber: { name: string; email?: string; phone?: string }) => {
     await addBarber({
-      display_name: barber.name,
+      full_name: barber.name,
       email: barber.email || '',
       phone: barber.phone || '',
+      specializations: '',
+      active: true,
     });
   };
 
@@ -194,7 +196,7 @@ const Onboarding: React.FC = () => {
   // Map barbers to component format  
   const mappedBarbers = barbers.map(b => ({
     id: b.id,
-    name: b.display_name || 'Barbeiro',
+    name: b.full_name || 'Barbeiro',
     email: b.email || '',
     phone: b.phone || '',
   }));
