@@ -33,9 +33,9 @@ export const useRealtimeAppointments = () => {
         .from('appointments')
         .select(`
           *,
-          clients:client_id (id, first_name, last_name, phone, email),
+          clients:client_id (id, name, phone, email),
           services:service_id (id, name, price, duration_minutes),
-          barbers:barbeiro_id (id, full_name)
+          barbers:barbeiro_id (id, display_name)
         `)
         .eq('user_id', user.id)
         .order('appointment_date', { ascending: true })
@@ -45,11 +45,14 @@ export const useRealtimeAppointments = () => {
 
       const formattedAppointments = (data || []).map(apt => ({
         ...apt,
+        status: apt.status as Appointment['status'],
         clients: apt.clients ? {
-          ...apt.clients,
-          name: `${apt.clients.first_name || ''} ${apt.clients.last_name || ''}`.trim()
+          id: (apt.clients as any).id,
+          name: (apt.clients as any).name || '',
+          phone: (apt.clients as any).phone || '',
+          email: (apt.clients as any).email
         } : undefined
-      }));
+      })) as unknown as Appointment[];
 
       setAppointments(formattedAppointments);
       

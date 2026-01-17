@@ -45,7 +45,7 @@ export const useCoupons = () => {
       .order('created_at', { ascending: false });
 
     if (error) throw error;
-    return data || [];
+    return (data || []) as DiscountCoupon[];
   }, [user]);
 
   const { data: coupons = [], isLoading, error } = useQuery({

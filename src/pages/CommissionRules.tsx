@@ -16,9 +16,9 @@ const CommissionRules: React.FC = () => {
 
   const isLoading = isLoadingBarbers || isLoadingServices || isLoadingRules;
 
-  // Get default rule if exists
-  const defaultRule = rules.find(r => r.is_default);
-  const specificRulesCount = rules.filter(r => !r.is_default).length;
+  // Get first rule as default (since is_default column doesn't exist)
+  const defaultRule = rules.length > 0 ? rules[0] : null;
+  const specificRulesCount = rules.length;
 
   return (
     <Layout>

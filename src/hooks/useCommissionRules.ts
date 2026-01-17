@@ -9,11 +9,9 @@ export interface CommissionRule {
   user_id: string;
   barber_id: string | null;
   service_id: string | null;
-  commission_type: 'percentage' | 'fixed';
+  commission_type: string;
   commission_value: number;
-  is_default: boolean;
   created_at: string;
-  updated_at: string;
 }
 
 export interface CommissionRuleFormData {
@@ -21,7 +19,6 @@ export interface CommissionRuleFormData {
   service_id?: string | null;
   commission_type: 'percentage' | 'fixed';
   commission_value: number;
-  is_default?: boolean;
 }
 
 export const useCommissionRules = () => {
@@ -36,7 +33,6 @@ export const useCommissionRules = () => {
       .from('commission_rules')
       .select('*')
       .eq('user_id', user.id)
-      .order('is_default', { ascending: false })
       .order('created_at', { ascending: false });
 
     if (error) throw error;
@@ -50,7 +46,7 @@ export const useCommissionRules = () => {
   });
 
   // Get applicable commission rate for a specific barber and service
-  const getCommissionRate = useCallback((barberId: string | null, serviceId: string | null): { type: 'percentage' | 'fixed'; value: number } => {
+  const getCommissionRate = useCallback((barberId: string | null, serviceId: string | null): { type: string; value: number } => {
     // Priority: specific rule (barber+service) > barber rule > service rule > default
     
     // 1. Try to find specific rule for barber AND service
@@ -83,13 +79,7 @@ export const useCommissionRules = () => {
       }
     }
 
-    // 4. Use default rule
-    const defaultRule = rules.find(r => r.is_default);
-    if (defaultRule) {
-      return { type: defaultRule.commission_type, value: defaultRule.commission_value };
-    }
-
-    // 5. Fallback to 40% if no rules exist
+    // 4. Fallback to 40% if no rules exist
     return { type: 'percentage', value: 40 };
   }, [rules]);
 
@@ -111,15 +101,6 @@ export const useCommissionRules = () => {
     mutationFn: async (formData: CommissionRuleFormData) => {
       if (!user) throw new Error('Usuário não autenticado');
 
-      // If setting as default, unset other defaults first
-      if (formData.is_default) {
-        await supabase
-          .from('commission_rules')
-          .update({ is_default: false })
-          .eq('user_id', user.id)
-          .eq('is_default', true);
-      }
-
       const { data, error } = await supabase
         .from('commission_rules')
         .insert({
@@ -127,8 +108,7 @@ export const useCommissionRules = () => {
           barber_id: formData.barber_id || null,
           service_id: formData.service_id || null,
           commission_type: formData.commission_type,
-          commission_value: formData.commission_value,
-          is_default: formData.is_default || false
+          commission_value: formData.commission_value
         })
         .select()
         .single();
@@ -149,24 +129,13 @@ export const useCommissionRules = () => {
     mutationFn: async ({ id, formData }: { id: string; formData: Partial<CommissionRuleFormData> }) => {
       if (!user) throw new Error('Usuário não autenticado');
 
-      // If setting as default, unset other defaults first
-      if (formData.is_default) {
-        await supabase
-          .from('commission_rules')
-          .update({ is_default: false })
-          .eq('user_id', user.id)
-          .eq('is_default', true)
-          .neq('id', id);
-      }
-
       const { data, error } = await supabase
         .from('commission_rules')
         .update({
           barber_id: formData.barber_id,
           service_id: formData.service_id,
           commission_type: formData.commission_type,
-          commission_value: formData.commission_value,
-          is_default: formData.is_default
+          commission_value: formData.commission_value
         })
         .eq('id', id)
         .eq('user_id', user.id)

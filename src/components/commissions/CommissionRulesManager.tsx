@@ -1,12 +1,11 @@
 import React, { useState } from 'react';
-import { Plus, Pencil, Trash2, Star, User, Scissors } from 'lucide-react';
+import { Plus, Pencil, Trash2, User, Scissors } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Label } from '@/components/ui/label';
 import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Switch } from '@/components/ui/switch';
 import { Badge } from '@/components/ui/badge';
 import { useCommissionRules, CommissionRuleFormData } from '@/hooks/useCommissionRules';
 import { Barber, Service } from '@/types/appointments';
@@ -28,8 +27,7 @@ const CommissionRulesManager: React.FC<CommissionRulesManagerProps> = ({
     barber_id: null,
     service_id: null,
     commission_type: 'percentage',
-    commission_value: 40,
-    is_default: false
+    commission_value: 40
   });
 
   const formatCurrency = (value: number) => {
@@ -45,8 +43,7 @@ const CommissionRulesManager: React.FC<CommissionRulesManagerProps> = ({
       barber_id: null,
       service_id: null,
       commission_type: 'percentage',
-      commission_value: 40,
-      is_default: false
+      commission_value: 40
     });
     setIsDialogOpen(true);
   };
@@ -58,9 +55,8 @@ const CommissionRulesManager: React.FC<CommissionRulesManagerProps> = ({
       setFormData({
         barber_id: rule.barber_id,
         service_id: rule.service_id,
-        commission_type: rule.commission_type,
-        commission_value: rule.commission_value,
-        is_default: rule.is_default
+        commission_type: rule.commission_type as 'percentage' | 'fixed',
+        commission_value: rule.commission_value
       });
       setIsDialogOpen(true);
     }
@@ -98,10 +94,6 @@ const CommissionRulesManager: React.FC<CommissionRulesManagerProps> = ({
   const getRuleDescription = (rule: typeof rules[0]) => {
     const barberName = getBarberName(rule.barber_id);
     const serviceName = getServiceName(rule.service_id);
-    
-    if (rule.is_default) {
-      return 'Regra padrão para todos';
-    }
     
     if (barberName && serviceName) {
       return `${barberName} + ${serviceName}`;
@@ -161,12 +153,6 @@ const CommissionRulesManager: React.FC<CommissionRulesManagerProps> = ({
                   <div className="flex items-center gap-4">
                     <div className="flex flex-col gap-1">
                       <div className="flex items-center gap-2">
-                        {rule.is_default && (
-                          <Badge variant="secondary" className="gap-1">
-                            <Star className="h-3 w-3" />
-                            Padrão
-                          </Badge>
-                        )}
                         {rule.barber_id && (
                           <Badge variant="outline" className="gap-1">
                             <User className="h-3 w-3" />
@@ -237,76 +223,53 @@ const CommissionRulesManager: React.FC<CommissionRulesManagerProps> = ({
           </DialogHeader>
 
           <div className="space-y-4 py-4">
-            {/* Default Rule Toggle */}
-            <div className="flex items-center justify-between">
-              <div className="space-y-0.5">
-                <Label>Regra Padrão</Label>
-                <p className="text-xs text-muted-foreground">
-                  Aplicar a todos quando não houver regra específica
-                </p>
-              </div>
-              <Switch
-                checked={formData.is_default}
-                onCheckedChange={(checked) => setFormData(prev => ({ 
+            {/* Barber Selection */}
+            <div className="space-y-2">
+              <Label>Barbeiro (opcional)</Label>
+              <Select
+                value={formData.barber_id || 'all'}
+                onValueChange={(value) => setFormData(prev => ({ 
                   ...prev, 
-                  is_default: checked,
-                  barber_id: checked ? null : prev.barber_id,
-                  service_id: checked ? null : prev.service_id
+                  barber_id: value === 'all' ? null : value 
                 }))}
-              />
+              >
+                <SelectTrigger>
+                  <SelectValue placeholder="Todos os barbeiros" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="all">Todos os barbeiros</SelectItem>
+                  {barbers.map((barber) => (
+                    <SelectItem key={barber.id} value={barber.id}>
+                      {barber.full_name}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
             </div>
 
-            {/* Barber Selection */}
-            {!formData.is_default && (
-              <div className="space-y-2">
-                <Label>Barbeiro (opcional)</Label>
-                <Select
-                  value={formData.barber_id || 'all'}
-                  onValueChange={(value) => setFormData(prev => ({ 
-                    ...prev, 
-                    barber_id: value === 'all' ? null : value 
-                  }))}
-                >
-                  <SelectTrigger>
-                    <SelectValue placeholder="Todos os barbeiros" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="all">Todos os barbeiros</SelectItem>
-                    {barbers.map((barber) => (
-                      <SelectItem key={barber.id} value={barber.id}>
-                        {barber.full_name}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-              </div>
-            )}
-
             {/* Service Selection */}
-            {!formData.is_default && (
-              <div className="space-y-2">
-                <Label>Serviço (opcional)</Label>
-                <Select
-                  value={formData.service_id || 'all'}
-                  onValueChange={(value) => setFormData(prev => ({ 
-                    ...prev, 
-                    service_id: value === 'all' ? null : value 
-                  }))}
-                >
-                  <SelectTrigger>
-                    <SelectValue placeholder="Todos os serviços" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="all">Todos os serviços</SelectItem>
-                    {services.map((service) => (
-                      <SelectItem key={service.id} value={service.id}>
-                        {service.name}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-              </div>
-            )}
+            <div className="space-y-2">
+              <Label>Serviço (opcional)</Label>
+              <Select
+                value={formData.service_id || 'all'}
+                onValueChange={(value) => setFormData(prev => ({ 
+                  ...prev, 
+                  service_id: value === 'all' ? null : value 
+                }))}
+              >
+                <SelectTrigger>
+                  <SelectValue placeholder="Todos os serviços" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="all">Todos os serviços</SelectItem>
+                  {services.map((service) => (
+                    <SelectItem key={service.id} value={service.id}>
+                      {service.name}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
 
             {/* Commission Type */}
             <div className="space-y-2">
