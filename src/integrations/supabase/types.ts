@@ -210,6 +210,7 @@ export type Database = {
       barbershop_settings: {
         Row: {
           address: string | null
+          allow_guest_booking: boolean | null
           allow_online_cancellation: boolean | null
           banner_url: string | null
           buffer_minutes: number | null
@@ -234,6 +235,7 @@ export type Database = {
         }
         Insert: {
           address?: string | null
+          allow_guest_booking?: boolean | null
           allow_online_cancellation?: boolean | null
           banner_url?: string | null
           buffer_minutes?: number | null
@@ -258,6 +260,7 @@ export type Database = {
         }
         Update: {
           address?: string | null
+          allow_guest_booking?: boolean | null
           allow_online_cancellation?: boolean | null
           banner_url?: string | null
           buffer_minutes?: number | null
@@ -1314,6 +1317,81 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      service_combo_items: {
+        Row: {
+          combo_id: string
+          created_at: string | null
+          id: string
+          service_id: string
+        }
+        Insert: {
+          combo_id: string
+          created_at?: string | null
+          id?: string
+          service_id: string
+        }
+        Update: {
+          combo_id?: string
+          created_at?: string | null
+          id?: string
+          service_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "service_combo_items_combo_id_fkey"
+            columns: ["combo_id"]
+            isOneToOne: false
+            referencedRelation: "service_combos"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "service_combo_items_service_id_fkey"
+            columns: ["service_id"]
+            isOneToOne: false
+            referencedRelation: "services"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      service_combos: {
+        Row: {
+          active: boolean | null
+          created_at: string | null
+          description: string | null
+          discount_type: string
+          discount_value: number
+          id: string
+          image_url: string | null
+          name: string
+          updated_at: string | null
+          user_id: string
+        }
+        Insert: {
+          active?: boolean | null
+          created_at?: string | null
+          description?: string | null
+          discount_type?: string
+          discount_value?: number
+          id?: string
+          image_url?: string | null
+          name: string
+          updated_at?: string | null
+          user_id: string
+        }
+        Update: {
+          active?: boolean | null
+          created_at?: string | null
+          description?: string | null
+          discount_type?: string
+          discount_value?: number
+          id?: string
+          image_url?: string | null
+          name?: string
+          updated_at?: string | null
+          user_id?: string
+        }
+        Relationships: []
       }
       services: {
         Row: {

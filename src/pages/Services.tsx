@@ -8,12 +8,14 @@ import { Textarea } from "@/components/ui/textarea";
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Switch } from "@/components/ui/switch";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useServices } from "@/hooks/useServices";
-import { Scissors, Plus, Edit, Trash2, Clock, DollarSign, Search, Filter, Power, PowerOff, ImageIcon, Upload, X, Loader2 } from "lucide-react";
+import { Scissors, Plus, Edit, Trash2, Clock, DollarSign, Search, Filter, Power, PowerOff, ImageIcon, Upload, X, Loader2, Package } from "lucide-react";
 import Layout from "@/components/Layout";
 import { Service } from "@/types/appointments";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
+import CombosManager from "@/components/services/CombosManager";
 
 interface ServiceFormData {
   name: string;
@@ -183,8 +185,8 @@ const Services = () => {
         {/* Header */}
         <div className="flex items-center justify-between">
           <div>
-            <h1 className="text-3xl font-bold text-foreground">Serviços</h1>
-            <p className="text-muted-foreground">Gerencie os serviços oferecidos pela barbearia</p>
+            <h1 className="text-3xl font-bold text-foreground">Serviços e Combos</h1>
+            <p className="text-muted-foreground">Gerencie serviços individuais e pacotes promocionais</p>
           </div>
 
           <Dialog open={dialogOpen} onOpenChange={(open) => {
@@ -343,30 +345,44 @@ const Services = () => {
           </Dialog>
         </div>
 
-        {/* Filters */}
-        <div className="flex flex-col sm:flex-row gap-4">
-          <div className="relative flex-1">
-            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-            <Input
-              placeholder="Buscar serviços..."
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-              className="pl-10"
-            />
-          </div>
-          
-          <Select value={statusFilter} onValueChange={setStatusFilter}>
-            <SelectTrigger className="w-full sm:w-[180px]">
-              <Filter className="h-4 w-4 mr-2" />
-              <SelectValue placeholder="Status" />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="all">Todos</SelectItem>
-              <SelectItem value="active">Ativos</SelectItem>
-              <SelectItem value="inactive">Inativos</SelectItem>
-            </SelectContent>
-          </Select>
-        </div>
+        {/* Tabs for Services and Combos */}
+        <Tabs defaultValue="services" className="w-full">
+          <TabsList className="grid w-full max-w-md grid-cols-2">
+            <TabsTrigger value="services" className="flex items-center gap-2">
+              <Scissors className="h-4 w-4" />
+              Serviços
+            </TabsTrigger>
+            <TabsTrigger value="combos" className="flex items-center gap-2">
+              <Package className="h-4 w-4" />
+              Combos
+            </TabsTrigger>
+          </TabsList>
+
+          <TabsContent value="services" className="mt-6 space-y-6">
+            {/* Filters */}
+            <div className="flex flex-col sm:flex-row gap-4">
+              <div className="relative flex-1">
+                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                <Input
+                  placeholder="Buscar serviços..."
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                  className="pl-10"
+                />
+              </div>
+              
+              <Select value={statusFilter} onValueChange={setStatusFilter}>
+                <SelectTrigger className="w-full sm:w-[180px]">
+                  <Filter className="h-4 w-4 mr-2" />
+                  <SelectValue placeholder="Status" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="all">Todos</SelectItem>
+                  <SelectItem value="active">Ativos</SelectItem>
+                  <SelectItem value="inactive">Inativos</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
 
         {/* Services Grid */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
@@ -468,8 +484,14 @@ const Services = () => {
                 Criar Primeiro Serviço
               </Button>
             )}
-          </div>
-        )}
+              </div>
+            )}
+          </TabsContent>
+
+          <TabsContent value="combos" className="mt-6">
+            <CombosManager />
+          </TabsContent>
+        </Tabs>
       </div>
     </Layout>
   );

@@ -14,6 +14,7 @@ import StepDateTimeSelection from './public/StepDateTimeSelection';
 import StepConfirmation from './public/StepConfirmation';
 import { format, addMinutes, parse, isBefore, isAfter, setHours, setMinutes } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
+import { usePublicCombos, ServiceCombo, calculateComboPrice } from '@/hooks/useServiceCombos';
 
 interface ClientBookingFlowProps {
   userId?: string;
@@ -34,6 +35,7 @@ const ClientBookingFlow: React.FC<ClientBookingFlowProps> = ({ userId }) => {
   const [bookingCompleted, setBookingCompleted] = useState(false);
   const [completedBookingData, setCompletedBookingData] = useState<CompletedBookingData | null>(null);
   const [countdown, setCountdown] = useState(100);
+  const [selectedComboId, setSelectedComboId] = useState<string | null>(null);
   const { toast } = useToast();
 
   // Real data from Supabase
@@ -42,6 +44,9 @@ const ClientBookingFlow: React.FC<ClientBookingFlowProps> = ({ userId }) => {
   const [services, setServices] = useState<PublicService[]>([]);
   const [timeSlots, setTimeSlots] = useState<PublicTimeSlot[]>([]);
   const [loadingSlots, setLoadingSlots] = useState(false);
+
+  // Fetch combos
+  const { data: combos = [] } = usePublicCombos(userId);
 
   const [formData, setFormData] = useState<ClientBookingForm>({
     step: 1,
@@ -161,10 +166,18 @@ const ClientBookingFlow: React.FC<ClientBookingFlowProps> = ({ userId }) => {
     return selected.reduce((sum, s) => sum + s.duration_minutes, 0);
   }, [formData.selectedServices, services]);
 
+  // Calculate total price considering combo discount
   const calculateTotalPrice = useMemo(() => {
+    if (selectedComboId) {
+      const combo = combos.find(c => c.id === selectedComboId);
+      if (combo && combo.services) {
+        const pricing = calculateComboPrice(combo.services, combo.discount_type, combo.discount_value);
+        return pricing.finalPrice;
+      }
+    }
     const selected = services.filter(s => formData.selectedServices.includes(s.id));
     return selected.reduce((sum, s) => sum + s.price, 0);
-  }, [formData.selectedServices, services]);
+  }, [formData.selectedServices, services, selectedComboId, combos]);
 
   // Fetch available time slots when date and barber are selected
   useEffect(() => {
