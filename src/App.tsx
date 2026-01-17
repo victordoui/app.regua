@@ -48,6 +48,7 @@ import Shifts from "./pages/Shifts";
 import TeamChat from "./pages/TeamChat";
 import ClientHistory from "./pages/client/ClientHistory";
 import ClientLoyalty from "./pages/client/ClientLoyalty";
+import Onboarding from "./pages/Onboarding";
 
 // Client Mobile Pages
 import ClientLogin from "./pages/client/ClientLogin";
@@ -65,6 +66,7 @@ function AppContent() {
     <BrowserRouter>
       <Routes>
         <Route path="/login" element={<Login />} />
+        <Route path="/onboarding" element={<ProtectedRoute><Onboarding /></ProtectedRoute>} />
 
         {/* Rotas Mobile para Clientes - /b/:userId */}
         <Route path="/b/:userId/login" element={<ClientLogin />} />
