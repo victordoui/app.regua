@@ -1020,6 +1020,81 @@ export type Database = {
           },
         ]
       }
+      pricing_rules: {
+        Row: {
+          active: boolean | null
+          barber_id: string | null
+          created_at: string | null
+          day_of_week: number | null
+          end_time: string | null
+          id: string
+          name: string
+          price_modifier_type: string
+          price_modifier_value: number
+          priority: number | null
+          rule_type: string
+          service_id: string | null
+          start_time: string | null
+          updated_at: string | null
+          user_id: string
+          valid_from: string | null
+          valid_until: string | null
+        }
+        Insert: {
+          active?: boolean | null
+          barber_id?: string | null
+          created_at?: string | null
+          day_of_week?: number | null
+          end_time?: string | null
+          id?: string
+          name: string
+          price_modifier_type?: string
+          price_modifier_value?: number
+          priority?: number | null
+          rule_type: string
+          service_id?: string | null
+          start_time?: string | null
+          updated_at?: string | null
+          user_id: string
+          valid_from?: string | null
+          valid_until?: string | null
+        }
+        Update: {
+          active?: boolean | null
+          barber_id?: string | null
+          created_at?: string | null
+          day_of_week?: number | null
+          end_time?: string | null
+          id?: string
+          name?: string
+          price_modifier_type?: string
+          price_modifier_value?: number
+          priority?: number | null
+          rule_type?: string
+          service_id?: string | null
+          start_time?: string | null
+          updated_at?: string | null
+          user_id?: string
+          valid_from?: string | null
+          valid_until?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "pricing_rules_barber_id_fkey"
+            columns: ["barber_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["user_id"]
+          },
+          {
+            foreignKeyName: "pricing_rules_service_id_fkey"
+            columns: ["service_id"]
+            isOneToOne: false
+            referencedRelation: "services"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       products: {
         Row: {
           active: boolean

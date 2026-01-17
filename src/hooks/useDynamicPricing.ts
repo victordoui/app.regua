@@ -1,5 +1,8 @@
 import { useState, useCallback } from 'react';
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
+import { useAuth } from '@/contexts/AuthContext';
 
 export interface PricingRule {
   id: string;
@@ -18,6 +21,7 @@ export interface PricingRule {
   active: boolean;
   priority: number;
   created_at: string;
+  updated_at?: string;
 }
 
 export interface CreatePricingRuleInput {
@@ -35,62 +39,208 @@ export interface CreatePricingRuleInput {
   priority?: number;
 }
 
-// This hook provides pricing rule functionality
-// Note: Requires 'pricing_rules' table to be created in Supabase
-export function useDynamicPricing() {
+export function useDynamicPricing(barbershopUserId?: string) {
   const { toast } = useToast();
-  const [pricingRules] = useState<PricingRule[]>([]);
-  const [isLoading] = useState(false);
+  const { user } = useAuth();
+  const queryClient = useQueryClient();
 
-  const createRule = {
-    mutate: async (_input: CreatePricingRuleInput) => {
+  // Fetch pricing rules - if barbershopUserId provided, fetch for that barbershop (public)
+  // Otherwise fetch for authenticated user (admin)
+  const { data: pricingRules = [], isLoading } = useQuery({
+    queryKey: ['pricing-rules', barbershopUserId || user?.id],
+    queryFn: async () => {
+      const targetUserId = barbershopUserId || user?.id;
+      if (!targetUserId) return [];
+
+      const { data, error } = await supabase
+        .from('pricing_rules')
+        .select('*')
+        .eq('user_id', targetUserId)
+        .order('priority', { ascending: false });
+
+      if (error) throw error;
+      return data as PricingRule[];
+    },
+    enabled: !!(barbershopUserId || user?.id),
+  });
+
+  // Create rule mutation
+  const createRule = useMutation({
+    mutationFn: async (input: CreatePricingRuleInput) => {
+      if (!user?.id) throw new Error('Usuário não autenticado');
+
+      const { data, error } = await supabase
+        .from('pricing_rules')
+        .insert({
+          user_id: user.id,
+          name: input.name,
+          rule_type: input.rule_type,
+          service_id: input.service_id || null,
+          barber_id: input.barber_id || null,
+          day_of_week: input.day_of_week ?? null,
+          start_time: input.start_time || null,
+          end_time: input.end_time || null,
+          price_modifier_type: input.price_modifier_type,
+          price_modifier_value: input.price_modifier_value,
+          valid_from: input.valid_from || null,
+          valid_until: input.valid_until || null,
+          priority: input.priority ?? 0,
+          active: true,
+        })
+        .select()
+        .single();
+
+      if (error) throw error;
+      return data;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['pricing-rules'] });
       toast({
-        title: 'Funcionalidade indisponível',
-        description: 'A tabela pricing_rules precisa ser criada no banco de dados.',
+        title: 'Regra criada',
+        description: 'A regra de preço foi criada com sucesso.',
+      });
+    },
+    onError: (error: Error) => {
+      toast({
+        title: 'Erro ao criar regra',
+        description: error.message,
         variant: 'destructive',
       });
-      return null;
     },
-    mutateAsync: async (_input: CreatePricingRuleInput) => {
+  });
+
+  // Update rule mutation
+  const updateRule = useMutation({
+    mutationFn: async (data: Partial<PricingRule> & { id: string }) => {
+      const { id, ...updateData } = data;
+      const { error } = await supabase
+        .from('pricing_rules')
+        .update(updateData)
+        .eq('id', id)
+        .eq('user_id', user?.id);
+
+      if (error) throw error;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['pricing-rules'] });
       toast({
-        title: 'Funcionalidade indisponível',
-        description: 'A tabela pricing_rules precisa ser criada no banco de dados.',
+        title: 'Regra atualizada',
+        description: 'A regra de preço foi atualizada.',
+      });
+    },
+    onError: (error: Error) => {
+      toast({
+        title: 'Erro ao atualizar regra',
+        description: error.message,
         variant: 'destructive',
       });
-      return null;
     },
-    isPending: false
-  };
+  });
 
-  const updateRule = {
-    mutate: async (_data: Partial<PricingRule> & { id: string }) => {},
-    mutateAsync: async (_data: Partial<PricingRule> & { id: string }) => {},
-    isPending: false
-  };
+  // Delete rule mutation
+  const deleteRule = useMutation({
+    mutationFn: async (id: string) => {
+      const { error } = await supabase
+        .from('pricing_rules')
+        .delete()
+        .eq('id', id)
+        .eq('user_id', user?.id);
 
-  const deleteRule = {
-    mutate: async (_id: string) => {},
-    mutateAsync: async (_id: string) => {},
-    isPending: false
-  };
+      if (error) throw error;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['pricing-rules'] });
+      toast({
+        title: 'Regra removida',
+        description: 'A regra de preço foi removida.',
+      });
+    },
+    onError: (error: Error) => {
+      toast({
+        title: 'Erro ao remover regra',
+        description: error.message,
+        variant: 'destructive',
+      });
+    },
+  });
 
-  const toggleRule = {
-    mutate: async (_data: { id: string; active: boolean }) => {},
-    mutateAsync: async (_data: { id: string; active: boolean }) => {},
-    isPending: false
-  };
+  // Toggle rule active status
+  const toggleRule = useMutation({
+    mutationFn: async (data: { id: string; active: boolean }) => {
+      const { error } = await supabase
+        .from('pricing_rules')
+        .update({ active: data.active })
+        .eq('id', data.id)
+        .eq('user_id', user?.id);
+
+      if (error) throw error;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['pricing-rules'] });
+    },
+    onError: (error: Error) => {
+      toast({
+        title: 'Erro ao alterar status',
+        description: error.message,
+        variant: 'destructive',
+      });
+    },
+  });
 
   // Calculate price with applicable rules
   const calculatePrice = useCallback((
     basePrice: number,
-    _serviceId: string | null,
-    _barberId: string | null,
-    _date: Date,
-    _time: string
+    serviceId: string | null,
+    barberId: string | null,
+    date: Date,
+    time: string
   ): { finalPrice: number; appliedRules: PricingRule[] } => {
-    // Without the pricing_rules table, just return the base price
-    return { finalPrice: basePrice, appliedRules: [] };
-  }, []);
+    if (!pricingRules.length) {
+      return { finalPrice: basePrice, appliedRules: [] };
+    }
+
+    const dayOfWeek = date.getDay();
+    const now = new Date();
+
+    // Filter applicable rules
+    const applicableRules = pricingRules
+      .filter(rule => rule.active)
+      .filter(rule => !rule.service_id || rule.service_id === serviceId)
+      .filter(rule => !rule.barber_id || rule.barber_id === barberId)
+      .filter(rule => rule.day_of_week === null || rule.day_of_week === dayOfWeek)
+      .filter(rule => {
+        if (!rule.start_time || !rule.end_time) return true;
+        return time >= rule.start_time && time <= rule.end_time;
+      })
+      .filter(rule => {
+        if (!rule.valid_from && !rule.valid_until) return true;
+        const ruleStart = rule.valid_from ? new Date(rule.valid_from) : null;
+        const ruleEnd = rule.valid_until ? new Date(rule.valid_until) : null;
+        const checkDate = new Date(date);
+        checkDate.setHours(0, 0, 0, 0);
+        if (ruleStart) ruleStart.setHours(0, 0, 0, 0);
+        if (ruleEnd) ruleEnd.setHours(23, 59, 59, 999);
+        if (ruleStart && checkDate < ruleStart) return false;
+        if (ruleEnd && checkDate > ruleEnd) return false;
+        return true;
+      })
+      .sort((a, b) => b.priority - a.priority);
+
+    // Calculate final price
+    let finalPrice = basePrice;
+    for (const rule of applicableRules) {
+      if (rule.price_modifier_type === 'percentage') {
+        finalPrice = finalPrice * (1 + rule.price_modifier_value / 100);
+      } else {
+        finalPrice = finalPrice + rule.price_modifier_value;
+      }
+    }
+
+    return { 
+      finalPrice: Math.max(0, Math.round(finalPrice * 100) / 100), 
+      appliedRules: applicableRules 
+    };
+  }, [pricingRules]);
 
   return {
     pricingRules,
