@@ -5,7 +5,7 @@ import { Input } from "@/components/ui/input";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useToast } from "@/hooks/use-toast";
-import { Eye, EyeOff, Mail, Lock, User, ArrowRight, Crown, Scissors } from "lucide-react";
+import { Eye, EyeOff, Mail, Lock, User, ArrowRight, Crown, Scissors, Shield } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
 import { ThemeToggle } from "@/components/ui/theme-toggle";
 import { motion, AnimatePresence } from "framer-motion";
@@ -122,9 +122,24 @@ const Login = () => {
     }
   };
 
-  const handleQuickLogin = (role: 'barber' | 'admin') => {
-    const loginEmail = role === 'barber' ? "barbeiro@naregua.com" : "admin@naregua.com";
-    const loginPassword = role === 'barber' ? "barbeiro123456" : "admin123456";
+  const handleQuickLogin = (role: 'barber' | 'admin' | 'superadmin') => {
+    let loginEmail = "";
+    let loginPassword = "";
+
+    switch (role) {
+      case 'barber':
+        loginEmail = "barbeiro@naregua.com";
+        loginPassword = "barbeiro123456";
+        break;
+      case 'admin':
+        loginEmail = "admin@naregua.com";
+        loginPassword = "admin123456";
+        break;
+      case 'superadmin':
+        loginEmail = "superadmin@naregua.com";
+        loginPassword = "superadmin123456";
+        break;
+    }
 
     loginForm.setValue("email", loginEmail);
     loginForm.setValue("password", loginPassword);
@@ -284,7 +299,7 @@ const Login = () => {
                           </div>
                         </div>
 
-                        <div className="grid grid-cols-2 gap-2">
+                        <div className="grid grid-cols-3 gap-2">
                           <Button
                             variant="outline"
                             className="border-primary/50 text-primary hover:bg-primary hover:text-primary-foreground hover:border-primary transition-all duration-300 h-10"
@@ -301,6 +316,15 @@ const Login = () => {
                           >
                             <Crown className="h-4 w-4 mr-1" />
                             Admin
+                          </Button>
+
+                          <Button
+                            variant="outline"
+                            className="border-amber-500/50 text-amber-500 hover:bg-gradient-to-r hover:from-amber-500 hover:to-orange-500 hover:text-white hover:border-amber-500 transition-all duration-300 h-10"
+                            onClick={() => handleQuickLogin('superadmin')}
+                          >
+                            <Shield className="h-4 w-4 mr-1" />
+                            Super
                           </Button>
                         </div>
                       </div>

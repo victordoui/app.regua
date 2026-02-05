@@ -4,6 +4,7 @@ import { ThemeProvider } from "next-themes";
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { AuthProvider } from "@/contexts/AuthContext";
+import { RoleProvider } from "@/contexts/RoleContext";
 import ProtectedRoute from "@/components/ProtectedRoute";
 import ErrorBoundary from "@/components/ErrorBoundary";
 
@@ -50,6 +51,12 @@ import ClientHistory from "./pages/client/ClientHistory";
 import ClientLoyalty from "./pages/client/ClientLoyalty";
 import Onboarding from "./pages/Onboarding";
 
+// Super Admin Pages
+import SuperAdminDashboard from "./pages/superadmin/SuperAdminDashboard";
+import SubscribersManagement from "./pages/superadmin/SubscribersManagement";
+import PlatformCoupons from "./pages/superadmin/PlatformCoupons";
+import AuditLogs from "./pages/superadmin/AuditLogs";
+
 // Client Mobile Pages
 import ClientLogin from "./pages/client/ClientLogin";
 import ClientRegister from "./pages/client/ClientRegister";
@@ -67,6 +74,12 @@ function AppContent() {
       <Routes>
         <Route path="/login" element={<Login />} />
         <Route path="/onboarding" element={<ProtectedRoute><Onboarding /></ProtectedRoute>} />
+
+        {/* Super Admin Routes */}
+        <Route path="/superadmin" element={<ProtectedRoute requiredRole="super_admin"><SuperAdminDashboard /></ProtectedRoute>} />
+        <Route path="/superadmin/subscribers" element={<ProtectedRoute requiredRole="super_admin"><SubscribersManagement /></ProtectedRoute>} />
+        <Route path="/superadmin/coupons" element={<ProtectedRoute requiredRole="super_admin"><PlatformCoupons /></ProtectedRoute>} />
+        <Route path="/superadmin/logs" element={<ProtectedRoute requiredRole="super_admin"><AuditLogs /></ProtectedRoute>} />
 
         {/* Rotas Mobile para Clientes - /b/:userId */}
         <Route path="/b/:userId/login" element={<ClientLogin />} />
@@ -156,9 +169,11 @@ function App() {
       >
         <ErrorBoundary>
           <AuthProvider>
-            <AppContent />
-            <Toaster />
-            <Sonner />
+            <RoleProvider>
+              <AppContent />
+              <Toaster />
+              <Sonner />
+            </RoleProvider>
           </AuthProvider>
         </ErrorBoundary>
       </ThemeProvider>

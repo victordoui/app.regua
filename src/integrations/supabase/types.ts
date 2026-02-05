@@ -1368,6 +1368,126 @@ export type Database = {
           },
         ]
       }
+      platform_audit_logs: {
+        Row: {
+          action: string
+          created_at: string | null
+          details: Json | null
+          id: string
+          super_admin_id: string
+          target_user_id: string | null
+        }
+        Insert: {
+          action: string
+          created_at?: string | null
+          details?: Json | null
+          id?: string
+          super_admin_id: string
+          target_user_id?: string | null
+        }
+        Update: {
+          action?: string
+          created_at?: string | null
+          details?: Json | null
+          id?: string
+          super_admin_id?: string
+          target_user_id?: string | null
+        }
+        Relationships: []
+      }
+      platform_coupons: {
+        Row: {
+          active: boolean | null
+          applicable_plans: string[] | null
+          code: string
+          created_at: string | null
+          created_by: string | null
+          current_uses: number | null
+          description: string | null
+          discount_type: string
+          discount_value: number
+          id: string
+          max_uses: number | null
+          valid_from: string | null
+          valid_until: string | null
+        }
+        Insert: {
+          active?: boolean | null
+          applicable_plans?: string[] | null
+          code: string
+          created_at?: string | null
+          created_by?: string | null
+          current_uses?: number | null
+          description?: string | null
+          discount_type: string
+          discount_value: number
+          id?: string
+          max_uses?: number | null
+          valid_from?: string | null
+          valid_until?: string | null
+        }
+        Update: {
+          active?: boolean | null
+          applicable_plans?: string[] | null
+          code?: string
+          created_at?: string | null
+          created_by?: string | null
+          current_uses?: number | null
+          description?: string | null
+          discount_type?: string
+          discount_value?: number
+          id?: string
+          max_uses?: number | null
+          valid_from?: string | null
+          valid_until?: string | null
+        }
+        Relationships: []
+      }
+      platform_subscriptions: {
+        Row: {
+          created_at: string | null
+          end_date: string | null
+          features: Json | null
+          id: string
+          max_appointments_month: number | null
+          max_barbers: number | null
+          notes: string | null
+          plan_type: string
+          start_date: string | null
+          status: string
+          updated_at: string | null
+          user_id: string
+        }
+        Insert: {
+          created_at?: string | null
+          end_date?: string | null
+          features?: Json | null
+          id?: string
+          max_appointments_month?: number | null
+          max_barbers?: number | null
+          notes?: string | null
+          plan_type?: string
+          start_date?: string | null
+          status?: string
+          updated_at?: string | null
+          user_id: string
+        }
+        Update: {
+          created_at?: string | null
+          end_date?: string | null
+          features?: Json | null
+          id?: string
+          max_appointments_month?: number | null
+          max_barbers?: number | null
+          notes?: string | null
+          plan_type?: string
+          start_date?: string | null
+          status?: string
+          updated_at?: string | null
+          user_id?: string
+        }
+        Relationships: []
+      }
       pricing_rules: {
         Row: {
           active: boolean | null
@@ -2096,6 +2216,7 @@ export type Database = {
         Args: { _barbershop_user_id: string; _user_id: string }
         Returns: boolean
       }
+      is_super_admin: { Args: { _user_id: string }; Returns: boolean }
     }
     Enums: {
       app_role: "admin" | "barbeiro" | "cliente" | "super_admin"
