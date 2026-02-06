@@ -39,6 +39,7 @@ import {
   Star,
   ListOrdered,
   UserCheck,
+  UserCircle,
   // Vendas / Caixa
   ShoppingCart,
   // Novas Funcionalidades
@@ -154,6 +155,7 @@ const Sidebar = () => {
       label: "Administração",
       icon: Shield,
       items: [
+        { icon: UserCircle, label: "Meu Perfil", path: "/profile" },
         { icon: UserCheck, label: "Usuários e Permissões", path: "/users" },
         { icon: Plug, label: "Integrações", path: "/integrations" },
         { icon: Settings, label: "Configurações Gerais", path: "/settings" }

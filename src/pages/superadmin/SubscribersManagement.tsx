@@ -28,6 +28,7 @@ import {
 } from '@/components/ui/dropdown-menu';
 import { useSubscribers } from '@/hooks/useSuperAdmin';
 import { NewSubscriberDialog } from '@/components/superadmin/NewSubscriberDialog';
+import SubscriberDetailDialog from '@/components/superadmin/SubscriberDetailDialog';
 import type { PlanType, SubscriptionStatus, SubscriberFilters } from '@/types/superAdmin';
 import {
   Search,
@@ -38,6 +39,7 @@ import {
   RefreshCw,
   Building2,
   UserPlus,
+  Eye,
 } from 'lucide-react';
 import { format } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
@@ -67,6 +69,7 @@ const SubscribersManagement = () => {
   const [filters, setFilters] = useState<SubscriberFilters>({});
   const [searchTerm, setSearchTerm] = useState('');
   const [showNewDialog, setShowNewDialog] = useState(false);
+  const [selectedUserId, setSelectedUserId] = useState<string | null>(null);
 
   const {
     subscribers,
@@ -110,6 +113,11 @@ const SubscribersManagement = () => {
         </div>
 
         <NewSubscriberDialog open={showNewDialog} onOpenChange={setShowNewDialog} />
+        <SubscriberDetailDialog
+          open={!!selectedUserId}
+          onOpenChange={(open) => !open && setSelectedUserId(null)}
+          userId={selectedUserId || ''}
+        />
 
         {/* Filters */}
         <Card>
@@ -201,7 +209,11 @@ const SubscribersManagement = () => {
                 </TableHeader>
                 <TableBody>
                   {filteredSubscribers.map((sub) => (
-                    <TableRow key={sub.id}>
+                    <TableRow 
+                      key={sub.id} 
+                      className="cursor-pointer hover:bg-muted/50"
+                      onClick={() => setSelectedUserId(sub.user_id)}
+                    >
                       <TableCell className="font-mono text-sm">
                         {sub.user_id.slice(0, 8)}...
                       </TableCell>

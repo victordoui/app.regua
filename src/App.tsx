@@ -50,6 +50,7 @@ import TeamChat from "./pages/TeamChat";
 import ClientHistory from "./pages/client/ClientHistory";
 import ClientLoyalty from "./pages/client/ClientLoyalty";
 import Onboarding from "./pages/Onboarding";
+import Profile from "./pages/Profile";
 
 // Super Admin Pages
 import SuperAdminDashboard from "./pages/superadmin/SuperAdminDashboard";
@@ -161,6 +162,7 @@ function AppContent() {
         <Route path="/team-chat" element={<ProtectedRoute><TeamChat /></ProtectedRoute>} />
 
         {/* Administração */}
+        <Route path="/profile" element={<ProtectedRoute><Profile /></ProtectedRoute>} />
         <Route path="/users" element={<ProtectedRoute><Users /></ProtectedRoute>} />
         <Route path="/settings" element={<ProtectedRoute><Settings /></ProtectedRoute>} /> {/* Configurações Gerais */}
 
