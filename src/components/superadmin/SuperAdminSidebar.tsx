@@ -151,7 +151,7 @@ const SuperAdminSidebar = () => {
                   />
                 </button>
               </CollapsibleTrigger>
-              <CollapsibleContent className="space-y-0.5 mt-0">
+              <CollapsibleContent className="space-y-0.5 mt-0.5">
                 {group.items.map((item) => {
                   const isActive = location.pathname === item.href;
                   return (
@@ -159,7 +159,7 @@ const SuperAdminSidebar = () => {
                       key={item.href}
                       to={item.href}
                       className={cn(
-                        'flex items-center justify-between gap-3 px-4 py-2 rounded-lg transition-all duration-200',
+                        'flex items-center justify-between gap-3 pl-9 pr-4 py-2 rounded-lg transition-all duration-200',
                         isActive
                           ? 'bg-primary text-primary-foreground'
                           : 'text-muted-foreground hover:bg-muted hover:text-foreground'
