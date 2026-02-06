@@ -2439,6 +2439,16 @@ export type Database = {
     Functions: {
       create_dev_profile_if_not_exists: { Args: never; Returns: undefined }
       create_dev_user_and_profile: { Args: never; Returns: undefined }
+      create_subscriber_with_subscription: {
+        Args: {
+          _company_name?: string
+          _display_name: string
+          _email: string
+          _plan_type?: string
+          _user_id: string
+        }
+        Returns: undefined
+      }
       has_role: {
         Args: {
           _role: Database["public"]["Enums"]["app_role"]

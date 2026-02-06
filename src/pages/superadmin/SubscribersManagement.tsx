@@ -27,6 +27,7 @@ import {
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
 import { useSubscribers } from '@/hooks/useSuperAdmin';
+import { NewSubscriberDialog } from '@/components/superadmin/NewSubscriberDialog';
 import type { PlanType, SubscriptionStatus, SubscriberFilters } from '@/types/superAdmin';
 import {
   Search,
@@ -36,6 +37,7 @@ import {
   XCircle,
   RefreshCw,
   Building2,
+  UserPlus,
 } from 'lucide-react';
 import { format } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
@@ -64,6 +66,7 @@ const statusLabels: Record<SubscriptionStatus, string> = {
 const SubscribersManagement = () => {
   const [filters, setFilters] = useState<SubscriberFilters>({});
   const [searchTerm, setSearchTerm] = useState('');
+  const [showNewDialog, setShowNewDialog] = useState(false);
 
   const {
     subscribers,
@@ -93,12 +96,20 @@ const SubscribersManagement = () => {
   return (
     <SuperAdminLayout>
       <div className="space-y-6">
-        <div>
-          <h1 className="text-3xl font-bold text-foreground">Gestão de Assinantes</h1>
-          <p className="text-muted-foreground">
-            Gerencie os donos de barbearias cadastrados na plataforma
-          </p>
+        <div className="flex items-center justify-between">
+          <div>
+            <h1 className="text-3xl font-bold text-foreground">Gestão de Assinantes</h1>
+            <p className="text-muted-foreground">
+              Gerencie os donos de barbearias cadastrados na plataforma
+            </p>
+          </div>
+          <Button onClick={() => setShowNewDialog(true)}>
+            <UserPlus className="h-4 w-4 mr-2" />
+            Novo Assinante
+          </Button>
         </div>
+
+        <NewSubscriberDialog open={showNewDialog} onOpenChange={setShowNewDialog} />
 
         {/* Filters */}
         <Card>
