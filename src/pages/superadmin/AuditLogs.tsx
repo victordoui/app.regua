@@ -11,7 +11,7 @@ import {
 } from '@/components/ui/table';
 import { useAuditLogs } from '@/hooks/useSuperAdmin';
 import type { AuditAction } from '@/types/superAdmin';
-import { ScrollText, UserX, UserCheck, Ticket, RefreshCw, Ban } from 'lucide-react';
+import { ScrollText, UserX, UserCheck, Ticket, RefreshCw, Ban, Mail, Send, Settings, MessageSquare } from 'lucide-react';
 import { format } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
 
@@ -27,6 +27,13 @@ const actionLabels: Record<AuditAction, { label: string; icon: React.ReactNode; 
   create_coupon: { label: 'Criar Cupom', icon: <Ticket className="h-4 w-4" />, color: 'text-primary' },
   update_coupon: { label: 'Atualizar Cupom', icon: <Ticket className="h-4 w-4" />, color: 'text-primary' },
   delete_coupon: { label: 'Excluir Cupom', icon: <Ticket className="h-4 w-4" />, color: 'text-destructive' },
+  send_broadcast: { label: 'Enviar Broadcast', icon: <Send className="h-4 w-4" />, color: 'text-primary' },
+  create_template: { label: 'Criar Template', icon: <Mail className="h-4 w-4" />, color: 'text-primary' },
+  update_template: { label: 'Atualizar Template', icon: <Mail className="h-4 w-4" />, color: 'text-primary' },
+  delete_template: { label: 'Excluir Template', icon: <Mail className="h-4 w-4" />, color: 'text-destructive' },
+  update_plan_config: { label: 'Atualizar Config. Plano', icon: <Settings className="h-4 w-4" />, color: 'text-primary' },
+  resolve_ticket: { label: 'Resolver Ticket', icon: <MessageSquare className="h-4 w-4" />, color: 'text-green-500' },
+  assign_ticket: { label: 'Atribuir Ticket', icon: <MessageSquare className="h-4 w-4" />, color: 'text-primary' },
 };
 
 const AuditLogs = () => {

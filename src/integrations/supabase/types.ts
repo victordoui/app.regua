@@ -1395,6 +1395,45 @@ export type Database = {
         }
         Relationships: []
       }
+      platform_broadcast_messages: {
+        Row: {
+          channel: string
+          content: string
+          created_at: string | null
+          created_by: string | null
+          id: string
+          sent_at: string | null
+          sent_count: number | null
+          target_plans: string[] | null
+          target_status: string[] | null
+          title: string
+        }
+        Insert: {
+          channel: string
+          content: string
+          created_at?: string | null
+          created_by?: string | null
+          id?: string
+          sent_at?: string | null
+          sent_count?: number | null
+          target_plans?: string[] | null
+          target_status?: string[] | null
+          title: string
+        }
+        Update: {
+          channel?: string
+          content?: string
+          created_at?: string | null
+          created_by?: string | null
+          id?: string
+          sent_at?: string | null
+          sent_count?: number | null
+          target_plans?: string[] | null
+          target_status?: string[] | null
+          title?: string
+        }
+        Relationships: []
+      }
       platform_coupons: {
         Row: {
           active: boolean | null
@@ -1443,6 +1482,128 @@ export type Database = {
         }
         Relationships: []
       }
+      platform_email_templates: {
+        Row: {
+          active: boolean | null
+          body_html: string
+          created_at: string | null
+          id: string
+          name: string
+          subject: string
+          trigger_event: string | null
+          updated_at: string | null
+        }
+        Insert: {
+          active?: boolean | null
+          body_html: string
+          created_at?: string | null
+          id?: string
+          name: string
+          subject: string
+          trigger_event?: string | null
+          updated_at?: string | null
+        }
+        Update: {
+          active?: boolean | null
+          body_html?: string
+          created_at?: string | null
+          id?: string
+          name?: string
+          subject?: string
+          trigger_event?: string | null
+          updated_at?: string | null
+        }
+        Relationships: []
+      }
+      platform_payments: {
+        Row: {
+          amount: number
+          created_at: string | null
+          id: string
+          invoice_url: string | null
+          paid_at: string | null
+          payment_method: string | null
+          status: string | null
+          subscription_id: string | null
+          user_id: string
+        }
+        Insert: {
+          amount: number
+          created_at?: string | null
+          id?: string
+          invoice_url?: string | null
+          paid_at?: string | null
+          payment_method?: string | null
+          status?: string | null
+          subscription_id?: string | null
+          user_id: string
+        }
+        Update: {
+          amount?: number
+          created_at?: string | null
+          id?: string
+          invoice_url?: string | null
+          paid_at?: string | null
+          payment_method?: string | null
+          status?: string | null
+          subscription_id?: string | null
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "platform_payments_subscription_id_fkey"
+            columns: ["subscription_id"]
+            isOneToOne: false
+            referencedRelation: "platform_subscriptions"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      platform_plan_config: {
+        Row: {
+          created_at: string | null
+          display_name: string
+          features: Json | null
+          id: string
+          is_active: boolean | null
+          max_appointments_month: number
+          max_barbers: number
+          plan_type: string
+          price_monthly: number
+          price_yearly: number | null
+          sort_order: number | null
+          updated_at: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          display_name: string
+          features?: Json | null
+          id?: string
+          is_active?: boolean | null
+          max_appointments_month?: number
+          max_barbers?: number
+          plan_type: string
+          price_monthly?: number
+          price_yearly?: number | null
+          sort_order?: number | null
+          updated_at?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          display_name?: string
+          features?: Json | null
+          id?: string
+          is_active?: boolean | null
+          max_appointments_month?: number
+          max_barbers?: number
+          plan_type?: string
+          price_monthly?: number
+          price_yearly?: number | null
+          sort_order?: number | null
+          updated_at?: string | null
+        }
+        Relationships: []
+      }
       platform_subscriptions: {
         Row: {
           created_at: string | null
@@ -1487,6 +1648,80 @@ export type Database = {
           user_id?: string
         }
         Relationships: []
+      }
+      platform_support_tickets: {
+        Row: {
+          assigned_to: string | null
+          created_at: string | null
+          description: string
+          id: string
+          priority: string | null
+          resolved_at: string | null
+          status: string | null
+          subject: string
+          updated_at: string | null
+          user_id: string
+        }
+        Insert: {
+          assigned_to?: string | null
+          created_at?: string | null
+          description: string
+          id?: string
+          priority?: string | null
+          resolved_at?: string | null
+          status?: string | null
+          subject: string
+          updated_at?: string | null
+          user_id: string
+        }
+        Update: {
+          assigned_to?: string | null
+          created_at?: string | null
+          description?: string
+          id?: string
+          priority?: string | null
+          resolved_at?: string | null
+          status?: string | null
+          subject?: string
+          updated_at?: string | null
+          user_id?: string
+        }
+        Relationships: []
+      }
+      platform_ticket_messages: {
+        Row: {
+          created_at: string | null
+          id: string
+          is_internal: boolean | null
+          message: string
+          sender_id: string
+          ticket_id: string
+        }
+        Insert: {
+          created_at?: string | null
+          id?: string
+          is_internal?: boolean | null
+          message: string
+          sender_id: string
+          ticket_id: string
+        }
+        Update: {
+          created_at?: string | null
+          id?: string
+          is_internal?: boolean | null
+          message?: string
+          sender_id?: string
+          ticket_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "platform_ticket_messages_ticket_id_fkey"
+            columns: ["ticket_id"]
+            isOneToOne: false
+            referencedRelation: "platform_support_tickets"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       pricing_rules: {
         Row: {

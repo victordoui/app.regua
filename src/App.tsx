@@ -56,6 +56,14 @@ import SuperAdminDashboard from "./pages/superadmin/SuperAdminDashboard";
 import SubscribersManagement from "./pages/superadmin/SubscribersManagement";
 import PlatformCoupons from "./pages/superadmin/PlatformCoupons";
 import AuditLogs from "./pages/superadmin/AuditLogs";
+import FinancialMetrics from "./pages/superadmin/FinancialMetrics";
+import ExpiringSubscriptions from "./pages/superadmin/ExpiringSubscriptions";
+import PaymentHistory from "./pages/superadmin/PaymentHistory";
+import BroadcastMessages from "./pages/superadmin/BroadcastMessages";
+import EmailTemplates from "./pages/superadmin/EmailTemplates";
+import PlanConfiguration from "./pages/superadmin/PlanConfiguration";
+import SupportTickets from "./pages/superadmin/SupportTickets";
+import TicketDetail from "./pages/superadmin/TicketDetail";
 
 // Client Mobile Pages
 import ClientLogin from "./pages/client/ClientLogin";
@@ -77,8 +85,16 @@ function AppContent() {
 
         {/* Super Admin Routes */}
         <Route path="/superadmin" element={<ProtectedRoute requiredRole="super_admin"><SuperAdminDashboard /></ProtectedRoute>} />
+        <Route path="/superadmin/metrics" element={<ProtectedRoute requiredRole="super_admin"><FinancialMetrics /></ProtectedRoute>} />
         <Route path="/superadmin/subscribers" element={<ProtectedRoute requiredRole="super_admin"><SubscribersManagement /></ProtectedRoute>} />
+        <Route path="/superadmin/expiring" element={<ProtectedRoute requiredRole="super_admin"><ExpiringSubscriptions /></ProtectedRoute>} />
+        <Route path="/superadmin/payments" element={<ProtectedRoute requiredRole="super_admin"><PaymentHistory /></ProtectedRoute>} />
         <Route path="/superadmin/coupons" element={<ProtectedRoute requiredRole="super_admin"><PlatformCoupons /></ProtectedRoute>} />
+        <Route path="/superadmin/broadcast" element={<ProtectedRoute requiredRole="super_admin"><BroadcastMessages /></ProtectedRoute>} />
+        <Route path="/superadmin/templates" element={<ProtectedRoute requiredRole="super_admin"><EmailTemplates /></ProtectedRoute>} />
+        <Route path="/superadmin/plans" element={<ProtectedRoute requiredRole="super_admin"><PlanConfiguration /></ProtectedRoute>} />
+        <Route path="/superadmin/support" element={<ProtectedRoute requiredRole="super_admin"><SupportTickets /></ProtectedRoute>} />
+        <Route path="/superadmin/support/:id" element={<ProtectedRoute requiredRole="super_admin"><TicketDetail /></ProtectedRoute>} />
         <Route path="/superadmin/logs" element={<ProtectedRoute requiredRole="super_admin"><AuditLogs /></ProtectedRoute>} />
 
         {/* Rotas Mobile para Clientes - /b/:userId */}
