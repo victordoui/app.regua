@@ -1,87 +1,125 @@
 
-
-# Plano: Pagina de Vendas Publica
+# Plano: Tratamento de Erros no Cadastro + Mascara de Telefone e Validacao de Inputs Global
 
 ## Objetivo
 
-Criar uma pagina publica de vendas (`/vendas` ou `/planos`) acessivel sem login, que apresenta os planos da plataforma Na Regua de forma atrativa. Os dados dos planos vem da tabela `platform_plan_config` (editaveis pelo Super Admin em "Planos e Precos"). Ao clicar em "Assinar", o visitante e redirecionado para `/cadastro` com o plano pre-selecionado.
+1. Melhorar o tratamento de erros na SignupPage com mensagens amigaveis para diferentes cenarios de falha
+2. Aplicar mascara de telefone padrao `(00)0000-0000` em todos os campos de telefone do sistema
+3. Restringir campos de nome para aceitar somente letras e campos numericos para aceitar somente numeros
 
-## O que sera feito
+---
 
-### 1. Nova pagina `src/pages/public/SalesPage.tsx`
+## 1. Utilitarios centralizados em `src/lib/utils.ts`
 
-Pagina publica com layout moderno contendo:
+Atualizar a funcao `formatPhoneBR` para usar o formato fixo `(00)0000-0000` (sem espaco, 8 digitos apos o DDD):
 
-- **Hero Section**: Titulo chamativo, subtitulo explicativo e CTA principal
-- **Cards de Planos**: Carregados dinamicamente de `platform_plan_config` (apenas planos ativos)
-  - Nome do plano (display_name)
-  - Preco mensal e anual (se disponivel)
-  - Limites: max barbeiros, max agendamentos/mes
-  - Lista de features com icones de check/x
-  - Badge "Popular" no plano Pro
-  - Botao "Comecar Agora" que redireciona para `/cadastro?plano={plan_type}`
-- **Secao de beneficios**: 3-4 cards com os diferenciais do sistema (agendamento online, gestao financeira, fidelidade, etc.)
-- **FAQ simples**: Perguntas frequentes sobre o app
-- **Footer com CTA final**: Ultimo incentivo para cadastro
+```text
+(00)0000-0000
+- Somente numeros aceitos na digitacao
+- Mascara aplicada automaticamente
+- Max 10 digitos
+```
 
-### 2. Atualizar `src/pages/public/SignupPage.tsx`
+Adicionar funcao utilitaria `formatNameOnly(value)` que remove qualquer caractere que nao seja letra ou espaco.
 
-- Ler o query param `?plano=pro` da URL
-- Pre-selecionar o plano correspondente no step 2 do wizard
+Atualizar o schema `guestContactSchema` para refletir o novo formato de telefone.
 
-### 3. Rota no `src/App.tsx`
+## 2. Tratamento de erros na `SignupPage.tsx`
 
-- Adicionar rota publica `/vendas` apontando para `SalesPage`
+Melhorar o bloco catch do `handleSignup` para mapear erros comuns:
 
-### 4. Link na tela de Login
+| Erro | Mensagem amigavel |
+|------|-------------------|
+| `already registered` | Este email ja esta cadastrado. Tente fazer login. |
+| `invalid email` | O email informado nao e valido. |
+| `Password should be at least 6` | A senha deve ter pelo menos 6 caracteres. |
+| `42P10` ou `ON CONFLICT` | Erro de configuracao interna. Contate o suporte. |
+| `rate limit` | Muitas tentativas. Aguarde alguns minutos. |
+| Erro generico | Ocorreu um erro inesperado. Tente novamente. |
 
-- Adicionar link "Conheca nossos planos" na pagina de Login apontando para `/vendas`
+Adicionar validacao nos campos:
+- **Nome completo**: aceitar somente letras (a-zA-Z com acentos) e espacos
+- **Telefone**: aplicar mascara `(00)0000-0000`, aceitar somente numeros
+- **Nome da barbearia**: aceitar letras, numeros e caracteres basicos
+
+## 3. Aplicar mascara de telefone em todos os formularios
+
+Arquivos que possuem campos de telefone sem mascara e precisam ser atualizados:
+
+| Arquivo | Campo |
+|---------|-------|
+| `src/pages/public/SignupPage.tsx` | phone |
+| `src/pages/Settings.tsx` | phone, userPhone |
+| `src/pages/Clients.tsx` | phone |
+| `src/pages/CompanySettings.tsx` | phone |
+| `src/pages/public/PublicProfile.tsx` | phone |
+| `src/pages/BarberManagement.tsx` | phone |
+| `src/pages/client/ClientProfile.tsx` | phone |
+| `src/pages/Waitlist.tsx` | client_phone |
+| `src/components/onboarding/OnboardingStepCompany.tsx` | phone |
+| `src/components/onboarding/OnboardingStepBarbers.tsx` | phone |
+
+Em cada um, o onChange do campo de telefone passara a usar `formatPhoneBR(e.target.value)` e o input tera `maxLength` e `inputMode="tel"`.
+
+## 4. Restringir campos de nome para somente letras
+
+Nos formularios onde o campo e claramente um nome de pessoa (nao nome de servico/produto), aplicar filtro que remove caracteres nao-alfabeticos:
+
+| Arquivo | Campo |
+|---------|-------|
+| `src/pages/public/SignupPage.tsx` | fullName |
+| `src/pages/Clients.tsx` | name (nome do cliente) |
+| `src/components/onboarding/OnboardingStepBarbers.tsx` | name (nome do barbeiro) |
+| `src/pages/Waitlist.tsx` | client_name |
+| `src/components/booking/StepConfirmation.tsx` | clientName |
+| `src/components/booking/public/StepConfirmation.tsx` | clientName |
+
+---
 
 ## Resumo de arquivos
 
 | Arquivo | Acao |
 |---------|------|
-| `src/pages/public/SalesPage.tsx` | Criar - pagina de vendas publica |
-| `src/pages/public/SignupPage.tsx` | Modificar - ler query param do plano |
-| `src/App.tsx` | Modificar - adicionar rota `/vendas` |
-| `src/pages/Login.tsx` | Modificar - adicionar link para `/vendas` |
+| `src/lib/utils.ts` | Modificar - atualizar formatPhoneBR, adicionar formatNameOnly, atualizar schema |
+| `src/pages/public/SignupPage.tsx` | Modificar - erros amigaveis + mascara telefone + filtro nome |
+| `src/pages/Settings.tsx` | Modificar - mascara telefone |
+| `src/pages/Clients.tsx` | Modificar - mascara telefone + filtro nome |
+| `src/pages/CompanySettings.tsx` | Modificar - mascara telefone |
+| `src/pages/public/PublicProfile.tsx` | Modificar - mascara telefone |
+| `src/pages/BarberManagement.tsx` | Modificar - mascara telefone |
+| `src/pages/client/ClientProfile.tsx` | Modificar - mascara telefone |
+| `src/pages/Waitlist.tsx` | Modificar - mascara telefone + filtro nome |
+| `src/components/onboarding/OnboardingStepCompany.tsx` | Modificar - mascara telefone |
+| `src/components/onboarding/OnboardingStepBarbers.tsx` | Modificar - mascara telefone + filtro nome |
+| `src/components/booking/StepConfirmation.tsx` | Modificar - filtro nome |
+| `src/components/booking/public/StepConfirmation.tsx` | Modificar - filtro nome |
 
 ## Detalhes tecnicos
 
-### SalesPage.tsx
-
-- Usa `useQuery` para buscar planos ativos de `platform_plan_config` (mesmo padrao do `usePlanConfig`)
-- Nao requer autenticacao (rota publica)
-- Ao clicar no botao de assinar, faz `navigate('/cadastro?plano=' + plan.plan_type)`
-- Usa os mesmos labels de features do Super Admin (`FEATURE_LABELS`) para consistencia
-- Layout responsivo com grid de 1 a 4 colunas
-
-### SignupPage.tsx - Alteracao
+### formatPhoneBR atualizado
 
 ```text
-// No useEffect ou ao montar:
-const searchParams = new URLSearchParams(window.location.search);
-const preSelectedPlan = searchParams.get('plano');
-if (preSelectedPlan) {
-  setFormData(f => ({ ...f, selectedPlan: preSelectedPlan }));
-}
+Formato: (00)0000-0000
+- Remove tudo que nao e digito
+- Limita a 10 digitos
+- Aplica mascara progressiva:
+  - 1-2 digitos: (XX
+  - 3-6 digitos: (XX)XXXX
+  - 7-10 digitos: (XX)XXXX-XXXX
 ```
 
-### Fluxo do visitante
+### formatNameOnly
 
 ```text
-1. Visitante acessa /vendas (via link, Google, redes sociais, etc.)
-2. Ve os planos com precos e recursos (dados do Super Admin)
-3. Clica em "Comecar Agora" no plano desejado
-4. E redirecionado para /cadastro?plano=pro
-5. O formulario ja vem com o plano pre-selecionado
-6. Completa o cadastro normalmente
+- Remove qualquer caractere que nao seja letra (a-zA-Z), acentos (À-ÿ) ou espaco
+- Impede numeros e caracteres especiais em campos de nome de pessoa
 ```
 
-### Controle pelo Super Admin
+### Mapeamento de erros na SignupPage
 
-Tudo que o Super Admin edita em "Planos e Precos" (`/superadmin/plans`) reflete automaticamente na pagina de vendas:
-- Nomes, precos, limites e features
-- Ativar/desativar planos (planos inativos nao aparecem na pagina de vendas)
-- Ordem de exibicao (sort_order)
-
+```text
+Funcao getSignupErrorMessage(error):
+  - Verifica error.message e error.code
+  - Retorna { title, description } com mensagem amigavel em portugues
+  - Cobre: email duplicado, email invalido, senha fraca, rate limit, erro RPC, erro generico
+```
