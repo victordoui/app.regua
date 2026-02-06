@@ -68,6 +68,7 @@ import TicketDetail from "./pages/superadmin/TicketDetail";
 import SystemUsers from "./pages/superadmin/SystemUsers";
 import SignupPage from "./pages/public/SignupPage";
 import SalesPage from "./pages/public/SalesPage";
+import Upgrade from "./pages/Upgrade";
 
 // Client Mobile Pages
 import ClientLogin from "./pages/client/ClientLogin";
@@ -166,6 +167,7 @@ function AppContent() {
         <Route path="/team-chat" element={<ProtectedRoute><TeamChat /></ProtectedRoute>} />
 
         {/* Administração */}
+        <Route path="/upgrade" element={<ProtectedRoute><Upgrade /></ProtectedRoute>} />
         <Route path="/profile" element={<ProtectedRoute><Profile /></ProtectedRoute>} />
         <Route path="/users" element={<ProtectedRoute><Users /></ProtectedRoute>} />
         <Route path="/settings" element={<ProtectedRoute><Settings /></ProtectedRoute>} /> {/* Configurações Gerais */}
