@@ -1,70 +1,45 @@
 
-# Plano: Melhorar Sidebar do Super Admin com icones nos grupos e espacamento reduzido
 
-## Objetivo
+# Plano: Indentar sub-itens da Sidebar do Super Admin
 
-Alinhar o visual da sidebar do Super Admin com o padrao da sidebar do Admin/Barbeiro, adicionando icones nos titulos dos grupos colapsaveis e reduzindo o espacamento entre os itens.
+## Problema
+
+Os sub-itens (Dashboard, Metricas Financeiras, etc.) aparecem no mesmo nivel visual que os titulos dos grupos (Visao Geral, Gestao de Assinantes), dando a impressao de que sao paginas independentes e nao sub-paginas.
+
+## Solucao
+
+Adicionar indentacao (padding-left) nos sub-itens e uma pequena margem superior para criar o efeito de "escadinha", deixando claro que sao filhos do grupo.
 
 ## Alteracoes no arquivo `src/components/superadmin/SuperAdminSidebar.tsx`
 
-### 1. Adicionar icone em cada grupo do menu
+### 1. Adicionar margem superior no CollapsibleContent
 
-Cada grupo colapsavel passara a ter um icone ao lado do titulo, seguindo o mesmo padrao visual da sidebar principal:
+Mudar de `mt-0` para `mt-0.5` para dar um pequeno respiro entre o titulo do grupo e os sub-itens.
 
-| Grupo | Icone |
-|-------|-------|
-| Visao Geral | LayoutDashboard |
-| Gestao de Assinantes | Users |
-| Marketing e Comunicacao | Send |
-| Configuracoes | Settings |
-| Suporte | Headphones |
-| Auditoria | ScrollText |
+### 2. Aumentar o padding-left dos sub-itens
 
-### 2. Atualizar a interface MenuGroup
-
-Adicionar campo `icon` na interface `MenuGroup`:
-
-```typescript
-interface MenuGroup {
-  title: string;
-  icon: React.ComponentType<{ className?: string }>;
-  items: MenuItem[];
-}
-```
-
-### 3. Renderizar icone no CollapsibleTrigger
-
-O botao do grupo passara a exibir o icone antes do titulo:
-
-```typescript
-<button className="flex items-center justify-between w-full px-3 py-1.5 ...">
-  <div className="flex items-center gap-2">
-    <group.icon className="h-4 w-4" />
-    <span>{group.title}</span>
-  </div>
-  <ChevronDown ... />
-</button>
-```
-
-### 4. Reduzir espacamento
+Mudar o `px-4` dos Links para `pl-9 pr-4`, alinhando os sub-itens mais a direita do que o titulo do grupo (que tem `px-3`). Isso cria o efeito visual de hierarquia.
 
 | Elemento | Antes | Depois |
 |----------|-------|--------|
-| Espaco entre grupos (`space-y`) | `space-y-4` | `space-y-1` |
-| Padding do trigger (`py`) | `py-2` | `py-1.5` |
-| Padding dos sub-itens (`py`) | `py-2.5` | `py-2` |
-| Margem superior dos sub-itens (`mt`) | `mt-1` | `mt-0` |
-| Padding da nav | `p-4` | `p-3` |
-| Padding do header | `p-6` | `p-4` |
+| CollapsibleContent `mt` | `mt-0` | `mt-0.5` |
+| Sub-item padding | `px-4` | `pl-9 pr-4` |
 
-## Resultado esperado
+### Resultado visual esperado
 
-A sidebar do Super Admin ficara visualmente consistente com a sidebar principal, com icones em cada grupo e itens mais proximos entre si, semelhante a imagem de referencia.
+```text
+  [icon] Visao Geral          v
+           [icon] Dashboard
+           [icon] Metricas Financeiras
+  [icon] Gestao de Assinantes  v
+           [icon] Assinantes
+           [icon] Assinaturas Expirando
+```
 
-## Resumo tecnico
+## Resumo
 
 | Item | Valor |
 |------|-------|
 | Arquivo modificado | `src/components/superadmin/SuperAdminSidebar.tsx` |
-| Migracoes SQL | Nenhuma |
-| Dependencias novas | Nenhuma |
+| Linhas alteradas | 2 |
+
