@@ -5,3 +5,4 @@ export { usePlatformTemplates } from './usePlatformTemplates';
 export { usePlanConfig } from './usePlanConfig';
 export { useSupportTickets, useTicketMessages, useTicketStats } from './useSupportTickets';
 export { useExpiringSubscriptions, useExpiringStats } from './useExpiringSubscriptions';
+export { usePlatformUsers } from './usePlatformUsers';

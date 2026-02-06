@@ -65,6 +65,7 @@ import EmailTemplates from "./pages/superadmin/EmailTemplates";
 import PlanConfiguration from "./pages/superadmin/PlanConfiguration";
 import SupportTickets from "./pages/superadmin/SupportTickets";
 import TicketDetail from "./pages/superadmin/TicketDetail";
+import SystemUsers from "./pages/superadmin/SystemUsers";
 import SignupPage from "./pages/public/SignupPage";
 import SalesPage from "./pages/public/SalesPage";
 
@@ -88,6 +89,7 @@ function AppContent() {
 
         {/* Super Admin Routes */}
         <Route path="/superadmin" element={<ProtectedRoute requiredRole="super_admin"><SuperAdminDashboard /></ProtectedRoute>} />
+        <Route path="/superadmin/users" element={<ProtectedRoute requiredRole="super_admin"><SystemUsers /></ProtectedRoute>} />
         <Route path="/superadmin/metrics" element={<ProtectedRoute requiredRole="super_admin"><FinancialMetrics /></ProtectedRoute>} />
         <Route path="/superadmin/subscribers" element={<ProtectedRoute requiredRole="super_admin"><SubscribersManagement /></ProtectedRoute>} />
         <Route path="/superadmin/expiring" element={<ProtectedRoute requiredRole="super_admin"><ExpiringSubscriptions /></ProtectedRoute>} />

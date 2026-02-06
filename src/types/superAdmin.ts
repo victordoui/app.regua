@@ -100,6 +100,7 @@ export interface PlanConfig {
   features: Record<string, boolean>;
   is_active: boolean;
   sort_order: number;
+  trial_days: number | null;
   created_at: string;
   updated_at: string;
 }
@@ -236,6 +237,7 @@ export interface PlanConfigFormData {
   max_appointments_month: number;
   features: Record<string, boolean>;
   is_active: boolean;
+  trial_days?: number | null;
 }
 
 export interface SubscriberFilters {
