@@ -1,108 +1,87 @@
 
 
-# Plano: Pagina "Meu Perfil" com informacoes da assinatura
+# Plano: Pagina de Vendas Publica
 
 ## Objetivo
 
-Criar uma pagina dedicada "Meu Perfil" (`/profile`) para o admin (dono da barbearia) que mostra dados pessoais e informacoes da sua assinatura na plataforma. No Super Admin, exibir essas mesmas informacoes ao consultar detalhes de um assinante.
+Criar uma pagina publica de vendas (`/vendas` ou `/planos`) acessivel sem login, que apresenta os planos da plataforma Na Regua de forma atrativa. Os dados dos planos vem da tabela `platform_plan_config` (editaveis pelo Super Admin em "Planos e Precos"). Ao clicar em "Assinar", o visitante e redirecionado para `/cadastro` com o plano pre-selecionado.
 
-## Alteracoes
+## O que sera feito
 
-### 1. Nova pagina `src/pages/Profile.tsx`
+### 1. Nova pagina `src/pages/public/SalesPage.tsx`
 
-Pagina com duas secoes principais:
+Pagina publica com layout moderno contendo:
 
-**Secao 1 - Dados Pessoais**
-- Nome completo (do profiles/auth)
-- Email
-- Telefone
-- Botao para editar
+- **Hero Section**: Titulo chamativo, subtitulo explicativo e CTA principal
+- **Cards de Planos**: Carregados dinamicamente de `platform_plan_config` (apenas planos ativos)
+  - Nome do plano (display_name)
+  - Preco mensal e anual (se disponivel)
+  - Limites: max barbeiros, max agendamentos/mes
+  - Lista de features com icones de check/x
+  - Badge "Popular" no plano Pro
+  - Botao "Comecar Agora" que redireciona para `/cadastro?plano={plan_type}`
+- **Secao de beneficios**: 3-4 cards com os diferenciais do sistema (agendamento online, gestao financeira, fidelidade, etc.)
+- **FAQ simples**: Perguntas frequentes sobre o app
+- **Footer com CTA final**: Ultimo incentivo para cadastro
 
-**Secao 2 - Minha Assinatura**
-- Card com o plano atual (trial/basic/pro/enterprise) com badge colorido
-- Status da assinatura (ativo, suspenso, etc.)
-- Data de inicio e termino
-- Tempo restante da assinatura (ex: "Expira em 45 dias")
-- Barra de progresso visual do tempo consumido
-- Limites do plano: max barbeiros, max agendamentos/mes
-- Lista de funcionalidades incluidas (campo `features` da tabela)
-- Uso atual vs limite (quantos barbeiros cadastrados, quantos agendamentos no mes)
+### 2. Atualizar `src/pages/public/SignupPage.tsx`
 
-Os dados serao carregados de `platform_subscriptions` (filtrado pelo user_id do usuario logado) e cruzados com `platform_plan_config` para exibir nome e detalhes do plano.
+- Ler o query param `?plano=pro` da URL
+- Pre-selecionar o plano correspondente no step 2 do wizard
 
-### 2. Novo hook `src/hooks/useMySubscription.ts`
+### 3. Rota no `src/App.tsx`
 
-Hook dedicado que:
-- Busca a assinatura ativa do usuario logado em `platform_subscriptions`
-- Busca os detalhes do plano em `platform_plan_config`
-- Calcula dias restantes e percentual consumido
-- Conta barbeiros cadastrados e agendamentos do mes para mostrar uso atual
+- Adicionar rota publica `/vendas` apontando para `SalesPage`
 
-### 3. Sidebar - Adicionar "Meu Perfil" em Administracao
+### 4. Link na tela de Login
 
-No arquivo `src/components/Sidebar.tsx`, adicionar na categoria "administracao":
-- Novo item: icone `UserCircle`, label "Meu Perfil", path `/profile`
-
-### 4. Layout header - Atualizar link do dropdown
-
-No `src/components/Layout.tsx`, o dropdown do avatar ja tem "Meu Perfil" mas aponta para `/settings`. Atualizar para apontar para `/profile`.
-
-### 5. Rota no App.tsx
-
-Adicionar rota protegida `/profile` apontando para a nova pagina.
-
-### 6. Super Admin - Detalhes do assinante
-
-Na pagina `SubscribersManagement.tsx`, ao clicar em um assinante na tabela, abrir um dialog/drawer lateral com as mesmas informacoes de plano e uso que o admin ve no seu perfil, porem em modo somente leitura. Isso reutiliza um componente compartilhado de exibicao de assinatura.
-
-### 7. Componente compartilhado `src/components/subscriptions/SubscriptionInfoCard.tsx`
-
-Componente reutilizavel que recebe dados da assinatura e exibe:
-- Badge do plano com cor
-- Status
-- Datas e tempo restante
-- Barra de progresso
-- Limites e uso
-
-Sera usado tanto na pagina Profile (admin) quanto no dialog do Super Admin.
-
----
+- Adicionar link "Conheca nossos planos" na pagina de Login apontando para `/vendas`
 
 ## Resumo de arquivos
 
 | Arquivo | Acao |
 |---------|------|
-| `src/pages/Profile.tsx` | Criar |
-| `src/hooks/useMySubscription.ts` | Criar |
-| `src/components/subscriptions/SubscriptionInfoCard.tsx` | Criar |
-| `src/components/Sidebar.tsx` | Modificar - adicionar "Meu Perfil" |
-| `src/components/Layout.tsx` | Modificar - link do dropdown |
-| `src/App.tsx` | Modificar - adicionar rota `/profile` |
-| `src/pages/superadmin/SubscribersManagement.tsx` | Modificar - adicionar dialog de detalhes |
+| `src/pages/public/SalesPage.tsx` | Criar - pagina de vendas publica |
+| `src/pages/public/SignupPage.tsx` | Modificar - ler query param do plano |
+| `src/App.tsx` | Modificar - adicionar rota `/vendas` |
+| `src/pages/Login.tsx` | Modificar - adicionar link para `/vendas` |
 
 ## Detalhes tecnicos
 
-### useMySubscription.ts
+### SalesPage.tsx
 
-```typescript
-// Busca platform_subscriptions onde user_id = usuario logado
-// Busca platform_plan_config onde plan_type = assinatura.plan_type
-// Conta barbeiros: select count from barbers where user_id
-// Conta agendamentos do mes: select count from appointments where user_id and month
-// Retorna: subscription, planConfig, usage, daysRemaining, progressPercent
+- Usa `useQuery` para buscar planos ativos de `platform_plan_config` (mesmo padrao do `usePlanConfig`)
+- Nao requer autenticacao (rota publica)
+- Ao clicar no botao de assinar, faz `navigate('/cadastro?plano=' + plan.plan_type)`
+- Usa os mesmos labels de features do Super Admin (`FEATURE_LABELS`) para consistencia
+- Layout responsivo com grid de 1 a 4 colunas
+
+### SignupPage.tsx - Alteracao
+
+```text
+// No useEffect ou ao montar:
+const searchParams = new URLSearchParams(window.location.search);
+const preSelectedPlan = searchParams.get('plano');
+if (preSelectedPlan) {
+  setFormData(f => ({ ...f, selectedPlan: preSelectedPlan }));
+}
 ```
 
-### SubscriptionInfoCard - Campos exibidos
+### Fluxo do visitante
 
-| Campo | Fonte |
-|-------|-------|
-| Nome do plano | platform_plan_config.display_name |
-| Tipo | platform_subscriptions.plan_type |
-| Status | platform_subscriptions.status |
-| Inicio | platform_subscriptions.start_date |
-| Termino | platform_subscriptions.end_date |
-| Max barbeiros | platform_subscriptions.max_barbers |
-| Max agendamentos | platform_subscriptions.max_appointments_month |
-| Features | platform_subscriptions.features |
-| Preco | platform_plan_config.price_monthly |
+```text
+1. Visitante acessa /vendas (via link, Google, redes sociais, etc.)
+2. Ve os planos com precos e recursos (dados do Super Admin)
+3. Clica em "Comecar Agora" no plano desejado
+4. E redirecionado para /cadastro?plano=pro
+5. O formulario ja vem com o plano pre-selecionado
+6. Completa o cadastro normalmente
+```
+
+### Controle pelo Super Admin
+
+Tudo que o Super Admin edita em "Planos e Precos" (`/superadmin/plans`) reflete automaticamente na pagina de vendas:
+- Nomes, precos, limites e features
+- Ativar/desativar planos (planos inativos nao aparecem na pagina de vendas)
+- Ordem de exibicao (sort_order)
 
