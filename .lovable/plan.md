@@ -1,174 +1,108 @@
 
 
-# Plano: Criar Assinante, Adicionar Assinante e Fluxo de Cadastro Publico
+# Plano: Pagina "Meu Perfil" com informacoes da assinatura
 
-## Contexto
+## Objetivo
 
-Atualmente, a tabela `platform_subscriptions` existe mas so pode ser gerenciada pelo Super Admin. Falta:
-1. Um botao para o Super Admin **criar assinatura manualmente** (adicionar um novo assinante)
-2. Uma **pagina publica de cadastro** onde o barbeiro (dono da barbearia) pode se registrar, escolher um plano e assinar para ter acesso ao app Na Regua
+Criar uma pagina dedicada "Meu Perfil" (`/profile`) para o admin (dono da barbearia) que mostra dados pessoais e informacoes da sua assinatura na plataforma. No Super Admin, exibir essas mesmas informacoes ao consultar detalhes de um assinante.
 
-## O que sera feito
+## Alteracoes
 
-### Parte 1: Botao "Novo Assinante" na pagina de Gestao de Assinantes
+### 1. Nova pagina `src/pages/Profile.tsx`
 
-Na pagina `SubscribersManagement.tsx`, adicionar um botao "Novo Assinante" que abre um dialog para o Super Admin criar manualmente uma assinatura:
-- Campos: Email do usuario, Plano (trial/basic/pro/enterprise), Data de inicio, Data de termino, Notas
-- Ao salvar, insere na tabela `platform_subscriptions` e registra no audit log
+Pagina com duas secoes principais:
 
-### Parte 2: Nova pagina publica de cadastro para barbeiros
+**Secao 1 - Dados Pessoais**
+- Nome completo (do profiles/auth)
+- Email
+- Telefone
+- Botao para editar
 
-Criar uma pagina publica `/cadastro` onde donos de barbearia podem:
-1. **Criar conta** (email + senha + nome da barbearia)
-2. **Escolher um plano** (carregado da tabela `platform_plan_config`)
-3. **Confirmar assinatura** (inicia como trial ou com o plano escolhido)
+**Secao 2 - Minha Assinatura**
+- Card com o plano atual (trial/basic/pro/enterprise) com badge colorido
+- Status da assinatura (ativo, suspenso, etc.)
+- Data de inicio e termino
+- Tempo restante da assinatura (ex: "Expira em 45 dias")
+- Barra de progresso visual do tempo consumido
+- Limites do plano: max barbeiros, max agendamentos/mes
+- Lista de funcionalidades incluidas (campo `features` da tabela)
+- Uso atual vs limite (quantos barbeiros cadastrados, quantos agendamentos no mes)
 
-Apos o cadastro, o usuario recebe a role `admin` e uma entrada em `platform_subscriptions`.
+Os dados serao carregados de `platform_subscriptions` (filtrado pelo user_id do usuario logado) e cruzados com `platform_plan_config` para exibir nome e detalhes do plano.
 
-### Parte 3: Novas sugestoes na Sidebar do Super Admin
+### 2. Novo hook `src/hooks/useMySubscription.ts`
 
-Adicionar dois novos itens ao menu:
-- **Onboarding de Assinantes** (em "Gestao de Assinantes") - para acompanhar novos cadastros
-- **Relatorios de Crescimento** (em "Visao Geral") - metricas de aquisicao
+Hook dedicado que:
+- Busca a assinatura ativa do usuario logado em `platform_subscriptions`
+- Busca os detalhes do plano em `platform_plan_config`
+- Calcula dias restantes e percentual consumido
+- Conta barbeiros cadastrados e agendamentos do mes para mostrar uso atual
+
+### 3. Sidebar - Adicionar "Meu Perfil" em Administracao
+
+No arquivo `src/components/Sidebar.tsx`, adicionar na categoria "administracao":
+- Novo item: icone `UserCircle`, label "Meu Perfil", path `/profile`
+
+### 4. Layout header - Atualizar link do dropdown
+
+No `src/components/Layout.tsx`, o dropdown do avatar ja tem "Meu Perfil" mas aponta para `/settings`. Atualizar para apontar para `/profile`.
+
+### 5. Rota no App.tsx
+
+Adicionar rota protegida `/profile` apontando para a nova pagina.
+
+### 6. Super Admin - Detalhes do assinante
+
+Na pagina `SubscribersManagement.tsx`, ao clicar em um assinante na tabela, abrir um dialog/drawer lateral com as mesmas informacoes de plano e uso que o admin ve no seu perfil, porem em modo somente leitura. Isso reutiliza um componente compartilhado de exibicao de assinatura.
+
+### 7. Componente compartilhado `src/components/subscriptions/SubscriptionInfoCard.tsx`
+
+Componente reutilizavel que recebe dados da assinatura e exibe:
+- Badge do plano com cor
+- Status
+- Datas e tempo restante
+- Barra de progresso
+- Limites e uso
+
+Sera usado tanto na pagina Profile (admin) quanto no dialog do Super Admin.
 
 ---
 
-## Arquivos a criar
+## Resumo de arquivos
 
-| Arquivo | Descricao |
-|---------|-----------|
-| `src/pages/public/SignupPage.tsx` | Pagina publica de cadastro com fluxo em etapas |
-| `src/components/superadmin/NewSubscriberDialog.tsx` | Dialog para Super Admin criar assinante manualmente |
+| Arquivo | Acao |
+|---------|------|
+| `src/pages/Profile.tsx` | Criar |
+| `src/hooks/useMySubscription.ts` | Criar |
+| `src/components/subscriptions/SubscriptionInfoCard.tsx` | Criar |
+| `src/components/Sidebar.tsx` | Modificar - adicionar "Meu Perfil" |
+| `src/components/Layout.tsx` | Modificar - link do dropdown |
+| `src/App.tsx` | Modificar - adicionar rota `/profile` |
+| `src/pages/superadmin/SubscribersManagement.tsx` | Modificar - adicionar dialog de detalhes |
 
-## Arquivos a modificar
+## Detalhes tecnicos
 
-| Arquivo | Alteracao |
-|---------|-----------|
-| `src/pages/superadmin/SubscribersManagement.tsx` | Adicionar botao "Novo Assinante" + importar dialog |
-| `src/hooks/useSuperAdmin.ts` | Adicionar mutation `createSubscription` |
-| `src/App.tsx` | Adicionar rota `/cadastro` publica |
-| `src/components/superadmin/SuperAdminSidebar.tsx` | Adicionar novos itens de menu sugeridos |
-
-## Migracoes SQL necessarias
-
-Uma migracao para:
-- Adicionar politica RLS que permita INSERT na `platform_subscriptions` para usuarios autenticados (para o proprio user_id no auto-cadastro)
-- Criar funcao `create_subscriber_with_subscription` (security definer) que cria o perfil + subscription de forma atomica
-
----
-
-## Detalhes Tecnicos
-
-### NewSubscriberDialog.tsx
+### useMySubscription.ts
 
 ```typescript
-// Dialog com formulario:
-// - Input: user_id (UUID ou email para buscar)
-// - Select: plan_type (trial, basic, pro, enterprise)
-// - Input: start_date, end_date
-// - Textarea: notes
-// Ao salvar: insere em platform_subscriptions + audit log
+// Busca platform_subscriptions onde user_id = usuario logado
+// Busca platform_plan_config onde plan_type = assinatura.plan_type
+// Conta barbeiros: select count from barbers where user_id
+// Conta agendamentos do mes: select count from appointments where user_id and month
+// Retorna: subscription, planConfig, usage, daysRemaining, progressPercent
 ```
 
-### SignupPage.tsx - Fluxo em 3 etapas
+### SubscriptionInfoCard - Campos exibidos
 
-```text
-Etapa 1: Criar Conta
-  - Nome completo
-  - Nome da barbearia
-  - Email
-  - Senha
-  - Telefone
-
-Etapa 2: Escolher Plano
-  - Cards com os planos carregados de platform_plan_config
-  - Destaque no plano "Pro" como mais popular
-  - Opcao de iniciar com Trial gratuito
-
-Etapa 3: Confirmacao
-  - Resumo dos dados
-  - Termos de uso
-  - Botao "Criar Minha Conta"
-```
-
-### Fluxo tecnico do cadastro
-
-```text
-1. Usuario preenche dados pessoais
-2. Chama supabase.auth.signUp() para criar conta
-3. Insere perfil na tabela profiles
-4. Insere role 'admin' na tabela user_roles
-5. Insere subscription na tabela platform_subscriptions
-   (via funcao security definer para garantir atomicidade)
-6. Redireciona para /onboarding
-```
-
-### Hook useSuperAdmin.ts - Nova mutation
-
-```typescript
-const createSubscription = useMutation({
-  mutationFn: async (data: {
-    user_id: string;
-    plan_type: PlanType;
-    start_date: string;
-    end_date?: string;
-    notes?: string;
-  }) => {
-    // Buscar limites do plano em platform_plan_config
-    const { data: planConfig } = await supabase
-      .from('platform_plan_config')
-      .select('*')
-      .eq('plan_type', data.plan_type)
-      .single();
-
-    // Inserir subscription
-    const { error } = await supabase
-      .from('platform_subscriptions')
-      .insert({
-        user_id: data.user_id,
-        plan_type: data.plan_type,
-        status: 'active',
-        start_date: data.start_date,
-        end_date: data.end_date,
-        max_barbers: planConfig?.max_barbers || 3,
-        max_appointments_month: planConfig?.max_appointments_month || 100,
-        features: planConfig?.features || {},
-        notes: data.notes,
-      });
-
-    if (error) throw error;
-
-    // Audit log
-    await supabase.from('platform_audit_logs').insert([{
-      super_admin_id: user?.id || '',
-      action: 'activate_subscription',
-      target_user_id: data.user_id,
-      details: { plan_type: data.plan_type },
-    }]);
-  },
-  onSuccess: () => {
-    queryClient.invalidateQueries({ queryKey: ['platform-subscriptions'] });
-    toast({ title: 'Assinante criado com sucesso!' });
-  },
-});
-```
-
-### Sidebar - Novos itens sugeridos
-
-| Grupo | Novo Item | Icone | Rota |
-|-------|-----------|-------|------|
-| Visao Geral | Crescimento | TrendingUp | `/superadmin/growth` |
-| Gestao de Assinantes | Novo Assinante | UserPlus | abre dialog inline |
-
----
-
-## Resumo
-
-| Item | Valor |
-|------|-------|
-| Arquivos criados | 2 |
-| Arquivos modificados | 4 |
-| Migracoes SQL | 1 |
-| Paginas publicas novas | `/cadastro` |
-| Funcionalidades | Criar assinante (SA), Auto-cadastro de barbeiro, Novos menus |
+| Campo | Fonte |
+|-------|-------|
+| Nome do plano | platform_plan_config.display_name |
+| Tipo | platform_subscriptions.plan_type |
+| Status | platform_subscriptions.status |
+| Inicio | platform_subscriptions.start_date |
+| Termino | platform_subscriptions.end_date |
+| Max barbeiros | platform_subscriptions.max_barbers |
+| Max agendamentos | platform_subscriptions.max_appointments_month |
+| Features | platform_subscriptions.features |
+| Preco | platform_plan_config.price_monthly |
 
