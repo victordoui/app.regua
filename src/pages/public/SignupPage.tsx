@@ -7,11 +7,12 @@ import { Label } from '@/components/ui/label';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { useToast } from '@/hooks/use-toast';
-import { Scissors, Check, ArrowRight, ArrowLeft, Loader2, Crown, Star, Zap } from 'lucide-react';
+import { Scissors, Check, ArrowRight, ArrowLeft, Loader2, Crown, Star, Zap, CreditCard, QrCode } from 'lucide-react';
 import { cn, formatPhoneBR, formatNameOnly } from '@/lib/utils';
+import PixPayment from '@/components/payments/PixPayment';
 import type { PlanConfig } from '@/types/superAdmin';
 
-type Step = 1 | 2 | 3;
+type Step = 1 | 2 | 3 | 4;
 
 const SignupPage = () => {
   const navigate = useNavigate();
@@ -19,6 +20,8 @@ const SignupPage = () => {
   const [step, setStep] = useState<Step>(1);
   const [isLoading, setIsLoading] = useState(false);
   const [plans, setPlans] = useState<PlanConfig[]>([]);
+  const [paymentMethod, setPaymentMethod] = useState<'stripe' | 'pix' | null>(null);
+  const [accountCreated, setAccountCreated] = useState(false);
 
   const [formData, setFormData] = useState({
     fullName: '',
@@ -40,13 +43,21 @@ const SignupPage = () => {
     };
     fetchPlans();
 
-    // Pre-select plan from URL query param
     const searchParams = new URLSearchParams(window.location.search);
     const preSelectedPlan = searchParams.get('plano');
     if (preSelectedPlan) {
       setFormData(f => ({ ...f, selectedPlan: preSelectedPlan }));
     }
+
+    // Handle payment cancellation
+    if (searchParams.get('payment') === 'cancelled') {
+      toast({ title: 'Pagamento cancelado', description: 'Você pode tentar novamente.', variant: 'destructive' });
+    }
   }, []);
+
+  const selectedPlanConfig = plans.find(p => p.plan_type === formData.selectedPlan);
+  const isPaidPlan = formData.selectedPlan !== 'trial';
+  const totalSteps = isPaidPlan ? 4 : 3;
 
   const handleSignup = async () => {
     setIsLoading(true);
@@ -62,7 +73,6 @@ const SignupPage = () => {
       if (authError) throw authError;
       if (!authData.user) throw new Error('Erro ao criar conta');
 
-      // Call the atomic function to set up profile + role + subscription
       const { error: rpcError } = await supabase.rpc('create_subscriber_with_subscription', {
         _user_id: authData.user.id,
         _display_name: formData.fullName,
@@ -73,8 +83,16 @@ const SignupPage = () => {
 
       if (rpcError) throw rpcError;
 
-      toast({ title: 'Conta criada com sucesso! 🎉', description: 'Redirecionando para o onboarding...' });
-      setTimeout(() => navigate('/onboarding'), 1500);
+      setAccountCreated(true);
+
+      if (isPaidPlan) {
+        // Move to payment step
+        setStep(4);
+        toast({ title: 'Conta criada! 🎉', description: 'Agora finalize o pagamento do seu plano.' });
+      } else {
+        toast({ title: 'Conta criada com sucesso! 🎉', description: 'Verifique seu email para confirmar a conta.' });
+        setTimeout(() => navigate('/onboarding'), 1500);
+      }
     } catch (error: any) {
       const msg = error.message || '';
       const code = error.code || '';
@@ -99,6 +117,38 @@ const SignupPage = () => {
     }
   };
 
+  const handleStripeCheckout = async () => {
+    setIsLoading(true);
+    try {
+      const { data, error } = await supabase.functions.invoke('create-checkout', {
+        body: { plan_type: formData.selectedPlan },
+      });
+
+      if (error) throw error;
+      if (data?.url) {
+        window.location.href = data.url;
+      } else {
+        throw new Error('URL de checkout não recebida');
+      }
+    } catch (error: any) {
+      toast({
+        title: 'Erro ao iniciar pagamento',
+        description: error.message || 'Tente novamente.',
+        variant: 'destructive',
+      });
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const handlePixConfirmed = () => {
+    toast({
+      title: 'Pagamento PIX registrado!',
+      description: 'Seu pagamento será confirmado em breve. Você já pode acessar o sistema.',
+    });
+    setTimeout(() => navigate('/onboarding'), 1500);
+  };
+
   const canProceedStep1 =
     formData.fullName.trim() &&
     formData.companyName.trim() &&
@@ -110,6 +160,14 @@ const SignupPage = () => {
     basic: <Star className="h-6 w-6" />,
     pro: <Crown className="h-6 w-6" />,
     enterprise: <Scissors className="h-6 w-6" />,
+  };
+
+  const handleStep2Next = () => {
+    setStep(3);
+  };
+
+  const handleStep3Action = () => {
+    handleSignup();
   };
 
   return (
@@ -126,7 +184,7 @@ const SignupPage = () => {
 
         {/* Step indicator */}
         <div className="flex items-center justify-center gap-2 mb-8">
-          {[1, 2, 3].map((s) => (
+          {Array.from({ length: totalSteps }, (_, i) => i + 1).map((s) => (
             <div key={s} className="flex items-center gap-2">
               <div
                 className={cn(
@@ -138,7 +196,7 @@ const SignupPage = () => {
               >
                 {step > s ? <Check className="h-4 w-4" /> : s}
               </div>
-              {s < 3 && (
+              {s < totalSteps && (
                 <div className={cn('w-12 h-0.5', step > s ? 'bg-primary' : 'bg-muted')} />
               )}
             </div>
@@ -279,7 +337,7 @@ const SignupPage = () => {
               <Button variant="outline" onClick={() => setStep(1)} className="flex-1">
                 <ArrowLeft className="h-4 w-4 mr-2" /> Voltar
               </Button>
-              <Button onClick={() => setStep(3)} className="flex-1">
+              <Button onClick={handleStep2Next} className="flex-1">
                 Próximo <ArrowRight className="h-4 w-4 ml-2" />
               </Button>
             </div>
@@ -311,10 +369,23 @@ const SignupPage = () => {
                   <div className="flex justify-between">
                     <span className="text-muted-foreground">Plano:</span>
                     <Badge variant="outline">
-                      {plans.find((p) => p.plan_type === formData.selectedPlan)?.display_name || formData.selectedPlan}
+                      {selectedPlanConfig?.display_name || formData.selectedPlan}
                     </Badge>
                   </div>
+                  {isPaidPlan && selectedPlanConfig && (
+                    <div className="flex justify-between pt-2 border-t border-border">
+                      <span className="text-muted-foreground font-medium">Valor:</span>
+                      <span className="font-bold text-primary">R$ {selectedPlanConfig.price_monthly}/mês</span>
+                    </div>
+                  )}
                 </div>
+
+                {isPaidPlan && (
+                  <div className="rounded-lg bg-amber-500/10 border border-amber-500/20 p-3 text-sm text-amber-700 dark:text-amber-400">
+                    💳 Após confirmar o cadastro, você será direcionado para o pagamento.
+                  </div>
+                )}
+
                 <p className="text-xs text-muted-foreground text-center">
                   Ao criar sua conta, você concorda com os Termos de Uso e Política de Privacidade da Na Régua.
                 </p>
@@ -324,15 +395,99 @@ const SignupPage = () => {
               <Button variant="outline" onClick={() => setStep(2)} className="flex-1">
                 <ArrowLeft className="h-4 w-4 mr-2" /> Voltar
               </Button>
-              <Button onClick={handleSignup} disabled={isLoading} className="flex-1">
+              <Button onClick={handleStep3Action} disabled={isLoading} className="flex-1">
                 {isLoading ? (
                   <Loader2 className="h-4 w-4 mr-2 animate-spin" />
                 ) : (
                   <Check className="h-4 w-4 mr-2" />
                 )}
-                Criar Minha Conta
+                {isPaidPlan ? 'Criar Conta e Pagar' : 'Criar Minha Conta'}
               </Button>
             </div>
+          </div>
+        )}
+
+        {/* Step 4: Payment (only for paid plans) */}
+        {step === 4 && isPaidPlan && (
+          <div className="space-y-4">
+            <Card>
+              <CardHeader>
+                <CardTitle>Pagamento</CardTitle>
+                <CardDescription>
+                  Escolha como deseja pagar o plano {selectedPlanConfig?.display_name}
+                </CardDescription>
+              </CardHeader>
+              <CardContent className="space-y-4">
+                {/* Plan summary */}
+                <div className="rounded-lg bg-muted/50 p-4 text-center">
+                  <p className="text-sm text-muted-foreground">Plano selecionado</p>
+                  <p className="text-lg font-bold text-foreground">{selectedPlanConfig?.display_name}</p>
+                  <p className="text-2xl font-bold text-primary mt-1">
+                    R$ {selectedPlanConfig?.price_monthly}<span className="text-sm font-normal text-muted-foreground">/mês</span>
+                  </p>
+                </div>
+
+                {!paymentMethod && (
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <button
+                      onClick={() => {
+                        setPaymentMethod('stripe');
+                        handleStripeCheckout();
+                      }}
+                      className="flex flex-col items-center gap-3 p-6 rounded-xl border-2 border-border hover:border-primary/60 hover:bg-primary/5 transition-all"
+                    >
+                      <div className="w-12 h-12 rounded-full bg-primary/10 flex items-center justify-center">
+                        <CreditCard className="h-6 w-6 text-primary" />
+                      </div>
+                      <div className="text-center">
+                        <p className="font-semibold text-foreground">Cartão de Crédito</p>
+                        <p className="text-xs text-muted-foreground">Via Stripe - pagamento seguro</p>
+                      </div>
+                    </button>
+
+                    <button
+                      onClick={() => setPaymentMethod('pix')}
+                      className="flex flex-col items-center gap-3 p-6 rounded-xl border-2 border-border hover:border-primary/60 hover:bg-primary/5 transition-all"
+                    >
+                      <div className="w-12 h-12 rounded-full bg-green-500/10 flex items-center justify-center">
+                        <QrCode className="h-6 w-6 text-green-600" />
+                      </div>
+                      <div className="text-center">
+                        <p className="font-semibold text-foreground">PIX</p>
+                        <p className="text-xs text-muted-foreground">Pagamento instantâneo</p>
+                      </div>
+                    </button>
+                  </div>
+                )}
+
+                {paymentMethod === 'stripe' && isLoading && (
+                  <div className="flex flex-col items-center gap-3 py-8">
+                    <Loader2 className="h-8 w-8 animate-spin text-primary" />
+                    <p className="text-sm text-muted-foreground">Redirecionando para o checkout seguro...</p>
+                  </div>
+                )}
+
+                {paymentMethod === 'pix' && selectedPlanConfig && (
+                  <PixPayment
+                    amount={selectedPlanConfig.price_monthly}
+                    pixKey="naregua@pagamento.com"
+                    pixKeyType="email"
+                    merchantName="Na Regua"
+                    merchantCity="Sao Paulo"
+                    description={`Plano ${selectedPlanConfig.display_name}`}
+                    expirationMinutes={30}
+                    onPaymentConfirmed={handlePixConfirmed}
+                    onCancel={() => setPaymentMethod(null)}
+                  />
+                )}
+              </CardContent>
+            </Card>
+
+            {!paymentMethod && (
+              <Button variant="outline" onClick={() => { setStep(3); setAccountCreated(false); }} className="w-full">
+                <ArrowLeft className="h-4 w-4 mr-2" /> Voltar
+              </Button>
+            )}
           </div>
         )}
       </div>
