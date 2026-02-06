@@ -168,7 +168,7 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
                 </DropdownMenuLabel>
                 <DropdownMenuSeparator />
                 <DropdownMenuGroup>
-                  <DropdownMenuItem onClick={() => handleNavigate('/settings')}>
+                  <DropdownMenuItem onClick={() => handleNavigate('/profile')}>
                     <UserCircle className="mr-2 h-4 w-4" />
                     <span>Meu Perfil</span>
                   </DropdownMenuItem>
