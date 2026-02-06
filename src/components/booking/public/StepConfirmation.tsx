@@ -11,7 +11,7 @@ import { ptBR } from 'date-fns/locale';
 import { Tag, X, Check, Loader2 } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
-import { formatPhoneBR, guestContactSchema } from '@/lib/utils';
+import { formatPhoneBR, formatNameOnly, guestContactSchema } from '@/lib/utils';
 
 interface StepConfirmationProps {
   formData: ClientBookingForm;
@@ -46,7 +46,7 @@ const StepConfirmation: React.FC<StepConfirmationProps> = ({
   const selectedServices = services.filter(s => formData.selectedServices.includes(s.id));
 
   const handleNameChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setFormData(prev => ({ ...prev, clientName: e.target.value }));
+    setFormData(prev => ({ ...prev, clientName: formatNameOnly(e.target.value) }));
     if (fieldErrors.clientName) {
       setFieldErrors(prev => ({ ...prev, clientName: undefined }));
     }
@@ -310,9 +310,10 @@ const StepConfirmation: React.FC<StepConfirmationProps> = ({
               value={formData.clientPhone}
               onChange={handlePhoneChange}
               onBlur={() => validateField('clientPhone')}
-              placeholder="(11) 99999-9999"
+              placeholder="(00)0000-0000"
               className={fieldErrors.clientPhone ? 'border-destructive' : ''}
-              maxLength={15}
+              maxLength={14}
+              inputMode="tel"
               required
             />
             {fieldErrors.clientPhone && (

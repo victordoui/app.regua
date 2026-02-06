@@ -10,6 +10,7 @@ import { Building, Settings, Palette, Link, Save, Image, Eye, Share2, Instagram,
 import QRCodeGenerator from '@/components/QRCodeGenerator';
 import { useCompanySettings, CompanySettingsFormData } from '@/hooks/useCompanySettings';
 import { toast } from 'sonner';
+import { formatPhoneBR } from '@/lib/utils';
 
 import ImageUploadField from '@/components/ImageUploadField';
 import { uploadFileToStorage } from '@/lib/supabaseStorage';
@@ -208,12 +209,14 @@ const CompanySettings = () => {
                   </div>
                   <div className="grid grid-cols-2 gap-4">
                     <div>
-                      <Label htmlFor="phone">Telefone</Label>
+                     <Label htmlFor="phone">Telefone</Label>
                       <Input 
                         id="phone" 
                         value={formData.phone}
-                        onChange={(e) => setFormData(prev => ({ ...prev, phone: e.target.value }))}
-                        placeholder="(11) 99999-9999"
+                        onChange={(e) => setFormData(prev => ({ ...prev, phone: formatPhoneBR(e.target.value) }))}
+                        placeholder="(00)0000-0000"
+                        inputMode="tel"
+                        maxLength={14}
                       />
                     </div>
                     <div>

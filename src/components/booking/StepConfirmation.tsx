@@ -8,7 +8,7 @@ import { Gift } from 'lucide-react';
 import { BookingForm, Service, Barber, UserSubscription } from '@/types/booking';
 import { format } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
-import { formatPhoneBR, guestContactSchema } from '@/lib/utils';
+import { formatPhoneBR, formatNameOnly, guestContactSchema } from '@/lib/utils';
 
 interface StepConfirmationProps {
   bookingForm: BookingForm;
@@ -42,7 +42,7 @@ const StepConfirmation: React.FC<StepConfirmationProps> = ({
   const finalPrice = calculateFinalPrice();
 
   const handleNameChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setBookingForm(prev => ({ ...prev, clientName: e.target.value }));
+    setBookingForm(prev => ({ ...prev, clientName: formatNameOnly(e.target.value) }));
     if (fieldErrors.clientName) {
       setFieldErrors(prev => ({ ...prev, clientName: undefined }));
     }
@@ -147,9 +147,10 @@ const StepConfirmation: React.FC<StepConfirmationProps> = ({
               value={bookingForm.clientPhone}
               onChange={handlePhoneChange}
               onBlur={() => validateField('clientPhone')}
-              placeholder="(11) 99999-9999"
+              placeholder="(00)0000-0000"
               className={fieldErrors.clientPhone ? 'border-destructive' : ''}
-              maxLength={15}
+              maxLength={14}
+              inputMode="tel"
               required
             />
             {fieldErrors.clientPhone && (

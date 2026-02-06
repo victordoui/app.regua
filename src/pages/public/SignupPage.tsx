@@ -8,7 +8,7 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/com
 import { Badge } from '@/components/ui/badge';
 import { useToast } from '@/hooks/use-toast';
 import { Scissors, Check, ArrowRight, ArrowLeft, Loader2, Crown, Star, Zap } from 'lucide-react';
-import { cn } from '@/lib/utils';
+import { cn, formatPhoneBR, formatNameOnly } from '@/lib/utils';
 import type { PlanConfig } from '@/types/superAdmin';
 
 type Step = 1 | 2 | 3;
@@ -76,10 +76,24 @@ const SignupPage = () => {
       toast({ title: 'Conta criada com sucesso! 🎉', description: 'Redirecionando para o onboarding...' });
       setTimeout(() => navigate('/onboarding'), 1500);
     } catch (error: any) {
-      const message = error.message?.includes('already registered')
-        ? 'Este email já está cadastrado. Tente fazer login.'
-        : error.message;
-      toast({ title: 'Erro ao criar conta', description: message, variant: 'destructive' });
+      const msg = error.message || '';
+      const code = error.code || '';
+      let title = 'Erro ao criar conta';
+      let description = 'Ocorreu um erro inesperado. Tente novamente.';
+
+      if (msg.includes('already registered') || msg.includes('already been registered')) {
+        description = 'Este email já está cadastrado. Tente fazer login.';
+      } else if (msg.includes('invalid email') || msg.includes('Unable to validate email')) {
+        description = 'O email informado não é válido.';
+      } else if (msg.includes('Password should be at least 6') || msg.includes('at least 6')) {
+        description = 'A senha deve ter pelo menos 6 caracteres.';
+      } else if (code === '42P10' || msg.includes('ON CONFLICT') || msg.includes('unique constraint')) {
+        description = 'Erro de configuração interna. Contate o suporte.';
+      } else if (msg.includes('rate limit') || msg.includes('too many requests')) {
+        description = 'Muitas tentativas. Aguarde alguns minutos.';
+      }
+
+      toast({ title, description, variant: 'destructive' });
     } finally {
       setIsLoading(false);
     }
@@ -146,7 +160,7 @@ const SignupPage = () => {
                     id="fullName"
                     placeholder="Seu nome"
                     value={formData.fullName}
-                    onChange={(e) => setFormData((f) => ({ ...f, fullName: e.target.value }))}
+                    onChange={(e) => setFormData((f) => ({ ...f, fullName: formatNameOnly(e.target.value) }))}
                   />
                 </div>
                 <div className="space-y-2">
@@ -183,9 +197,11 @@ const SignupPage = () => {
                 <Label htmlFor="phone">Telefone (opcional)</Label>
                 <Input
                   id="phone"
-                  placeholder="(11) 99999-9999"
+                  placeholder="(00)0000-0000"
                   value={formData.phone}
-                  onChange={(e) => setFormData((f) => ({ ...f, phone: e.target.value }))}
+                  onChange={(e) => setFormData((f) => ({ ...f, phone: formatPhoneBR(e.target.value) }))}
+                  inputMode="tel"
+                  maxLength={14}
                 />
               </div>
               <Button

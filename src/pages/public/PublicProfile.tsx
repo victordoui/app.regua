@@ -4,6 +4,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { User, Phone, Mail, Calendar, MapPin, Save, Lock, Image, Upload } from 'lucide-react';
+import { formatPhoneBR } from '@/lib/utils';
 import { useToast } from '@/hooks/use-toast';
 import { Avatar, AvatarFallback } from '@/components/ui/avatar';
 
@@ -165,8 +166,8 @@ const PublicProfile = () => {
                     <Input id="email" type="email" value={formData.email} onChange={(e) => setFormData(prev => ({ ...prev, email: e.target.value }))} required />
                   </div>
                   <div>
-                    <Label htmlFor="phone">Telefone *</Label>
-                    <Input id="phone" value={formData.phone} onChange={(e) => setFormData(prev => ({ ...prev, phone: e.target.value }))} required />
+                     <Label htmlFor="phone">Telefone *</Label>
+                    <Input id="phone" value={formData.phone} onChange={(e) => setFormData(prev => ({ ...prev, phone: formatPhoneBR(e.target.value) }))} inputMode="tel" maxLength={14} required />
                   </div>
                 </div>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">

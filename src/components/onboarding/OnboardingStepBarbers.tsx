@@ -6,6 +6,7 @@ import { Label } from '@/components/ui/label';
 import { Button } from '@/components/ui/button';
 import { Avatar, AvatarFallback } from '@/components/ui/avatar';
 import { Users, Plus, User } from 'lucide-react';
+import { formatPhoneBR, formatNameOnly } from '@/lib/utils';
 
 interface Barber {
   id?: string;
@@ -136,7 +137,7 @@ export const OnboardingStepBarbers: React.FC<OnboardingStepBarbersProps> = ({
                   id="barber_name"
                   placeholder="Nome do barbeiro"
                   value={formData.name}
-                  onChange={(e) => setFormData(prev => ({ ...prev, name: e.target.value }))}
+                  onChange={(e) => setFormData(prev => ({ ...prev, name: formatNameOnly(e.target.value) }))}
                 />
               </div>
 
@@ -145,9 +146,11 @@ export const OnboardingStepBarbers: React.FC<OnboardingStepBarbersProps> = ({
                   <Label htmlFor="barber_phone">Telefone</Label>
                   <Input
                     id="barber_phone"
-                    placeholder="(11) 99999-9999"
+                    placeholder="(00)0000-0000"
                     value={formData.phone}
-                    onChange={(e) => setFormData(prev => ({ ...prev, phone: e.target.value }))}
+                    onChange={(e) => setFormData(prev => ({ ...prev, phone: formatPhoneBR(e.target.value) }))}
+                    inputMode="tel"
+                    maxLength={14}
                   />
                 </div>
                 <div className="space-y-2">
