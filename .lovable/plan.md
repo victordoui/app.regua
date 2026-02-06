@@ -1,163 +1,70 @@
 
-# Plano: Implementar Redirecionamento e Acesso ao Super Admin
+# Plano: Melhorar Sidebar do Super Admin com icones nos grupos e espacamento reduzido
 
-## Problema
+## Objetivo
 
-O usuario logado como `super_admin` nao esta sendo redirecionado para o painel de Super Admin e nao consegue ver os controles especificos de sua role porque:
+Alinhar o visual da sidebar do Super Admin com o padrao da sidebar do Admin/Barbeiro, adicionando icones nos titulos dos grupos colapsaveis e reduzindo o espacamento entre os itens.
 
-1. O login sempre redireciona para `/` independentemente da role
-2. A Sidebar principal nao possui link para o painel Super Admin
+## Alteracoes no arquivo `src/components/superadmin/SuperAdminSidebar.tsx`
 
-## Solucao
+### 1. Adicionar icone em cada grupo do menu
 
-### Parte 1: Redirecionar Super Admin apos Login
+Cada grupo colapsavel passara a ter um icone ao lado do titulo, seguindo o mesmo padrao visual da sidebar principal:
 
-Modificar o arquivo `src/pages/Login.tsx` para verificar a role do usuario apos autenticacao e redirecionar:
-- `super_admin` → `/superadmin`
-- Outros usuarios → `/`
+| Grupo | Icone |
+|-------|-------|
+| Visao Geral | LayoutDashboard |
+| Gestao de Assinantes | Users |
+| Marketing e Comunicacao | Send |
+| Configuracoes | Settings |
+| Suporte | Headphones |
+| Auditoria | ScrollText |
 
-**Logica:**
-```
-1. Apos login bem-sucedido
-2. Buscar role do usuario na tabela user_roles
-3. Se role = super_admin → navegar para /superadmin
-4. Senao → navegar para /
-```
+### 2. Atualizar a interface MenuGroup
 
-### Parte 2: Adicionar Link na Sidebar para Super Admin
-
-Modificar o arquivo `src/components/Sidebar.tsx` para:
-- Verificar se o usuario atual possui a role `super_admin`
-- Exibir um item de menu "Super Admin" que leva para `/superadmin`
-- Usar estilizacao especial (dourado/laranja) para destacar
-
----
-
-## Arquivos a Modificar
-
-| Arquivo | Alteracao |
-|---------|-----------|
-| `src/pages/Login.tsx` | Verificar role e redirecionar corretamente |
-| `src/components/Sidebar.tsx` | Adicionar link condicional para Super Admin |
-
----
-
-## Detalhes Tecnicos
-
-### Login.tsx - onLoginSubmit
-
-Alterar a funcao `onLoginSubmit` para:
+Adicionar campo `icon` na interface `MenuGroup`:
 
 ```typescript
-const onLoginSubmit = async (data: LoginFormValues) => {
-  setLoading(true);
-  try {
-    const { error, success } = await signIn(data.email, data.password);
-    if (error) {
-      toast({
-        title: "Erro no login",
-        description: error.message || "Credenciais inválidas",
-        variant: "destructive",
-      });
-    } else if (success) {
-      toast({
-        title: "Login realizado com sucesso!",
-        description: "Bem-vindo ao sistema!",
-      });
-      
-      // Buscar role do usuario
-      const { data: { user } } = await supabase.auth.getUser();
-      if (user) {
-        const { data: roles } = await supabase
-          .from('user_roles')
-          .select('role')
-          .eq('user_id', user.id);
-        
-        const isSuperAdmin = roles?.some(r => r.role === 'super_admin');
-        navigate(isSuperAdmin ? "/superadmin" : "/");
-      } else {
-        navigate("/");
-      }
-    }
-  } catch (error: any) {
-    // ...
-  } finally {
-    setLoading(false);
-  }
-};
+interface MenuGroup {
+  title: string;
+  icon: React.ComponentType<{ className?: string }>;
+  items: MenuItem[];
+}
 ```
 
-### Sidebar.tsx - Adicionar Menu Super Admin
+### 3. Renderizar icone no CollapsibleTrigger
 
-Importar o hook `useRole` e adicionar item condicional:
+O botao do grupo passara a exibir o icone antes do titulo:
 
 ```typescript
-import { useRole } from '@/contexts/RoleContext';
-
-// Dentro do componente:
-const { isSuperAdmin } = useRole();
-
-// Adicionar ao final das categorias do menu:
-{isSuperAdmin && (
-  <div className="pt-4 border-t border-amber-500/30">
-    <Button
-      variant="ghost"
-      className="w-full justify-start h-10 text-amber-500 hover:bg-amber-500/10"
-      onClick={() => handleNavigation('/superadmin')}
-    >
-      <Shield className="h-4 w-4 mr-3" />
-      Super Admin
-    </Button>
+<button className="flex items-center justify-between w-full px-3 py-1.5 ...">
+  <div className="flex items-center gap-2">
+    <group.icon className="h-4 w-4" />
+    <span>{group.title}</span>
   </div>
-)}
+  <ChevronDown ... />
+</button>
 ```
 
----
+### 4. Reduzir espacamento
 
-## Fluxo Corrigido
+| Elemento | Antes | Depois |
+|----------|-------|--------|
+| Espaco entre grupos (`space-y`) | `space-y-4` | `space-y-1` |
+| Padding do trigger (`py`) | `py-2` | `py-1.5` |
+| Padding dos sub-itens (`py`) | `py-2.5` | `py-2` |
+| Margem superior dos sub-itens (`mt`) | `mt-1` | `mt-0` |
+| Padding da nav | `p-4` | `p-3` |
+| Padding do header | `p-6` | `p-4` |
 
-```
-┌───────────────────────────────────────────────────────┐
-│                  FLUXO DE LOGIN                       │
-├───────────────────────────────────────────────────────┤
-│                                                       │
-│  1. Usuario clica em "Super" ou faz login manual      │
-│                      │                                │
-│                      ▼                                │
-│  2. signIn() autentica o usuario                      │
-│                      │                                │
-│                      ▼                                │
-│  3. Busca roles do usuario via user_roles             │
-│                      │                                │
-│                      ▼                                │
-│  4. Se super_admin → navega para /superadmin          │
-│     Senao → navega para /                             │
-│                      │                                │
-│                      ▼                                │
-│  5. SuperAdminDashboard carrega com todas features    │
-│                                                       │
-└───────────────────────────────────────────────────────┘
-```
+## Resultado esperado
 
----
+A sidebar do Super Admin ficara visualmente consistente com a sidebar principal, com icones em cada grupo e itens mais proximos entre si, semelhante a imagem de referencia.
 
-## Resultado Esperado
-
-Apos a implementacao:
-
-| Cenario | Comportamento |
-|---------|---------------|
-| Login como super_admin | Redireciona para `/superadmin` |
-| Login como admin/barbeiro | Redireciona para `/` |
-| Super Admin na sidebar | Ve link dourado "Super Admin" |
-| Admin/barbeiro na sidebar | Nao ve link Super Admin |
-
----
-
-## Resumo
+## Resumo tecnico
 
 | Item | Valor |
 |------|-------|
-| Arquivos modificados | 2 |
-| Migracao SQL | Nenhuma |
-| Impacto | Super Admin tera acesso completo ao painel |
+| Arquivo modificado | `src/components/superadmin/SuperAdminSidebar.tsx` |
+| Migracoes SQL | Nenhuma |
+| Dependencias novas | Nenhuma |
