@@ -1613,6 +1613,7 @@ export type Database = {
           max_appointments_month: number | null
           max_barbers: number | null
           notes: string | null
+          payment_status: string | null
           plan_type: string
           start_date: string | null
           status: string
@@ -1627,6 +1628,7 @@ export type Database = {
           max_appointments_month?: number | null
           max_barbers?: number | null
           notes?: string | null
+          payment_status?: string | null
           plan_type?: string
           start_date?: string | null
           status?: string
@@ -1641,6 +1643,7 @@ export type Database = {
           max_appointments_month?: number | null
           max_barbers?: number | null
           notes?: string | null
+          payment_status?: string | null
           plan_type?: string
           start_date?: string | null
           status?: string
