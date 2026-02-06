@@ -3,6 +3,7 @@ import { useNavigate, useLocation } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { motion, AnimatePresence } from "framer-motion";
+import { useRole } from "@/contexts/RoleContext";
 import { 
   // Navegação Principal
   Home,
@@ -52,17 +53,18 @@ import {
   LogOut,
   ChevronDown,
   ChevronRight,
-  ChevronsLeft, // Novo ícone para colapsar
-  ChevronsRight // Novo ícone para expandir
+  ChevronsLeft,
+  ChevronsRight
 } from "lucide-react";
 
 const Sidebar = () => {
   const [isOpen, setIsOpen] = useState(false);
   const [isMobile, setIsMobile] = useState(false);
-  const [isCollapsed, setIsCollapsed] = useState(false); // Novo estado para colapso
+  const [isCollapsed, setIsCollapsed] = useState(false);
   const [expandedCategories, setExpandedCategories] = useState<string[]>([]);
   const navigate = useNavigate();
   const location = useLocation();
+  const { isSuperAdmin } = useRole();
 
   useEffect(() => {
     const checkMobile = () => {
@@ -344,15 +346,27 @@ const Sidebar = () => {
               </div>
             ))}
 
+            {/* Super Admin Link */}
+            {isSuperAdmin && (
+              <div className="pt-4 border-t border-amber-500/30">
+                <Button
+                  variant="ghost"
+                  className={`w-full h-10 text-amber-500 hover:bg-amber-500/10 hover:text-amber-400 transition-all duration-200 ${isCollapsed ? 'justify-center' : 'justify-start'}`}
+                  onClick={() => handleNavigation('/superadmin')}
+                >
+                  <Shield className={`h-4 w-4 flex-shrink-0 ${!isCollapsed ? 'mr-3' : 'mr-0'}`} />
+                  <span className={isCollapsed ? 'hidden' : 'block'}>Super Admin</span>
+                </Button>
+              </div>
+            )}
+
             {/* Divider */}
             <div className="pt-4 border-t border-border">
               <div className="h-px bg-border my-4"></div>
             </div>
 
             {/* Sign Out */}
-            <div 
-              className="space-y-3"
-            >
+            <div className="space-y-3">
               <Button 
                 variant="outline" 
                 className={`w-full hover:bg-destructive/10 hover:text-destructive hover:border-destructive/20 transition-all duration-200 ${isCollapsed ? 'justify-center' : 'justify-start'}`} 

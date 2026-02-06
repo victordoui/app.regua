@@ -12,6 +12,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
+import { supabase } from "@/integrations/supabase/client";
 import {
   Form,
   FormControl,
@@ -78,7 +79,20 @@ const Login = () => {
           title: "Login realizado com sucesso!",
           description: "Bem-vindo ao sistema!",
         });
-        navigate("/");
+        
+        // Buscar role do usuário para redirecionar corretamente
+        const { data: { user } } = await supabase.auth.getUser();
+        if (user) {
+          const { data: roles } = await supabase
+            .from('user_roles')
+            .select('role')
+            .eq('user_id', user.id);
+          
+          const isSuperAdmin = roles?.some(r => r.role === 'super_admin');
+          navigate(isSuperAdmin ? "/superadmin" : "/");
+        } else {
+          navigate("/");
+        }
       }
     } catch (error: any) {
       console.error("Erro no login:", error);
