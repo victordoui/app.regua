@@ -39,6 +39,13 @@ const SignupPage = () => {
       if (data) setPlans(data as unknown as PlanConfig[]);
     };
     fetchPlans();
+
+    // Pre-select plan from URL query param
+    const searchParams = new URLSearchParams(window.location.search);
+    const preSelectedPlan = searchParams.get('plano');
+    if (preSelectedPlan) {
+      setFormData(f => ({ ...f, selectedPlan: preSelectedPlan }));
+    }
   }, []);
 
   const handleSignup = async () => {
