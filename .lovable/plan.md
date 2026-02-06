@@ -1,78 +1,76 @@
 
-# Plano: Tratamento de Erros no Cadastro + Mascara de Telefone e Validacao de Inputs Global
+# Plano: Corrigir Erro de Cadastro + Integrar Pagamento (Stripe + PIX)
 
-## Objetivo
+## Problema Atual
 
-1. Melhorar o tratamento de erros na SignupPage com mensagens amigaveis para diferentes cenarios de falha
-2. Aplicar mascara de telefone padrao `(00)0000-0000` em todos os campos de telefone do sistema
-3. Restringir campos de nome para aceitar somente letras e campos numericos para aceitar somente numeros
+O erro "Erro de configuracao interna. Contate o suporte." acontece porque a tabela `barbershop_settings` nao tem uma constraint UNIQUE na coluna `user_id`, mas a funcao RPC `create_subscriber_with_subscription` usa `ON CONFLICT (user_id)`. Isso precisa ser corrigido primeiro.
 
----
+## O que sera feito
 
-## 1. Utilitarios centralizados em `src/lib/utils.ts`
+### 1. Correcao do banco de dados (Migration)
 
-Atualizar a funcao `formatPhoneBR` para usar o formato fixo `(00)0000-0000` (sem espaco, 8 digitos apos o DDD):
+Adicionar constraint UNIQUE na coluna `user_id` da tabela `barbershop_settings` para que o `ON CONFLICT` funcione corretamente.
 
 ```text
-(00)0000-0000
-- Somente numeros aceitos na digitacao
-- Mascara aplicada automaticamente
-- Max 10 digitos
+ALTER TABLE barbershop_settings ADD CONSTRAINT barbershop_settings_user_id_key UNIQUE (user_id);
 ```
 
-Adicionar funcao utilitaria `formatNameOnly(value)` que remove qualquer caractere que nao seja letra ou espaco.
+### 2. Adicionar coluna de status de pagamento na subscription
 
-Atualizar o schema `guestContactSchema` para refletir o novo formato de telefone.
+Adicionar campo `payment_status` na tabela `platform_subscriptions` para rastrear se o plano foi pago:
 
-## 2. Tratamento de erros na `SignupPage.tsx`
+```text
+ALTER TABLE platform_subscriptions ADD COLUMN payment_status text DEFAULT 'pending';
+-- Valores: 'pending', 'paid', 'free' (para trial)
+```
 
-Melhorar o bloco catch do `handleSignup` para mapear erros comuns:
+### 3. Habilitar Stripe
 
-| Erro | Mensagem amigavel |
-|------|-------------------|
-| `already registered` | Este email ja esta cadastrado. Tente fazer login. |
-| `invalid email` | O email informado nao e valido. |
-| `Password should be at least 6` | A senha deve ter pelo menos 6 caracteres. |
-| `42P10` ou `ON CONFLICT` | Erro de configuracao interna. Contate o suporte. |
-| `rate limit` | Muitas tentativas. Aguarde alguns minutos. |
-| Erro generico | Ocorreu um erro inesperado. Tente novamente. |
+Usar a integracao nativa do Lovable com Stripe para processar pagamentos com cartao de credito. Sera necessario configurar a chave secreta do Stripe.
 
-Adicionar validacao nos campos:
-- **Nome completo**: aceitar somente letras (a-zA-Z com acentos) e espacos
-- **Telefone**: aplicar mascara `(00)0000-0000`, aceitar somente numeros
-- **Nome da barbearia**: aceitar letras, numeros e caracteres basicos
+### 4. Edge Function: `create-checkout` 
 
-## 3. Aplicar mascara de telefone em todos os formularios
+Criar edge function que:
+- Recebe o `plan_type` e `user_id`
+- Busca o preco do plano em `platform_plan_config`
+- Cria uma Stripe Checkout Session para pagamento com cartao
+- Retorna a URL de checkout para redirecionar o usuario
+- Apos pagamento confirmado, atualiza `payment_status` na subscription
 
-Arquivos que possuem campos de telefone sem mascara e precisam ser atualizados:
+### 5. Edge Function: `stripe-webhook`
 
-| Arquivo | Campo |
-|---------|-------|
-| `src/pages/public/SignupPage.tsx` | phone |
-| `src/pages/Settings.tsx` | phone, userPhone |
-| `src/pages/Clients.tsx` | phone |
-| `src/pages/CompanySettings.tsx` | phone |
-| `src/pages/public/PublicProfile.tsx` | phone |
-| `src/pages/BarberManagement.tsx` | phone |
-| `src/pages/client/ClientProfile.tsx` | phone |
-| `src/pages/Waitlist.tsx` | client_phone |
-| `src/components/onboarding/OnboardingStepCompany.tsx` | phone |
-| `src/components/onboarding/OnboardingStepBarbers.tsx` | phone |
+Criar edge function para receber webhooks do Stripe:
+- Escuta o evento `checkout.session.completed`
+- Atualiza `payment_status` para 'paid' na `platform_subscriptions`
+- Ativa a subscription do usuario
 
-Em cada um, o onChange do campo de telefone passara a usar `formatPhoneBR(e.target.value)` e o input tera `maxLength` e `inputMode="tel"`.
+### 6. Atualizar fluxo de cadastro (`SignupPage.tsx`)
 
-## 4. Restringir campos de nome para somente letras
+Modificar o Step 3 (Confirmacao) para incluir a logica de pagamento:
 
-Nos formularios onde o campo e claramente um nome de pessoa (nao nome de servico/produto), aplicar filtro que remove caracteres nao-alfabeticos:
+```text
+Fluxo atualizado:
+1. Usuario preenche dados (Step 1)
+2. Escolhe plano (Step 2)
+3. Confirmacao + Pagamento (Step 3):
+   - Se plano = "trial": cria conta diretamente (gratis)
+   - Se plano pago: exibe opcoes de pagamento
+     - Cartao (Stripe): redireciona para Stripe Checkout
+     - PIX: exibe QR Code com valor do plano
+```
 
-| Arquivo | Campo |
-|---------|-------|
-| `src/pages/public/SignupPage.tsx` | fullName |
-| `src/pages/Clients.tsx` | name (nome do cliente) |
-| `src/components/onboarding/OnboardingStepBarbers.tsx` | name (nome do barbeiro) |
-| `src/pages/Waitlist.tsx` | client_name |
-| `src/components/booking/StepConfirmation.tsx` | clientName |
-| `src/components/booking/public/StepConfirmation.tsx` | clientName |
+### 7. Adicionar Step 4: Pagamento (novo step no wizard)
+
+Novo step no wizard de cadastro que aparece apenas para planos pagos:
+
+- Exibe o resumo do plano escolhido e valor
+- Dois botoes: "Pagar com Cartao" e "Pagar com PIX"
+- **Cartao**: Redireciona para Stripe Checkout, que ao completar volta para `/onboarding`
+- **PIX**: Mostra o componente `PixPayment` ja existente com o valor do plano. Botao "Ja paguei" marca como pendente de confirmacao
+
+### 8. Pagina de retorno do Stripe
+
+Ao voltar do Stripe Checkout com sucesso, o usuario e redirecionado para `/onboarding` e a subscription ja esta ativa.
 
 ---
 
@@ -80,46 +78,57 @@ Nos formularios onde o campo e claramente um nome de pessoa (nao nome de servico
 
 | Arquivo | Acao |
 |---------|------|
-| `src/lib/utils.ts` | Modificar - atualizar formatPhoneBR, adicionar formatNameOnly, atualizar schema |
-| `src/pages/public/SignupPage.tsx` | Modificar - erros amigaveis + mascara telefone + filtro nome |
-| `src/pages/Settings.tsx` | Modificar - mascara telefone |
-| `src/pages/Clients.tsx` | Modificar - mascara telefone + filtro nome |
-| `src/pages/CompanySettings.tsx` | Modificar - mascara telefone |
-| `src/pages/public/PublicProfile.tsx` | Modificar - mascara telefone |
-| `src/pages/BarberManagement.tsx` | Modificar - mascara telefone |
-| `src/pages/client/ClientProfile.tsx` | Modificar - mascara telefone |
-| `src/pages/Waitlist.tsx` | Modificar - mascara telefone + filtro nome |
-| `src/components/onboarding/OnboardingStepCompany.tsx` | Modificar - mascara telefone |
-| `src/components/onboarding/OnboardingStepBarbers.tsx` | Modificar - mascara telefone + filtro nome |
-| `src/components/booking/StepConfirmation.tsx` | Modificar - filtro nome |
-| `src/components/booking/public/StepConfirmation.tsx` | Modificar - filtro nome |
+| Migration SQL | Criar - UNIQUE constraint em barbershop_settings.user_id + payment_status |
+| `supabase/functions/create-checkout/index.ts` | Criar - edge function Stripe Checkout |
+| `supabase/functions/stripe-webhook/index.ts` | Criar - webhook Stripe |
+| `supabase/config.toml` | Modificar - registrar novas edge functions |
+| `src/pages/public/SignupPage.tsx` | Modificar - adicionar step de pagamento para planos pagos |
 
 ## Detalhes tecnicos
 
-### formatPhoneBR atualizado
+### Fluxo de pagamento no cadastro
 
 ```text
-Formato: (00)0000-0000
-- Remove tudo que nao e digito
-- Limita a 10 digitos
-- Aplica mascara progressiva:
-  - 1-2 digitos: (XX
-  - 3-6 digitos: (XX)XXXX
-  - 7-10 digitos: (XX)XXXX-XXXX
+Usuario escolhe plano
+        |
+    Trial? ----Sim----> Cria conta gratis -> Onboarding
+        |
+       Nao
+        |
+    Step 4: Pagamento
+        |
+   +----+----+
+   |         |
+ Cartao     PIX
+   |         |
+ Stripe    QR Code
+Checkout   PixPayment
+   |         |
+Webhook    "Ja paguei"
+   |         |
+ Ativa     Pendente
+ sub.     confirmacao
+   |         |
+   +----+----+
+        |
+    Onboarding
 ```
 
-### formatNameOnly
+### Stripe Checkout Session
 
 ```text
-- Remove qualquer caractere que nao seja letra (a-zA-Z), acentos (À-ÿ) ou espaco
-- Impede numeros e caracteres especiais em campos de nome de pessoa
+- line_items: [{ price_data com valor do plano }]
+- mode: 'payment' (pagamento unico por enquanto)
+- success_url: {origin}/onboarding?payment=success
+- cancel_url: {origin}/cadastro?payment=cancelled
+- metadata: { user_id, plan_type, subscription_id }
 ```
 
-### Mapeamento de erros na SignupPage
+### PIX no cadastro
 
-```text
-Funcao getSignupErrorMessage(error):
-  - Verifica error.message e error.code
-  - Retorna { title, description } com mensagem amigavel em portugues
-  - Cobre: email duplicado, email invalido, senha fraca, rate limit, erro RPC, erro generico
-```
+Reutilizar o componente `PixPayment` ja existente. A chave PIX e dados do comerciante virao de uma configuracao ou variavel de ambiente.
+
+### Configuracao necessaria do usuario
+
+- Chave secreta do Stripe (sera solicitada ao habilitar)
+- Chave PIX para recebimento (pode ser configurada no Super Admin futuramente)
