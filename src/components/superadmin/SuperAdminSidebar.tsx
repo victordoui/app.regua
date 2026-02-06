@@ -28,16 +28,17 @@ import { Badge } from '@/components/ui/badge';
 import { useTicketStats } from '@/hooks/superadmin/useSupportTickets';
 import { useExpiringStats } from '@/hooks/superadmin/useExpiringSubscriptions';
 
-interface MenuGroup {
-  title: string;
-  items: MenuItem[];
-}
-
 interface MenuItem {
   title: string;
   href: string;
   icon: React.ComponentType<{ className?: string }>;
   badge?: number;
+}
+
+interface MenuGroup {
+  title: string;
+  icon: React.ComponentType<{ className?: string }>;
+  items: MenuItem[];
 }
 
 const SuperAdminSidebar = () => {
@@ -57,6 +58,7 @@ const SuperAdminSidebar = () => {
   const menuGroups: Record<string, MenuGroup> = {
     overview: {
       title: 'Visão Geral',
+      icon: LayoutDashboard,
       items: [
         { title: 'Dashboard', href: '/superadmin', icon: LayoutDashboard },
         { title: 'Métricas Financeiras', href: '/superadmin/metrics', icon: DollarSign },
@@ -64,6 +66,7 @@ const SuperAdminSidebar = () => {
     },
     subscribers: {
       title: 'Gestão de Assinantes',
+      icon: Users,
       items: [
         { title: 'Assinantes', href: '/superadmin/subscribers', icon: Users },
         { 
@@ -77,6 +80,7 @@ const SuperAdminSidebar = () => {
     },
     marketing: {
       title: 'Marketing & Comunicação',
+      icon: Send,
       items: [
         { title: 'Cupons da Plataforma', href: '/superadmin/coupons', icon: Ticket },
         { title: 'Mensagens em Massa', href: '/superadmin/broadcast', icon: Send },
@@ -85,12 +89,14 @@ const SuperAdminSidebar = () => {
     },
     settings: {
       title: 'Configurações',
+      icon: Settings,
       items: [
         { title: 'Planos e Preços', href: '/superadmin/plans', icon: Settings },
       ],
     },
     support: {
       title: 'Suporte',
+      icon: Headphones,
       items: [
         { 
           title: 'Tickets de Suporte', 
@@ -102,6 +108,7 @@ const SuperAdminSidebar = () => {
     },
     audit: {
       title: 'Auditoria',
+      icon: ScrollText,
       items: [
         { title: 'Logs de Auditoria', href: '/superadmin/logs', icon: ScrollText },
       ],
@@ -110,7 +117,7 @@ const SuperAdminSidebar = () => {
 
   return (
     <aside className="w-64 bg-card border-r border-border min-h-screen flex flex-col">
-      <div className="p-6 border-b border-border">
+      <div className="p-4 border-b border-border">
         <div className="flex items-center gap-3">
           <div className="w-10 h-10 bg-gradient-to-r from-amber-500 to-orange-500 rounded-lg flex items-center justify-center">
             <Shield className="h-5 w-5 text-white" />
@@ -122,8 +129,8 @@ const SuperAdminSidebar = () => {
         </div>
       </div>
 
-      <nav className="flex-1 p-4 overflow-y-auto">
-        <div className="space-y-4">
+      <nav className="flex-1 p-3 overflow-y-auto">
+        <div className="space-y-1">
           {Object.entries(menuGroups).map(([key, group]) => (
             <Collapsible
               key={key}
@@ -131,8 +138,11 @@ const SuperAdminSidebar = () => {
               onOpenChange={() => toggleGroup(key)}
             >
               <CollapsibleTrigger asChild>
-                <button className="flex items-center justify-between w-full px-3 py-2 text-sm font-semibold text-muted-foreground hover:text-foreground transition-colors">
-                  <span>{group.title}</span>
+                <button className="flex items-center justify-between w-full px-3 py-1.5 text-sm font-semibold text-muted-foreground hover:text-foreground transition-colors">
+                  <div className="flex items-center gap-2">
+                    <group.icon className="h-4 w-4" />
+                    <span>{group.title}</span>
+                  </div>
                   <ChevronDown
                     className={cn(
                       'h-4 w-4 transition-transform duration-200',
@@ -141,7 +151,7 @@ const SuperAdminSidebar = () => {
                   />
                 </button>
               </CollapsibleTrigger>
-              <CollapsibleContent className="space-y-1 mt-1">
+              <CollapsibleContent className="space-y-0.5 mt-0">
                 {group.items.map((item) => {
                   const isActive = location.pathname === item.href;
                   return (
@@ -149,7 +159,7 @@ const SuperAdminSidebar = () => {
                       key={item.href}
                       to={item.href}
                       className={cn(
-                        'flex items-center justify-between gap-3 px-4 py-2.5 rounded-lg transition-all duration-200',
+                        'flex items-center justify-between gap-3 px-4 py-2 rounded-lg transition-all duration-200',
                         isActive
                           ? 'bg-primary text-primary-foreground'
                           : 'text-muted-foreground hover:bg-muted hover:text-foreground'
