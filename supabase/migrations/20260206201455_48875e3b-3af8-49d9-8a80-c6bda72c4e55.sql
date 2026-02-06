@@ -1,0 +1,2 @@
+ALTER TABLE platform_plan_config 
+ADD COLUMN IF NOT EXISTS trial_days INTEGER DEFAULT 14;

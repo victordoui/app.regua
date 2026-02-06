@@ -61,6 +61,7 @@ const SuperAdminSidebar = () => {
       icon: LayoutDashboard,
       items: [
         { title: 'Dashboard', href: '/superadmin', icon: LayoutDashboard },
+        { title: 'Usuários do Sistema', href: '/superadmin/users', icon: Users },
         { title: 'Métricas Financeiras', href: '/superadmin/metrics', icon: DollarSign },
       ],
     },

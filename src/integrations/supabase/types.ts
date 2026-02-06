@@ -1572,6 +1572,7 @@ export type Database = {
           price_monthly: number
           price_yearly: number | null
           sort_order: number | null
+          trial_days: number | null
           updated_at: string | null
         }
         Insert: {
@@ -1586,6 +1587,7 @@ export type Database = {
           price_monthly?: number
           price_yearly?: number | null
           sort_order?: number | null
+          trial_days?: number | null
           updated_at?: string | null
         }
         Update: {
@@ -1600,6 +1602,7 @@ export type Database = {
           price_monthly?: number
           price_yearly?: number | null
           sort_order?: number | null
+          trial_days?: number | null
           updated_at?: string | null
         }
         Relationships: []
