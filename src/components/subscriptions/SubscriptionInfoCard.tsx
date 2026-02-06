@@ -1,7 +1,9 @@
+import { useNavigate } from 'react-router-dom';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
+import { Button } from '@/components/ui/button';
 import { Progress } from '@/components/ui/progress';
-import { Crown, Calendar, Users, CalendarCheck, Zap, Clock } from 'lucide-react';
+import { Crown, Calendar, Users, CalendarCheck, Zap, Clock, Sparkles } from 'lucide-react';
 import { format } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
 import type { SubscriptionData } from '@/hooks/useMySubscription';
@@ -32,7 +34,9 @@ interface SubscriptionInfoCardProps {
 }
 
 const SubscriptionInfoCard = ({ data }: SubscriptionInfoCardProps) => {
+  const navigate = useNavigate();
   const { subscription, planConfig, usage, daysRemaining, progressPercent } = data;
+  const showUpgradeButton = subscription && (subscription.plan_type === 'trial' || subscription.status === 'expired' || subscription.status === 'cancelled');
 
   if (!subscription) {
     return (
@@ -72,6 +76,13 @@ const SubscriptionInfoCard = ({ data }: SubscriptionInfoCardProps) => {
               R$ {Number(planConfig.price_monthly).toFixed(2)}
               <span className="text-sm font-normal text-muted-foreground">/mês</span>
             </p>
+          )}
+
+          {showUpgradeButton && (
+            <Button className="w-full gap-2 mt-2" onClick={() => navigate('/upgrade')}>
+              <Sparkles className="h-4 w-4" />
+              Ativar Plano Agora
+            </Button>
           )}
         </CardContent>
       </Card>

@@ -26,6 +26,7 @@ import { useToast } from '@/hooks/use-toast';
 import { ThemeToggle } from '@/components/ui/theme-toggle';
 import { supabase } from '@/integrations/supabase/client';
 import { Badge } from '@/components/ui/badge';
+import TrialBanner from '@/components/TrialBanner';
 
 interface LayoutProps {
   children?: React.ReactNode;
@@ -130,6 +131,7 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
         {/* Header */}
         <header className="bg-card border-b border-border px-4 lg:px-6 h-14 flex items-center justify-end">
           <div className="flex items-center gap-3">
+            <TrialBanner />
             <ThemeToggle />
             
             <Button 
