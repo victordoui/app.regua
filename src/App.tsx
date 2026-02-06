@@ -66,6 +66,7 @@ import PlanConfiguration from "./pages/superadmin/PlanConfiguration";
 import SupportTickets from "./pages/superadmin/SupportTickets";
 import TicketDetail from "./pages/superadmin/TicketDetail";
 import SignupPage from "./pages/public/SignupPage";
+import SalesPage from "./pages/public/SalesPage";
 
 // Client Mobile Pages
 import ClientLogin from "./pages/client/ClientLogin";
@@ -114,8 +115,9 @@ function AppContent() {
         {/* Rota Pública Legacy */}
         <Route path="/public-booking/:userId/*" element={<PublicBookingPage />} />
 
-        {/* Cadastro público para barbeiros */}
+        {/* Páginas públicas */}
         <Route path="/cadastro" element={<SignupPage />} />
+        <Route path="/vendas" element={<SalesPage />} />
 
         {/* Dashboard / Visão Geral */}
         <Route path="/" element={<ProtectedRoute><Dashboard /></ProtectedRoute>} />

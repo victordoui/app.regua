@@ -438,6 +438,12 @@ const Login = () => {
         </Card>
 
         <div className="text-center text-muted-foreground text-sm mt-8">
+          <button
+            onClick={() => navigate('/vendas')}
+            className="text-primary hover:underline font-medium mb-3 block mx-auto"
+          >
+            Conheça nossos planos →
+          </button>
           <p className="mb-2">© 2024 Na Régua - Todos os direitos reservados</p>
           <div className="flex items-center justify-center gap-2">
             <div className="w-2 h-2 bg-primary rounded-full animate-pulse"></div>
