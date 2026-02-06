@@ -11,6 +11,7 @@ import { useWaitlist } from '@/hooks/useWaitlist';
 import { format } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
 import { Clock, Users, Plus, Bell, Calendar, Trash2, Loader2, CheckCircle } from 'lucide-react';
+import { formatPhoneBR, formatNameOnly } from '@/lib/utils';
 
 const Waitlist = () => {
   const { waitlist, stats, isLoading, addToWaitlist, updateStatus, removeFromWaitlist, isAdding } = useWaitlist();
@@ -45,8 +46,8 @@ const Waitlist = () => {
             <DialogContent>
               <DialogHeader><DialogTitle>Novo na Lista</DialogTitle></DialogHeader>
               <div className="space-y-4">
-                <div><Label>Nome</Label><Input value={formData.client_name} onChange={e => setFormData(p => ({ ...p, client_name: e.target.value }))} /></div>
-                <div><Label>Telefone</Label><Input value={formData.client_phone} onChange={e => setFormData(p => ({ ...p, client_phone: e.target.value }))} /></div>
+                <div><Label>Nome</Label><Input value={formData.client_name} onChange={e => setFormData(p => ({ ...p, client_name: formatNameOnly(e.target.value) }))} /></div>
+                <div><Label>Telefone</Label><Input value={formData.client_phone} onChange={e => setFormData(p => ({ ...p, client_phone: formatPhoneBR(e.target.value) }))} inputMode="tel" maxLength={14} placeholder="(00)0000-0000" /></div>
                 <div><Label>Data Preferida</Label><Input type="date" value={formData.preferred_date} onChange={e => setFormData(p => ({ ...p, preferred_date: e.target.value }))} /></div>
                 <Button onClick={handleSubmit} disabled={isAdding} className="w-full">{isAdding && <Loader2 className="h-4 w-4 animate-spin mr-2" />}Adicionar</Button>
               </div>

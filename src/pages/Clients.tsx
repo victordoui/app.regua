@@ -19,6 +19,7 @@ import {
 import { useClients } from "@/hooks/useClients";
 import Layout from "@/components/Layout";
 import { Client } from "@/types/appointments";
+import { formatPhoneBR, formatNameOnly } from "@/lib/utils";
 
 interface ClientFormData {
   name: string;
@@ -134,7 +135,7 @@ const Clients = () => {
                   <Input
                     id="name"
                     value={formData.name}
-                    onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+                    onChange={(e) => setFormData({ ...formData, name: formatNameOnly(e.target.value) })}
                     placeholder="Nome completo do cliente"
                     required
                   />
@@ -144,8 +145,10 @@ const Clients = () => {
                   <Input
                     id="phone"
                     value={formData.phone}
-                    onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
-                    placeholder="(11) 99999-9999"
+                    onChange={(e) => setFormData({ ...formData, phone: formatPhoneBR(e.target.value) })}
+                    placeholder="(00)0000-0000"
+                    inputMode="tel"
+                    maxLength={14}
                     required
                   />
                 </div>

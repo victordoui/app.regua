@@ -5,6 +5,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { Building2 } from 'lucide-react';
+import { formatPhoneBR } from '@/lib/utils';
 
 interface CompanyFormData {
   company_name: string;
@@ -82,10 +83,12 @@ export const OnboardingStepCompany: React.FC<OnboardingStepCompanyProps> = ({
               <Label htmlFor="phone">Telefone</Label>
               <Input
                 id="phone"
-                placeholder="(11) 99999-9999"
+                placeholder="(00)0000-0000"
                 value={data.phone}
-                onChange={(e) => onChange({ phone: e.target.value })}
+                onChange={(e) => onChange({ phone: formatPhoneBR(e.target.value) })}
                 className="h-12"
+                inputMode="tel"
+                maxLength={14}
               />
             </div>
 

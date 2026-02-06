@@ -4,6 +4,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Settings as SettingsIcon, Store, User, LogOut } from "lucide-react";
 import Layout from "@/components/Layout";
+import { formatPhoneBR } from "@/lib/utils";
 
 const Settings = () => {
   const handleSignOut = () => {
@@ -37,8 +38,8 @@ const Settings = () => {
               <Input id="address" defaultValue="Rua das Barbearias, 123" />
             </div>
             <div>
-              <Label htmlFor="phone">Telefone</Label>
-              <Input id="phone" defaultValue="(11) 99999-9999" />
+             <Label htmlFor="phone">Telefone</Label>
+              <Input id="phone" defaultValue="(11)9999-9999" inputMode="tel" maxLength={14} />
             </div>
             <Button>Salvar Alterações</Button>
           </CardContent>
@@ -58,7 +59,7 @@ const Settings = () => {
             </div>
             <div>
               <Label htmlFor="userPhone">Telefone</Label>
-              <Input id="userPhone" placeholder="(11) 99999-9999" />
+              <Input id="userPhone" placeholder="(00)0000-0000" inputMode="tel" maxLength={14} />
             </div>
             <div className="flex gap-2">
               <Button>Atualizar Perfil</Button>

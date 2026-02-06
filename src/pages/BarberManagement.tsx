@@ -16,6 +16,7 @@ import { Barber } from '@/types/appointments';
 import BlockedSlotsManager from '@/components/barbers/BlockedSlotsManager';
 import BarberAbsencesManager from '@/components/barbers/BarberAbsencesManager';
 import { format } from 'date-fns';
+import { formatPhoneBR } from '@/lib/utils';
 
 interface BarberFormData {
   full_name: string;
@@ -280,8 +281,10 @@ const BarberManagement = () => {
                 <Input
                   id="phone"
                   value={formData.phone}
-                  onChange={(e) => setFormData(prev => ({ ...prev, phone: e.target.value }))}
-                  placeholder="(11) 99999-9999"
+                  onChange={(e) => setFormData(prev => ({ ...prev, phone: formatPhoneBR(e.target.value) }))}
+                  placeholder="(00)0000-0000"
+                  inputMode="tel"
+                  maxLength={14}
                 />
               </div>
               <div>

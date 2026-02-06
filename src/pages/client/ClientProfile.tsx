@@ -8,6 +8,7 @@ import { Label } from '@/components/ui/label';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Separator } from '@/components/ui/separator';
 import { User, Mail, Phone, MapPin, LogOut, Loader2, Save, Camera } from 'lucide-react';
+import { formatPhoneBR } from '@/lib/utils';
 import { motion } from 'framer-motion';
 import { useToast } from '@/hooks/use-toast';
 import MobileLayout from '@/components/mobile/MobileLayout';
@@ -250,8 +251,10 @@ const ClientProfile = () => {
                   <Input
                     id="phone"
                     value={profile.phone || ''}
-                    onChange={(e) => setProfile({ ...profile, phone: e.target.value })}
-                    placeholder="(11) 99999-9999"
+                    onChange={(e) => setProfile({ ...profile, phone: formatPhoneBR(e.target.value) })}
+                    placeholder="(00)0000-0000"
+                    inputMode="tel"
+                    maxLength={14}
                     className="h-12"
                   />
                 </div>
