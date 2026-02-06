@@ -1,134 +1,72 @@
 
-# Plano: Corrigir Erro de Cadastro + Integrar Pagamento (Stripe + PIX)
 
-## Problema Atual
+# Plano: Dashboard Super Admin Completo com Metricas de Usuarios
 
-O erro "Erro de configuracao interna. Contate o suporte." acontece porque a tabela `barbershop_settings` nao tem uma constraint UNIQUE na coluna `user_id`, mas a funcao RPC `create_subscriber_with_subscription` usa `ON CONFLICT (user_id)`. Isso precisa ser corrigido primeiro.
-
-## O que sera feito
-
-### 1. Correcao do banco de dados (Migration)
-
-Adicionar constraint UNIQUE na coluna `user_id` da tabela `barbershop_settings` para que o `ON CONFLICT` funcione corretamente.
-
-```text
-ALTER TABLE barbershop_settings ADD CONSTRAINT barbershop_settings_user_id_key UNIQUE (user_id);
-```
-
-### 2. Adicionar coluna de status de pagamento na subscription
-
-Adicionar campo `payment_status` na tabela `platform_subscriptions` para rastrear se o plano foi pago:
-
-```text
-ALTER TABLE platform_subscriptions ADD COLUMN payment_status text DEFAULT 'pending';
--- Valores: 'pending', 'paid', 'free' (para trial)
-```
-
-### 3. Habilitar Stripe
-
-Usar a integracao nativa do Lovable com Stripe para processar pagamentos com cartao de credito. Sera necessario configurar a chave secreta do Stripe.
-
-### 4. Edge Function: `create-checkout` 
-
-Criar edge function que:
-- Recebe o `plan_type` e `user_id`
-- Busca o preco do plano em `platform_plan_config`
-- Cria uma Stripe Checkout Session para pagamento com cartao
-- Retorna a URL de checkout para redirecionar o usuario
-- Apos pagamento confirmado, atualiza `payment_status` na subscription
-
-### 5. Edge Function: `stripe-webhook`
-
-Criar edge function para receber webhooks do Stripe:
-- Escuta o evento `checkout.session.completed`
-- Atualiza `payment_status` para 'paid' na `platform_subscriptions`
-- Ativa a subscription do usuario
-
-### 6. Atualizar fluxo de cadastro (`SignupPage.tsx`)
-
-Modificar o Step 3 (Confirmacao) para incluir a logica de pagamento:
-
-```text
-Fluxo atualizado:
-1. Usuario preenche dados (Step 1)
-2. Escolhe plano (Step 2)
-3. Confirmacao + Pagamento (Step 3):
-   - Se plano = "trial": cria conta diretamente (gratis)
-   - Se plano pago: exibe opcoes de pagamento
-     - Cartao (Stripe): redireciona para Stripe Checkout
-     - PIX: exibe QR Code com valor do plano
-```
-
-### 7. Adicionar Step 4: Pagamento (novo step no wizard)
-
-Novo step no wizard de cadastro que aparece apenas para planos pagos:
-
-- Exibe o resumo do plano escolhido e valor
-- Dois botoes: "Pagar com Cartao" e "Pagar com PIX"
-- **Cartao**: Redireciona para Stripe Checkout, que ao completar volta para `/onboarding`
-- **PIX**: Mostra o componente `PixPayment` ja existente com o valor do plano. Botao "Ja paguei" marca como pendente de confirmacao
-
-### 8. Pagina de retorno do Stripe
-
-Ao voltar do Stripe Checkout com sucesso, o usuario e redirecionado para `/onboarding` e a subscription ja esta ativa.
+## Objetivo
+Transformar o Dashboard do Super Admin em um painel completo que mostre todas as informacoes sobre usuarios cadastrados, assinaturas, trials, roles e status geral da plataforma. Tambem adicionar configuracao dinamica do periodo de trial e corrigir a visibilidade de usuarios "orfaos" (sem perfil completo).
 
 ---
 
-## Resumo de arquivos
+## O que sera implementado
 
-| Arquivo | Acao |
-|---------|------|
-| Migration SQL | Criar - UNIQUE constraint em barbershop_settings.user_id + payment_status |
-| `supabase/functions/create-checkout/index.ts` | Criar - edge function Stripe Checkout |
-| `supabase/functions/stripe-webhook/index.ts` | Criar - webhook Stripe |
-| `supabase/config.toml` | Modificar - registrar novas edge functions |
-| `src/pages/public/SignupPage.tsx` | Modificar - adicionar step de pagamento para planos pagos |
+### 1. Novo hook `usePlatformUsers` para buscar dados completos
+Criar um hook que consulta `profiles`, `user_roles` e `platform_subscriptions` para montar uma visao completa de todos os usuarios do sistema, incluindo:
+- Nome, email, avatar
+- Role atribuida (super_admin, admin, barber, client)
+- Status da assinatura e plano
+- Data de cadastro
+- Usuarios sem perfil completo (orfaos)
 
-## Detalhes tecnicos
+### 2. Dashboard Super Admin aprimorado
+Adicionar novas metricas ao dashboard existente:
+- **Total de usuarios cadastrados** (da tabela `profiles`)
+- **Usuarios por role** (admin, barbeiro, cliente, super_admin)
+- **Assinaturas ativas vs trial vs pagas**
+- **Periodo de trial** (exibir quantos dias o trial possui)
+- **Usuarios sem perfil completo** (alerta)
+- **Novos cadastros este mes**
 
-### Fluxo de pagamento no cadastro
+Os cards existentes serao mantidos e novos cards serao adicionados abaixo, junto com uma tabela resumo dos usuarios recentes.
 
-```text
-Usuario escolhe plano
-        |
-    Trial? ----Sim----> Cria conta gratis -> Onboarding
-        |
-       Nao
-        |
-    Step 4: Pagamento
-        |
-   +----+----+
-   |         |
- Cartao     PIX
-   |         |
- Stripe    QR Code
-Checkout   PixPayment
-   |         |
-Webhook    "Ja paguei"
-   |         |
- Ativa     Pendente
- sub.     confirmacao
-   |         |
-   +----+----+
-        |
-    Onboarding
+### 3. Coluna `trial_days` na tabela `platform_plan_config`
+Adicionar via migracao uma coluna `trial_days INTEGER DEFAULT 14` para que o periodo de teste seja configuravel pelo Super Admin na pagina de Planos e Precos, ao inves de hardcoded no SQL.
+
+### 4. Pagina de Usuarios do Sistema (nova rota `/superadmin/users`)
+Criar uma pagina dedicada com tabela listando todos os usuarios, com:
+- Nome, email, role, plano, status da assinatura
+- Filtros por role e status
+- Busca por nome/email
+- Indicacao visual de usuarios com cadastro incompleto
+
+### 5. Atualizacao do Sidebar
+Adicionar link "Usuarios do Sistema" no grupo "Visao Geral" do sidebar do Super Admin.
+
+---
+
+## Detalhes Tecnicos
+
+### Migracao SQL
+```sql
+ALTER TABLE platform_plan_config 
+ADD COLUMN IF NOT EXISTS trial_days INTEGER DEFAULT 14;
 ```
 
-### Stripe Checkout Session
+### Novo hook: `src/hooks/superadmin/usePlatformUsers.ts`
+- Consulta `profiles` com join em `user_roles` e `platform_subscriptions`
+- Retorna contagens por role, por status, usuarios recentes e orfaos
+- Exporta stats agregadas para uso no dashboard
 
-```text
-- line_items: [{ price_data com valor do plano }]
-- mode: 'payment' (pagamento unico por enquanto)
-- success_url: {origin}/onboarding?payment=success
-- cancel_url: {origin}/cadastro?payment=cancelled
-- metadata: { user_id, plan_type, subscription_id }
-```
+### Arquivos modificados
+- `src/pages/superadmin/SuperAdminDashboard.tsx` - Adicionar novos cards de metricas e tabela de usuarios recentes
+- `src/components/superadmin/SuperAdminSidebar.tsx` - Adicionar link para nova pagina de usuarios
+- `src/hooks/superadmin/usePlanConfig.ts` - Incluir `trial_days` nos tipos e mutacoes
+- `src/types/superAdmin.ts` - Adicionar `trial_days` ao tipo `PlanConfig` e `PlanConfigFormData`
+- `src/integrations/supabase/types.ts` - Atualizar tipos gerados
 
-### PIX no cadastro
+### Novos arquivos
+- `src/hooks/superadmin/usePlatformUsers.ts` - Hook para dados de usuarios
+- `src/pages/superadmin/SystemUsers.tsx` - Nova pagina de usuarios do sistema
 
-Reutilizar o componente `PixPayment` ja existente. A chave PIX e dados do comerciante virao de uma configuracao ou variavel de ambiente.
+### Rota
+- Adicionar `/superadmin/users` no `App.tsx`
 
-### Configuracao necessaria do usuario
-
-- Chave secreta do Stripe (sera solicitada ao habilitar)
-- Chave PIX para recebimento (pode ser configurada no Super Admin futuramente)
