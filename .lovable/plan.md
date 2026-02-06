@@ -1,72 +1,55 @@
 
-
-# Plano: Dashboard Super Admin Completo com Metricas de Usuarios
+# Plano: Banner Trial na Barra Superior + Botao de Upgrade no Perfil
 
 ## Objetivo
-Transformar o Dashboard do Super Admin em um painel completo que mostre todas as informacoes sobre usuarios cadastrados, assinaturas, trials, roles e status geral da plataforma. Tambem adicionar configuracao dinamica do periodo de trial e corrigir a visibilidade de usuarios "orfaos" (sem perfil completo).
+Duas melhorias para usuarios em periodo de teste (trial):
+1. Exibir um banner/indicador na barra superior de navegacao mostrando "Acesso Trial" com dias restantes e link para assinar um plano pago.
+2. Adicionar botao "Ativar Plano" na pagina Meu Perfil (SubscriptionInfoCard) para que o dono da barbearia possa fazer upgrade antes do trial expirar.
 
 ---
 
 ## O que sera implementado
 
-### 1. Novo hook `usePlatformUsers` para buscar dados completos
-Criar um hook que consulta `profiles`, `user_roles` e `platform_subscriptions` para montar uma visao completa de todos os usuarios do sistema, incluindo:
-- Nome, email, avatar
-- Role atribuida (super_admin, admin, barber, client)
-- Status da assinatura e plano
-- Data de cadastro
-- Usuarios sem perfil completo (orfaos)
+### 1. Componente `TrialBanner` na barra superior (Layout.tsx)
+Um componente compacto exibido no header, a esquerda do avatar, somente para usuarios com assinatura trial ativa. Mostrara:
+- Icone de relogio + texto "Trial" com badge amarela
+- Dias restantes (ex: "7 dias restantes")
+- Botao "Assinar Plano" que direciona para uma pagina/dialog de escolha de plano
 
-### 2. Dashboard Super Admin aprimorado
-Adicionar novas metricas ao dashboard existente:
-- **Total de usuarios cadastrados** (da tabela `profiles`)
-- **Usuarios por role** (admin, barbeiro, cliente, super_admin)
-- **Assinaturas ativas vs trial vs pagas**
-- **Periodo de trial** (exibir quantos dias o trial possui)
-- **Usuarios sem perfil completo** (alerta)
-- **Novos cadastros este mes**
+O componente usara o hook `useMySubscription` ja existente para obter os dados da assinatura e dias restantes.
 
-Os cards existentes serao mantidos e novos cards serao adicionados abaixo, junto com uma tabela resumo dos usuarios recentes.
+### 2. Pagina de Upgrade (`/upgrade`) para selecao de plano
+Uma pagina interna (protegida) onde o usuario trial pode visualizar os planos pagos (Basic, Professional, Enterprise) com precos e funcionalidades, e clicar para iniciar o checkout via Stripe (usando a edge function `create-checkout` ja existente).
 
-### 3. Coluna `trial_days` na tabela `platform_plan_config`
-Adicionar via migracao uma coluna `trial_days INTEGER DEFAULT 14` para que o periodo de teste seja configuravel pelo Super Admin na pagina de Planos e Precos, ao inves de hardcoded no SQL.
+Os dados dos planos serao buscados da tabela `platform_plan_config` para manter consistencia com o que o Super Admin configura.
 
-### 4. Pagina de Usuarios do Sistema (nova rota `/superadmin/users`)
-Criar uma pagina dedicada com tabela listando todos os usuarios, com:
-- Nome, email, role, plano, status da assinatura
-- Filtros por role e status
-- Busca por nome/email
-- Indicacao visual de usuarios com cadastro incompleto
-
-### 5. Atualizacao do Sidebar
-Adicionar link "Usuarios do Sistema" no grupo "Visao Geral" do sidebar do Super Admin.
+### 3. Botao "Ativar Plano" no SubscriptionInfoCard
+Quando a assinatura for do tipo `trial`, exibir um botao destacado "Ativar Plano Agora" que redireciona para `/upgrade`. Tambem sera exibido para planos expirados ou cancelados.
 
 ---
 
 ## Detalhes Tecnicos
 
-### Migracao SQL
-```sql
-ALTER TABLE platform_plan_config 
-ADD COLUMN IF NOT EXISTS trial_days INTEGER DEFAULT 14;
-```
+### Novo arquivo: `src/components/TrialBanner.tsx`
+- Usa `useMySubscription()` para verificar se o plano e trial
+- Renderiza badge amarela com "Trial - X dias restantes" e botao "Assinar"
+- Retorna `null` se nao for trial ou se estiver carregando
 
-### Novo hook: `src/hooks/superadmin/usePlatformUsers.ts`
-- Consulta `profiles` com join em `user_roles` e `platform_subscriptions`
-- Retorna contagens por role, por status, usuarios recentes e orfaos
-- Exporta stats agregadas para uso no dashboard
+### Novo arquivo: `src/pages/Upgrade.tsx`
+- Busca planos pagos de `platform_plan_config` (excluindo trial)
+- Exibe cards com nome, preco, funcionalidades
+- Botao "Assinar" chama `supabase.functions.invoke('create-checkout', { body: { plan_type } })`
+- Redireciona para o checkout Stripe
 
 ### Arquivos modificados
-- `src/pages/superadmin/SuperAdminDashboard.tsx` - Adicionar novos cards de metricas e tabela de usuarios recentes
-- `src/components/superadmin/SuperAdminSidebar.tsx` - Adicionar link para nova pagina de usuarios
-- `src/hooks/superadmin/usePlanConfig.ts` - Incluir `trial_days` nos tipos e mutacoes
-- `src/types/superAdmin.ts` - Adicionar `trial_days` ao tipo `PlanConfig` e `PlanConfigFormData`
-- `src/integrations/supabase/types.ts` - Atualizar tipos gerados
+- **`src/components/Layout.tsx`**: Importar e renderizar `TrialBanner` no header, entre o ThemeToggle e o botao de notificacoes
+- **`src/components/subscriptions/SubscriptionInfoCard.tsx`**: Adicionar botao "Ativar Plano Agora" quando `plan_type === 'trial'` (ou status expirado/cancelado), usando `useNavigate` para ir a `/upgrade`
+- **`src/App.tsx`**: Adicionar rota protegida `/upgrade` apontando para `Upgrade.tsx`
 
-### Novos arquivos
-- `src/hooks/superadmin/usePlatformUsers.ts` - Hook para dados de usuarios
-- `src/pages/superadmin/SystemUsers.tsx` - Nova pagina de usuarios do sistema
-
-### Rota
-- Adicionar `/superadmin/users` no `App.tsx`
-
+### Fluxo do usuario
+1. Usuario trial faz login
+2. Ve na barra superior: "Trial - 10 dias restantes | Assinar Plano"
+3. Clica no botao ou vai em Meu Perfil > Minha Assinatura
+4. Na pagina de Upgrade, escolhe um plano pago
+5. E redirecionado ao Stripe Checkout
+6. Apos pagamento, o webhook atualiza a assinatura automaticamente
