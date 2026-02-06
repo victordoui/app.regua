@@ -1,74 +1,118 @@
 
-
-# Plano: Atribuir Role de Super Admin ao Usuario
+# Plano: Corrigir Recursao Infinita nas Politicas RLS da Tabela user_roles
 
 ## Problema Identificado
 
-O usuario `superadmin@naregua.com` existe no banco de dados, mas **nao possui a role `super_admin`** atribuida na tabela `user_roles`. Por isso, ao clicar no botao "Super" na tela de login:
+A requisicao para buscar as roles do usuario retorna erro **500** com a mensagem:
 
-1. O login e feito com sucesso (autenticacao funciona)
-2. O `RoleContext` busca as roles do usuario na tabela `user_roles`
-3. Nao encontra nenhuma role `super_admin`
-4. O `ProtectedRoute` redireciona o usuario de volta para `/` porque ele nao tem permissao
+```
+"infinite recursion detected in policy for relation 'user_roles'"
+```
+
+### Causa Raiz
+
+A politica **"Admins can manage roles"** na tabela `user_roles` esta configurada assim:
+
+```sql
+EXISTS (
+  SELECT 1 FROM user_roles user_roles_1
+  WHERE user_roles_1.user_id = auth.uid() 
+  AND user_roles_1.role = 'admin'::app_role
+)
+```
+
+**Fluxo da recursao:**
+1. Usuario tenta consultar `user_roles`
+2. RLS verifica a politica "Admins can manage roles"
+3. A politica faz SELECT na propria tabela `user_roles`
+4. Esse SELECT dispara novamente a verificacao de RLS
+5. Volta ao passo 2 → **RECURSAO INFINITA**
+
+---
 
 ## Solucao
 
-Criar uma migracao SQL para inserir a role `super_admin` na tabela `user_roles` para o usuario `superadmin@naregua.com`.
+Substituir a politica problemática por uma que use a funcao `has_role()` (que ja existe no banco com `SECURITY DEFINER`), permitindo bypass do RLS durante a verificacao.
+
+Tambem vou adicionar permissao para `super_admin` gerenciar roles.
 
 ---
 
 ## Migracao SQL
 
 ```sql
--- Atribuir role super_admin ao usuario superadmin@naregua.com
-INSERT INTO public.user_roles (user_id, role)
-SELECT id, 'super_admin'::app_role
-FROM auth.users
-WHERE email = 'superadmin@naregua.com'
-ON CONFLICT (user_id, role) DO NOTHING;
+-- 1. Remover a politica problemática
+DROP POLICY IF EXISTS "Admins can manage roles" ON public.user_roles;
 
--- Tambem atribuir roles aos outros usuarios de teste
--- Admin
-INSERT INTO public.user_roles (user_id, role)
-SELECT id, 'admin'::app_role
-FROM auth.users
-WHERE email = 'admin@naregua.com'
-ON CONFLICT (user_id, role) DO NOTHING;
+-- 2. Criar nova politica para administradores usando has_role()
+CREATE POLICY "Admins can manage all roles"
+ON public.user_roles
+FOR ALL
+TO authenticated
+USING (
+  has_role(auth.uid(), 'admin'::app_role) 
+  OR has_role(auth.uid(), 'super_admin'::app_role)
+)
+WITH CHECK (
+  has_role(auth.uid(), 'admin'::app_role) 
+  OR has_role(auth.uid(), 'super_admin'::app_role)
+);
 
--- Barbeiro
-INSERT INTO public.user_roles (user_id, role)
-SELECT id, 'barbeiro'::app_role
-FROM auth.users
-WHERE email = 'barbeiro@naregua.com'
-ON CONFLICT (user_id, role) DO NOTHING;
+-- 3. Manter a politica existente para usuarios verem suas proprias roles
+-- (ja existe e funciona corretamente)
+-- "Users can view their own roles" - USING (auth.uid() = user_id)
 ```
 
 ---
 
 ## Resultado Esperado
 
-Apos a migracao:
+Apos a correcao:
 
-| Usuario | Role |
-|---------|------|
-| superadmin@naregua.com | super_admin |
-| admin@naregua.com | admin |
-| barbeiro@naregua.com | barbeiro |
+| Acao | Permissao |
+|------|-----------|
+| Usuario ve suas proprias roles | Permitido (politica existente) |
+| Admin gerencia todas as roles | Permitido (nova politica) |
+| Super Admin gerencia todas as roles | Permitido (nova politica) |
 
 ---
 
 ## Fluxo Corrigido
 
-1. Usuario clica em "Super" na tela de login
-2. Login com `superadmin@naregua.com` / `superadmin123456`
-3. `RoleContext` encontra role `super_admin` na tabela `user_roles`
-4. Usuario e redirecionado para `/superadmin` (Dashboard Super Admin)
-5. `SuperAdminSidebar` e exibida com todas as opcoes de gestao da plataforma
+```text
+┌─────────────────────────────────────────────────────────────────┐
+│                    FLUXO DE AUTENTICACAO                        │
+├─────────────────────────────────────────────────────────────────┤
+│                                                                 │
+│  1. Usuario faz login como superadmin@naregua.com               │
+│                           │                                     │
+│                           ▼                                     │
+│  2. RoleContext consulta user_roles                             │
+│                           │                                     │
+│                           ▼                                     │
+│  3. RLS verifica politica "Users can view their own roles"      │
+│     → auth.uid() = user_id? SIM                                 │
+│                           │                                     │
+│                           ▼                                     │
+│  4. Retorna role: super_admin                                   │
+│                           │                                     │
+│                           ▼                                     │
+│  5. ProtectedRoute verifica hasRole('super_admin')? SIM         │
+│                           │                                     │
+│                           ▼                                     │
+│  6. Usuario acessa /superadmin com sucesso                      │
+│                                                                 │
+└─────────────────────────────────────────────────────────────────┘
+```
 
 ---
 
 ## Resumo Tecnico
 
-- **1 migracao SQL**: Inserir roles para usuarios de teste
-- **Sem alteracoes de codigo**: A logica ja existe, apenas faltavam os dados
-
+| Item | Descricao |
+|------|-----------|
+| Arquivos alterados | 0 (apenas migracao SQL) |
+| Politica removida | "Admins can manage roles" |
+| Politica criada | "Admins can manage all roles" |
+| Funcao utilizada | `has_role()` com SECURITY DEFINER |
+| Impacto | Corrige erro 500 e permite acesso ao Super Admin |
