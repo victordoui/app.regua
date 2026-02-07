@@ -11,6 +11,7 @@ import ErrorBoundary from "@/components/ErrorBoundary";
 // Pages
 import Login from "./pages/Login";
 import Dashboard from "./pages/Index";
+import BarberDashboard from "./pages/BarberDashboard";
 import Appointments from "./pages/Appointments";
 import Clients from "./pages/Clients";
 import BarberManagement from "./pages/BarberManagement";
@@ -122,62 +123,48 @@ function AppContent() {
         <Route path="/cadastro" element={<SignupPage />} />
         <Route path="/vendas" element={<SalesPage />} />
 
-        {/* Dashboard / Visão Geral */}
-        <Route path="/" element={<ProtectedRoute><Dashboard /></ProtectedRoute>} />
-        <Route path="/customer-success" element={<ProtectedRoute><CustomerSuccess /></ProtectedRoute>} />
-        <Route path="/barber-performance" element={<ProtectedRoute><BarberPerformance /></ProtectedRoute>} />
+        {/* Dashboard - Admin vê completo, Barbeiro vê simplificado */}
+        <Route path="/" element={<ProtectedRoute allowedRoles={['admin', 'barbeiro']}><Dashboard /></ProtectedRoute>} />
+        <Route path="/barber-dashboard" element={<ProtectedRoute allowedRoles={['barbeiro']}><BarberDashboard /></ProtectedRoute>} />
 
-        {/* Operações */}
-        <Route path="/appointments" element={<ProtectedRoute><Appointments /></ProtectedRoute>} />
-        <Route path="/clients" element={<ProtectedRoute><Clients /></ProtectedRoute>} />
-        <Route path="/barbers" element={<ProtectedRoute><BarberManagement /></ProtectedRoute>} />
-        <Route path="/services" element={<ProtectedRoute><Services /></ProtectedRoute>} />
+        {/* Rotas compartilhadas: Admin + Barbeiro */}
+        <Route path="/appointments" element={<ProtectedRoute allowedRoles={['admin', 'barbeiro']}><Appointments /></ProtectedRoute>} />
+        <Route path="/clients" element={<ProtectedRoute allowedRoles={['admin', 'barbeiro']}><Clients /></ProtectedRoute>} />
+        <Route path="/conversations" element={<ProtectedRoute allowedRoles={['admin', 'barbeiro']}><Conversations /></ProtectedRoute>} />
+        <Route path="/advanced-notifications" element={<ProtectedRoute allowedRoles={['admin', 'barbeiro']}><AdvancedNotifications /></ProtectedRoute>} />
+        <Route path="/team-chat" element={<ProtectedRoute allowedRoles={['admin', 'barbeiro']}><TeamChat /></ProtectedRoute>} />
+        <Route path="/shifts" element={<ProtectedRoute allowedRoles={['admin', 'barbeiro']}><Shifts /></ProtectedRoute>} />
+        <Route path="/profile" element={<ProtectedRoute allowedRoles={['admin', 'barbeiro']}><Profile /></ProtectedRoute>} />
 
-        {/* Comunicação */}
-        <Route path="/conversations" element={<ProtectedRoute><Conversations /></ProtectedRoute>} />
-        {/* Rota unificada para Notificações Avançadas (inclui Notificações Gerais) */}
-        <Route path="/advanced-notifications" element={<ProtectedRoute><AdvancedNotifications /></ProtectedRoute>} />
-        <Route path="/campaigns" element={<ProtectedRoute><Campaigns /></ProtectedRoute>} />
-
-        {/* Financeiro */}
-        <Route path="/reports" element={<ProtectedRoute><Reports /></ProtectedRoute>} /> {/* Visão Financeira */}
-        <Route path="/billing" element={<ProtectedRoute><Billing /></ProtectedRoute>} />
-        <Route path="/commissions" element={<ProtectedRoute><Commissions /></ProtectedRoute>} />
-        <Route path="/coupons" element={<ProtectedRoute><Coupons /></ProtectedRoute>} />
-
-        {/* Assinaturas */}
-        <Route path="/subscriptions" element={<ProtectedRoute><Subscriptions /></ProtectedRoute>} />
-        <Route path="/subscriptions/new" element={<ProtectedRoute><SubscriptionCreation /></ProtectedRoute>} />
-
-        {/* Minha Empresa */}
-        <Route path="/settings/company" element={<ProtectedRoute><CompanySettings /></ProtectedRoute>} />
-        <Route path="/inventory" element={<ProtectedRoute><Inventory /></ProtectedRoute>} />
-        <Route path="/integrations" element={<ProtectedRoute><Integrations /></ProtectedRoute>} />
-        <Route path="/gallery" element={<ProtectedRoute><Gallery /></ProtectedRoute>} />
-        
-        {/* Novas Funcionalidades */}
-        <Route path="/reviews" element={<ProtectedRoute><Reviews /></ProtectedRoute>} />
-        <Route path="/loyalty" element={<ProtectedRoute><Loyalty /></ProtectedRoute>} />
-        <Route path="/waitlist" element={<ProtectedRoute><Waitlist /></ProtectedRoute>} />
-        <Route path="/referrals" element={<ProtectedRoute><Referrals /></ProtectedRoute>} />
-        <Route path="/commission-rules" element={<ProtectedRoute><CommissionRules /></ProtectedRoute>} />
-        <Route path="/gift-cards" element={<ProtectedRoute><GiftCards /></ProtectedRoute>} />
-        <Route path="/dynamic-pricing" element={<ProtectedRoute><DynamicPricing /></ProtectedRoute>} />
-        <Route path="/shifts" element={<ProtectedRoute><Shifts /></ProtectedRoute>} />
-        <Route path="/team-chat" element={<ProtectedRoute><TeamChat /></ProtectedRoute>} />
-
-        {/* Administração */}
-        <Route path="/upgrade" element={<ProtectedRoute><Upgrade /></ProtectedRoute>} />
-        <Route path="/profile" element={<ProtectedRoute><Profile /></ProtectedRoute>} />
-        <Route path="/users" element={<ProtectedRoute><Users /></ProtectedRoute>} />
-        <Route path="/settings" element={<ProtectedRoute><Settings /></ProtectedRoute>} /> {/* Configurações Gerais */}
-
-        {/* Vendas / Caixa */}
-        <Route path="/cash" element={<ProtectedRoute><Cash /></ProtectedRoute>} />
-        <Route path="/sales-reports" element={<ProtectedRoute><SalesReports /></ProtectedRoute>} />
-
-        {/* Rota de Agendamento Online (mantida, mas não aparece na sidebar de gestão) */}
-        <Route path="/booking" element={<ProtectedRoute><OnlineBooking /></ProtectedRoute>} />
+        {/* Rotas exclusivas do Admin */}
+        <Route path="/customer-success" element={<ProtectedRoute allowedRoles={['admin']}><CustomerSuccess /></ProtectedRoute>} />
+        <Route path="/barber-performance" element={<ProtectedRoute allowedRoles={['admin']}><BarberPerformance /></ProtectedRoute>} />
+        <Route path="/barbers" element={<ProtectedRoute allowedRoles={['admin']}><BarberManagement /></ProtectedRoute>} />
+        <Route path="/services" element={<ProtectedRoute allowedRoles={['admin']}><Services /></ProtectedRoute>} />
+        <Route path="/waitlist" element={<ProtectedRoute allowedRoles={['admin']}><Waitlist /></ProtectedRoute>} />
+        <Route path="/campaigns" element={<ProtectedRoute allowedRoles={['admin']}><Campaigns /></ProtectedRoute>} />
+        <Route path="/reports" element={<ProtectedRoute allowedRoles={['admin']}><Reports /></ProtectedRoute>} />
+        <Route path="/billing" element={<ProtectedRoute allowedRoles={['admin']}><Billing /></ProtectedRoute>} />
+        <Route path="/commissions" element={<ProtectedRoute allowedRoles={['admin']}><Commissions /></ProtectedRoute>} />
+        <Route path="/coupons" element={<ProtectedRoute allowedRoles={['admin']}><Coupons /></ProtectedRoute>} />
+        <Route path="/gift-cards" element={<ProtectedRoute allowedRoles={['admin']}><GiftCards /></ProtectedRoute>} />
+        <Route path="/dynamic-pricing" element={<ProtectedRoute allowedRoles={['admin']}><DynamicPricing /></ProtectedRoute>} />
+        <Route path="/subscriptions" element={<ProtectedRoute allowedRoles={['admin']}><Subscriptions /></ProtectedRoute>} />
+        <Route path="/subscriptions/new" element={<ProtectedRoute allowedRoles={['admin']}><SubscriptionCreation /></ProtectedRoute>} />
+        <Route path="/loyalty" element={<ProtectedRoute allowedRoles={['admin']}><Loyalty /></ProtectedRoute>} />
+        <Route path="/referrals" element={<ProtectedRoute allowedRoles={['admin']}><Referrals /></ProtectedRoute>} />
+        <Route path="/settings/company" element={<ProtectedRoute allowedRoles={['admin']}><CompanySettings /></ProtectedRoute>} />
+        <Route path="/inventory" element={<ProtectedRoute allowedRoles={['admin']}><Inventory /></ProtectedRoute>} />
+        <Route path="/gallery" element={<ProtectedRoute allowedRoles={['admin']}><Gallery /></ProtectedRoute>} />
+        <Route path="/integrations" element={<ProtectedRoute allowedRoles={['admin']}><Integrations /></ProtectedRoute>} />
+        <Route path="/reviews" element={<ProtectedRoute allowedRoles={['admin']}><Reviews /></ProtectedRoute>} />
+        <Route path="/commission-rules" element={<ProtectedRoute allowedRoles={['admin']}><CommissionRules /></ProtectedRoute>} />
+        <Route path="/booking" element={<ProtectedRoute allowedRoles={['admin']}><OnlineBooking /></ProtectedRoute>} />
+        <Route path="/upgrade" element={<ProtectedRoute allowedRoles={['admin']}><Upgrade /></ProtectedRoute>} />
+        <Route path="/users" element={<ProtectedRoute allowedRoles={['admin']}><Users /></ProtectedRoute>} />
+        <Route path="/settings" element={<ProtectedRoute allowedRoles={['admin']}><Settings /></ProtectedRoute>} />
+        <Route path="/cash" element={<ProtectedRoute allowedRoles={['admin']}><Cash /></ProtectedRoute>} />
+        <Route path="/sales-reports" element={<ProtectedRoute allowedRoles={['admin']}><SalesReports /></ProtectedRoute>} />
 
         {/* Rota de fallback */}
         <Route path="*" element={<Navigate to="/" replace />} />

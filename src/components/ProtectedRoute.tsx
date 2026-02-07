@@ -6,11 +6,12 @@ import { useRole, AppRole } from '@/contexts/RoleContext';
 interface ProtectedRouteProps {
   children: ReactNode;
   requiredRole?: AppRole;
+  allowedRoles?: AppRole[];
 }
 
-const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ children, requiredRole }) => {
+const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ children, requiredRole, allowedRoles }) => {
   const { user, loading: authLoading } = useAuth();
-  const { hasRole, loading: roleLoading } = useRole();
+  const { userRole, hasRole, loading: roleLoading } = useRole();
 
   const loading = authLoading || roleLoading;
 
@@ -26,10 +27,35 @@ const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ children, requiredRole 
     return <Navigate to="/login" replace />;
   }
 
-  // Check required role if specified
+  // Super admin always has full access
+  if (hasRole('super_admin')) {
+    return <>{children}</>;
+  }
+
+  // Check legacy requiredRole prop (used for super_admin routes)
   if (requiredRole && !hasRole(requiredRole)) {
-    // Redirect based on actual role
     return <Navigate to="/" replace />;
+  }
+
+  // Check allowedRoles list
+  if (allowedRoles && allowedRoles.length > 0) {
+    const hasAccess = allowedRoles.some(role => hasRole(role));
+    if (!hasAccess) {
+      // Intelligent redirect based on actual role
+      if (userRole === 'cliente') {
+        return <Navigate to={`/b/${user.id}/home`} replace />;
+      }
+      if (userRole === 'barbeiro') {
+        return <Navigate to="/appointments" replace />;
+      }
+      return <Navigate to="/" replace />;
+    }
+  }
+
+  // If user is a cliente trying to access admin area without allowedRoles specified
+  // (fallback for routes without explicit role config)
+  if (userRole === 'cliente' && !allowedRoles) {
+    return <Navigate to={`/b/${user.id}/home`} replace />;
   }
 
   return <>{children}</>;

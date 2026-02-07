@@ -18,9 +18,13 @@ import RecentActivities from "@/components/dashboard/RecentActivities";
 import BirthdayClients from "@/components/dashboard/BirthdayClients";
 import InactiveClients from "@/components/dashboard/InactiveClients";
 
+import { useRole } from "@/contexts/RoleContext";
+import BarberDashboard from "./BarberDashboard";
+
 const Index = () => {
   const { user } = useAuth();
   const navigate = useNavigate();
+  const { isBarbeiro, isAdmin, isSuperAdmin } = useRole();
   const { getStats: getSubscriptionStats } = useSubscriptions();
   const subscriptionStats = getSubscriptionStats();
   
@@ -32,6 +36,11 @@ const Index = () => {
     isLoading, 
     isConnected 
   } = useRealtimeDashboard();
+
+  // Barbeiro sees simplified dashboard
+  if (isBarbeiro && !isAdmin && !isSuperAdmin) {
+    return <BarberDashboard />;
+  }
 
   const stats = React.useMemo(() => [
     {
