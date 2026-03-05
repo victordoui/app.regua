@@ -137,8 +137,7 @@ function AppContent() {
         <Route path="/profile" element={<ProtectedRoute allowedRoles={['admin', 'barbeiro']}><Profile /></ProtectedRoute>} />
 
         {/* Rotas exclusivas do Admin */}
-        <Route path="/customer-success" element={<ProtectedRoute allowedRoles={['admin']}><CustomerSuccess /></ProtectedRoute>} />
-        <Route path="/barber-performance" element={<ProtectedRoute allowedRoles={['admin']}><BarberPerformance /></ProtectedRoute>} />
+        
         <Route path="/barbers" element={<ProtectedRoute allowedRoles={['admin']}><BarberManagement /></ProtectedRoute>} />
         <Route path="/services" element={<ProtectedRoute allowedRoles={['admin']}><Services /></ProtectedRoute>} />
         <Route path="/waitlist" element={<ProtectedRoute allowedRoles={['admin']}><Waitlist /></ProtectedRoute>} />
@@ -157,7 +156,7 @@ function AppContent() {
         <Route path="/inventory" element={<ProtectedRoute allowedRoles={['admin']}><Inventory /></ProtectedRoute>} />
         <Route path="/gallery" element={<ProtectedRoute allowedRoles={['admin']}><Gallery /></ProtectedRoute>} />
         <Route path="/integrations" element={<ProtectedRoute allowedRoles={['admin']}><Integrations /></ProtectedRoute>} />
-        <Route path="/reviews" element={<ProtectedRoute allowedRoles={['admin']}><Reviews /></ProtectedRoute>} />
+        
         <Route path="/commission-rules" element={<ProtectedRoute allowedRoles={['admin']}><CommissionRules /></ProtectedRoute>} />
         <Route path="/booking" element={<ProtectedRoute allowedRoles={['admin']}><OnlineBooking /></ProtectedRoute>} />
         <Route path="/upgrade" element={<ProtectedRoute allowedRoles={['admin']}><Upgrade /></ProtectedRoute>} />
