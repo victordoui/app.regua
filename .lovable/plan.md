@@ -1,21 +1,16 @@
 
 
-# Ajustar Switch para especificações exatas
+# Ajustar largura do Switch para 50px
 
-O switch atual já está limpo (sem ícones, sem efeitos), mas as dimensões não batem com as especificações pedidas. Ajustes necessários:
+O componente já está quase correto, mas a largura `48px` pode estar visualmente parecendo circular por ser muito próxima da altura. O usuário pede `50px` de largura.
 
-## Alterações em `src/components/ui/switch.tsx`
+## Alteração em `src/components/ui/switch.tsx`
 
 | Propriedade | Atual | Novo |
 |---|---|---|
-| Track largura | `w-[44px]` | `w-[48px]` |
-| Track altura | `h-6` (24px) | `h-[26px]` |
-| Thumb tamanho | `h-5 w-5` (20px) | `h-5 w-5` (20px) ✓ já correto |
-| Thumb unchecked | `left-[2px]` | `left-[3px]` |
-| Thumb checked | `left-[calc(100%-22px)]` | `left-[calc(100%-23px)]` |
-| Track `rounded` | `rounded-full` | `rounded-[999px]` (equivalente, mas explicita o pedido) |
+| Track largura | `w-[48px]` | `w-[50px]` |
 
-Também adicionar `relative` ao Root (necessário para `absolute` do thumb funcionar — pode já estar herdado do Radix, mas convém garantir).
+Apenas uma linha muda: `w-[48px]` → `w-[50px]`. Thumb checked position ajustada de `left-[calc(100%-23px)]` → `left-[calc(100%-23px)]` (mantém, pois 50-20-3=27, mas `calc(100%-23px)` = 27px, correto).
 
-Dimensões finais: track 48x26px, thumb 20x20px circular, 3px de padding interno.
+Tudo mais já está conforme especificado: `rounded-[999px]` no track, `rounded-full` no thumb (= `border-radius: 50%`), `h-[26px]`, thumb `h-5 w-5` (20px).
 
