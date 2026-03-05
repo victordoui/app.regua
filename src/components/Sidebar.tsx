@@ -67,28 +67,26 @@ const Sidebar = () => {
       items: [
         { icon: MessageSquare, label: "Conversas", path: "/conversations" },
         { icon: Bell, label: "Notificações", path: "/advanced-notifications" },
-        { icon: Megaphone, label: "Campanhas / Marketing", path: "/campaigns" },
         { icon: MessageCircle, label: "Chat da Equipe", path: "/team-chat" }
       ]
     },
     {
       category: "financeiro", label: "Financeiro", icon: DollarSign,
       items: [
-        { icon: BarChart3, label: "Visão Financeira", path: "/reports" },
+        { icon: BarChart3, label: "Relatórios", path: "/reports" },
         { icon: CreditCard, label: "Contas a Pagar / Receber", path: "/billing" },
         { icon: Receipt, label: "Comissões", path: "/commissions" },
         { icon: Ticket, label: "Cupons", path: "/coupons" },
         { icon: Gift, label: "Gift Cards", path: "/gift-cards" },
-        { icon: Tag, label: "Preços Dinâmicos", path: "/dynamic-pricing" }
+        { icon: Tag, label: "Preços Dinâmicos", path: "/dynamic-pricing" },
+        { icon: ShoppingCart, label: "Caixa e PDV", path: "/cash" }
       ]
     },
     {
-      category: "assinaturas", label: "Assinaturas", icon: Crown,
+      category: "assinaturas", label: "Assinaturas & Engajamento", icon: Crown,
       items: [
         { icon: Crown, label: "Gerenciar Planos", path: "/subscriptions" },
-        { icon: PlusCircle, label: "Criar / Editar Plano", path: "/subscriptions/new" },
-        { icon: Heart, label: "Fidelidade", path: "/loyalty" },
-        { icon: UserCheck, label: "Indicações", path: "/referrals" }
+        { icon: Heart, label: "Fidelidade & Indicações", path: "/loyalty" }
       ]
     },
     {
@@ -103,16 +101,7 @@ const Sidebar = () => {
       category: "administracao", label: "Administração", icon: Shield,
       items: [
         { icon: UserCircle, label: "Meu Perfil", path: "/profile" },
-        { icon: UserCheck, label: "Usuários e Permissões", path: "/users" },
-        { icon: Plug, label: "Integrações", path: "/integrations" },
-        { icon: Settings, label: "Configurações Gerais", path: "/settings" }
-      ]
-    },
-    {
-      category: "vendas", label: "Vendas / Caixa", icon: ShoppingCart,
-      items: [
-        { icon: ShoppingCart, label: "Caixa e PDV", path: "/cash" },
-        { icon: BarChart3, label: "Relatórios de Vendas", path: "/sales-reports" }
+        { icon: UserCheck, label: "Usuários e Permissões", path: "/users" }
       ]
     }
   ];
