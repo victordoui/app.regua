@@ -13,7 +13,7 @@ const Switch = React.forwardRef<
       "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background",
       "disabled:cursor-not-allowed disabled:opacity-50",
       "data-[state=unchecked]:bg-[rgb(131,131,131)]",
-      "data-[state=checked]:bg-primary",
+      "data-[state=checked]:bg-green-500",
       className
     )}
     {...props}
@@ -42,7 +42,7 @@ const Switch = React.forwardRef<
       {/* Checkmark icon */}
       <svg
         className={cn(
-          "absolute w-[10px] h-auto text-primary",
+          "absolute w-[10px] h-auto text-green-500",
           "transition-all duration-200 [transition-timing-function:cubic-bezier(0.27,0.2,0.25,1.51)]",
           "scale-0 [[data-state=checked]_&]:scale-100"
         )}
