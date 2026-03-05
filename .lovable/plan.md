@@ -1,20 +1,18 @@
 
 
-# Ajuste de altura do Switch
+# Ajuste do Switch para corresponder à referência Bootstrap
 
-O track atual tem `h-5` (20px) e o thumb `h-3.5` (14px) — está baixo demais visualmente.
+Analisando a imagem, o switch Bootstrap tem:
 
-## Alteração
+- **Unchecked**: track com borda cinza, fundo transparente, thumb circular cinza pequeno à esquerda
+- **Checked**: track preenchido azul, thumb circular branco à direita
+- **Proporções**: track mais largo que alto, thumb bem centralizado verticalmente
 
-Aumentar para proporções mais confortáveis mantendo o estilo Bootstrap:
+O código atual já segue esse estilo, mas `h-4.5` e `w-4.5` não são classes válidas do Tailwind (não existem por padrão). Preciso corrigir para valores válidos e ajustar as proporções para ficarem idênticas à referência.
 
-- **Track**: `h-5` → `h-6` (24px), `w-9` → `w-11` (44px)
-- **Thumb**: `h-3.5` → `h-4.5` (18px), `w-3.5` → `w-4.5` (18px)
-- **Posições do thumb**: ajustar translate para `translate-x-[3px]` (off) e `translate-x-[22px]` (on)
+## Alterações em `src/components/ui/switch.tsx`
 
-## Arquivo
-
-| Arquivo | Alteração |
-|---|---|
-| `src/components/ui/switch.tsx` | Aumentar altura do track e thumb |
+- **Track**: manter `h-6 w-11` com borda e transparência no unchecked
+- **Thumb**: trocar `h-4.5 w-4.5` por `h-[18px] w-[18px]` (valor arbitrário válido no Tailwind)
+- Manter translate e cores como estão
 
