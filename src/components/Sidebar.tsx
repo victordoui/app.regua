@@ -46,12 +46,9 @@ const Sidebar = () => {
 
   const fullMenuStructure = [
     { 
-      category: "dashboard", label: "Dashboard", icon: Home,
+      category: "dashboard", label: "Painel Administrativo", icon: Home,
       items: [
-        { icon: BarChart3, label: "Visão Geral", path: "/" },
-        { icon: TrendingUp, label: "Sucesso do Cliente", path: "/customer-success" },
-        { icon: Target, label: "Desempenho dos Barbeiros", path: "/barber-performance" },
-        { icon: Star, label: "Avaliações", path: "/reviews" }
+        { icon: BarChart3, label: "Painel Administrativo", path: "/" }
       ]
     },
     {
@@ -257,7 +254,7 @@ const Sidebar = () => {
         } md:relative md:shadow-none md:bg-card flex flex-col`}
         style={{ width: isMobile ? (isOpen ? 240 : 0) : (isCollapsed ? 64 : 240) }}
       >
-        <div className={`p-4 border-b border-border flex items-center ${isCollapsed ? 'justify-center' : 'justify-between'}`}>
+        <div className={`h-14 px-4 border-b border-border flex items-center ${isCollapsed ? 'justify-center' : 'justify-between'}`}>
           <div className="flex items-center gap-2 overflow-hidden">
             <div className="w-8 h-8 bg-gradient-to-r from-primary to-primary/80 rounded-lg flex items-center justify-center shadow-sm flex-shrink-0">
               <Scissors className="h-4 w-4 text-primary-foreground" />
@@ -285,7 +282,7 @@ const Sidebar = () => {
               </div>
             )}
 
-            <div className="pt-4 border-t border-border"><div className="h-px bg-border my-4"></div></div>
+            <div className="pt-3 border-t border-border"></div>
 
             <div className="space-y-3">
               <Button 
