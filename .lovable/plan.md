@@ -1,108 +1,74 @@
 
-# Plano: Controle de Acesso por Hierarquia de Cargos
 
-## Resumo
-Implementar restricao de acesso real baseada nos 4 papeis do sistema. Atualmente, qualquer usuario autenticado (admin, barbeiro, cliente) consegue acessar todas as rotas do dashboard. O objetivo e que cada papel veja apenas o que lhe pertence.
+# Plano: Dashboard Unificado + Switch Redesign + Sidebar Refinada
 
----
+## 1. Dashboard Unificado — "Painel Administrativo"
 
-## Hierarquia de Papeis
+Atualmente existem 4 paginas separadas acessiveis pela sidebar em "Dashboard":
+- `/` (Visao Geral) — metricas, graficos, atividades
+- `/customer-success` (Sucesso do Cliente) — feedbacks, NPS, retencao
+- `/barber-performance` (Desempenho dos Barbeiros) — ranking, cancelamentos
+- `/reviews` (Avaliacoes) — notas, distribuicao, lista de reviews
+
+**Acao**: Unificar tudo em uma unica pagina `/` usando `Tabs` (abas). O nome na sidebar sera "Painel Administrativo" com um unico link (sem subcategorias de dashboard).
 
 ```text
-+--------------------------------------------------+
-| SUPER ADMIN (Dono da plataforma - voce)          |
-| Acesso: TUDO + painel /superadmin/*              |
-+--------------------------------------------------+
-         |
-+--------------------------------------------------+
-| ADMIN (Dono de barbearia)                        |
-| Acesso: Dashboard completo, financeiro,          |
-| configuracoes, barbeiros, clientes, etc.         |
-+--------------------------------------------------+
-         |
-+--------------------------------------------------+
-| BARBEIRO (Funcionario)                           |
-| Acesso: Agendamentos, Clientes, Chat da Equipe, |
-| Meu Perfil, Turnos/Escalas                       |
-+--------------------------------------------------+
-
-+--------------------------------------------------+
-| CLIENTE (Consumidor final)                       |
-| Acesso: Area mobile /b/:userId/* apenas          |
-| (Agendamento, Historico, Fidelidade, Perfil)     |
-+--------------------------------------------------+
++-----------------------------------------------+
+| Painel Administrativo                         |
+|                                               |
+| [Visao Geral] [Sucesso do Cliente]            |
+| [Desempenho]  [Avaliacoes]                    |
+|                                               |
+| (conteudo da aba selecionada)                 |
++-----------------------------------------------+
 ```
 
----
-
-## O que sera implementado
-
-### 1. ProtectedRoute com suporte a lista de roles permitidos
-Atualmente o `ProtectedRoute` aceita apenas `requiredRole` (um unico papel). Sera atualizado para aceitar `allowedRoles` (lista de papeis), permitindo definir quais cargos podem acessar cada rota. O super_admin sempre tera acesso a tudo.
-
-### 2. Definicao das rotas por papel
-
-**Rotas do BARBEIRO** (acesso limitado):
-- `/` (Dashboard simplificado - sera redirecionado)
-- `/appointments` (Agendamentos)
-- `/clients` (Clientes)
-- `/team-chat` (Chat da Equipe)
-- `/shifts` (Turnos/Escalas)
-- `/profile` (Meu Perfil)
-- `/conversations` (Conversas)
-- `/advanced-notifications` (Notificacoes)
-
-**Rotas exclusivas do ADMIN** (tudo que o barbeiro nao ve):
-- Dashboard completo (`/`)
-- `/barbers`, `/services`, `/waitlist`
-- `/reports`, `/billing`, `/commissions`, `/coupons`, `/gift-cards`, `/dynamic-pricing`
-- `/subscriptions`, `/subscriptions/new`, `/loyalty`, `/referrals`
-- `/settings/company`, `/inventory`, `/gallery`, `/integrations`
-- `/users`, `/settings`, `/cash`, `/sales-reports`
-- `/campaigns`, `/customer-success`, `/barber-performance`, `/reviews`
-- `/commission-rules`, `/booking`, `/upgrade`
-
-**CLIENTE**: Sera redirecionado automaticamente para a area mobile ao acessar `/`.
-
-### 3. Sidebar filtrada por papel
-A `Sidebar` passara a filtrar as categorias e itens de menu conforme o papel do usuario. Barbeiros verao apenas as categorias relevantes (Operacoes parcial, Comunicacao parcial, e Meu Perfil).
-
-### 4. Redirecionamento inteligente no ProtectedRoute
-- Se um **cliente** tentar acessar `/`, sera redirecionado para a area mobile
-- Se um **barbeiro** tentar acessar uma rota exclusiva de admin, sera redirecionado para `/appointments`
-- Se um usuario sem papel tentar acessar qualquer rota, sera redirecionado para `/login`
-
-### 5. Dashboard simplificado para Barbeiro
-Quando um barbeiro acessar `/`, vera um dashboard simplificado mostrando apenas seus agendamentos do dia, proximos horarios e chat, sem dados financeiros ou metricas de gestao.
+**Implementacao**:
+- Refatorar `src/pages/Index.tsx` para incluir 4 abas com `Tabs`/`TabsList`/`TabsContent`
+- Cada aba importa o conteudo das paginas existentes como componentes internos (extrair o conteudo de `CustomerSuccess`, `BarberPerformance`, `Reviews` sem o `<Layout>` wrapper)
+- Remover as 4 rotas separadas do `App.tsx` e manter apenas `/`
+- Atualizar a sidebar para mostrar "Painel Administrativo" como item unico (sem subcategoria "Dashboard")
 
 ---
 
-## Detalhes Tecnicos
+## 2. Redesign do Switch (Toggle)
 
-### Arquivo: `src/components/ProtectedRoute.tsx`
-- Adicionar prop `allowedRoles?: AppRole[]`
-- Super admin sempre passa (acesso total)
-- Se `allowedRoles` definido, verificar se `userRole` esta na lista
-- Redirecionamento inteligente: cliente para area mobile, barbeiro para `/appointments`
+O componente atual em `src/components/ui/switch.tsx` tem problemas visuais:
+- Quando ativado, o thumb fica azul sobre fundo azul (invisivel)
+- Quando desativado, o thumb nao tem contraste
 
-### Arquivo: `src/App.tsx`
-- Rotas de admin receberao `allowedRoles={['admin']}`
-- Rotas compartilhadas receberao `allowedRoles={['admin', 'barbeiro']}`
-- Rotas de super admin mantidas com `requiredRole="super_admin"`
+**Acao**: Redesenhar o Switch para:
+- **Ativado**: Track com gradiente primary, thumb branco com sombra
+- **Desativado**: Track cinza claro com borda sutil, thumb branco/cinza com sombra
+- Transicao suave e visual limpo
 
-### Arquivo: `src/components/Sidebar.tsx`
-- Importar `useRole` (ja importa)
-- Usar `isAdmin`, `isBarbeiro` para filtrar `menuStructure`
-- Barbeiro vera: Dashboard (so agenda do dia), Agendamentos, Clientes, Conversas, Chat da Equipe, Turnos, Meu Perfil
-- Admin vera tudo como ja esta
+---
 
-### Arquivo: `src/pages/Index.tsx` (Dashboard)
-- Verificar role e exibir versao simplificada para barbeiros
-- Barbeiro ve: agendamentos do dia, proximos horarios
-- Admin ve: dashboard completo como esta hoje
+## 3. Sidebar Refinada e Harmonizada
 
-### Arquivos modificados
-- `src/components/ProtectedRoute.tsx` - Logica de allowedRoles e redirecionamento
-- `src/App.tsx` - Adicionar allowedRoles em cada rota
-- `src/components/Sidebar.tsx` - Filtrar menu por papel
-- `src/pages/Index.tsx` - Dashboard condicional por papel
+Problemas atuais:
+- Header da sidebar nao alinha visualmente com o header superior (h-14)
+- Separadores duplos no rodape
+- Espacamento inconsistente entre categorias
+
+**Acao**:
+- Alinhar a altura do header da sidebar com a barra superior (`h-14`)
+- Remover a categoria "Dashboard" com subcategorias e substituir por item unico "Painel Administrativo"
+- Melhorar espacamento e separadores
+- Refinar hover states e indicadores de item ativo com borda lateral colorida
+- Limpar o rodape (remover separador duplicado)
+
+---
+
+## Arquivos Modificados
+
+| Arquivo | Alteracao |
+|---|---|
+| `src/pages/Index.tsx` | Refatorar para 4 abas unificadas |
+| `src/pages/CustomerSuccess.tsx` | Extrair conteudo para componente reutilizavel |
+| `src/pages/BarberPerformance.tsx` | Extrair conteudo para componente reutilizavel |
+| `src/pages/Reviews.tsx` | Extrair conteudo para componente reutilizavel |
+| `src/components/ui/switch.tsx` | Redesenhar visual do toggle |
+| `src/components/Sidebar.tsx` | Harmonizar com header, item unico do painel |
+| `src/App.tsx` | Remover rotas `/customer-success`, `/barber-performance`, `/reviews` |
+
