@@ -32,11 +32,11 @@ const Switch = React.forwardRef<
 
     <SwitchPrimitives.Thumb
       className={cn(
-        "pointer-events-none absolute h-[18px] w-[18px] rounded-full bg-white z-[1]",
+        "pointer-events-none absolute h-[16px] w-[24px] rounded-full bg-white z-[1]",
         "flex items-center justify-center",
         "transition-all duration-200 [transition-timing-function:cubic-bezier(0.27,0.2,0.25,1.51)]",
         "data-[state=unchecked]:left-[3px] data-[state=unchecked]:shadow-[1px_1px_2px_rgba(146,146,146,0.45)]",
-        "data-[state=checked]:left-[calc(100%-21px)] data-[state=checked]:shadow-[-1px_1px_2px_rgba(163,163,163,0.45)]"
+        "data-[state=checked]:left-[calc(100%-27px)] data-[state=checked]:shadow-[-1px_1px_2px_rgba(163,163,163,0.45)]"
       )}
     >
       {/* Checkmark icon */}
