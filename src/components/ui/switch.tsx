@@ -13,8 +13,8 @@ const Switch = React.forwardRef<
       "transition-colors duration-300 ease-in-out",
       "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background",
       "disabled:cursor-not-allowed disabled:opacity-50",
-      "data-[state=unchecked]:bg-[rgb(131,131,131)]",
-      "data-[state=checked]:bg-green-500",
+      "data-[state=unchecked]:bg-input",
+      "data-[state=checked]:bg-primary",
       className
     )}
     {...props}
