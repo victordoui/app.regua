@@ -1,25 +1,21 @@
 
 
-# Switch no formato pill/cápsula padrão iOS/Android
+# Ajustar Switch para especificações exatas
 
-Simplificar o switch para o padrão moderno: track oval (pill shape) com thumb circular. Remover ícones e effect line extras.
+O switch atual já está limpo (sem ícones, sem efeitos), mas as dimensões não batem com as especificações pedidas. Ajustes necessários:
 
 ## Alterações em `src/components/ui/switch.tsx`
 
-**Track (Root):**
-- Manter `h-6 w-[44px]` com `rounded-full` (já cria formato cápsula)
-- Trocar timing function bounce por `ease-in-out` suave
-- Manter cores: `bg-green-500` checked, `bg-[rgb(131,131,131)]` unchecked
+| Propriedade | Atual | Novo |
+|---|---|---|
+| Track largura | `w-[44px]` | `w-[48px]` |
+| Track altura | `h-6` (24px) | `h-[26px]` |
+| Thumb tamanho | `h-5 w-5` (20px) | `h-5 w-5` (20px) ✓ já correto |
+| Thumb unchecked | `left-[2px]` | `left-[3px]` |
+| Thumb checked | `left-[calc(100%-22px)]` | `left-[calc(100%-23px)]` |
+| Track `rounded` | `rounded-full` | `rounded-[999px]` (equivalente, mas explicita o pedido) |
 
-**Thumb:**
-- Mudar de oval `h-[16px] w-[24px]` para **circular `h-5 w-5`** (20x20px)
-- Posições: `left-[2px]` unchecked, `left-[calc(100%-22px)]` checked
-- Transição `ease-in-out` em vez de bounce
-- Remover sombras complexas, usar shadow simples
+Também adicionar `relative` ao Root (necessário para `absolute` do thumb funcionar — pode já estar herdado do Radix, mas convém garantir).
 
-**Remover:**
-- Effect line (span decorativo)
-- SVG checkmark e cross icons dentro do thumb
-
-Resultado: switch limpo, pill shape horizontal com thumb circular deslizante.
+Dimensões finais: track 48x26px, thumb 20x20px circular, 3px de padding interno.
 
