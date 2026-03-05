@@ -1,18 +1,14 @@
 
 
-# Ajuste do Switch para corresponder à referência Bootstrap
+# Switch estilo Uiverse.io com cor azul
 
-Analisando a imagem, o switch Bootstrap tem:
-
-- **Unchecked**: track com borda cinza, fundo transparente, thumb circular cinza pequeno à esquerda
-- **Checked**: track preenchido azul, thumb circular branco à direita
-- **Proporções**: track mais largo que alto, thumb bem centralizado verticalmente
-
-O código atual já segue esse estilo, mas `h-4.5` e `w-4.5` não são classes válidas do Tailwind (não existem por padrão). Preciso corrigir para valores válidos e ajustar as proporções para ficarem idênticas à referência.
+Redesign do Switch com o estilo animado do Uiverse.io, incluindo ícones de checkmark/cross e efeito bounce, usando azul (`primary`) no lugar do verde.
 
 ## Alterações em `src/components/ui/switch.tsx`
 
-- **Track**: manter `h-6 w-11` com borda e transparência no unchecked
-- **Thumb**: trocar `h-4.5 w-4.5` por `h-[18px] w-[18px]` (valor arbitrário válido no Tailwind)
-- Manter translate e cores como estão
+- **Track**: `w-[46px] h-6`, fundo cinza quando off, `bg-primary` quando on
+- **Thumb**: `h-[18px] w-[18px]` branco com sombra sutil, transição bounce `cubic-bezier(0.27, 0.2, 0.25, 1.51)`
+- **Ícones SVG dentro do thumb**: checkmark (azul, scale 0→1 on check) e cross (cinza, scale 1→0 on check)
+- **Effect line**: barra branca decorativa que desliza junto com o thumb
+- Manter compatibilidade com Radix `SwitchPrimitives` e a API existente
 
