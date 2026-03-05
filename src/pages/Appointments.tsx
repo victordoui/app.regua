@@ -14,7 +14,7 @@ import { toast } from '@/hooks/use-toast';
 import { format, parseISO, isToday, isThisWeek, subDays, differenceInHours } from 'date-fns';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { CalendarDays, Table2 } from 'lucide-react';
+import { CalendarDays, Table2, Radio } from 'lucide-react';
 
 const Appointments = () => {
   const [isDialogOpen, setIsDialogOpen] = useState(false);
@@ -232,13 +232,20 @@ const Appointments = () => {
   return (
     <Layout>
       <div className="h-[calc(100vh-56px)] flex flex-col">
-        {/* Header */}
+        {/* Header personalizado */}
         <div className="px-4 py-3 border-b bg-card/50 flex items-center justify-between gap-4 flex-shrink-0">
           <div className="flex items-center gap-3">
-            <h1 className="text-xl font-bold tracking-tight">Agenda</h1>
+            <h1 className="text-xl font-bold tracking-tight">
+              Agenda - <span className="text-primary">Marshals Barber</span>
+            </h1>
+            <Badge variant="outline" className="gap-1.5 animate-pulse">
+              <Radio className="w-3 h-3 text-emerald-500 fill-emerald-500" />
+              Ao Vivo
+            </Badge>
           </div>
 
           <div className="flex items-center gap-2">
+            {/* Toggle Calendar/Table View */}
             <div className="bg-muted rounded-lg p-1 flex gap-1">
               <Button
                 variant={displayMode === 'calendar' ? 'default' : 'ghost'}
@@ -303,8 +310,6 @@ const Appointments = () => {
                 onViewModeChange={setViewMode}
                 barberColorMap={barberColorMap}
                 onAppointmentMove={handleAppointmentMove}
-                onNewAppointment={() => handleManualSchedule(selectedDate)}
-                onConfirmAppointment={(id) => handleUpdateStatus(id, 'confirmed')}
               />
             ) : (
               <AppointmentTableView

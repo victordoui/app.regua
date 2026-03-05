@@ -6,7 +6,7 @@ import CalendarEventCard from './CalendarEventCard';
 import MonthView from './MonthView';
 import DragPreview from './DragPreview';
 import { Button } from '@/components/ui/button';
-import { ChevronLeft, ChevronRight, Plus } from 'lucide-react';
+import { ChevronLeft, ChevronRight } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
 interface CalendarViewProps {
@@ -19,8 +19,6 @@ interface CalendarViewProps {
     onViewModeChange?: (mode: 'week' | 'day' | 'month') => void;
     barberColorMap: Map<string, string>;
     onAppointmentMove?: (appointmentId: string, newDate: string, newTime: string) => void;
-    onNewAppointment?: () => void;
-    onConfirmAppointment?: (id: string) => void;
 }
 
 const CalendarView: React.FC<CalendarViewProps> = ({
@@ -32,9 +30,7 @@ const CalendarView: React.FC<CalendarViewProps> = ({
     viewMode = 'week',
     onViewModeChange,
     barberColorMap,
-    onAppointmentMove,
-    onNewAppointment,
-    onConfirmAppointment
+    onAppointmentMove
 }) => {
     const [currentViewMode, setCurrentViewMode] = useState<'week' | 'day' | 'month'>(viewMode);
     const [dragOverSlot, setDragOverSlot] = useState<string | null>(null);
@@ -177,7 +173,7 @@ const CalendarView: React.FC<CalendarViewProps> = ({
 
     return (
         <div className="flex flex-col h-full bg-card rounded-lg border overflow-hidden">
-            {/* Header */}
+            {/* Header - Estilo Google Calendar */}
             <div className="flex items-center justify-between px-4 py-3 border-b bg-card">
                 <div className="flex items-center gap-2">
                     <Button 
@@ -196,12 +192,12 @@ const CalendarView: React.FC<CalendarViewProps> = ({
                             <ChevronRight className="h-4 w-4" />
                         </Button>
                     </div>
-                    <h2 className="text-lg font-semibold capitalize ml-2">
+                    <h2 className="text-lg font-medium capitalize ml-2">
                         {format(selectedDate, 'MMMM yyyy', { locale: ptBR })}
                     </h2>
                 </div>
 
-                <div className="flex items-center gap-3">
+                <div className="flex bg-muted rounded-lg p-0.5">
                     <button
                         className={cn(
                             "px-3 py-1.5 text-sm rounded-md transition-all font-medium",
@@ -235,14 +231,8 @@ const CalendarView: React.FC<CalendarViewProps> = ({
                     >
                         Mês
                     </button>
-                    </div>
-                    {onNewAppointment && (
-                        <Button size="sm" onClick={onNewAppointment} className="h-8 gap-1.5">
-                            <Plus className="h-4 w-4" />
-                            Novo
-                        </Button>
-                    )}
                 </div>
+            </div>
 
             {/* Month View */}
             {currentViewMode === 'month' ? (
@@ -359,7 +349,6 @@ const CalendarView: React.FC<CalendarViewProps> = ({
                                                 draggable={true}
                                                 onDragStart={handleDragStart}
                                                 onDragEnd={handleDragEnd}
-                                                onConfirm={onConfirmAppointment}
                                             />
                                         ))}
 
