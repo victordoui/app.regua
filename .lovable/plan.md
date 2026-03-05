@@ -1,56 +1,48 @@
 
 
-# Redesign da Agenda no estilo da imagem de referência
+# Redesign da Sidebar e Barra Superior no estilo da imagem de referência
 
-A imagem mostra um calendário semanal com visual limpo, fundo branco, cards de eventos coloridos com bordas laterais, avatares dos barbeiros, e um popup de detalhes ao clicar. Vou adaptar o visual atual para esse estilo.
+A imagem mostra um layout limpo com: sidebar branca com ícones simples e texto, sem categorias colapsáveis; barra superior com campo de busca centralizado, ícone de notificação e avatar do usuário com dropdown.
 
-## Alterações principais
+## Alterações
 
-### 1. `CalendarView.tsx` - Layout e header
-- Header: título "Mês, Ano" grande à esquerda, toggle "Semana/Mês" à direita com estilo pill/outlined, botão "+ Novo" azul
-- Cabeçalho dos dias: fundo claro, nome do dia em negrito, data abaixo, dia atual em azul
-- Grid: fundo branco, linhas horizontais sutis (cinza claro), sem bordas pesadas
-- Remover o ícone de calendário no canto superior esquerdo do grid
-- Colunas dos dias com separadores verticais sutis
+### 1. `src/components/Sidebar.tsx` - Sidebar simplificada
 
-### 2. `CalendarEventCard.tsx` - Cards de eventos
-- Trocar de cards sólidos coloridos para cards com **fundo pastel** (ex: verde claro, amarelo claro, rosa claro) + **borda lateral esquerda colorida** (4px)
-- Mostrar ID/número do agendamento (ex: #0012) acima do nome do serviço
-- Nome do serviço em destaque colorido
-- Avatar circular do barbeiro no canto inferior direito do card
-- Remover indicadores de status (bolinha) — status vai para o popup
-- Texto escuro em vez de branco
+Redesign completo para o estilo flat da imagem:
+- **Logo** no topo: "Na Régua" com ícone, sem badge de role
+- **Menu flat** (sem categorias/accordions): lista simples de itens com ícone + texto
+- Itens visíveis para admin: Dashboard, Agenda, Clientes, Barbeiros, Serviços, Relatórios, Configurações
+- Item ativo: fundo azul claro com texto azul (como "Agenda" na imagem)
+- Itens inativos: texto cinza, hover sutil
+- **Log out** fixo no rodapé da sidebar
+- Manter lógica de filtro por role (BARBER_PATHS) e collapse/mobile
+- Remover animações framer-motion pesadas, manter transições CSS simples
+- Sidebar fixa, branca, sem backdrop-blur
 
-### 3. `CalendarEventCard.tsx` - Popup de detalhes (ao clicar)
-- Ao invés de apenas abrir o dialog de edição, mostrar um **popover/card flutuante** com:
-  - Avatar + nome do cliente
-  - ID do agendamento
-  - Serviço
-  - Status com badge colorido (ex: "PENDING" em amarelo)
-  - Data e horário com ícone de relógio
-  - Nome do barbeiro com ícone
-  - Botão "Confirmar" azul
-- Clicar em "Editar" ou duplo-clique abre o form dialog completo
+### 2. `src/components/Layout.tsx` - Barra superior redesenhada
 
-### 4. `Appointments.tsx` - Header simplificado
-- Mover o botão "+ Novo" para dentro do CalendarView header (lado direito)
-- Simplificar o header da página removendo badges de "Ao Vivo" 
-- Toggle Semana/Mês integrado ao CalendarView
+- **Campo de busca** centralizado (ou à esquerda) com ícone de lupa e placeholder "Buscar"
+- **Direita**: ícone de refresh/sync, avatar do usuário com dropdown (manter lógica existente)
+- Remover TrialBanner e ThemeToggle da header (mover ThemeToggle para settings ou dropdown)
+- Remover botão de notificações separado (integrar no dropdown ou manter discreto)
+- Header branca/clean, sem bordas pesadas
 
-### 5. Cores dos cards por tipo de serviço (mapeamento)
-- Verde pastel: Corte (Haircut)
-- Amarelo pastel: Barba / tratamentos
-- Rosa/vermelho pastel: Coloração, etc.
-- Usar `barberColor` existente para a borda lateral, e uma versão pastel para o fundo
+### 3. Estilo visual
 
-## Resumo técnico
+| Elemento | Atual | Novo |
+|---|---|---|
+| Sidebar fundo | `bg-card/95 backdrop-blur` | `bg-card` sólido |
+| Menu | Categorias colapsáveis | Lista flat simples |
+| Item ativo | `bg-secondary` | `bg-primary/10 text-primary font-medium` |
+| Header | `justify-end` | Campo busca à esquerda, ações à direita |
+| Header altura | `h-14` | `h-14` (mantém) |
 
-| Arquivo | O que muda |
+### Arquivos modificados
+
+| Arquivo | Mudança |
 |---|---|
-| `CalendarView.tsx` | Header redesenhado, grid mais limpo, fundo branco |
-| `CalendarEventCard.tsx` | Cards pastel com borda lateral, avatar, ID, popup de detalhes |
-| `Appointments.tsx` | Header simplificado, botão "+ Novo" movido |
-| `AppointmentSidebar.tsx` | Sem alteração significativa |
+| `src/components/Sidebar.tsx` | Menu flat, visual limpo, sem categorias |
+| `src/components/Layout.tsx` | Campo de busca no header, layout simplificado |
 
-A funcionalidade existente (drag-and-drop, filtros, recorrência) será totalmente preservada. Apenas o visual muda.
+A funcionalidade de permissões por role, navegação mobile, e collapse será preservada. Apenas o visual e a organização dos menus mudam.
 
