@@ -1,19 +1,21 @@
 
-# Plano: Switch estilo iOS
 
-## O que muda
+# Plano: Switch Pill Suave nas cores do sistema
 
-Redesenhar `src/components/ui/switch.tsx` para o estilo Apple/iOS:
+## Alteracao
 
-- **Track maior**: `h-[31px] w-[51px]` (proporcoes iOS reais)
-- **Ativo**: fundo verde (`#34C759`), thumb branco desliza para direita
-- **Inativo**: fundo cinza claro (`#E9E9EA`), thumb branco na esquerda
-- **Thumb**: circulo branco com `shadow-sm` sutil, cresce levemente ao pressionar (`:active` scale)
-- **Transicao**: `duration-200` com `ease-in-out` suave
-- **Border**: sem borda visivel, apenas sombra interna sutil no track inativo
+Redesenhar `src/components/ui/switch.tsx` no estilo "Pill suave":
 
-## Arquivo modificado
+- **Dimensoes**: `h-6 w-11` (24x44px) — proporcional e discreto
+- **Ativo**: fundo `bg-primary` (azul do sistema), thumb branco
+- **Inativo**: fundo `bg-muted` (cinza do sistema), thumb branco
+- **Thumb**: circulo branco (`h-5 w-5`) com `shadow-sm` sutil, sem sombra pesada
+- **Transicao**: `duration-200 ease-in-out` suave
+- **Sem borda**: visual limpo, apenas a cor do track diferencia os estados
+
+## Arquivo
 
 | Arquivo | Alteracao |
 |---|---|
-| `src/components/ui/switch.tsx` | Redesign completo estilo iOS |
+| `src/components/ui/switch.tsx` | Redesign pill suave com cores do sistema |
+
