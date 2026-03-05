@@ -1,16 +1,19 @@
 
 
-# Ajustar largura do Switch para 50px
+# Ajustar cores do Switch para usar cores do sistema
 
-O componente já está quase correto, mas a largura `48px` pode estar visualmente parecendo circular por ser muito próxima da altura. O usuário pede `50px` de largura.
+Trocar as cores hardcoded por variáveis do design system.
 
 ## Alteração em `src/components/ui/switch.tsx`
 
-| Propriedade | Atual | Novo |
+| Estado | Atual | Novo |
 |---|---|---|
-| Track largura | `w-[48px]` | `w-[50px]` |
+| Checked | `bg-green-500` | `bg-primary` |
+| Unchecked | `bg-[rgb(131,131,131)]` | `bg-input` |
 
-Apenas uma linha muda: `w-[48px]` → `w-[50px]`. Thumb checked position ajustada de `left-[calc(100%-23px)]` → `left-[calc(100%-23px)]` (mantém, pois 50-20-3=27, mas `calc(100%-23px)` = 27px, correto).
+Duas classes mudam:
+- `data-[state=checked]:bg-green-500` → `data-[state=checked]:bg-primary`
+- `data-[state=unchecked]:bg-[rgb(131,131,131)]` → `data-[state=unchecked]:bg-input`
 
-Tudo mais já está conforme especificado: `rounded-[999px]` no track, `rounded-full` no thumb (= `border-radius: 50%`), `h-[26px]`, thumb `h-5 w-5` (20px).
+Isso faz o switch respeitar o tema claro/escuro e a paleta de cores definida no design system.
 
