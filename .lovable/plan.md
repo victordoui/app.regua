@@ -1,16 +1,25 @@
 
 
-# Switch com thumb oval (não redondo)
+# Switch no formato pill/cápsula padrão iOS/Android
 
-A segunda imagem mostra um switch com thumb mais largo/oval em vez de perfeitamente circular. O thumb atual é `18x18px` (círculo). Vou mudar para um formato mais oval/pill.
+Simplificar o switch para o padrão moderno: track oval (pill shape) com thumb circular. Remover ícones e effect line extras.
 
 ## Alterações em `src/components/ui/switch.tsx`
 
-| Elemento | Atual | Novo |
-|---|---|---|
-| Thumb dimensões | `h-[18px] w-[18px] rounded-full` | `h-[16px] w-[24px] rounded-full` |
-| Thumb unchecked left | `left-[3px]` | `left-[3px]` |
-| Thumb checked left | `left-[calc(100%-21px)]` | `left-[calc(100%-27px)]` |
+**Track (Root):**
+- Manter `h-6 w-[44px]` com `rounded-full` (já cria formato cápsula)
+- Trocar timing function bounce por `ease-in-out` suave
+- Manter cores: `bg-green-500` checked, `bg-[rgb(131,131,131)]` unchecked
 
-O thumb fica mais largo horizontalmente (24px) e ligeiramente mais baixo (16px), criando o formato oval/pill da imagem de referência. Posição checked ajustada para compensar a largura maior.
+**Thumb:**
+- Mudar de oval `h-[16px] w-[24px]` para **circular `h-5 w-5`** (20x20px)
+- Posições: `left-[2px]` unchecked, `left-[calc(100%-22px)]` checked
+- Transição `ease-in-out` em vez de bounce
+- Remover sombras complexas, usar shadow simples
+
+**Remover:**
+- Effect line (span decorativo)
+- SVG checkmark e cross icons dentro do thumb
+
+Resultado: switch limpo, pill shape horizontal com thumb circular deslizante.
 
