@@ -1,22 +1,16 @@
 
 
-# Diminuir switch verticalmente
+# Switch com thumb oval (não redondo)
 
-Reduzir as proporções do switch para ficar mais estreito e compacto.
+A segunda imagem mostra um switch com thumb mais largo/oval em vez de perfeitamente circular. O thumb atual é `18x18px` (círculo). Vou mudar para um formato mais oval/pill.
 
 ## Alterações em `src/components/ui/switch.tsx`
 
 | Elemento | Atual | Novo |
 |---|---|---|
-| Track | `h-8 w-[56px]` | `h-6 w-[44px]` |
-| Thumb | `h-[24px] w-[24px]` | `h-[18px] w-[18px]` |
-| Thumb unchecked left | `left-[4px]` | `left-[3px]` |
-| Thumb checked left | `left-[calc(100%-28px)]` | `left-[calc(100%-21px)]` |
-| Effect line | `w-[12px] h-[4px]` | `w-[9px] h-[3px]` |
-| Effect unchecked left | `left-[10px]` | `left-[7px]` |
-| Effect checked left | `left-[calc(100%-20px)]` | `left-[calc(100%-15px)]` |
-| Checkmark icon | `w-[14px]` | `w-[10px]` |
-| Cross icon | `w-[8px]` | `w-[6px]` |
+| Thumb dimensões | `h-[18px] w-[18px] rounded-full` | `h-[16px] w-[24px] rounded-full` |
+| Thumb unchecked left | `left-[3px]` | `left-[3px]` |
+| Thumb checked left | `left-[calc(100%-21px)]` | `left-[calc(100%-27px)]` |
 
-Mantém estilo Uiverse.io com ícones e bounce, apenas escala menor.
+O thumb fica mais largo horizontalmente (24px) e ligeiramente mais baixo (16px), criando o formato oval/pill da imagem de referência. Posição checked ajustada para compensar a largura maior.
 
