@@ -1,14 +1,15 @@
 
 
-# Switch estilo Uiverse.io com cor azul
+# Switch estilo Uiverse.io com cor verde
 
-Redesign do Switch com o estilo animado do Uiverse.io, incluindo ícones de checkmark/cross e efeito bounce, usando azul (`primary`) no lugar do verde.
+O switch atual já está no estilo Uiverse.io correto (com ícones checkmark/cross e bounce). A única mudança é trocar a cor do checked de azul (`bg-primary`) para verde.
 
 ## Alterações em `src/components/ui/switch.tsx`
 
-- **Track**: `w-[46px] h-6`, fundo cinza quando off, `bg-primary` quando on
-- **Thumb**: `h-[18px] w-[18px]` branco com sombra sutil, transição bounce `cubic-bezier(0.27, 0.2, 0.25, 1.51)`
-- **Ícones SVG dentro do thumb**: checkmark (azul, scale 0→1 on check) e cross (cinza, scale 1→0 on check)
-- **Effect line**: barra branca decorativa que desliza junto com o thumb
-- Manter compatibilidade com Radix `SwitchPrimitives` e a API existente
+| Elemento | Atual | Novo |
+|---|---|---|
+| Track checked | `bg-primary` (azul) | `bg-green-500` (verde) |
+| Checkmark icon | `text-primary` (azul) | `text-green-500` (verde) |
+
+Duas linhas alteradas, sem mudança estrutural.
 
