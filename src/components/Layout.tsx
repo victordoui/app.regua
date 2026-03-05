@@ -14,13 +14,15 @@ import {
 import Sidebar from './Sidebar';
 import { 
   LogOut, 
-  User, 
   Menu, 
   X, 
   Settings,
   Bell,
-  UserCircle
+  UserCircle,
+  Search,
+  ChevronDown
 } from "lucide-react";
+import { Input } from '@/components/ui/input';
 import { useAuth } from '@/contexts/AuthContext';
 import { useToast } from '@/hooks/use-toast';
 import { ThemeToggle } from '@/components/ui/theme-toggle';
@@ -129,34 +131,61 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
       {/* Main Content */}
       <div className="flex-1 flex flex-col min-w-0">
         {/* Header */}
-        <header className="bg-card border-b border-border px-4 lg:px-6 h-14 flex items-center justify-end">
-          <div className="flex items-center gap-3">
+        <header className="bg-card border-b border-border px-4 lg:px-6 h-14 flex items-center justify-between gap-4">
+          {/* Left - Logo */}
+          <div className="flex items-center gap-2 min-w-0">
+            <span className="text-lg font-bold text-foreground tracking-tight hidden md:block">Na Régua</span>
+            <Button
+              variant="ghost"
+              size="sm"
+              className="md:hidden"
+              onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+            >
+              <Menu className="h-5 w-5" />
+            </Button>
+          </div>
+
+          {/* Center - Search */}
+          <div className="flex-1 max-w-md hidden sm:block">
+            <div className="relative">
+              <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+              <Input
+                placeholder="Buscar..."
+                className="pl-9 h-9 rounded-full bg-muted/50 border-transparent focus:border-primary focus:bg-background"
+              />
+            </div>
+          </div>
+
+          {/* Right - Actions */}
+          <div className="flex items-center gap-1">
             <TrialBanner />
-            <ThemeToggle />
-            
+
             <Button 
               variant="ghost" 
-              size="sm" 
-              className="relative"
+              size="icon"
+              className="h-9 w-9 rounded-full text-muted-foreground hover:text-foreground relative"
               onClick={() => handleNavigate('/notifications')}
             >
-              <Bell className="h-4 w-4" />
+              <Bell className="h-[1.1rem] w-[1.1rem]" />
               {unreadCount > 0 && (
                 <Badge 
-                  className="absolute -top-1 -right-1 h-5 w-5 flex items-center justify-center p-0 text-[10px] bg-destructive text-destructive-foreground"
+                  className="absolute -top-0.5 -right-0.5 h-4 w-4 flex items-center justify-center p-0 text-[9px] bg-destructive text-destructive-foreground"
                 >
                   {unreadCount > 9 ? '9+' : unreadCount}
                 </Badge>
               )}
             </Button>
+
+            <ThemeToggle />
             
             {/* User Profile Dropdown */}
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
-                <Button variant="ghost" className="relative h-10 w-10 rounded-full p-0">
-                  <Avatar className="h-8 w-8">
-                    <AvatarFallback>{getUserInitials()}</AvatarFallback>
+                <Button variant="ghost" className="h-9 rounded-full px-1.5 gap-1.5 hover:bg-muted">
+                  <Avatar className="h-7 w-7 border border-border">
+                    <AvatarFallback className="text-xs">{getUserInitials()}</AvatarFallback>
                   </Avatar>
+                  <ChevronDown className="h-3.5 w-3.5 text-muted-foreground hidden sm:block" />
                 </Button>
               </DropdownMenuTrigger>
               <DropdownMenuContent className="w-56" align="end" forceMount>
@@ -186,16 +215,6 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
                 </DropdownMenuItem>
               </DropdownMenuContent>
             </DropdownMenu>
-
-            {/* Mobile Menu */}
-            <Button
-              variant="ghost"
-              size="sm"
-              className="sm:hidden"
-              onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-            >
-              <Menu className="h-4 w-4" />
-            </Button>
           </div>
         </header>
 
