@@ -1,21 +1,21 @@
 
 
-# Plano: Switch Pill Suave nas cores do sistema
+# Switch estilo Bootstrap
 
-## Alteracao
+O usuário quer o switch no estilo Bootstrap (form-switch), adaptado para as cores do sistema.
 
-Redesenhar `src/components/ui/switch.tsx` no estilo "Pill suave":
+## Características do Bootstrap Switch
 
-- **Dimensoes**: `h-6 w-11` (24x44px) — proporcional e discreto
-- **Ativo**: fundo `bg-primary` (azul do sistema), thumb branco
-- **Inativo**: fundo `bg-muted` (cinza do sistema), thumb branco
-- **Thumb**: circulo branco (`h-5 w-5`) com `shadow-sm` sutil, sem sombra pesada
-- **Transicao**: `duration-200 ease-in-out` suave
-- **Sem borda**: visual limpo, apenas a cor do track diferencia os estados
+- **Track retangular arredondado** mais largo e baixo (~`h-5 w-9` / 20x36px)
+- **Thumb menor** que não toca as bordas do track
+- **Checked**: fundo `bg-primary`, thumb branco desliza para direita
+- **Unchecked**: fundo transparente com **borda** visível (cinza), thumb cinza
+- **Disabled**: opacidade reduzida
+- Sem sombra pesada, visual flat e limpo
 
 ## Arquivo
 
-| Arquivo | Alteracao |
+| Arquivo | Alteração |
 |---|---|
-| `src/components/ui/switch.tsx` | Redesign pill suave com cores do sistema |
+| `src/components/ui/switch.tsx` | Redesign estilo Bootstrap form-switch com cores do sistema |
 
