@@ -61,7 +61,7 @@ const ClientLogin = () => {
         .single();
 
       if (error || !data?.is_public_page_enabled) {
-        setError('Barbearia não encontrada ou página desativada');
+        setError('Negócio não encontrado ou página desativada');
       } else {
         setSettings(data as BarbershopSettings);
       }
