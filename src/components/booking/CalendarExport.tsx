@@ -35,9 +35,9 @@ export const CalendarExport = ({
   const generateICSContent = (): string => {
     const icsContent = `BEGIN:VCALENDAR
 VERSION:2.0
-PRODID:-//Na Régua//Agendamento//PT
+PRODID:-//VIZZU//Agendamento//PT
 BEGIN:VEVENT
-UID:${Date.now()}@naregua.app
+UID:${Date.now()}@vizzu.app
 DTSTAMP:${formatDateForICS(new Date())}
 DTSTART:${formatDateForICS(startDate)}
 DTEND:${formatDateForICS(endDate)}

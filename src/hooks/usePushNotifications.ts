@@ -227,7 +227,7 @@ export function usePushNotifications() {
     try {
       const registration = await navigator.serviceWorker.ready;
       await registration.showNotification('Teste de Notificação', {
-        body: 'Esta é uma notificação de teste do Na Régua!',
+        body: 'Esta é uma notificação de teste do VIZZU!',
         icon: '/favicon.ico',
         badge: '/favicon.ico',
         tag: 'test-notification',

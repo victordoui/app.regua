@@ -189,7 +189,7 @@ export const OnboardingStepBarbers: React.FC<OnboardingStepBarbersProps> = ({
 
           {barbers.length === 0 && !showForm && (
             <p className="text-center text-sm text-muted-foreground py-4">
-              Adicione pelo menos 1 barbeiro para continuar
+              Adicione pelo menos 1 profissional para continuar
             </p>
           )}
         </CardContent>

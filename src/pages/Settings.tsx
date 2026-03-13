@@ -30,8 +30,8 @@ const Settings = () => {
           </CardHeader>
           <CardContent className="space-y-4">
             <div>
-              <Label htmlFor="name">Nome da Barbearia</Label>
-              <Input id="name" defaultValue="Na Régua" />
+              <Label htmlFor="name">Nome do Negócio</Label>
+              <Input id="name" defaultValue="VIZZU" />
             </div>
             <div>
               <Label htmlFor="address">Endereço</Label>

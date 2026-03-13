@@ -41,10 +41,10 @@ export const OnboardingWelcome: React.FC<OnboardingWelcomeProps> = ({ onStart })
             transition={{ delay: 0.3 }}
           >
             <h1 className="text-3xl font-bold mb-2 bg-gradient-to-r from-foreground to-foreground/70 bg-clip-text">
-              Bem-vindo ao Na Régua
+              Bem-vindo ao VIZZU
             </h1>
             <p className="text-muted-foreground mb-8">
-              Vamos configurar sua barbearia em 5 passos simples.
+              Vamos configurar seu negócio em 5 passos simples.
               <br />
               <span className="text-sm">Leva menos de 5 minutos!</span>
             </p>

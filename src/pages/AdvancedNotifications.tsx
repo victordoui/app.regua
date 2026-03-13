@@ -166,7 +166,7 @@ function AdvancedNotifications() {
         name: 'Confirmação de Agendamento',
         type: 'email',
         trigger: 'appointment_confirmation',
-        subject: 'Agendamento Confirmado - Na Régua',
+        subject: 'Agendamento Confirmado - VIZZU',
         message: 'Seu agendamento foi confirmado para {data} às {hora}. Aguardamos você!',
         timing: 0,
         active: true,

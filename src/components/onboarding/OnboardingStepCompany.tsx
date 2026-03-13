@@ -48,7 +48,7 @@ export const OnboardingStepCompany: React.FC<OnboardingStepCompanyProps> = ({
             </Label>
             <Input
               id="company_name"
-              placeholder="Ex: Barbearia do João"
+              placeholder="Ex: Salão da Maria"
               value={data.company_name}
               onChange={(e) => onChange({ company_name: e.target.value })}
               className="h-12"
