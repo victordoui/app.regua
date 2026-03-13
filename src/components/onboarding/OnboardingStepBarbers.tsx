@@ -122,7 +122,7 @@ export const OnboardingStepBarbers: React.FC<OnboardingStepBarbersProps> = ({
                   <User className="h-6 w-6 text-primary" />
                 </div>
                 <div>
-                  <p className="font-medium">Novo Barbeiro</p>
+                  <p className="font-medium">Novo Profissional</p>
                   <p className="text-xs text-muted-foreground">
                     Preencha os dados do profissional
                   </p>
