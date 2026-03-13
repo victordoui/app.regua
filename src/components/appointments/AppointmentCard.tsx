@@ -123,7 +123,7 @@ const AppointmentCard: React.FC<AppointmentCardProps> = ({ appointment, onEdit, 
         </div>
         <div className="flex items-center gap-2">
           <User className="h-4 w-4" />
-          <span>{appointment.barbers?.full_name || 'Barbeiro Não Atribuído'}</span>
+          <span>{appointment.barbers?.full_name || 'Profissional Não Atribuído'}</span>
         </div>
         <div className="flex items-center gap-2">
           <DollarSign className="h-4 w-4" />

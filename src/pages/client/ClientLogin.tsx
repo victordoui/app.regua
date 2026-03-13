@@ -147,7 +147,7 @@ const ClientLogin = () => {
       <div className="min-h-screen flex items-center justify-center bg-background p-4">
         <Card className="p-8 text-center max-w-sm w-full">
           <h1 className="text-xl font-bold mb-2">Erro</h1>
-          <p className="text-muted-foreground">{error || 'Barbearia não encontrada'}</p>
+          <p className="text-muted-foreground">{error || 'Negócio não encontrado'}</p>
         </Card>
       </div>
     );

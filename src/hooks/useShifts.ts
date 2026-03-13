@@ -242,7 +242,7 @@ export function useShifts() {
     const shift = getShiftForDate(barberId, date);
     
     if (!shift) {
-      return { available: false, reason: 'Barbeiro não trabalha neste dia' };
+      return { available: false, reason: 'Profissional não trabalha neste dia' };
     }
 
     const slotStart = parse(time, 'HH:mm', date);
