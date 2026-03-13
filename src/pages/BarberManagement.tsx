@@ -302,7 +302,7 @@ const BarberManagement = () => {
                   checked={formData.active}
                   onCheckedChange={(checked) => setFormData(prev => ({ ...prev, active: checked }))}
                 />
-                <Label htmlFor="active">Barbeiro ativo</Label>
+                <Label htmlFor="active">Profissional ativo</Label>
               </div>
               <DialogFooter>
                 <Button type="button" variant="outline" onClick={() => setDialogOpen(false)}>

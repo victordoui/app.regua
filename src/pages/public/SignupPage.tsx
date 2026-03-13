@@ -387,7 +387,7 @@ const SignupPage = () => {
                 )}
 
                 <p className="text-xs text-muted-foreground text-center">
-                  Ao criar sua conta, você concorda com os Termos de Uso e Política de Privacidade da Na Régua.
+                  Ao criar sua conta, você concorda com os Termos de Uso e Política de Privacidade da VIZZU.
                 </p>
               </CardContent>
             </Card>
