@@ -44,7 +44,7 @@ export const OnboardingStepCompany: React.FC<OnboardingStepCompanyProps> = ({
         <CardContent className="space-y-4 pt-4">
           <div className="space-y-2">
             <Label htmlFor="company_name">
-              Nome da Barbearia <span className="text-destructive">*</span>
+              Nome do Negócio <span className="text-destructive">*</span>
             </Label>
             <Input
               id="company_name"
