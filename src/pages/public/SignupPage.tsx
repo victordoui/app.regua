@@ -222,7 +222,7 @@ const SignupPage = () => {
                   />
                 </div>
                 <div className="space-y-2">
-                  <Label htmlFor="companyName">Nome da barbearia</Label>
+                  <Label htmlFor="companyName">Nome do negócio</Label>
                   <Input
                     id="companyName"
                     placeholder="Ex: Barbearia do João"
