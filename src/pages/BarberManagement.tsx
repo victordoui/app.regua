@@ -138,14 +138,14 @@ const BarberManagement = () => {
       <div className="flex-1 space-y-6 p-6">
         <div className="flex items-center justify-between">
           <div>
-            <h1 className="text-3xl font-bold tracking-tight">Barbeiros</h1>
+            <h1 className="text-3xl font-bold tracking-tight">Profissionais</h1>
             <p className="text-muted-foreground">
-              Gerencie os profissionais da barbearia
+              Gerencie os profissionais do seu negócio
             </p>
           </div>
           <Button onClick={() => setDialogOpen(true)}>
             <Plus className="h-4 w-4 mr-2" />
-            Novo Barbeiro
+            Novo Profissional
           </Button>
         </div>
 
