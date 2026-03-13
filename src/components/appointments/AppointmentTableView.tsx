@@ -123,7 +123,7 @@ const AppointmentTableView: React.FC<AppointmentTableViewProps> = ({
   };
 
   const exportToCSV = () => {
-    const headers = ['Cliente', 'Serviço', 'Data', 'Horário', 'Barbeiro', 'Status', 'Criado em'];
+    const headers = ['Cliente', 'Serviço', 'Data', 'Horário', 'Profissional', 'Status', 'Criado em'];
     const rows = processedAppointments.map(apt => [
       apt.clients?.name || 'N/A',
       apt.services?.name || 'N/A',
@@ -164,7 +164,7 @@ const AppointmentTableView: React.FC<AppointmentTableViewProps> = ({
         <div className="relative flex-1 max-w-sm">
           <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
           <Input
-            placeholder="Buscar por cliente, serviço ou barbeiro..."
+            placeholder="Buscar por cliente, serviço ou profissional..."
             value={searchTerm}
             onChange={(e) => {
               setSearchTerm(e.target.value);
@@ -187,7 +187,7 @@ const AppointmentTableView: React.FC<AppointmentTableViewProps> = ({
               <SortableHeader field="client">Cliente</SortableHeader>
               <SortableHeader field="service">Serviço</SortableHeader>
               <SortableHeader field="date">Data/Hora</SortableHeader>
-              <SortableHeader field="barber">Barbeiro</SortableHeader>
+              <SortableHeader field="barber">Profissional</SortableHeader>
               <SortableHeader field="status">Status</SortableHeader>
               <SortableHeader field="created">Criado em</SortableHeader>
               <TableHead className="w-[60px]">Ações</TableHead>

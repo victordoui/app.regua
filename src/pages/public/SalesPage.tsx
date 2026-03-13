@@ -6,7 +6,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion';
 import { LoadingSpinner } from '@/components/ui/loading-spinner';
-import { Check, X, Scissors, Calendar, BarChart3, Heart, ArrowRight, Star, Crown, Zap, Shield } from 'lucide-react';
+import { Check, X, Zap, Calendar, BarChart3, Heart, ArrowRight, Star, Crown, Shield, Users, Briefcase, Sparkles } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { cn } from '@/lib/utils';
 import type { PlanConfig } from '@/types/superAdmin';
@@ -44,15 +44,27 @@ const benefits = [
   { icon: Calendar, title: 'Agendamento Online', description: 'Seus clientes agendam direto pelo celular, 24h por dia. Sem ligações, sem confusão.' },
   { icon: BarChart3, title: 'Gestão Financeira', description: 'Controle de caixa, comissões, relatórios de vendas e faturamento em tempo real.' },
   { icon: Heart, title: 'Fidelização de Clientes', description: 'Programa de pontos, cupons de desconto e campanhas para manter seus clientes voltando.' },
-  { icon: Scissors, title: 'Gestão Completa', description: 'Barbeiros, serviços, escalas e turnos organizados em um só lugar.' },
+  { icon: Users, title: 'Gestão Completa', description: 'Profissionais, serviços, escalas e turnos organizados em um só lugar.' },
+];
+
+const segments = [
+  { icon: '💈', label: 'Barbearias' },
+  { icon: '💅', label: 'Manicures' },
+  { icon: '💇', label: 'Salões de Beleza' },
+  { icon: '✨', label: 'Clínicas de Estética' },
+  { icon: '🎨', label: 'Tatuadores' },
+  { icon: '🏋️', label: 'Personal Trainers' },
+  { icon: '🐾', label: 'Pet Shops' },
+  { icon: '🦷', label: 'Dentistas' },
 ];
 
 const faqs = [
   { q: 'Posso testar antes de assinar?', a: 'Sim! O plano Trial é gratuito por 14 dias, sem precisar de cartão de crédito.' },
   { q: 'Consigo trocar de plano depois?', a: 'Sim, você pode fazer upgrade ou downgrade a qualquer momento pelo painel.' },
-  { q: 'Preciso instalar alguma coisa?', a: 'Não! O Na Régua funciona 100% no navegador, no celular ou computador.' },
-  { q: 'Meus clientes precisam baixar app?', a: 'Não, eles agendam direto pelo link da sua barbearia, sem instalar nada.' },
+  { q: 'Preciso instalar alguma coisa?', a: 'Não! O VIZZU funciona 100% no navegador, no celular ou computador.' },
+  { q: 'Meus clientes precisam baixar app?', a: 'Não, eles agendam direto pelo link do seu negócio, sem instalar nada.' },
   { q: 'Como funciona o suporte?', a: 'Todos os planos têm suporte por chat. Planos Pro e Enterprise têm suporte prioritário.' },
+  { q: 'O VIZZU funciona para qualquer tipo de profissional?', a: 'Sim! O VIZZU é para qualquer profissional de serviços: salões, barbearias, estética, personal trainers, pet shops e mais.' },
 ];
 
 const SalesPage = () => {
@@ -77,10 +89,10 @@ const SalesPage = () => {
       <header className="border-b border-border/50 bg-background/95 backdrop-blur-sm sticky top-0 z-50">
         <div className="max-w-7xl mx-auto px-4 py-4 flex items-center justify-between">
           <div className="flex items-center gap-2">
-            <div className="w-9 h-9 bg-gradient-to-r from-amber-500 to-orange-500 rounded-lg flex items-center justify-center">
-              <Scissors className="h-5 w-5 text-white" />
+            <div className="w-9 h-9 bg-gradient-to-r from-primary to-primary/80 rounded-lg flex items-center justify-center">
+              <Zap className="h-5 w-5 text-primary-foreground" />
             </div>
-            <span className="text-xl font-bold text-foreground">Na Régua</span>
+            <span className="text-xl font-bold text-foreground">VIZZU</span>
           </div>
           <div className="flex items-center gap-3">
             <Button variant="ghost" onClick={() => navigate('/login')}>Entrar</Button>
@@ -94,16 +106,17 @@ const SalesPage = () => {
         <div className="max-w-4xl mx-auto text-center">
           <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.5 }}>
             <Badge className="mb-6 bg-primary/10 text-primary border-primary/20 hover:bg-primary/10">
-              ✂️ Plataforma #1 para Barbearias
+              ⚡ Plataforma #1 para Profissionais de Serviços
             </Badge>
             <h1 className="text-4xl md:text-6xl font-bold text-foreground mb-6 leading-tight">
-              Gerencie sua barbearia<br />
-              <span className="bg-gradient-to-r from-amber-500 to-orange-500 bg-clip-text text-transparent">
-                como um profissional
+              Visualize. Organize.<br />
+              <span className="bg-gradient-to-r from-primary to-primary/70 bg-clip-text text-transparent">
+                Cresça.
               </span>
             </h1>
             <p className="text-lg md:text-xl text-muted-foreground mb-8 max-w-2xl mx-auto">
-              Agendamento online, gestão financeira, fidelização de clientes e muito mais. Tudo o que você precisa para fazer sua barbearia crescer.
+              Gestão inteligente de agendamentos para profissionais de serviços.
+              Agende, organize e faça seu negócio crescer.
             </p>
             <div className="flex flex-col sm:flex-row gap-3 justify-center">
               <Button size="lg" className="text-base h-12 px-8" onClick={() => navigate('/cadastro')}>
@@ -117,11 +130,33 @@ const SalesPage = () => {
         </div>
       </section>
 
+      {/* Para quem é */}
+      <section className="py-12 px-4 bg-muted/20">
+        <div className="max-w-4xl mx-auto text-center">
+          <h2 className="text-2xl font-bold text-foreground mb-8">Para quem é o VIZZU?</h2>
+          <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
+            {segments.map((seg, i) => (
+              <motion.div
+                key={seg.label}
+                initial={{ opacity: 0, y: 10 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true }}
+                transition={{ delay: i * 0.05 }}
+                className="flex flex-col items-center gap-2 p-4 rounded-xl bg-card border border-border/50 hover:border-primary/30 transition-colors"
+              >
+                <span className="text-2xl">{seg.icon}</span>
+                <span className="text-sm font-medium text-foreground">{seg.label}</span>
+              </motion.div>
+            ))}
+          </div>
+        </div>
+      </section>
+
       {/* Benefits */}
       <section className="py-16 px-4 bg-muted/30">
         <div className="max-w-6xl mx-auto">
           <h2 className="text-3xl font-bold text-foreground text-center mb-12">
-            Tudo que sua barbearia precisa
+            Tudo que seu negócio precisa
           </h2>
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
             {benefits.map((b, i) => (
@@ -177,7 +212,7 @@ const SalesPage = () => {
                   >
                     {isPopular && (
                       <div className="absolute -top-3 left-1/2 -translate-x-1/2 z-10">
-                        <Badge className="bg-gradient-to-r from-amber-500 to-orange-500 text-white border-0 shadow-lg">
+                        <Badge className="bg-gradient-to-r from-primary to-primary/80 text-primary-foreground border-0 shadow-lg">
                           ⭐ Mais Popular
                         </Badge>
                       </div>
@@ -188,7 +223,7 @@ const SalesPage = () => {
                     )}>
                       <CardHeader className="text-center pb-2">
                         <div className={cn(
-                          'w-12 h-12 rounded-xl mx-auto mb-3 flex items-center justify-center text-white bg-gradient-to-r',
+                          'w-12 h-12 rounded-xl mx-auto mb-3 flex items-center justify-center text-primary-foreground bg-gradient-to-r',
                           PLAN_GRADIENTS[plan.plan_type] || 'from-primary to-primary'
                         )}>
                           {PLAN_ICONS[plan.plan_type] || <Star className="h-6 w-6" />}
@@ -216,7 +251,7 @@ const SalesPage = () => {
                       <CardContent className="flex-1 flex flex-col">
                         <div className="space-y-2 text-sm mb-4">
                           <p className="text-muted-foreground">
-                            Até <strong className="text-foreground">{plan.max_barbers}</strong> barbeiro{plan.max_barbers > 1 ? 's' : ''}
+                            Até <strong className="text-foreground">{plan.max_barbers}</strong> profissiona{plan.max_barbers > 1 ? 'is' : 'l'}
                           </p>
                           <p className="text-muted-foreground">
                             <strong className="text-foreground">{plan.max_appointments_month}</strong> agendamentos/mês
@@ -239,7 +274,7 @@ const SalesPage = () => {
                         </div>
 
                         <Button
-                          className={cn('w-full mt-6', isPopular && 'bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-600 hover:to-orange-600 text-white')}
+                          className={cn('w-full mt-6', isPopular && 'bg-gradient-to-r from-primary to-primary/80 hover:from-primary/90 hover:to-primary/70 text-primary-foreground')}
                           variant={isPopular ? 'default' : 'outline'}
                           onClick={() => navigate(`/cadastro?plano=${plan.plan_type}`)}
                         >
@@ -275,7 +310,7 @@ const SalesPage = () => {
       <section className="py-20 px-4">
         <div className="max-w-3xl mx-auto text-center">
           <h2 className="text-3xl font-bold text-foreground mb-4">
-            Pronto para transformar sua barbearia?
+            Pronto para transformar seu negócio?
           </h2>
           <p className="text-lg text-muted-foreground mb-8">
             Comece gratuitamente e veja resultados em poucos dias.
@@ -290,10 +325,10 @@ const SalesPage = () => {
       <footer className="border-t border-border py-8 px-4">
         <div className="max-w-7xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-4">
           <div className="flex items-center gap-2">
-            <Scissors className="h-5 w-5 text-primary" />
-            <span className="font-semibold text-foreground">Na Régua</span>
+            <Zap className="h-5 w-5 text-primary" />
+            <span className="font-semibold text-foreground">VIZZU</span>
           </div>
-          <p className="text-sm text-muted-foreground">© 2024 Na Régua - Todos os direitos reservados</p>
+          <p className="text-sm text-muted-foreground">© 2025 VIZZU - Todos os direitos reservados</p>
         </div>
       </footer>
     </div>

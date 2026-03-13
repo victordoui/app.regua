@@ -7,7 +7,7 @@ import { Label } from '@/components/ui/label';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { useToast } from '@/hooks/use-toast';
-import { Scissors, Check, ArrowRight, ArrowLeft, Loader2, Crown, Star, Zap, CreditCard, QrCode } from 'lucide-react';
+import { Zap as VizzuIcon, Check, ArrowRight, ArrowLeft, Loader2, Crown, Star, Zap, CreditCard, QrCode, Shield } from 'lucide-react';
 import { cn, formatPhoneBR, formatNameOnly } from '@/lib/utils';
 import PixPayment from '@/components/payments/PixPayment';
 import type { PlanConfig } from '@/types/superAdmin';
@@ -159,7 +159,7 @@ const SignupPage = () => {
     trial: <Zap className="h-6 w-6" />,
     basic: <Star className="h-6 w-6" />,
     pro: <Crown className="h-6 w-6" />,
-    enterprise: <Scissors className="h-6 w-6" />,
+    enterprise: <Shield className="h-6 w-6" />,
   };
 
   const handleStep2Next = () => {
@@ -175,11 +175,11 @@ const SignupPage = () => {
       <div className="w-full max-w-2xl">
         {/* Header */}
         <div className="text-center mb-8">
-          <div className="inline-flex items-center justify-center w-16 h-16 rounded-2xl bg-gradient-to-r from-amber-500 to-orange-500 mb-4">
-            <Scissors className="h-8 w-8 text-white" />
+          <div className="inline-flex items-center justify-center w-16 h-16 rounded-2xl bg-gradient-to-r from-primary to-primary/80 mb-4">
+            <VizzuIcon className="h-8 w-8 text-primary-foreground" />
           </div>
-          <h1 className="text-3xl font-bold text-foreground">Na Régua</h1>
-          <p className="text-muted-foreground mt-1">Crie sua conta e comece a gerenciar sua barbearia</p>
+          <h1 className="text-3xl font-bold text-foreground">VIZZU</h1>
+          <p className="text-muted-foreground mt-1">Crie sua conta e comece a gerenciar seu negócio</p>
         </div>
 
         {/* Step indicator */}
@@ -222,10 +222,10 @@ const SignupPage = () => {
                   />
                 </div>
                 <div className="space-y-2">
-                  <Label htmlFor="companyName">Nome da barbearia</Label>
+                  <Label htmlFor="companyName">Nome do negócio</Label>
                   <Input
                     id="companyName"
-                    placeholder="Ex: Barbearia do João"
+                    placeholder="Ex: Salão da Maria"
                     value={formData.companyName}
                     onChange={(e) => setFormData((f) => ({ ...f, companyName: e.target.value }))}
                   />
@@ -285,7 +285,7 @@ const SignupPage = () => {
             <Card>
               <CardHeader>
                 <CardTitle>Escolha seu Plano</CardTitle>
-                <CardDescription>Selecione o plano ideal para sua barbearia</CardDescription>
+                <CardDescription>Selecione o plano ideal para seu negócio</CardDescription>
               </CardHeader>
               <CardContent>
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
@@ -320,7 +320,7 @@ const SignupPage = () => {
                         </div>
                       </div>
                       <div className="text-xs text-muted-foreground space-y-1">
-                        <p>• Até {plan.max_barbers} barbeiro{plan.max_barbers > 1 ? 's' : ''}</p>
+                        <p>• Até {plan.max_barbers} profissiona{plan.max_barbers > 1 ? 'is' : 'l'}</p>
                         <p>• {plan.max_appointments_month} agendamentos/mês</p>
                       </div>
                       {formData.selectedPlan === plan.plan_type && (
@@ -359,7 +359,7 @@ const SignupPage = () => {
                     <span className="font-medium text-foreground">{formData.fullName}</span>
                   </div>
                   <div className="flex justify-between">
-                    <span className="text-muted-foreground">Barbearia:</span>
+                    <span className="text-muted-foreground">Negócio:</span>
                     <span className="font-medium text-foreground">{formData.companyName}</span>
                   </div>
                   <div className="flex justify-between">
@@ -387,7 +387,7 @@ const SignupPage = () => {
                 )}
 
                 <p className="text-xs text-muted-foreground text-center">
-                  Ao criar sua conta, você concorda com os Termos de Uso e Política de Privacidade da Na Régua.
+                  Ao criar sua conta, você concorda com os Termos de Uso e Política de Privacidade da VIZZU.
                 </p>
               </CardContent>
             </Card>

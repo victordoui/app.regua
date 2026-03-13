@@ -2,16 +2,16 @@ import React from 'react';
 import { motion } from 'framer-motion';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
-import { Scissors, Building2, Users, Clock, CalendarClock, ArrowRight, Sparkles } from 'lucide-react';
+import { Zap, Building2, Users, Clock, CalendarClock, ArrowRight, Sparkles, Package } from 'lucide-react';
 
 interface OnboardingWelcomeProps {
   onStart: () => void;
 }
 
 const FEATURES = [
-  { icon: Building2, label: 'Dados da empresa' },
-  { icon: Scissors, label: 'Serviços oferecidos' },
-  { icon: Users, label: 'Cadastro de barbeiros' },
+  { icon: Building2, label: 'Dados do negócio' },
+  { icon: Package, label: 'Serviços oferecidos' },
+  { icon: Users, label: 'Cadastro de profissionais' },
   { icon: Clock, label: 'Horários de funcionamento' },
   { icon: CalendarClock, label: 'Escalas de trabalho' },
 ];
@@ -32,7 +32,7 @@ export const OnboardingWelcome: React.FC<OnboardingWelcomeProps> = ({ onStart })
             transition={{ type: "spring", stiffness: 200, damping: 15, delay: 0.2 }}
             className="mx-auto mb-6 flex items-center justify-center w-20 h-20 rounded-full bg-gradient-to-br from-primary to-primary/60 shadow-lg"
           >
-            <Scissors className="h-10 w-10 text-primary-foreground" />
+            <Zap className="h-10 w-10 text-primary-foreground" />
           </motion.div>
 
           <motion.div
@@ -41,10 +41,10 @@ export const OnboardingWelcome: React.FC<OnboardingWelcomeProps> = ({ onStart })
             transition={{ delay: 0.3 }}
           >
             <h1 className="text-3xl font-bold mb-2 bg-gradient-to-r from-foreground to-foreground/70 bg-clip-text">
-              Bem-vindo ao Na Régua
+              Bem-vindo ao VIZZU
             </h1>
             <p className="text-muted-foreground mb-8">
-              Vamos configurar sua barbearia em 5 passos simples.
+              Vamos configurar seu negócio em 5 passos simples.
               <br />
               <span className="text-sm">Leva menos de 5 minutos!</span>
             </p>

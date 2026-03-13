@@ -68,7 +68,7 @@ export const OnboardingStepBarbers: React.FC<OnboardingStepBarbersProps> = ({
           <div className="mx-auto mb-4 flex items-center justify-center w-16 h-16 rounded-full bg-primary/10">
             <Users className="h-8 w-8 text-primary" />
           </div>
-          <CardTitle className="text-2xl">Barbeiros</CardTitle>
+          <CardTitle className="text-2xl">Profissionais</CardTitle>
           <CardDescription>
             Cadastre os profissionais da sua equipe
           </CardDescription>
@@ -122,7 +122,7 @@ export const OnboardingStepBarbers: React.FC<OnboardingStepBarbersProps> = ({
                   <User className="h-6 w-6 text-primary" />
                 </div>
                 <div>
-                  <p className="font-medium">Novo Barbeiro</p>
+                  <p className="font-medium">Novo Profissional</p>
                   <p className="text-xs text-muted-foreground">
                     Preencha os dados do profissional
                   </p>
@@ -135,7 +135,7 @@ export const OnboardingStepBarbers: React.FC<OnboardingStepBarbersProps> = ({
                 </Label>
                 <Input
                   id="barber_name"
-                  placeholder="Nome do barbeiro"
+                  placeholder="Nome do profissional"
                   value={formData.name}
                   onChange={(e) => setFormData(prev => ({ ...prev, name: formatNameOnly(e.target.value) }))}
                 />
@@ -158,7 +158,7 @@ export const OnboardingStepBarbers: React.FC<OnboardingStepBarbersProps> = ({
                   <Input
                     id="barber_email"
                     type="email"
-                    placeholder="barbeiro@email.com"
+                    placeholder="profissional@email.com"
                     value={formData.email}
                     onChange={(e) => setFormData(prev => ({ ...prev, email: e.target.value }))}
                   />
@@ -183,13 +183,13 @@ export const OnboardingStepBarbers: React.FC<OnboardingStepBarbersProps> = ({
               onClick={() => setShowForm(true)}
             >
               <Plus className="h-4 w-4" />
-              Adicionar barbeiro
+              Adicionar profissional
             </Button>
           )}
 
           {barbers.length === 0 && !showForm && (
             <p className="text-center text-sm text-muted-foreground py-4">
-              Adicione pelo menos 1 barbeiro para continuar
+              Adicione pelo menos 1 profissional para continuar
             </p>
           )}
         </CardContent>

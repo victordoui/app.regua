@@ -255,13 +255,13 @@ const AppointmentFormDialog: React.FC<AppointmentFormDialogProps> = ({
             )}
           </div>
           <div>
-            <Label htmlFor="barbeiro_id">Barbeiro (Opcional)</Label>
+            <Label htmlFor="barbeiro_id">Profissional (Opcional)</Label>
             <Select 
               value={formData.barbeiro_id || "unassigned-barber"} 
               onValueChange={(value) => setFormData(prev => ({ ...prev, barbeiro_id: value === "unassigned-barber" ? null : value }))}
             >
               <SelectTrigger>
-                <SelectValue placeholder="Selecione um barbeiro" />
+                <SelectValue placeholder="Selecione um profissional" />
               </SelectTrigger>
               <SelectContent>
                 <SelectItem value="unassigned-barber">Nenhum (qualquer disponível)</SelectItem>

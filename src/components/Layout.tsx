@@ -134,7 +134,7 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
         <header className="bg-card border-b border-border px-4 lg:px-6 h-14 flex items-center justify-between gap-4">
           {/* Left - Logo */}
           <div className="flex items-center gap-2 min-w-0">
-            <span className="text-lg font-bold text-foreground tracking-tight hidden md:block">Na Régua</span>
+            <span className="text-lg font-bold text-foreground tracking-tight hidden md:block">VIZZU</span>
             <Button
               variant="ghost"
               size="sm"

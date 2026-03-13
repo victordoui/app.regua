@@ -106,7 +106,7 @@ export function useShifts() {
       if (error.message.includes('idx_unique_recurring_shift')) {
         toast({ 
           title: 'Erro ao criar turno', 
-          description: 'Já existe um turno ativo para este barbeiro neste dia da semana.',
+          description: 'Já existe um turno ativo para este profissional neste dia da semana.',
           variant: 'destructive' 
         });
       } else {
@@ -242,7 +242,7 @@ export function useShifts() {
     const shift = getShiftForDate(barberId, date);
     
     if (!shift) {
-      return { available: false, reason: 'Barbeiro não trabalha neste dia' };
+      return { available: false, reason: 'Profissional não trabalha neste dia' };
     }
 
     const slotStart = parse(time, 'HH:mm', date);

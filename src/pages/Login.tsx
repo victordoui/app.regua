@@ -5,7 +5,7 @@ import { Input } from "@/components/ui/input";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useToast } from "@/hooks/use-toast";
-import { Eye, EyeOff, Mail, Lock, User, ArrowRight, Crown, Scissors, Shield } from "lucide-react";
+import { Eye, EyeOff, Mail, Lock, User, ArrowRight, Crown, Zap, Shield } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
 import { ThemeToggle } from "@/components/ui/theme-toggle";
 import { motion, AnimatePresence } from "framer-motion";
@@ -142,15 +142,15 @@ const Login = () => {
 
     switch (role) {
       case 'barber':
-        loginEmail = "barbeiro@naregua.com";
+        loginEmail = "barbeiro@vizzu.app";
         loginPassword = "barbeiro123456";
         break;
       case 'admin':
-        loginEmail = "admin@naregua.com";
+        loginEmail = "admin@vizzu.app";
         loginPassword = "admin123456";
         break;
       case 'superadmin':
-        loginEmail = "superadmin@naregua.com";
+        loginEmail = "superadmin@vizzu.app";
         loginPassword = "superadmin123456";
         break;
     }
@@ -200,9 +200,9 @@ const Login = () => {
             className="flex items-center justify-center gap-3 mb-2"
           >
             <div className="w-12 h-12 bg-gradient-to-r from-primary to-primary-600 rounded-xl flex items-center justify-center shadow-lg">
-              <Scissors className="h-6 w-6 text-primary-foreground" />
+              <Zap className="h-6 w-6 text-primary-foreground" />
             </div>
-            <h1 className="text-5xl font-bold text-foreground">Na Régua</h1>
+            <h1 className="text-5xl font-bold text-foreground">VIZZU</h1>
           </motion.div>
         </div>
 
@@ -320,7 +320,7 @@ const Login = () => {
                             onClick={() => handleQuickLogin('barber')}
                           >
                             <User className="h-4 w-4 mr-1" />
-                            Barbeiro
+                            Profissional
                           </Button>
 
                           <Button
@@ -444,10 +444,10 @@ const Login = () => {
           >
             Conheça nossos planos →
           </button>
-          <p className="mb-2">© 2024 Na Régua - Todos os direitos reservados</p>
+          <p className="mb-2">© 2025 VIZZU - Todos os direitos reservados</p>
           <div className="flex items-center justify-center gap-2">
             <div className="w-2 h-2 bg-primary rounded-full animate-pulse"></div>
-            <span className="text-xs">Sistema de Gestão Barbearia</span>
+            <span className="text-xs">Gestão inteligente de agendamentos</span>
           </div>
         </div>
       </motion.div>

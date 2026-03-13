@@ -1,95 +1,93 @@
 
 
-# Migração Na Régua → VIZZU
+# Analise de Paginas Repetitivas e Consolidacao
 
-Plano completo de rebranding e generalização do sistema. A mudança afeta ~16 arquivos para o nome e ~93 arquivos para termos de barbearia. Vou dividir em etapas implementáveis.
+Apos analisar todas as paginas e a sidebar, identifiquei os seguintes problemas:
 
 ---
 
-## Etapa 1: Rebranding Visual (Nome + Ícone + Manifesto)
+## 1. Paginas sem funcionalidade real (apenas placeholder "Em Desenvolvimento")
 
-Trocar "Na Régua" → "VIZZU" e `Scissors` → `Sparkles` (ou `Zap`) como ícone principal nos seguintes arquivos:
-
-| Arquivo | Mudança |
-|---|---|
-| `src/components/Sidebar.tsx` | Nome "VIZZU", ícone, iniciais "VZ" |
-| `src/components/Layout.tsx` | Header "VIZZU" |
-| `src/pages/Login.tsx` | Logo + título "VIZZU" |
-| `src/pages/public/SignupPage.tsx` | Logo + texto "gerenciar seu negócio" |
-| `src/pages/public/SalesPage.tsx` | Toda a landing page: nome, slogan, textos universais, seção "Para quem é" |
-| `src/pages/Settings.tsx` | Label "Nome do Negócio" |
-| `src/components/onboarding/OnboardingWelcome.tsx` | "Bem-vindo ao VIZZU", "configurar seu negócio" |
-| `src/components/onboarding/OnboardingStepCompany.tsx` | "Nome do Negócio" |
-| `src/components/onboarding/OnboardingStepBarbers.tsx` | "Profissionais" |
-| `src/pages/AdvancedNotifications.tsx` | Templates com "VIZZU" |
-| `src/hooks/usePushNotifications.ts` | Texto da notificação |
-| `src/components/booking/CalendarExport.tsx` | PRODID |
-| `src/components/client/WhatsAppButton.tsx` | "o negócio" |
-| `vite.config.ts` | PWA manifest |
-| `public/manifest.webmanifest` | name, description |
-| `index.html` | title, meta tags |
-
-## Etapa 2: Generalização de Termos
-
-Substituições globais nos ~93 arquivos:
-
-| Antes | Depois |
-|---|---|
-| Barbeiro(s) | Profissional(is) |
-| Barbearia | Negócio / Estabelecimento |
-| Corte | Serviço |
-| `Scissors` icon (decorativo) | `Briefcase` ou `Calendar` |
-
-**No banco de dados**: manter `barbeiro` como valor do enum `app_role`. Apenas na **interface** exibir "Profissional" (já feito parcialmente no `getRoleLabel()`).
-
-Arquivos-chave para termos:
-- `src/components/Sidebar.tsx` — label "Barbeiros" → "Profissionais"
-- `src/components/appointments/AppointmentCard.tsx` — "Barbeiro Não Atribuído" → "Profissional Não Atribuído"
-- `src/components/onboarding/*` — labels e descrições
-- `src/pages/BarberManagement.tsx` — título da página
-- `src/pages/BarberDashboard.tsx` — título
-- `src/components/dashboard/*` — labels em gráficos e cards
-- `src/pages/client/*` — textos do app do cliente
-
-## Etapa 3: Renomear Módulos na Sidebar
-
-| Atual | Novo |
-|---|---|
-| Agendamentos | VIZZU Agenda |
-| Clientes | VIZZU Clientes |
-| Barbeiros | VIZZU Profissionais |
-| Serviços | VIZZU Serviços |
-| Relatórios | VIZZU Insights |
-| Fidelidade & Indicações | VIZZU Rewards |
-| Contas a Pagar/Receber + Comissões + Caixa | VIZZU Pay (agrupados) |
-
-## Etapa 4: Landing Page (SalesPage.tsx)
-
-Reescrever completamente:
-- Título: "VIZZU — Visualize. Organize. Cresça."
-- Subtítulo: "Gestão inteligente de agendamentos para profissionais de serviços."
-- Seção "Para quem é": barbearias, salões, manicures, estética, tatuadores, personal trainers, pet shops, dentistas
-- Ícones universais: Calendar, BarChart3, Heart, Users
-- FAQ atualizado com nome VIZZU
-- Footer: "© 2025 VIZZU"
-
-## Etapa 5: Ícones Universais
-
-| Contexto | Antes | Depois |
+| Pagina | Rota | Situacao |
 |---|---|---|
-| Logo/Brand | `Scissors` | `Zap` |
-| Profissionais | `Scissors` | `Users` |
-| Agenda | `Calendar` | `Calendar` (mantém) |
-| Financeiro | `DollarSign` | `DollarSign` (mantém) |
-| Relatórios | `BarChart3` | `BarChart3` (mantém) |
+| **Criar / Editar Plano** (`SubscriptionCreation`) | `/subscriptions/new` | Placeholder vazio. A pagina `Subscriptions` ja tem botao "Novo Plano" com dialog funcional |
+| **Integracoes** (`Integrations`) | `/integrations` | Placeholder vazio, sem funcionalidade |
 
-## Nota sobre banco de dados
+**Recomendacao**: Remover ambas da sidebar. `SubscriptionCreation` e redundante com o dialog que ja existe em `Subscriptions`.
 
-- **Não há migration necessária** — o enum `app_role` mantém `barbeiro` internamente
-- Tabela `barbershop_settings` mantém o nome (refatorar DB é risco desnecessário agora)
-- Toda mudança é puramente de interface/frontend
+---
 
-## Ordem de implementação
+## 2. Paginas que podem ser consolidadas como abas
 
-Serão ~16 arquivos principais editados. Farei em uma única passada, começando pelos arquivos de configuração (vite, manifest, index.html), depois componentes core (Sidebar, Layout, Login), depois páginas secundárias.
+### 2a. **Comissoes + Regras de Comissao** → Uma unica pagina com abas
+- `Commissions` (`/commissions`) - Calcula comissoes por periodo
+- `CommissionRules` (`/commission-rules`) - Configura regras de comissao
+- Ja existe um botao "Gerenciar Regras" em Comissoes que navega para CommissionRules
+
+**Proposta**: Unificar em `/commissions` com 2 abas: "Comissoes" e "Regras"
+
+### 2b. **Relatorios + Relatorios de Vendas** → Uma unica pagina com abas
+- `Reports` (`/reports`) - Visao financeira geral (receita, agendamentos, clientes)
+- `SalesReports` (`/sales-reports`) - Analise de vendas e ticket medio
+- Ambas mostram dados financeiros com sobreposicao (receita, servicos populares, ticket medio)
+
+**Proposta**: Unificar em `/reports` com abas: "Visao Geral", "Vendas", "Servicos", "Clientes"
+
+### 2c. **Notificacoes Avancadas + Campanhas** → Sobreposicao significativa
+- `AdvancedNotifications` (`/advanced-notifications`) - Tem abas internas: Templates, **Campanhas**, Historico, Configuracoes
+- `Campaigns` (`/campaigns`) - Gerencia campanhas de email
+
+A aba "Campanhas" dentro de Notificacoes Avancadas e a pagina Campanhas fazem a mesma coisa.
+
+**Proposta**: Manter `Campanhas` como pagina independente (mais completa) e remover a aba de campanhas de dentro de AdvancedNotifications, ou vice-versa. A opcao mais limpa e manter so `AdvancedNotifications` que ja tem tudo integrado e remover `Campaigns` da sidebar.
+
+### 2d. **Fidelidade + Indicacoes** → Programa de engajamento
+- `Loyalty` (`/loyalty`) - Pontos e recompensas
+- `Referrals` (`/referrals`) - Indicacoes e recompensas
+
+Ambas tratam de recompensar clientes. Podem ser abas de uma unica pagina "Engajamento" ou "Fidelidade & Indicacoes".
+
+**Proposta**: Unificar em `/loyalty` com abas: "Pontos e Recompensas" e "Indicacoes"
+
+---
+
+## 3. Paginas com funcionalidade duplicada
+
+### 3a. **Configuracoes Gerais vs Empresa**
+- `Settings` (`/settings`) - Formulario basico com dados da barbearia + perfil do usuario
+- `CompanySettings` (`/settings/company`) - Formulario completo com dados da empresa, identidade visual, link de agendamento
+
+`Settings` e uma versao pobre de `CompanySettings` + `Profile`. Tudo que tem em Settings ja existe melhor em CompanySettings e Profile.
+
+**Proposta**: Remover `Settings` da sidebar. Manter apenas `CompanySettings` (Empresa) e `Profile` (Meu Perfil).
+
+### 3b. **Conversas vs Chat da Equipe**
+- `Conversations` (`/conversations`) - Chat com clientes (mock data)
+- `TeamChat` (`/team-chat`) - Chat interno da equipe
+
+Sao funcionalidades diferentes mas ambas sao chat. Podem coexistir, porem `Conversations` usa apenas dados mock e nao tem funcionalidade real.
+
+**Proposta**: Se Conversations nao tem integracao real, considerar remove-la ou marca-la como "em breve".
+
+### 3c. **Agendamento Online (admin)** duplica funcionalidade
+- `OnlineBooking` (`/booking`) - Formulario de agendamento interno com dados mock
+- A pagina `Appointments` ja permite criar agendamentos
+
+**Proposta**: Remover `OnlineBooking` da sidebar. O agendamento ja e feito pela pagina de Appointments.
+
+---
+
+## Resumo das acoes propostas
+
+| Acao | Detalhes |
+|---|---|
+| **Remover da sidebar** | `SubscriptionCreation`, `Integracoes`, `Settings`, `OnlineBooking` |
+| **Consolidar Comissoes + Regras** | Uma pagina com 2 abas |
+| **Consolidar Relatorios + Rel. Vendas** | Uma pagina com abas expandidas |
+| **Consolidar Fidelidade + Indicacoes** | Uma pagina com 2 abas |
+| **Resolver duplicata Campanhas** | Manter apenas em AdvancedNotifications ou apenas Campaigns (nao ambas) |
+
+Isso reduziria a sidebar de ~30 itens para ~24, tornando a navegacao mais limpa e eliminando confusao.
+
+Deseja que eu implemente alguma dessas consolidacoes? Posso comecar por qualquer grupo.
 

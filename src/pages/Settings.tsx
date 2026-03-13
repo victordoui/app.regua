@@ -25,13 +25,13 @@ const Settings = () => {
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
               <Store className="h-5 w-5" />
-              Dados da Barbearia
+              Dados do Negócio
             </CardTitle>
           </CardHeader>
           <CardContent className="space-y-4">
             <div>
-              <Label htmlFor="name">Nome da Barbearia</Label>
-              <Input id="name" defaultValue="Na Régua" />
+              <Label htmlFor="name">Nome do Negócio</Label>
+              <Input id="name" defaultValue="VIZZU" />
             </div>
             <div>
               <Label htmlFor="address">Endereço</Label>

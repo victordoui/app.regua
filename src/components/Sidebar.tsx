@@ -6,14 +6,15 @@ import { motion, AnimatePresence } from "framer-motion";
 import { useRole } from "@/contexts/RoleContext";
 import { 
   Home, BarChart3, TrendingUp, Target,
-  Calendar, Users, Scissors, Package,
+  Calendar, Users, Briefcase, Package,
   MessageSquare, Bell, Megaphone,
   DollarSign, CreditCard, Ticket, Receipt,
   Crown, Heart,
   Building, Image, Warehouse, Plug,
   Settings, Shield, Star, ListOrdered, UserCheck, UserCircle,
   ShoppingCart, Gift, Clock, MessageCircle, Tag,
-  PlusCircle, Menu, X, LogOut, ChevronDown, ChevronRight, ChevronsLeft, ChevronsRight
+  PlusCircle, Menu, X, LogOut, ChevronDown, ChevronRight, ChevronsLeft, ChevronsRight,
+  Zap
 } from "lucide-react";
 
 // Paths accessible by barbeiro
@@ -54,10 +55,10 @@ const Sidebar = () => {
     {
       category: "operacoes", label: "Operações", icon: Package,
       items: [
-        { icon: Calendar, label: "Agendamentos", path: "/appointments" },
-        { icon: Users, label: "Clientes", path: "/clients" },
-        { icon: Scissors, label: "Barbeiros", path: "/barbers" },
-        { icon: Package, label: "Serviços", path: "/services" },
+        { icon: Calendar, label: "VIZZU Agenda", path: "/appointments" },
+        { icon: Users, label: "VIZZU Clientes", path: "/clients" },
+        { icon: Briefcase, label: "VIZZU Profissionais", path: "/barbers" },
+        { icon: Package, label: "VIZZU Serviços", path: "/services" },
         { icon: ListOrdered, label: "Lista de Espera", path: "/waitlist" },
         { icon: Clock, label: "Turnos / Escalas", path: "/shifts" }
       ]
@@ -71,9 +72,9 @@ const Sidebar = () => {
       ]
     },
     {
-      category: "financeiro", label: "Financeiro", icon: DollarSign,
+      category: "financeiro", label: "VIZZU Pay", icon: DollarSign,
       items: [
-        { icon: BarChart3, label: "Relatórios", path: "/reports" },
+        { icon: BarChart3, label: "VIZZU Insights", path: "/reports" },
         { icon: CreditCard, label: "Contas a Pagar / Receber", path: "/billing" },
         { icon: Receipt, label: "Comissões", path: "/commissions" },
         { icon: Ticket, label: "Cupons", path: "/coupons" },
@@ -86,11 +87,11 @@ const Sidebar = () => {
       category: "assinaturas", label: "Assinaturas & Engajamento", icon: Crown,
       items: [
         { icon: Crown, label: "Gerenciar Planos", path: "/subscriptions" },
-        { icon: Heart, label: "Fidelidade & Indicações", path: "/loyalty" }
+        { icon: Heart, label: "VIZZU Rewards", path: "/loyalty" }
       ]
     },
     {
-      category: "empresa", label: "Minha Empresa", icon: Building,
+      category: "empresa", label: "Meu Negócio", icon: Building,
       items: [
         { icon: Building, label: "Empresa", path: "/settings/company" },
         { icon: Warehouse, label: "Estoque", path: "/inventory" },
@@ -246,9 +247,9 @@ const Sidebar = () => {
         <div className={`h-14 px-4 border-b border-border flex items-center ${isCollapsed ? 'justify-center' : 'justify-between'}`}>
           <div className="flex items-center gap-2 overflow-hidden">
             <div className="w-8 h-8 bg-gradient-to-r from-primary to-primary/80 rounded-lg flex items-center justify-center shadow-sm flex-shrink-0">
-              <Scissors className="h-4 w-4 text-primary-foreground" />
+              <Zap className="h-4 w-4 text-primary-foreground" />
             </div>
-            {!isCollapsed && <h2 className="font-bold text-xl text-foreground whitespace-nowrap">Na Régua</h2>}
+            {!isCollapsed && <h2 className="font-bold text-xl text-foreground whitespace-nowrap">VIZZU</h2>}
           </div>
         </div>
 
@@ -289,10 +290,10 @@ const Sidebar = () => {
         <div className="p-4 border-t border-border bg-muted/30 flex items-center justify-between">
           <div className={`flex items-center gap-3 overflow-hidden ${isCollapsed ? 'hidden' : 'flex'}`}>
             <div className="w-8 h-8 bg-gradient-to-br from-primary to-primary/70 rounded-full flex items-center justify-center shadow-sm flex-shrink-0">
-              <span className="text-sm font-medium text-primary-foreground">NR</span>
+              <span className="text-sm font-medium text-primary-foreground">VZ</span>
             </div>
             <div className="flex-1 min-w-0">
-              <p className="text-sm font-medium text-foreground truncate">Na Régua</p>
+              <p className="text-sm font-medium text-foreground truncate">VIZZU</p>
               <p className="text-xs text-muted-foreground truncate">{getRoleLabel()}</p>
             </div>
           </div>

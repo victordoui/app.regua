@@ -12,7 +12,7 @@ interface WhatsAppButtonProps {
 
 export const WhatsAppButton = ({
   phoneNumber,
-  companyName = "a barbearia",
+  companyName = "o negócio",
   message,
   floating = true,
   className = "",
