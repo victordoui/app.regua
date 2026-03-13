@@ -68,7 +68,7 @@ export const OnboardingStepBarbers: React.FC<OnboardingStepBarbersProps> = ({
           <div className="mx-auto mb-4 flex items-center justify-center w-16 h-16 rounded-full bg-primary/10">
             <Users className="h-8 w-8 text-primary" />
           </div>
-          <CardTitle className="text-2xl">Barbeiros</CardTitle>
+          <CardTitle className="text-2xl">Profissionais</CardTitle>
           <CardDescription>
             Cadastre os profissionais da sua equipe
           </CardDescription>
