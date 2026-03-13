@@ -4,6 +4,7 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { motion, AnimatePresence } from "framer-motion";
 import { useRole } from "@/contexts/RoleContext";
+import logoVizzu from "@/assets/logo-vizzu.png";
 import { 
   Home, BarChart3, TrendingUp, Target,
   Calendar, Users, Briefcase, Package,
@@ -13,8 +14,7 @@ import {
   Building, Image, Warehouse, Plug,
   Settings, Shield, Star, ListOrdered, UserCheck, UserCircle,
   ShoppingCart, Gift, Clock, MessageCircle, Tag,
-  PlusCircle, Menu, X, LogOut, ChevronDown, ChevronRight, ChevronsLeft, ChevronsRight,
-  Zap
+  PlusCircle, Menu, X, LogOut, ChevronDown, ChevronRight, ChevronsLeft, ChevronsRight
 } from "lucide-react";
 
 // Paths accessible by barbeiro
