@@ -225,7 +225,7 @@ const SignupPage = () => {
                   <Label htmlFor="companyName">Nome do negócio</Label>
                   <Input
                     id="companyName"
-                    placeholder="Ex: Barbearia do João"
+                    placeholder="Ex: Salão da Maria"
                     value={formData.companyName}
                     onChange={(e) => setFormData((f) => ({ ...f, companyName: e.target.value }))}
                   />
