@@ -178,8 +178,8 @@ const SignupPage = () => {
           <div className="inline-flex items-center justify-center w-16 h-16 rounded-2xl bg-gradient-to-r from-primary to-primary/80 mb-4">
             <VizzuIcon className="h-8 w-8 text-primary-foreground" />
           </div>
-          <h1 className="text-3xl font-bold text-foreground">Na Régua</h1>
-          <p className="text-muted-foreground mt-1">Crie sua conta e comece a gerenciar sua barbearia</p>
+          <h1 className="text-3xl font-bold text-foreground">VIZZU</h1>
+          <p className="text-muted-foreground mt-1">Crie sua conta e comece a gerenciar seu negócio</p>
         </div>
 
         {/* Step indicator */}
