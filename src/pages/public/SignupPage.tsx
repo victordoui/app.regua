@@ -285,7 +285,7 @@ const SignupPage = () => {
             <Card>
               <CardHeader>
                 <CardTitle>Escolha seu Plano</CardTitle>
-                <CardDescription>Selecione o plano ideal para sua barbearia</CardDescription>
+                <CardDescription>Selecione o plano ideal para seu negócio</CardDescription>
               </CardHeader>
               <CardContent>
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
