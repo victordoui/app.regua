@@ -6,9 +6,10 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion';
 import { LoadingSpinner } from '@/components/ui/loading-spinner';
-import { Check, X, Zap, Calendar, BarChart3, Heart, ArrowRight, Star, Crown, Shield, Users, Briefcase, Sparkles } from 'lucide-react';
+import { Check, X, Calendar, BarChart3, Heart, ArrowRight, Star, Crown, Shield, Users, Briefcase, Sparkles } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { cn } from '@/lib/utils';
+import logoVizzu from '@/assets/logo-vizzu.png';
 import type { PlanConfig } from '@/types/superAdmin';
 
 const FEATURE_LABELS: Record<string, string> = {
