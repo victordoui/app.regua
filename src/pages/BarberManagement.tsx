@@ -251,7 +251,7 @@ const BarberManagement = () => {
           <DialogContent className="sm:max-w-md">
             <DialogHeader>
               <DialogTitle>
-                {editingBarber ? "Editar Barbeiro" : "Novo Barbeiro"}
+                {editingBarber ? "Editar Profissional" : "Novo Profissional"}
               </DialogTitle>
             </DialogHeader>
             <form onSubmit={handleSubmit} className="space-y-4">
