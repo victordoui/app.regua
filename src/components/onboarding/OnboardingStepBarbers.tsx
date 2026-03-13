@@ -183,7 +183,7 @@ export const OnboardingStepBarbers: React.FC<OnboardingStepBarbersProps> = ({
               onClick={() => setShowForm(true)}
             >
               <Plus className="h-4 w-4" />
-              Adicionar barbeiro
+              Adicionar profissional
             </Button>
           )}
 
