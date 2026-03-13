@@ -36,9 +36,9 @@ export const OnboardingStepCompany: React.FC<OnboardingStepCompanyProps> = ({
           <div className="mx-auto mb-4 flex items-center justify-center w-16 h-16 rounded-full bg-primary/10">
             <Building2 className="h-8 w-8 text-primary" />
           </div>
-          <CardTitle className="text-2xl">Dados da Empresa</CardTitle>
+          <CardTitle className="text-2xl">Dados do Negócio</CardTitle>
           <CardDescription>
-            Informe os dados básicos da sua barbearia
+            Informe os dados básicos do seu negócio
           </CardDescription>
         </CardHeader>
         <CardContent className="space-y-4 pt-4">
