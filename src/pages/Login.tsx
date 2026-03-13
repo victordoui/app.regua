@@ -200,9 +200,9 @@ const Login = () => {
             className="flex items-center justify-center gap-3 mb-2"
           >
             <div className="w-12 h-12 bg-gradient-to-r from-primary to-primary-600 rounded-xl flex items-center justify-center shadow-lg">
-              <Scissors className="h-6 w-6 text-primary-foreground" />
+              <Zap className="h-6 w-6 text-primary-foreground" />
             </div>
-            <h1 className="text-5xl font-bold text-foreground">Na Régua</h1>
+            <h1 className="text-5xl font-bold text-foreground">VIZZU</h1>
           </motion.div>
         </div>
 
