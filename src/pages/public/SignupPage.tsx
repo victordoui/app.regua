@@ -7,8 +7,9 @@ import { Label } from '@/components/ui/label';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { useToast } from '@/hooks/use-toast';
-import { Zap as VizzuIcon, Check, ArrowRight, ArrowLeft, Loader2, Crown, Star, Zap, CreditCard, QrCode, Shield } from 'lucide-react';
+import { Check, ArrowRight, ArrowLeft, Loader2, Crown, Star, Zap, CreditCard, QrCode, Shield } from 'lucide-react';
 import { cn, formatPhoneBR, formatNameOnly } from '@/lib/utils';
+import logoVizzu from '@/assets/logo-vizzu.png';
 import PixPayment from '@/components/payments/PixPayment';
 import type { PlanConfig } from '@/types/superAdmin';
 
@@ -175,8 +176,8 @@ const SignupPage = () => {
       <div className="w-full max-w-2xl">
         {/* Header */}
         <div className="text-center mb-8">
-          <div className="inline-flex items-center justify-center w-16 h-16 rounded-2xl bg-gradient-to-r from-primary to-primary/80 mb-4">
-            <VizzuIcon className="h-8 w-8 text-primary-foreground" />
+          <div className="inline-flex items-center justify-center w-16 h-16 rounded-2xl overflow-hidden bg-white mb-4">
+            <img src={logoVizzu} alt="VIZZU" className="w-full h-full object-cover" />
           </div>
           <h1 className="text-3xl font-bold text-foreground">VIZZU</h1>
           <p className="text-muted-foreground mt-1">Crie sua conta e comece a gerenciar seu negócio</p>

@@ -5,7 +5,7 @@ import { Input } from "@/components/ui/input";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useToast } from "@/hooks/use-toast";
-import { Eye, EyeOff, Mail, Lock, User, ArrowRight, Crown, Zap, Shield } from "lucide-react";
+import { Eye, EyeOff, Mail, Lock, User, ArrowRight, Crown, Shield } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
 import { ThemeToggle } from "@/components/ui/theme-toggle";
 import { motion, AnimatePresence } from "framer-motion";
@@ -13,6 +13,7 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
 import { supabase } from "@/integrations/supabase/client";
+import logoVizzu from "@/assets/logo-vizzu.png";
 import {
   Form,
   FormControl,
@@ -199,8 +200,8 @@ const Login = () => {
             transition={{ type: "spring", stiffness: 260, damping: 20, delay: 0.2 }}
             className="flex items-center justify-center gap-3 mb-2"
           >
-            <div className="w-12 h-12 bg-gradient-to-r from-primary to-primary-600 rounded-xl flex items-center justify-center shadow-lg">
-              <Zap className="h-6 w-6 text-primary-foreground" />
+            <div className="w-12 h-12 rounded-xl flex items-center justify-center shadow-lg overflow-hidden bg-white">
+              <img src={logoVizzu} alt="VIZZU" className="w-full h-full object-cover" />
             </div>
             <h1 className="text-5xl font-bold text-foreground">VIZZU</h1>
           </motion.div>

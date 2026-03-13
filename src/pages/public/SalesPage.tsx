@@ -6,9 +6,10 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion';
 import { LoadingSpinner } from '@/components/ui/loading-spinner';
-import { Check, X, Zap, Calendar, BarChart3, Heart, ArrowRight, Star, Crown, Shield, Users, Briefcase, Sparkles } from 'lucide-react';
+import { Check, X, Calendar, BarChart3, Heart, ArrowRight, Star, Crown, Shield, Users, Briefcase, Sparkles } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { cn } from '@/lib/utils';
+import logoVizzu from '@/assets/logo-vizzu.png';
 import type { PlanConfig } from '@/types/superAdmin';
 
 const FEATURE_LABELS: Record<string, string> = {
@@ -24,7 +25,7 @@ const FEATURE_LABELS: Record<string, string> = {
 };
 
 const PLAN_ICONS: Record<string, React.ReactNode> = {
-  trial: <Zap className="h-6 w-6" />,
+  trial: <img src={logoVizzu} alt="Trial" className="h-6 w-6 object-cover" />,
   basic: <Star className="h-6 w-6" />,
   pro: <Crown className="h-6 w-6" />,
   enterprise: <Shield className="h-6 w-6" />,
@@ -89,8 +90,8 @@ const SalesPage = () => {
       <header className="border-b border-border/50 bg-background/95 backdrop-blur-sm sticky top-0 z-50">
         <div className="max-w-7xl mx-auto px-4 py-4 flex items-center justify-between">
           <div className="flex items-center gap-2">
-            <div className="w-9 h-9 bg-gradient-to-r from-primary to-primary/80 rounded-lg flex items-center justify-center">
-              <Zap className="h-5 w-5 text-primary-foreground" />
+            <div className="w-9 h-9 rounded-lg flex items-center justify-center overflow-hidden bg-white">
+              <img src={logoVizzu} alt="VIZZU" className="w-full h-full object-cover" />
             </div>
             <span className="text-xl font-bold text-foreground">VIZZU</span>
           </div>
@@ -325,7 +326,9 @@ const SalesPage = () => {
       <footer className="border-t border-border py-8 px-4">
         <div className="max-w-7xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-4">
           <div className="flex items-center gap-2">
-            <Zap className="h-5 w-5 text-primary" />
+            <div className="w-5 h-5 rounded overflow-hidden bg-white">
+              <img src={logoVizzu} alt="VIZZU" className="w-full h-full object-cover" />
+            </div>
             <span className="font-semibold text-foreground">VIZZU</span>
           </div>
           <p className="text-sm text-muted-foreground">© 2025 VIZZU - Todos os direitos reservados</p>
