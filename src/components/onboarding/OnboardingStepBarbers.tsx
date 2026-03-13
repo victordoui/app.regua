@@ -135,7 +135,7 @@ export const OnboardingStepBarbers: React.FC<OnboardingStepBarbersProps> = ({
                 </Label>
                 <Input
                   id="barber_name"
-                  placeholder="Nome do barbeiro"
+                  placeholder="Nome do profissional"
                   value={formData.name}
                   onChange={(e) => setFormData(prev => ({ ...prev, name: formatNameOnly(e.target.value) }))}
                 />
