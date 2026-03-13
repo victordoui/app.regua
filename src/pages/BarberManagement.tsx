@@ -127,7 +127,7 @@ const BarberManagement = () => {
     return (
       <Layout>
         <div className="flex items-center justify-center min-h-[400px]">
-          <div className="text-muted-foreground">Carregando barbeiros...</div>
+          <div className="text-muted-foreground">Carregando profissionais...</div>
         </div>
       </Layout>
     );
