@@ -34,9 +34,9 @@ export default defineConfig(({ mode }) => ({
         globPatterns: ['**/*.{js,css,html,ico,png,svg,woff,woff2}'],
       },
       manifest: {
-        name: 'Na Régua',
-        short_name: 'Na Régua',
-        description: 'Sistema de gestão de barbearias (MVP SaaS).',
+        name: 'VIZZU',
+        short_name: 'VIZZU',
+        description: 'Gestão inteligente de agendamentos para profissionais de serviços.',
         theme_color: '#0ea5e9',
         background_color: '#0f172a',
         display: 'standalone',
