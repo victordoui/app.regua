@@ -2,7 +2,7 @@ import React from 'react';
 import { motion } from 'framer-motion';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
-import { Scissors, Building2, Users, Clock, CalendarClock, ArrowRight, Sparkles } from 'lucide-react';
+import { Zap, Building2, Users, Clock, CalendarClock, ArrowRight, Sparkles } from 'lucide-react';
 
 interface OnboardingWelcomeProps {
   onStart: () => void;
