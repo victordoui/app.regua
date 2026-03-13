@@ -359,7 +359,7 @@ const SignupPage = () => {
                     <span className="font-medium text-foreground">{formData.fullName}</span>
                   </div>
                   <div className="flex justify-between">
-                    <span className="text-muted-foreground">Barbearia:</span>
+                    <span className="text-muted-foreground">Negócio:</span>
                     <span className="font-medium text-foreground">{formData.companyName}</span>
                   </div>
                   <div className="flex justify-between">
