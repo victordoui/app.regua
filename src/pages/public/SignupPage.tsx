@@ -320,7 +320,7 @@ const SignupPage = () => {
                         </div>
                       </div>
                       <div className="text-xs text-muted-foreground space-y-1">
-                        <p>• Até {plan.max_barbers} barbeiro{plan.max_barbers > 1 ? 's' : ''}</p>
+                        <p>• Até {plan.max_barbers} profissiona{plan.max_barbers > 1 ? 'is' : 'l'}</p>
                         <p>• {plan.max_appointments_month} agendamentos/mês</p>
                       </div>
                       {formData.selectedPlan === plan.plan_type && (
