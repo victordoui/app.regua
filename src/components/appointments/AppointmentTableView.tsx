@@ -123,7 +123,7 @@ const AppointmentTableView: React.FC<AppointmentTableViewProps> = ({
   };
 
   const exportToCSV = () => {
-    const headers = ['Cliente', 'Serviço', 'Data', 'Horário', 'Barbeiro', 'Status', 'Criado em'];
+    const headers = ['Cliente', 'Serviço', 'Data', 'Horário', 'Profissional', 'Status', 'Criado em'];
     const rows = processedAppointments.map(apt => [
       apt.clients?.name || 'N/A',
       apt.services?.name || 'N/A',
