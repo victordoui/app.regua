@@ -159,7 +159,7 @@ const SignupPage = () => {
     trial: <Zap className="h-6 w-6" />,
     basic: <Star className="h-6 w-6" />,
     pro: <Crown className="h-6 w-6" />,
-    enterprise: <Scissors className="h-6 w-6" />,
+    enterprise: <Shield className="h-6 w-6" />,
   };
 
   const handleStep2Next = () => {
