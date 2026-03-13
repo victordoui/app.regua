@@ -200,8 +200,8 @@ const Login = () => {
             transition={{ type: "spring", stiffness: 260, damping: 20, delay: 0.2 }}
             className="flex items-center justify-center gap-3 mb-2"
           >
-            <div className="w-12 h-12 bg-gradient-to-r from-primary to-primary-600 rounded-xl flex items-center justify-center shadow-lg">
-              <Zap className="h-6 w-6 text-primary-foreground" />
+            <div className="w-12 h-12 rounded-xl flex items-center justify-center shadow-lg overflow-hidden bg-white">
+              <img src={logoVizzu} alt="VIZZU" className="w-full h-full object-cover" />
             </div>
             <h1 className="text-5xl font-bold text-foreground">VIZZU</h1>
           </motion.div>
