@@ -12,7 +12,7 @@ interface QRCodeGeneratorProps {
   companyName?: string;
 }
 
-const QRCodeGenerator = ({ url, companyName = 'Sua Barbearia' }: QRCodeGeneratorProps) => {
+const QRCodeGenerator = ({ url, companyName = 'Seu Negócio' }: QRCodeGeneratorProps) => {
   const { toast } = useToast();
   const [size, setSize] = useState(200);
   const [fgColor, setFgColor] = useState('#000000');
