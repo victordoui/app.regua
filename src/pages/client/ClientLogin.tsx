@@ -49,7 +49,7 @@ const ClientLogin = () => {
   useEffect(() => {
     const fetchSettings = async () => {
       if (!userId) {
-        setError('Barbearia não encontrada');
+        setError('Negócio não encontrado');
         setLoading(false);
         return;
       }
