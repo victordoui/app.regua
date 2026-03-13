@@ -32,7 +32,7 @@ export const OnboardingWelcome: React.FC<OnboardingWelcomeProps> = ({ onStart })
             transition={{ type: "spring", stiffness: 200, damping: 15, delay: 0.2 }}
             className="mx-auto mb-6 flex items-center justify-center w-20 h-20 rounded-full bg-gradient-to-br from-primary to-primary/60 shadow-lg"
           >
-            <Scissors className="h-10 w-10 text-primary-foreground" />
+            <Zap className="h-10 w-10 text-primary-foreground" />
           </motion.div>
 
           <motion.div
