@@ -175,8 +175,8 @@ const SignupPage = () => {
       <div className="w-full max-w-2xl">
         {/* Header */}
         <div className="text-center mb-8">
-          <div className="inline-flex items-center justify-center w-16 h-16 rounded-2xl bg-gradient-to-r from-amber-500 to-orange-500 mb-4">
-            <Scissors className="h-8 w-8 text-white" />
+          <div className="inline-flex items-center justify-center w-16 h-16 rounded-2xl bg-gradient-to-r from-primary to-primary/80 mb-4">
+            <VizzuIcon className="h-8 w-8 text-primary-foreground" />
           </div>
           <h1 className="text-3xl font-bold text-foreground">Na Régua</h1>
           <p className="text-muted-foreground mt-1">Crie sua conta e comece a gerenciar sua barbearia</p>
