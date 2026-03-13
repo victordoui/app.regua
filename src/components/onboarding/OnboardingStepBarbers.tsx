@@ -158,7 +158,7 @@ export const OnboardingStepBarbers: React.FC<OnboardingStepBarbersProps> = ({
                   <Input
                     id="barber_email"
                     type="email"
-                    placeholder="barbeiro@email.com"
+                    placeholder="profissional@email.com"
                     value={formData.email}
                     onChange={(e) => setFormData(prev => ({ ...prev, email: e.target.value }))}
                   />
