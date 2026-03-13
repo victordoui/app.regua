@@ -444,10 +444,10 @@ const Login = () => {
           >
             Conheça nossos planos →
           </button>
-          <p className="mb-2">© 2024 Na Régua - Todos os direitos reservados</p>
+          <p className="mb-2">© 2025 VIZZU - Todos os direitos reservados</p>
           <div className="flex items-center justify-center gap-2">
             <div className="w-2 h-2 bg-primary rounded-full animate-pulse"></div>
-            <span className="text-xs">Sistema de Gestão Barbearia</span>
+            <span className="text-xs">Gestão inteligente de agendamentos</span>
           </div>
         </div>
       </motion.div>
