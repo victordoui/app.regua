@@ -205,7 +205,7 @@ const Login = () => {
             transition={{ type: "spring", stiffness: 260, damping: 20, delay: 0.2 }}
             className="flex flex-col items-center justify-center gap-3 mb-2"
           >
-            <div className="w-36 h-36 flex items-center justify-center">
+            <div className="w-48 h-48 flex items-center justify-center">
               <img src={vizzuIcon} alt="VIZZU" className="w-full h-full object-contain" />
             </div>
           </motion.div>
