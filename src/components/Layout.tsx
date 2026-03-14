@@ -29,6 +29,7 @@ import { ThemeToggle } from '@/components/ui/theme-toggle';
 import { supabase } from '@/integrations/supabase/client';
 import { Badge } from '@/components/ui/badge';
 import TrialBanner from '@/components/TrialBanner';
+import vizzuIcon from '@/assets/vizzu-icon.png';
 
 interface LayoutProps {
   children?: React.ReactNode;
@@ -134,7 +135,12 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
         <header className="bg-card border-b border-border px-4 lg:px-6 h-14 flex items-center justify-between gap-4">
           {/* Left - Logo */}
           <div className="flex items-center gap-2 min-w-0">
-            <span className="text-lg font-bold text-foreground tracking-tight hidden md:block">VIZZU</span>
+            <div className="hidden md:flex items-center gap-2">
+              <div className="w-7 h-7 rounded-md flex items-center justify-center overflow-hidden">
+                <img src={vizzuIcon} alt="VIZZU" className="w-full h-full object-cover" />
+              </div>
+              <span className="text-lg font-bold text-foreground tracking-tight">VIZZU</span>
+            </div>
             <Button
               variant="ghost"
               size="sm"

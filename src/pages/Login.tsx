@@ -15,6 +15,7 @@ import * as z from "zod";
 import { supabase } from "@/integrations/supabase/client";
 import logoVizzuBlue from "@/assets/logo-vizzu-blue.png";
 import logoVizzuWhite from "@/assets/logo-vizzu-white.png";
+import vizzuIcon from "@/assets/vizzu-icon.png";
 import { useTheme } from "next-themes";
 import {
   Form,
@@ -204,8 +205,8 @@ const Login = () => {
             transition={{ type: "spring", stiffness: 260, damping: 20, delay: 0.2 }}
             className="flex items-center justify-center gap-3 mb-2"
           >
-            <div className="w-12 h-12 rounded-xl flex items-center justify-center shadow-lg overflow-hidden bg-white">
-              <img src={logoVizzu} alt="VIZZU" className="w-full h-full object-cover" />
+            <div className="w-12 h-12 rounded-xl flex items-center justify-center shadow-lg overflow-hidden">
+              <img src={vizzuIcon} alt="VIZZU" className="w-full h-full object-cover" />
             </div>
             <h1 className="text-5xl font-bold text-foreground">VIZZU</h1>
           </motion.div>

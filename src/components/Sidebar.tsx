@@ -6,6 +6,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import { useRole } from "@/contexts/RoleContext";
 import logoVizzuBlue from "@/assets/logo-vizzu-blue.png";
 import logoVizzuWhite from "@/assets/logo-vizzu-white.png";
+import vizzuIcon from "@/assets/vizzu-icon.png";
 import { useTheme } from "next-themes";
 import { 
   Home, BarChart3, TrendingUp, Target,
@@ -250,8 +251,8 @@ const Sidebar = () => {
       >
         <div className={`h-14 px-4 border-b border-border flex items-center ${isCollapsed ? 'justify-center' : 'justify-between'}`}>
           <div className="flex items-center gap-2 overflow-hidden">
-            <div className="w-8 h-8 rounded-lg flex items-center justify-center shadow-sm flex-shrink-0 overflow-hidden bg-white">
-              <img src={logoVizzu} alt="VIZZU" className="w-full h-full object-cover" />
+            <div className="w-8 h-8 rounded-lg flex items-center justify-center shadow-sm flex-shrink-0 overflow-hidden">
+              <img src={vizzuIcon} alt="VIZZU" className="w-full h-full object-cover" />
             </div>
             {!isCollapsed && <h2 className="font-bold text-xl text-foreground whitespace-nowrap">VIZZU</h2>}
           </div>
