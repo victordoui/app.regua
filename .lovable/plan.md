@@ -1,93 +1,52 @@
 
 
-# Analise de Paginas Repetitivas e Consolidacao
+# Redesign da Tela de Login com cores VIZZU
 
-Apos analisar todas as paginas e a sidebar, identifiquei os seguintes problemas:
+## Visão Geral
 
----
+Redesenhar completamente a tela de login com layout moderno SaaS, utilizando as cores da marca VIZZU e um design split-screen (painel esquerdo com branding + painel direito com formulário).
 
-## 1. Paginas sem funcionalidade real (apenas placeholder "Em Desenvolvimento")
+## Paleta de Cores VIZZU (em HSL para o CSS)
 
-| Pagina | Rota | Situacao |
-|---|---|---|
-| **Criar / Editar Plano** (`SubscriptionCreation`) | `/subscriptions/new` | Placeholder vazio. A pagina `Subscriptions` ja tem botao "Novo Plano" com dialog funcional |
-| **Integracoes** (`Integrations`) | `/integrations` | Placeholder vazio, sem funcionalidade |
+- Primary: #1F4FA3 → `221 68% 38%`
+- Secondary: #2E6FD3 → `216 64% 50%`
+- Accent: #4FA3FF → `213 100% 65%`
+- Dark: #0F2F6B → `219 76% 24%`
 
-**Recomendacao**: Remover ambas da sidebar. `SubscriptionCreation` e redundante com o dialog que ja existe em `Subscriptions`.
+## Alterações
 
----
+### 1. `src/index.css` — Atualizar variáveis CSS
+Trocar os valores de `--primary`, `--secondary`, `--accent` e escalas para refletir a nova paleta VIZZU em ambos os temas (light e dark).
 
-## 2. Paginas que podem ser consolidadas como abas
+### 2. `src/pages/Login.tsx` — Redesign completo
+Novo layout:
+- **Split-screen** em desktop: painel esquerdo (gradient branding) + painel direito (formulário branco)
+- **Mobile**: painel de branding collapsa, formulário full-width com gradient no topo
+- Painel esquerdo: gradient `135deg, #4FA3FF → #1F4FA3 → #0F2F6B`, logo VIZZU grande, tagline, decorações geométricas sutis
+- Painel direito: fundo branco, card com cantos arredondados, soft shadows, inputs limpos
+- Botões de acesso rápido com estilo mais clean usando as novas cores
+- Remover ThemeToggle (a tela de login terá estilo fixo)
+- Tabs com estilo pill/segmented moderno
+- Botão principal com gradient `#4FA3FF → #1F4FA3`
 
-### 2a. **Comissoes + Regras de Comissao** → Uma unica pagina com abas
-- `Commissions` (`/commissions`) - Calcula comissoes por periodo
-- `CommissionRules` (`/commission-rules`) - Configura regras de comissao
-- Ja existe um botao "Gerenciar Regras" em Comissoes que navega para CommissionRules
+### Estrutura do Layout
 
-**Proposta**: Unificar em `/commissions` com 2 abas: "Comissoes" e "Regras"
+```text
+┌──────────────────┬──────────────────┐
+│                  │                  │
+│   GRADIENT BG    │   WHITE PANEL    │
+│                  │                  │
+│   [VIZZU Icon]   │   [Tabs]         │
+│   Tagline        │   [Form Fields]  │
+│   Decorations    │   [Submit Btn]   │
+│                  │   [Quick Login]  │
+│                  │                  │
+└──────────────────┴──────────────────┘
+```
 
-### 2b. **Relatorios + Relatorios de Vendas** → Uma unica pagina com abas
-- `Reports` (`/reports`) - Visao financeira geral (receita, agendamentos, clientes)
-- `SalesReports` (`/sales-reports`) - Analise de vendas e ticket medio
-- Ambas mostram dados financeiros com sobreposicao (receita, servicos populares, ticket medio)
-
-**Proposta**: Unificar em `/reports` com abas: "Visao Geral", "Vendas", "Servicos", "Clientes"
-
-### 2c. **Notificacoes Avancadas + Campanhas** → Sobreposicao significativa
-- `AdvancedNotifications` (`/advanced-notifications`) - Tem abas internas: Templates, **Campanhas**, Historico, Configuracoes
-- `Campaigns` (`/campaigns`) - Gerencia campanhas de email
-
-A aba "Campanhas" dentro de Notificacoes Avancadas e a pagina Campanhas fazem a mesma coisa.
-
-**Proposta**: Manter `Campanhas` como pagina independente (mais completa) e remover a aba de campanhas de dentro de AdvancedNotifications, ou vice-versa. A opcao mais limpa e manter so `AdvancedNotifications` que ja tem tudo integrado e remover `Campaigns` da sidebar.
-
-### 2d. **Fidelidade + Indicacoes** → Programa de engajamento
-- `Loyalty` (`/loyalty`) - Pontos e recompensas
-- `Referrals` (`/referrals`) - Indicacoes e recompensas
-
-Ambas tratam de recompensar clientes. Podem ser abas de uma unica pagina "Engajamento" ou "Fidelidade & Indicacoes".
-
-**Proposta**: Unificar em `/loyalty` com abas: "Pontos e Recompensas" e "Indicacoes"
-
----
-
-## 3. Paginas com funcionalidade duplicada
-
-### 3a. **Configuracoes Gerais vs Empresa**
-- `Settings` (`/settings`) - Formulario basico com dados da barbearia + perfil do usuario
-- `CompanySettings` (`/settings/company`) - Formulario completo com dados da empresa, identidade visual, link de agendamento
-
-`Settings` e uma versao pobre de `CompanySettings` + `Profile`. Tudo que tem em Settings ja existe melhor em CompanySettings e Profile.
-
-**Proposta**: Remover `Settings` da sidebar. Manter apenas `CompanySettings` (Empresa) e `Profile` (Meu Perfil).
-
-### 3b. **Conversas vs Chat da Equipe**
-- `Conversations` (`/conversations`) - Chat com clientes (mock data)
-- `TeamChat` (`/team-chat`) - Chat interno da equipe
-
-Sao funcionalidades diferentes mas ambas sao chat. Podem coexistir, porem `Conversations` usa apenas dados mock e nao tem funcionalidade real.
-
-**Proposta**: Se Conversations nao tem integracao real, considerar remove-la ou marca-la como "em breve".
-
-### 3c. **Agendamento Online (admin)** duplica funcionalidade
-- `OnlineBooking` (`/booking`) - Formulario de agendamento interno com dados mock
-- A pagina `Appointments` ja permite criar agendamentos
-
-**Proposta**: Remover `OnlineBooking` da sidebar. O agendamento ja e feito pela pagina de Appointments.
-
----
-
-## Resumo das acoes propostas
-
-| Acao | Detalhes |
-|---|---|
-| **Remover da sidebar** | `SubscriptionCreation`, `Integracoes`, `Settings`, `OnlineBooking` |
-| **Consolidar Comissoes + Regras** | Uma pagina com 2 abas |
-| **Consolidar Relatorios + Rel. Vendas** | Uma pagina com abas expandidas |
-| **Consolidar Fidelidade + Indicacoes** | Uma pagina com 2 abas |
-| **Resolver duplicata Campanhas** | Manter apenas em AdvancedNotifications ou apenas Campaigns (nao ambas) |
-
-Isso reduziria a sidebar de ~30 itens para ~24, tornando a navegacao mais limpa e eliminando confusao.
-
-Deseja que eu implemente alguma dessas consolidacoes? Posso comecar por qualquer grupo.
+### Detalhes Técnicos
+- Inline styles para o gradient (Tailwind arbitrary não suporta multi-stop complexo)
+- Manter toda a lógica de formulários, validação e handlers intacta
+- Inputs com `border-[#1F4FA3]/20`, focus `ring-[#1F4FA3]`
+- Quick login buttons com `border-[#2E6FD3]` e hover `bg-[#1F4FA3]`
 
