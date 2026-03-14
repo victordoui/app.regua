@@ -15,6 +15,7 @@ import * as z from "zod";
 import { supabase } from "@/integrations/supabase/client";
 import logoVizzuBlue from "@/assets/logo-vizzu-blue.png";
 import logoVizzuWhite from "@/assets/logo-vizzu-white.png";
+import vizzuIcon from "@/assets/vizzu-icon.png";
 import { useTheme } from "next-themes";
 import {
   Form,
