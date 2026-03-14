@@ -29,6 +29,7 @@ import { ThemeToggle } from '@/components/ui/theme-toggle';
 import { supabase } from '@/integrations/supabase/client';
 import { Badge } from '@/components/ui/badge';
 import TrialBanner from '@/components/TrialBanner';
+import vizzuIcon from '@/assets/vizzu-icon.png';
 
 interface LayoutProps {
   children?: React.ReactNode;

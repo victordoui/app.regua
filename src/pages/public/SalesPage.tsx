@@ -331,8 +331,8 @@ const SalesPage = () => {
       <footer className="border-t border-border py-8 px-4">
         <div className="max-w-7xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-4">
           <div className="flex items-center gap-2">
-            <div className="w-5 h-5 rounded overflow-hidden bg-white">
-              <img src={logoVizzu} alt="VIZZU" className="w-full h-full object-cover" />
+            <div className="w-5 h-5 rounded overflow-hidden">
+              <img src={vizzuIcon} alt="VIZZU" className="w-full h-full object-cover" />
             </div>
             <span className="font-semibold text-foreground">VIZZU</span>
           </div>

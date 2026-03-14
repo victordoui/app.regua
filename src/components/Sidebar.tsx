@@ -6,6 +6,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import { useRole } from "@/contexts/RoleContext";
 import logoVizzuBlue from "@/assets/logo-vizzu-blue.png";
 import logoVizzuWhite from "@/assets/logo-vizzu-white.png";
+import vizzuIcon from "@/assets/vizzu-icon.png";
 import { useTheme } from "next-themes";
 import { 
   Home, BarChart3, TrendingUp, Target,
