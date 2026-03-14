@@ -205,10 +205,9 @@ const Login = () => {
             transition={{ type: "spring", stiffness: 260, damping: 20, delay: 0.2 }}
             className="flex flex-col items-center justify-center gap-3 mb-2"
           >
-            <div className="w-28 h-28 rounded-2xl flex items-center justify-center shadow-2xl overflow-hidden">
-              <img src={vizzuIcon} alt="VIZZU" className="w-full h-full object-cover" />
+            <div className="w-36 h-36 flex items-center justify-center">
+              <img src={vizzuIcon} alt="VIZZU" className="w-full h-full object-contain" />
             </div>
-            <h1 className="text-4xl font-bold text-foreground">VIZZU</h1>
           </motion.div>
         </div>
 
@@ -217,8 +216,7 @@ const Login = () => {
 
           <CardHeader className="text-center pb-6 relative">
             <div className="flex items-center justify-center mb-4">
-              <Crown className="h-8 w-8 text-primary mr-2" />
-              <h2 className="text-2xl font-bold text-foreground">Bem-vindo de Volta</h2>
+              <h2 className="text-2xl font-bold text-foreground">VIZZU</h2>
             </div>
           </CardHeader>
 
