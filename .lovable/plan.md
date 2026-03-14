@@ -1,38 +1,39 @@
 
 
-Vou adicionar a nova logo VIZZU com fundo transparente ao sistema nas seguintes localizações:
+# Logo Dinâmica: Azul (Light) / Branca (Dark)
 
-**1. Favicon e Assets Públicos**
-- Copiar a logo com fundo transparente para `public/logo-vizzu.png` (favicon e PWA)
-- Copiar para `src/assets/logo-vizzu.png` (uso em componentes React)
+Copiar as duas logos para `src/assets/` e `public/`, depois atualizar os 4 componentes que usam a logo para selecionar a variante correta com base no tema (`next-themes`).
 
-**2. Página de Login**
-- Garantir que a logo apareça destacada no topo da página de entrada
-- Substituir o ícone atual por uma versão maior e mais visível da logo
+## Arquivos novos
+- `src/assets/logo-vizzu-blue.png` (Azul.png)
+- `src/assets/logo-vizzu-white.png` (Branca.png)
+- `public/logo-vizzu.png` (mantém a azul como padrão para favicon/PWA)
 
-**3. Landing Page (SalesPage)**
-- Verificar se a logo já está integrada corretamente no header
-- Adicionar logo no footer também
+## Arquivos editados (4)
 
-**4. Componentes Principais**
-- Sidebar: já tem a logo, confirmar que está visível
-- Layout: confirmar a logo no header
+### 1. `src/components/Sidebar.tsx`
+- Importar ambas logos + `useTheme` de `next-themes`
+- Selecionar logo com base em `resolvedTheme`
 
-A logo será usada como:
-- Favicon do navegador
-- Ícone do app PWA
-- Logo na tela de login
-- Logo na landing page
-- Logo na sidebar
+### 2. `src/pages/Login.tsx`
+- Mesma lógica: tema escuro → logo branca, tema claro → logo azul
 
-```text
-┌─────────────────────────────────────┐
-│  Antes: Ícone genérico              │
-│  Depois: Logo VIZZU transparente    │
-│                                     │
-│  Login: Logo grande no topo         │
-│  Sidebar: Logo no header          │
-│  Favicon: logo-vizzu.png            │
-└─────────────────────────────────────┘
+### 3. `src/pages/public/SalesPage.tsx`
+- Mesma lógica de troca por tema
+
+### 4. `src/pages/public/SignupPage.tsx`
+- Mesma lógica de troca por tema
+
+### Padrão em cada componente
+```typescript
+import logoVizzuBlue from "@/assets/logo-vizzu-blue.png";
+import logoVizzuWhite from "@/assets/logo-vizzu-white.png";
+import { useTheme } from "next-themes";
+
+// dentro do componente:
+const { resolvedTheme } = useTheme();
+const logoVizzu = resolvedTheme === "dark" ? logoVizzuWhite : logoVizzuBlue;
 ```
+
+O favicon e PWA icon mantêm a versão azul (padrão do sistema).
 
