@@ -42,7 +42,7 @@ const Dashboard = () => {
       value: metrics.activeSubscriptions.toString(),
       change: `Novos este mês: ${metrics.newClientsThisMonth}`,
       icon: Crown,
-      color: "purple",
+      color: "primary-800",
       progress: Math.min(metrics.activeSubscriptions * 10, 100)
     },
     {
