@@ -11,6 +11,7 @@ import { motion } from 'framer-motion';
 import { cn } from '@/lib/utils';
 import logoVizzuBlue from '@/assets/logo-vizzu-blue.png';
 import logoVizzuWhite from '@/assets/logo-vizzu-white.png';
+import vizzuIcon from '@/assets/vizzu-icon.png';
 import { useTheme } from 'next-themes';
 import type { PlanConfig } from '@/types/superAdmin';
 
