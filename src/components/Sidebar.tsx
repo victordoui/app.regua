@@ -36,6 +36,8 @@ const Sidebar = () => {
   const navigate = useNavigate();
   const location = useLocation();
   const { isSuperAdmin, isAdmin, isBarbeiro, userRole } = useRole();
+  const { resolvedTheme } = useTheme();
+  const logoVizzu = resolvedTheme === "dark" ? logoVizzuWhite : logoVizzuBlue;
 
   useEffect(() => {
     const checkMobile = () => {

@@ -9,7 +9,9 @@ import { Badge } from '@/components/ui/badge';
 import { useToast } from '@/hooks/use-toast';
 import { Check, ArrowRight, ArrowLeft, Loader2, Crown, Star, Zap, CreditCard, QrCode, Shield } from 'lucide-react';
 import { cn, formatPhoneBR, formatNameOnly } from '@/lib/utils';
-import logoVizzu from '@/assets/logo-vizzu.png';
+import logoVizzuBlue from '@/assets/logo-vizzu-blue.png';
+import logoVizzuWhite from '@/assets/logo-vizzu-white.png';
+import { useTheme } from 'next-themes';
 import PixPayment from '@/components/payments/PixPayment';
 import type { PlanConfig } from '@/types/superAdmin';
 

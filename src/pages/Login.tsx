@@ -13,7 +13,9 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
 import { supabase } from "@/integrations/supabase/client";
-import logoVizzu from "@/assets/logo-vizzu.png";
+import logoVizzuBlue from "@/assets/logo-vizzu-blue.png";
+import logoVizzuWhite from "@/assets/logo-vizzu-white.png";
+import { useTheme } from "next-themes";
 import {
   Form,
   FormControl,

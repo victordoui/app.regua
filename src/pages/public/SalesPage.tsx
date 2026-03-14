@@ -9,7 +9,9 @@ import { LoadingSpinner } from '@/components/ui/loading-spinner';
 import { Check, X, Calendar, BarChart3, Heart, ArrowRight, Star, Crown, Shield, Users, Briefcase, Sparkles } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { cn } from '@/lib/utils';
-import logoVizzu from '@/assets/logo-vizzu.png';
+import logoVizzuBlue from '@/assets/logo-vizzu-blue.png';
+import logoVizzuWhite from '@/assets/logo-vizzu-white.png';
+import { useTheme } from 'next-themes';
 import type { PlanConfig } from '@/types/superAdmin';
 
 const FEATURE_LABELS: Record<string, string> = {
