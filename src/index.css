@@ -64,12 +64,12 @@ All colors MUST be HSL.
     --clean-gray-500: 215 16% 47%;
     
     /* Modern Gradients */
-    --gradient-primary: linear-gradient(135deg, hsl(var(--primary)), hsl(var(--primary-600)));
+    --gradient-primary: linear-gradient(135deg, hsl(213, 100%, 65%), hsl(221, 68%, 38%));
     --gradient-secondary: linear-gradient(135deg, hsl(var(--secondary)), hsl(var(--clean-white)));
     --gradient-subtle: linear-gradient(180deg, hsl(var(--clean-white)), hsl(var(--clean-gray-50)));
-    --gradient-from: 221 83% 53%;
-    --gradient-via: 260 83% 60%;
-    --gradient-to: 300 83% 55%;
+    --gradient-from: 213 100% 65%;
+    --gradient-via: 221 68% 38%;
+    --gradient-to: 219 76% 24%;
     
     /* Modern Shadows - "Floating" effect */
     --shadow-elegant: 0 20px 40px -5px rgba(0, 0, 0, 0.1), 0 10px 20px -5px rgba(0, 0, 0, 0.04);
