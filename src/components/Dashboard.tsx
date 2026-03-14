@@ -69,7 +69,7 @@ const Dashboard = () => {
       change: `${appointmentStats.pending} pendentes`,
       trend: metrics.occupancyRate > 80 ? "up" : metrics.occupancyRate > 60 ? "warning" : "down",
       icon: Target,
-      color: "orange",
+      color: "primary-600",
       progress: metrics.occupancyRate
     },
     {
