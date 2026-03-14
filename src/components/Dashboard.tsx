@@ -78,7 +78,7 @@ const Dashboard = () => {
       change: `${metrics.totalClients} clientes cadastrados`,
       trend: metrics.completedRate > 80 ? "up" : "warning",
       icon: Heart,
-      color: "pink",
+      color: "primary-400",
       progress: metrics.completedRate
     },
     {
