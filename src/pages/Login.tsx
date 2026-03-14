@@ -216,7 +216,7 @@ const Login = () => {
 
           <CardHeader className="text-center pb-6 relative">
             <div className="flex items-center justify-center mb-4">
-              <h2 className="text-2xl font-bold text-foreground">VIZZU</h2>
+              <h2 className="text-3xl font-bold text-foreground">VIZZU</h2>
             </div>
           </CardHeader>
 
