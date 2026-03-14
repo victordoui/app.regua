@@ -249,13 +249,19 @@ const Sidebar = () => {
         } md:relative md:shadow-none md:bg-card flex flex-col`}
         style={{ width: isMobile ? (isOpen ? 240 : 0) : (isCollapsed ? 64 : 240) }}
       >
-        <div className={`h-14 px-4 border-b border-border flex items-center ${isCollapsed ? 'justify-center' : 'justify-between'}`}>
-          <div className="flex items-center gap-2 overflow-hidden">
-            <div className="w-8 h-8 rounded-lg flex items-center justify-center shadow-sm flex-shrink-0 overflow-hidden">
-              <img src={vizzuIcon} alt="VIZZU" className="w-full h-full object-cover" />
+        <div className={`px-4 border-b border-border flex flex-col items-center ${isCollapsed ? 'py-2' : 'py-4'}`}>
+          {isCollapsed ? (
+            <div className="w-10 h-10 flex items-center justify-center flex-shrink-0">
+              <img src={vizzuIcon} alt="VIZZU" className="w-full h-full object-contain" />
             </div>
-            {!isCollapsed && <h2 className="font-bold text-xl text-foreground whitespace-nowrap">VIZZU</h2>}
-          </div>
+          ) : (
+            <>
+              <div className="w-48 h-48 flex items-center justify-center">
+                <img src={vizzuIcon} alt="VIZZU" className="w-full h-full object-contain" />
+              </div>
+              <h2 className="font-bold text-3xl text-foreground mt-2">VIZZU</h2>
+            </>
+          )}
         </div>
 
         <nav className="p-3 overflow-y-auto flex-1">
