@@ -13,7 +13,9 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
 import { supabase } from "@/integrations/supabase/client";
-import logoVizzu from "@/assets/logo-vizzu.png";
+import logoVizzuBlue from "@/assets/logo-vizzu-blue.png";
+import logoVizzuWhite from "@/assets/logo-vizzu-white.png";
+import { useTheme } from "next-themes";
 import {
   Form,
   FormControl,
@@ -39,6 +41,8 @@ type LoginFormValues = z.infer<typeof loginSchema>;
 type RegisterFormValues = z.infer<typeof registerSchema>;
 
 const Login = () => {
+  const { resolvedTheme } = useTheme();
+  const logoVizzu = resolvedTheme === "dark" ? logoVizzuWhite : logoVizzuBlue;
   const [loading, setLoading] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
   const [activeTab, setActiveTab] = useState("login");

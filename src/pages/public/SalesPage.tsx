@@ -9,7 +9,9 @@ import { LoadingSpinner } from '@/components/ui/loading-spinner';
 import { Check, X, Calendar, BarChart3, Heart, ArrowRight, Star, Crown, Shield, Users, Briefcase, Sparkles } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { cn } from '@/lib/utils';
-import logoVizzu from '@/assets/logo-vizzu.png';
+import logoVizzuBlue from '@/assets/logo-vizzu-blue.png';
+import logoVizzuWhite from '@/assets/logo-vizzu-white.png';
+import { useTheme } from 'next-themes';
 import type { PlanConfig } from '@/types/superAdmin';
 
 const FEATURE_LABELS: Record<string, string> = {
@@ -25,7 +27,7 @@ const FEATURE_LABELS: Record<string, string> = {
 };
 
 const PLAN_ICONS: Record<string, React.ReactNode> = {
-  trial: <img src={logoVizzu} alt="Trial" className="h-6 w-6 object-cover" />,
+  trial: <img src={logoVizzuBlue} alt="Trial" className="h-6 w-6 object-cover" />,
   basic: <Star className="h-6 w-6" />,
   pro: <Crown className="h-6 w-6" />,
   enterprise: <Shield className="h-6 w-6" />,
@@ -69,6 +71,8 @@ const faqs = [
 ];
 
 const SalesPage = () => {
+  const { resolvedTheme } = useTheme();
+  const logoVizzu = resolvedTheme === "dark" ? logoVizzuWhite : logoVizzuBlue;
   const navigate = useNavigate();
 
   const { data: plans = [], isLoading } = useQuery({
