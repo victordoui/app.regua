@@ -132,7 +132,7 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
       {/* Main Content */}
       <div className="flex-1 flex flex-col min-w-0">
         {/* Header */}
-        <header className="bg-card border-b border-border px-4 lg:px-6 h-14 flex items-center justify-between gap-4">
+        <header className="bg-card border-b border-primary/10 px-4 lg:px-6 h-14 flex items-center justify-between gap-4">
           {/* Left - Logo */}
           <div className="flex items-center gap-2 min-w-0">
             <Button
@@ -151,7 +151,7 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
               <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
               <Input
                 placeholder="Buscar..."
-                className="pl-9 h-9 rounded-full bg-muted/50 border-transparent focus:border-primary focus:bg-background"
+                className="pl-9 h-9 rounded-full bg-muted/50 border-transparent focus:border-primary focus:bg-background focus:ring-1 focus:ring-primary/30"
               />
             </div>
           </div>

@@ -19,8 +19,8 @@ const buttonVariants = cva(
         ghost: "hover:bg-accent hover:text-accent-foreground",
         link: "text-primary underline-offset-4 hover:underline",
         hero: "bg-gradient-to-r from-primary to-primary-600 text-primary-foreground hover:from-primary/90 hover:to-primary-600/90 shadow-lg hover:shadow-xl hover:-translate-y-1 transition-all duration-300",
-        barber: "bg-gradient-to-r from-blue-600 to-blue-700 text-white hover:from-blue-700 hover:to-blue-800 shadow-md hover:shadow-lg hover:-translate-y-0.5 transition-all duration-300",
-        "barber-outline": "border-2 border-blue-600 text-blue-600 hover:bg-blue-600 hover:text-white transition-all duration-300",
+        barber: "bg-gradient-to-r from-primary to-primary-800 text-primary-foreground shadow-md hover:shadow-lg hover:-translate-y-0.5 transition-all duration-300",
+        "barber-outline": "border-2 border-primary text-primary hover:bg-primary hover:text-primary-foreground transition-all duration-300",
         modern: "bg-gradient-to-r from-primary to-primary-600 text-primary-foreground shadow-md hover:shadow-xl hover:shadow-primary/30 hover:-translate-y-1 transition-all duration-300 ease-out border-0",
       },
       size: {

@@ -23,8 +23,8 @@ const TodayMetricsPanel: React.FC<TodayMetricsPanelProps> = ({
       label: 'Agendamentos Hoje',
       value: todayAppointments.toString(),
       icon: Calendar,
-      color: 'from-blue-500 to-blue-600',
-      bgColor: 'bg-blue-50 dark:bg-blue-950/30'
+      color: 'from-primary to-primary-800',
+      bgColor: 'bg-primary-50 dark:bg-primary-950/30'
     },
     {
       label: 'Receita do Dia',
@@ -37,8 +37,8 @@ const TodayMetricsPanel: React.FC<TodayMetricsPanelProps> = ({
       label: 'Concluídos',
       value: todayCompleted.toString(),
       icon: CheckCircle,
-      color: 'from-emerald-500 to-emerald-600',
-      bgColor: 'bg-emerald-50 dark:bg-emerald-950/30'
+      color: 'from-green-500 to-green-600',
+      bgColor: 'bg-green-50 dark:bg-green-950/30'
     },
     {
       label: 'Pendentes',
@@ -51,8 +51,8 @@ const TodayMetricsPanel: React.FC<TodayMetricsPanelProps> = ({
       label: 'Tempo Médio',
       value: `${avgServiceTime} min`,
       icon: TrendingUp,
-      color: 'from-purple-500 to-purple-600',
-      bgColor: 'bg-purple-50 dark:bg-purple-950/30'
+      color: 'from-primary-600 to-primary',
+      bgColor: 'bg-primary-50 dark:bg-primary-950/30'
     }
   ];
 

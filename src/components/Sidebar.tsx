@@ -178,7 +178,7 @@ const Sidebar = () => {
           className={`w-full justify-start h-10 transition-all duration-200 ${
             isSubItem ? `ml-4 pl-8 text-sm ${isActive ? 'bg-primary/10 text-primary' : 'text-muted-foreground hover:text-foreground'}` : ''
           } ${
-            isActive ? 'bg-secondary text-secondary-foreground shadow-sm' : 'text-muted-foreground hover:text-foreground hover:bg-accent/50'
+            isActive ? 'bg-primary/10 text-primary shadow-sm' : 'text-muted-foreground hover:text-foreground hover:bg-primary/5'
           } ${isCollapsed ? 'justify-center ml-0 pl-3 pr-3' : ''}`}
           onClick={() => handleNavigation(item.path)}
         >
@@ -244,7 +244,7 @@ const Sidebar = () => {
         initial={false}
         animate={{ width: isCollapsed ? 64 : 240, x: isMobile && !isOpen ? -240 : 0 }}
         transition={{ duration: 0.3, ease: "easeInOut" }}
-        className={`fixed left-0 top-0 h-full bg-card/95 backdrop-blur-sm border-r border-border z-40 ${
+        className={`fixed left-0 top-0 h-full bg-card/95 backdrop-blur-sm border-r border-primary/10 z-40 ${
           isMobile ? 'shadow-2xl' : ''
         } md:relative md:shadow-none md:bg-card flex flex-col`}
         style={{ width: isMobile ? (isOpen ? 240 : 0) : (isCollapsed ? 64 : 240) }}

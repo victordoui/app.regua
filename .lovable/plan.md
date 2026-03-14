@@ -1,37 +1,93 @@
 
 
-# Aplicar cores VIZZU dentro do sistema
+# Analise de Paginas Repetitivas e Consolidacao
 
-As variáveis CSS já estão com as cores VIZZU, mas muitos componentes usam cores Tailwind hardcoded (blue-500, purple-500, etc.) ao invés das variáveis da marca. O objetivo é unificar a identidade visual.
+Apos analisar todas as paginas e a sidebar, identifiquei os seguintes problemas:
 
-## Alterações
+---
 
-### 1. `src/components/Sidebar.tsx`
-- Sidebar background: adicionar gradient sutil VIZZU no painel lateral (do dark `#0F2F6B` ao primary `#1F4FA3`) em modo expandido
-- Item ativo: usar `bg-[#1F4FA3]/10 text-[#1F4FA3]` ao invés de `bg-secondary`
-- Footer badge "VZ": manter gradient da marca
+## 1. Paginas sem funcionalidade real (apenas placeholder "Em Desenvolvimento")
 
-### 2. `src/components/Layout.tsx`
-- Header: adicionar borda inferior com toque de cor VIZZU (`border-[#1F4FA3]/10`)
-- Search input focus: usar cores da marca
+| Pagina | Rota | Situacao |
+|---|---|---|
+| **Criar / Editar Plano** (`SubscriptionCreation`) | `/subscriptions/new` | Placeholder vazio. A pagina `Subscriptions` ja tem botao "Novo Plano" com dialog funcional |
+| **Integracoes** (`Integrations`) | `/integrations` | Placeholder vazio, sem funcionalidade |
 
-### 3. `src/components/ui/button.tsx`
-- Variante `barber`: trocar `from-blue-600 to-blue-700` por `from-[#1F4FA3] to-[#0F2F6B]`
-- Variante `barber-outline`: trocar `border-blue-600 text-blue-600` por `border-[#1F4FA3] text-[#1F4FA3]`
+**Recomendacao**: Remover ambas da sidebar. `SubscriptionCreation` e redundante com o dialog que ja existe em `Subscriptions`.
 
-### 4. `src/components/Dashboard.tsx`
-- Stat cards: unificar ícones com tons da paleta VIZZU (usar shades de `#4FA3FF`, `#2E6FD3`, `#1F4FA3`, `#0F2F6B` ao invés de purple/pink/orange/indigo)
-- Botão "Novo Agendamento": usar gradient VIZZU
+---
 
-### 5. `src/components/dashboard/DashboardOverview.tsx`
-- `getStatColor()`: substituir cores aleatórias por tons da paleta VIZZU
+## 2. Paginas que podem ser consolidadas como abas
 
-### 6. `src/components/dashboard/TodayMetricsPanel.tsx`
-- Cards de métricas: usar tons VIZZU ao invés de blue/green/purple hardcoded
+### 2a. **Comissoes + Regras de Comissao** → Uma unica pagina com abas
+- `Commissions` (`/commissions`) - Calcula comissoes por periodo
+- `CommissionRules` (`/commission-rules`) - Configura regras de comissao
+- Ja existe um botao "Gerenciar Regras" em Comissoes que navega para CommissionRules
 
-### 7. `src/components/dashboard/RecentActivities.tsx`
-- Ícones de atividade: mapear para tons da paleta VIZZU
+**Proposta**: Unificar em `/commissions` com 2 abas: "Comissoes" e "Regras"
 
-### Nota
-Cores semânticas de status (verde=concluído, amarelo=pendente, vermelho=cancelado) serão mantidas pois são convenções de UX universais.
+### 2b. **Relatorios + Relatorios de Vendas** → Uma unica pagina com abas
+- `Reports` (`/reports`) - Visao financeira geral (receita, agendamentos, clientes)
+- `SalesReports` (`/sales-reports`) - Analise de vendas e ticket medio
+- Ambas mostram dados financeiros com sobreposicao (receita, servicos populares, ticket medio)
+
+**Proposta**: Unificar em `/reports` com abas: "Visao Geral", "Vendas", "Servicos", "Clientes"
+
+### 2c. **Notificacoes Avancadas + Campanhas** → Sobreposicao significativa
+- `AdvancedNotifications` (`/advanced-notifications`) - Tem abas internas: Templates, **Campanhas**, Historico, Configuracoes
+- `Campaigns` (`/campaigns`) - Gerencia campanhas de email
+
+A aba "Campanhas" dentro de Notificacoes Avancadas e a pagina Campanhas fazem a mesma coisa.
+
+**Proposta**: Manter `Campanhas` como pagina independente (mais completa) e remover a aba de campanhas de dentro de AdvancedNotifications, ou vice-versa. A opcao mais limpa e manter so `AdvancedNotifications` que ja tem tudo integrado e remover `Campaigns` da sidebar.
+
+### 2d. **Fidelidade + Indicacoes** → Programa de engajamento
+- `Loyalty` (`/loyalty`) - Pontos e recompensas
+- `Referrals` (`/referrals`) - Indicacoes e recompensas
+
+Ambas tratam de recompensar clientes. Podem ser abas de uma unica pagina "Engajamento" ou "Fidelidade & Indicacoes".
+
+**Proposta**: Unificar em `/loyalty` com abas: "Pontos e Recompensas" e "Indicacoes"
+
+---
+
+## 3. Paginas com funcionalidade duplicada
+
+### 3a. **Configuracoes Gerais vs Empresa**
+- `Settings` (`/settings`) - Formulario basico com dados da barbearia + perfil do usuario
+- `CompanySettings` (`/settings/company`) - Formulario completo com dados da empresa, identidade visual, link de agendamento
+
+`Settings` e uma versao pobre de `CompanySettings` + `Profile`. Tudo que tem em Settings ja existe melhor em CompanySettings e Profile.
+
+**Proposta**: Remover `Settings` da sidebar. Manter apenas `CompanySettings` (Empresa) e `Profile` (Meu Perfil).
+
+### 3b. **Conversas vs Chat da Equipe**
+- `Conversations` (`/conversations`) - Chat com clientes (mock data)
+- `TeamChat` (`/team-chat`) - Chat interno da equipe
+
+Sao funcionalidades diferentes mas ambas sao chat. Podem coexistir, porem `Conversations` usa apenas dados mock e nao tem funcionalidade real.
+
+**Proposta**: Se Conversations nao tem integracao real, considerar remove-la ou marca-la como "em breve".
+
+### 3c. **Agendamento Online (admin)** duplica funcionalidade
+- `OnlineBooking` (`/booking`) - Formulario de agendamento interno com dados mock
+- A pagina `Appointments` ja permite criar agendamentos
+
+**Proposta**: Remover `OnlineBooking` da sidebar. O agendamento ja e feito pela pagina de Appointments.
+
+---
+
+## Resumo das acoes propostas
+
+| Acao | Detalhes |
+|---|---|
+| **Remover da sidebar** | `SubscriptionCreation`, `Integracoes`, `Settings`, `OnlineBooking` |
+| **Consolidar Comissoes + Regras** | Uma pagina com 2 abas |
+| **Consolidar Relatorios + Rel. Vendas** | Uma pagina com abas expandidas |
+| **Consolidar Fidelidade + Indicacoes** | Uma pagina com 2 abas |
+| **Resolver duplicata Campanhas** | Manter apenas em AdvancedNotifications ou apenas Campaigns (nao ambas) |
+
+Isso reduziria a sidebar de ~30 itens para ~24, tornando a navegacao mais limpa e eliminando confusao.
+
+Deseja que eu implemente alguma dessas consolidacoes? Posso comecar por qualquer grupo.
 

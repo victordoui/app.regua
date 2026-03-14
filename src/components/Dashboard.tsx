@@ -42,7 +42,7 @@ const Dashboard = () => {
       value: metrics.activeSubscriptions.toString(),
       change: `Novos este mês: ${metrics.newClientsThisMonth}`,
       icon: Crown,
-      color: "purple",
+      color: "primary-800",
       progress: Math.min(metrics.activeSubscriptions * 10, 100)
     },
     {
@@ -51,7 +51,7 @@ const Dashboard = () => {
       change: `Hoje: ${metrics.todayAppointments} agendamentos`,
       trend: metrics.completedRate > 50 ? "up" : "warning",
       icon: Calendar,
-      color: "blue",
+      color: "primary",
       progress: metrics.completedRate
     },
     {
@@ -69,7 +69,7 @@ const Dashboard = () => {
       change: `${appointmentStats.pending} pendentes`,
       trend: metrics.occupancyRate > 80 ? "up" : metrics.occupancyRate > 60 ? "warning" : "down",
       icon: Target,
-      color: "orange",
+      color: "primary-600",
       progress: metrics.occupancyRate
     },
     {
@@ -78,7 +78,7 @@ const Dashboard = () => {
       change: `${metrics.totalClients} clientes cadastrados`,
       trend: metrics.completedRate > 80 ? "up" : "warning",
       icon: Heart,
-      color: "pink",
+      color: "primary-400",
       progress: metrics.completedRate
     },
     {
@@ -87,7 +87,7 @@ const Dashboard = () => {
       change: `Total: ${metrics.totalClients} clientes`,
       trend: metrics.newClientsThisMonth > 0 ? "up" : "neutral",
       icon: Users,
-      color: "indigo",
+      color: "accent",
       progress: metrics.totalClients > 0 ? (metrics.newClientsThisMonth / metrics.totalClients) * 100 : 0
     }
   ];
@@ -166,7 +166,7 @@ const Dashboard = () => {
                         <p className="text-2xl font-bold text-foreground">{stat.value}</p>
                       </div>
                       <div className="flex items-center gap-2">
-                        <div className={`p-3 rounded-full bg-gradient-to-r from-${stat.color}-500 to-${stat.color}-600 shadow-md`}>
+                        <div className="p-3 rounded-full bg-gradient-to-r from-primary to-primary-800 shadow-md">
                           <Icon className="h-5 w-5 text-white" />
                         </div>
                       </div>
