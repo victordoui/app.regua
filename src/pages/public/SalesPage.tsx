@@ -27,7 +27,7 @@ const FEATURE_LABELS: Record<string, string> = {
 };
 
 const PLAN_ICONS: Record<string, React.ReactNode> = {
-  trial: <img src={logoVizzu} alt="Trial" className="h-6 w-6 object-cover" />,
+  trial: <img src={logoVizzuBlue} alt="Trial" className="h-6 w-6 object-cover" />,
   basic: <Star className="h-6 w-6" />,
   pro: <Crown className="h-6 w-6" />,
   enterprise: <Shield className="h-6 w-6" />,
