@@ -244,7 +244,7 @@ const Sidebar = () => {
         initial={false}
         animate={{ width: isCollapsed ? 64 : 240, x: isMobile && !isOpen ? -240 : 0 }}
         transition={{ duration: 0.3, ease: "easeInOut" }}
-        className={`fixed left-0 top-0 h-full bg-card/95 backdrop-blur-sm border-r border-border z-40 ${
+        className={`fixed left-0 top-0 h-full bg-card/95 backdrop-blur-sm border-r border-primary/10 z-40 ${
           isMobile ? 'shadow-2xl' : ''
         } md:relative md:shadow-none md:bg-card flex flex-col`}
         style={{ width: isMobile ? (isOpen ? 240 : 0) : (isCollapsed ? 64 : 240) }}
