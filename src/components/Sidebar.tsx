@@ -259,7 +259,7 @@ const Sidebar = () => {
               <div className="w-48 h-48 flex items-center justify-center">
                 <img src={vizzuIcon} alt="VIZZU" className="w-full h-full object-contain" />
               </div>
-              <h2 className="font-bold text-3xl text-foreground mt-2">VIZZU</h2>
+              
             </>
           )}
         </div>
