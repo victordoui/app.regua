@@ -166,7 +166,7 @@ const Dashboard = () => {
                         <p className="text-2xl font-bold text-foreground">{stat.value}</p>
                       </div>
                       <div className="flex items-center gap-2">
-                        <div className={`p-3 rounded-full bg-gradient-to-r from-${stat.color}-500 to-${stat.color}-600 shadow-md`}>
+                        <div className="p-3 rounded-full bg-gradient-to-r from-primary to-primary-800 shadow-md">
                           <Icon className="h-5 w-5 text-white" />
                         </div>
                       </div>

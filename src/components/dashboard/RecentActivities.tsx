@@ -29,8 +29,8 @@ interface ActivityItem {
 const activityConfig = {
   appointment_created: {
     icon: Calendar,
-    color: 'text-blue-500',
-    bgColor: 'bg-blue-500/10',
+    color: 'text-primary',
+    bgColor: 'bg-primary/10',
     label: 'Agendamento'
   },
   appointment_completed: {
@@ -47,20 +47,20 @@ const activityConfig = {
   },
   client_created: {
     icon: UserPlus,
-    color: 'text-purple-500',
-    bgColor: 'bg-purple-500/10',
+    color: 'text-primary-600',
+    bgColor: 'bg-primary-600/10',
     label: 'Novo Cliente'
   },
   subscription_created: {
     icon: Star,
-    color: 'text-amber-500',
-    bgColor: 'bg-amber-500/10',
+    color: 'text-primary-400',
+    bgColor: 'bg-primary-400/10',
     label: 'Assinatura'
   },
   payment_received: {
     icon: CreditCard,
-    color: 'text-emerald-500',
-    bgColor: 'bg-emerald-500/10',
+    color: 'text-green-500',
+    bgColor: 'bg-green-500/10',
     label: 'Pagamento'
   }
 };

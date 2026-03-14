@@ -70,13 +70,13 @@ const DashboardOverview = () => {
 
   const getStatColor = (color: string) => {
     switch (color) {
-      case "purple": return "from-purple-500 to-purple-600";
-      case "blue": return "from-blue-500 to-blue-600";
+      case "purple": return "from-primary-800 to-primary-950";
+      case "blue": return "from-primary to-primary-800";
       case "green": return "from-green-500 to-green-600";
-      case "orange": return "from-orange-500 to-orange-600";
-      case "pink": return "from-pink-500 to-pink-600";
-      case "indigo": return "from-indigo-500 to-indigo-600";
-      default: return "from-gray-500 to-gray-600";
+      case "orange": return "from-primary-600 to-primary";
+      case "pink": return "from-primary-400 to-primary-600";
+      case "indigo": return "from-accent to-primary";
+      default: return "from-primary to-primary-800";
     }
   };
 

@@ -178,7 +178,7 @@ const Sidebar = () => {
           className={`w-full justify-start h-10 transition-all duration-200 ${
             isSubItem ? `ml-4 pl-8 text-sm ${isActive ? 'bg-primary/10 text-primary' : 'text-muted-foreground hover:text-foreground'}` : ''
           } ${
-            isActive ? 'bg-secondary text-secondary-foreground shadow-sm' : 'text-muted-foreground hover:text-foreground hover:bg-accent/50'
+            isActive ? 'bg-primary/10 text-primary shadow-sm' : 'text-muted-foreground hover:text-foreground hover:bg-primary/5'
           } ${isCollapsed ? 'justify-center ml-0 pl-3 pr-3' : ''}`}
           onClick={() => handleNavigation(item.path)}
         >
