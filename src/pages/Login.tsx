@@ -148,15 +148,15 @@ const Login = () => {
 
     switch (role) {
       case 'barber':
-        loginEmail = "barbeiro@vizzu.app";
+        loginEmail = "barbeiro@naregua.com";
         loginPassword = "barbeiro123456";
         break;
       case 'admin':
-        loginEmail = "admin@vizzu.app";
+        loginEmail = "admin@naregua.com";
         loginPassword = "admin123456";
         break;
       case 'superadmin':
-        loginEmail = "superadmin@vizzu.app";
+        loginEmail = "superadmin@naregua.com";
         loginPassword = "superadmin123456";
         break;
     }
