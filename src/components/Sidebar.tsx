@@ -4,7 +4,9 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { motion, AnimatePresence } from "framer-motion";
 import { useRole } from "@/contexts/RoleContext";
-import logoVizzu from "@/assets/logo-vizzu.png";
+import logoVizzuBlue from "@/assets/logo-vizzu-blue.png";
+import logoVizzuWhite from "@/assets/logo-vizzu-white.png";
+import { useTheme } from "next-themes";
 import { 
   Home, BarChart3, TrendingUp, Target,
   Calendar, Users, Briefcase, Package,
