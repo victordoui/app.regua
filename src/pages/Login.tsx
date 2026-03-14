@@ -198,7 +198,7 @@ const Login = () => {
         transition={{ duration: 0.5 }}
         className="w-full max-w-md relative z-10"
       >
-        <div className="text-center mb-8">
+        <div className="text-center mb-4">
           <motion.div
             initial={{ scale: 0 }}
             animate={{ scale: 1 }}
