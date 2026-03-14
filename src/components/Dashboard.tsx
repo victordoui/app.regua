@@ -87,7 +87,7 @@ const Dashboard = () => {
       change: `Total: ${metrics.totalClients} clientes`,
       trend: metrics.newClientsThisMonth > 0 ? "up" : "neutral",
       icon: Users,
-      color: "indigo",
+      color: "accent",
       progress: metrics.totalClients > 0 ? (metrics.newClientsThisMonth / metrics.totalClients) * 100 : 0
     }
   ];
