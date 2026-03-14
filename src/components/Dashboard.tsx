@@ -51,7 +51,7 @@ const Dashboard = () => {
       change: `Hoje: ${metrics.todayAppointments} agendamentos`,
       trend: metrics.completedRate > 50 ? "up" : "warning",
       icon: Calendar,
-      color: "blue",
+      color: "primary",
       progress: metrics.completedRate
     },
     {
