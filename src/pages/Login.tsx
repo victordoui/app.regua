@@ -41,6 +41,8 @@ type LoginFormValues = z.infer<typeof loginSchema>;
 type RegisterFormValues = z.infer<typeof registerSchema>;
 
 const Login = () => {
+  const { resolvedTheme } = useTheme();
+  const logoVizzu = resolvedTheme === "dark" ? logoVizzuWhite : logoVizzuBlue;
   const [loading, setLoading] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
   const [activeTab, setActiveTab] = useState("login");

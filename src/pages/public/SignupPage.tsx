@@ -18,6 +18,8 @@ import type { PlanConfig } from '@/types/superAdmin';
 type Step = 1 | 2 | 3 | 4;
 
 const SignupPage = () => {
+  const { resolvedTheme } = useTheme();
+  const logoVizzu = resolvedTheme === "dark" ? logoVizzuWhite : logoVizzuBlue;
   const navigate = useNavigate();
   const { toast } = useToast();
   const [step, setStep] = useState<Step>(1);

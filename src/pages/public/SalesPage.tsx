@@ -71,6 +71,8 @@ const faqs = [
 ];
 
 const SalesPage = () => {
+  const { resolvedTheme } = useTheme();
+  const logoVizzu = resolvedTheme === "dark" ? logoVizzuWhite : logoVizzuBlue;
   const navigate = useNavigate();
 
   const { data: plans = [], isLoading } = useQuery({
