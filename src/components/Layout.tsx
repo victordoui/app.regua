@@ -132,7 +132,7 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
       {/* Main Content */}
       <div className="flex-1 flex flex-col min-w-0">
         {/* Header */}
-        <header className="bg-card border-b border-primary/10 px-4 lg:px-6 h-14 flex items-center justify-between gap-4">
+        <header className="bg-card/80 backdrop-blur-sm shadow-sm px-4 lg:px-6 h-16 flex items-center justify-between gap-4 sticky top-0 z-10">
           {/* Left - Logo */}
           <div className="flex items-center gap-2 min-w-0">
             <Button
@@ -219,7 +219,7 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
         </header>
 
         {/* Page Content */}
-        <main className="flex-1 overflow-auto p-4 lg:p-6">
+        <main className="flex-1 overflow-auto">
           {children}
         </main>
       </div>

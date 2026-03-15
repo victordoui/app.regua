@@ -18,7 +18,7 @@ const Index = () => {
 
   return (
     <Layout>
-      <div className="flex-1 space-y-6 p-6">
+      <div className="flex-1 space-y-6 p-4 lg:p-6">
         <div>
           <h1 className="text-3xl font-bold text-foreground">Painel Administrativo</h1>
           <p className="text-sm text-muted-foreground">
