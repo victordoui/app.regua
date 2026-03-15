@@ -4,8 +4,6 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { motion, AnimatePresence } from "framer-motion";
 import { useRole } from "@/contexts/RoleContext";
-import logoVizzuBlue from "@/assets/logo-vizzu-blue.png";
-import logoVizzuWhite from "@/assets/logo-vizzu-white.png";
 import vizzuIcon from "@/assets/vizzu-icon.png";
 import { useTheme } from "next-themes";
 import { 
@@ -17,28 +15,24 @@ import {
   Building, Image, Warehouse, Plug,
   Settings, Shield, Star, ListOrdered, UserCheck, UserCircle,
   ShoppingCart, Gift, Clock, MessageCircle, Tag,
-  PlusCircle, Menu, X, LogOut, ChevronDown, ChevronRight, ChevronsLeft, ChevronsRight
+  Menu, X, LogOut, ChevronsLeft, ChevronsRight
 } from "lucide-react";
 
-// Paths accessible by barbeiro
 const BARBER_PATHS = new Set([
   '/', '/appointments', '/clients', '/conversations',
   '/advanced-notifications', '/team-chat', '/shifts', '/profile'
 ]);
 
-// Categories visible to barbeiro (with filtered items)
 const BARBER_CATEGORIES = new Set(['operacoes', 'comunicacao', 'administracao']);
 
 const Sidebar = () => {
   const [isOpen, setIsOpen] = useState(false);
   const [isMobile, setIsMobile] = useState(false);
   const [isCollapsed, setIsCollapsed] = useState(false);
-  const [expandedCategories, setExpandedCategories] = useState<string[]>([]);
   const navigate = useNavigate();
   const location = useLocation();
-  const { isSuperAdmin, isAdmin, isBarbeiro, userRole } = useRole();
+  const { isSuperAdmin, isAdmin, isBarbeiro } = useRole();
   const { resolvedTheme } = useTheme();
-  const logoVizzu = resolvedTheme === "dark" ? logoVizzuWhite : logoVizzuBlue;
 
   useEffect(() => {
     const checkMobile = () => {
@@ -52,51 +46,51 @@ const Sidebar = () => {
 
   const fullMenuStructure = [
     { 
-      category: "dashboard", label: "Painel Administrativo", icon: Home,
+      category: "dashboard", label: "Dashboard",
       items: [
-        { icon: BarChart3, label: "Painel Administrativo", path: "/" }
+        { icon: Home, label: "Painel", path: "/" }
       ]
     },
     {
-      category: "operacoes", label: "Operações", icon: Package,
+      category: "operacoes", label: "Operações",
       items: [
-        { icon: Calendar, label: "VIZZU Agenda", path: "/appointments" },
-        { icon: Users, label: "VIZZU Clientes", path: "/clients" },
-        { icon: Briefcase, label: "VIZZU Profissionais", path: "/barbers" },
-        { icon: Package, label: "VIZZU Serviços", path: "/services" },
+        { icon: Calendar, label: "Agenda", path: "/appointments" },
+        { icon: Users, label: "Clientes", path: "/clients" },
+        { icon: Briefcase, label: "Profissionais", path: "/barbers" },
+        { icon: Package, label: "Serviços", path: "/services" },
         { icon: ListOrdered, label: "Lista de Espera", path: "/waitlist" },
-        { icon: Clock, label: "Turnos / Escalas", path: "/shifts" }
+        { icon: Clock, label: "Turnos", path: "/shifts" }
       ]
     },
     {
-      category: "comunicacao", label: "Comunicação", icon: MessageSquare,
+      category: "comunicacao", label: "Comunicação",
       items: [
         { icon: MessageSquare, label: "Conversas", path: "/conversations" },
         { icon: Bell, label: "Notificações", path: "/advanced-notifications" },
-        { icon: MessageCircle, label: "Chat da Equipe", path: "/team-chat" }
+        { icon: MessageCircle, label: "Chat Equipe", path: "/team-chat" }
       ]
     },
     {
-      category: "financeiro", label: "VIZZU Pay", icon: DollarSign,
+      category: "financeiro", label: "Financeiro",
       items: [
-        { icon: BarChart3, label: "VIZZU Insights", path: "/reports" },
-        { icon: CreditCard, label: "Contas a Pagar / Receber", path: "/billing" },
+        { icon: BarChart3, label: "Insights", path: "/reports" },
+        { icon: CreditCard, label: "Contas", path: "/billing" },
         { icon: Receipt, label: "Comissões", path: "/commissions" },
         { icon: Ticket, label: "Cupons", path: "/coupons" },
         { icon: Gift, label: "Gift Cards", path: "/gift-cards" },
         { icon: Tag, label: "Preços Dinâmicos", path: "/dynamic-pricing" },
-        { icon: ShoppingCart, label: "Caixa e PDV", path: "/cash" }
+        { icon: ShoppingCart, label: "Caixa / PDV", path: "/cash" }
       ]
     },
     {
-      category: "assinaturas", label: "Assinaturas & Engajamento", icon: Crown,
+      category: "assinaturas", label: "Engajamento",
       items: [
-        { icon: Crown, label: "Gerenciar Planos", path: "/subscriptions" },
-        { icon: Heart, label: "VIZZU Rewards", path: "/loyalty" }
+        { icon: Crown, label: "Planos", path: "/subscriptions" },
+        { icon: Heart, label: "Rewards", path: "/loyalty" }
       ]
     },
     {
-      category: "empresa", label: "Meu Negócio", icon: Building,
+      category: "empresa", label: "Meu Negócio",
       items: [
         { icon: Building, label: "Empresa", path: "/settings/company" },
         { icon: Warehouse, label: "Estoque", path: "/inventory" },
@@ -104,20 +98,16 @@ const Sidebar = () => {
       ]
     },
     {
-      category: "administracao", label: "Administração", icon: Shield,
+      category: "administracao", label: "Administração",
       items: [
         { icon: UserCircle, label: "Meu Perfil", path: "/profile" },
-        { icon: UserCheck, label: "Usuários e Permissões", path: "/users" }
+        { icon: UserCheck, label: "Usuários", path: "/users" }
       ]
     }
   ];
 
-  // Filter menu based on role
   const menuStructure = useMemo(() => {
-    // Super admin and admin see everything
     if (isSuperAdmin || isAdmin) return fullMenuStructure;
-
-    // Barbeiro sees filtered menu
     if (isBarbeiro) {
       return fullMenuStructure
         .filter(cat => BARBER_CATEGORIES.has(cat.category))
@@ -127,16 +117,8 @@ const Sidebar = () => {
         }))
         .filter(cat => cat.items.length > 0);
     }
-
     return [];
   }, [isSuperAdmin, isAdmin, isBarbeiro]);
-
-  useEffect(() => {
-    const activeCategories = menuStructure
-      .filter(category => category.items?.some(item => isActivePath(item.path)))
-      .map(category => category.category);
-    setExpandedCategories(activeCategories);
-  }, [location.pathname, menuStructure]);
 
   const handleNavigation = (path: string) => {
     navigate(path);
@@ -145,15 +127,6 @@ const Sidebar = () => {
 
   const handleSignOut = () => {
     navigate("/login");
-  };
-
-  const toggleCategory = (category: string) => {
-    if (isCollapsed) {
-      setIsCollapsed(false);
-    }
-    setExpandedCategories(prev => 
-      prev.includes(category) ? prev.filter(c => c !== category) : [...prev, category]
-    );
   };
 
   const isActivePath = (path: string) => location.pathname === path;
@@ -165,62 +138,7 @@ const Sidebar = () => {
     return 'Usuário';
   };
 
-  const renderMenuItem = (item: any, isSubItem = false, parentCategory = "") => {
-    const isActive = isActivePath(item.path);
-    const isExpanded = expandedCategories.includes(parentCategory);
-
-    if (isSubItem && parentCategory && !isExpanded && !isCollapsed) return null;
-
-    return (
-      <div key={item.path}>
-        <Button
-          variant={isActive ? "secondary" : "ghost"}
-          className={`w-full justify-start h-10 transition-all duration-200 ${
-            isSubItem ? `ml-4 pl-8 text-sm ${isActive ? 'bg-primary/10 text-primary' : 'text-muted-foreground hover:text-foreground'}` : ''
-          } ${
-            isActive ? 'bg-primary/10 text-primary shadow-sm' : 'text-muted-foreground hover:text-foreground hover:bg-primary/5'
-          } ${isCollapsed ? 'justify-center ml-0 pl-3 pr-3' : ''}`}
-          onClick={() => handleNavigation(item.path)}
-        >
-          <item.icon className={`h-4 w-4 flex-shrink-0 ${!isCollapsed ? 'mr-3' : 'mr-0'}`} />
-          <span className={`truncate ${isCollapsed ? 'hidden' : 'block'}`}>{item.label}</span>
-          {item.path === "/appointments" && !isCollapsed && (
-            <Badge variant="secondary" className="ml-auto text-xs flex-shrink-0">12</Badge>
-          )}
-        </Button>
-      </div>
-    );
-  };
-
-  const renderCategory = (category: any) => {
-    const isExpanded = expandedCategories.includes(category.category);
-    const hasActiveItem = category.items?.some((item: any) => isActivePath(item.path));
-
-    return (
-      <div key={category.category} className="space-y-1">
-        <Button
-          variant="ghost"
-          className={`w-full justify-start h-10 transition-all duration-200 font-medium ${
-            hasActiveItem ? 'text-primary bg-primary/5' : 'text-muted-foreground hover:text-foreground hover:bg-accent/50'
-          } ${isCollapsed ? 'justify-center' : ''}`}
-          onClick={() => toggleCategory(category.category)}
-        >
-          <category.icon className={`h-4 w-4 flex-shrink-0 ${!isCollapsed ? 'mr-3' : 'mr-0'}`} />
-          <span className={`truncate ${isCollapsed ? 'hidden' : 'block'}`}>{category.label}</span>
-          {!isCollapsed && (
-            <div className="ml-auto">
-              {isExpanded ? <ChevronDown className="h-4 w-4" /> : <ChevronRight className="h-4 w-4" />}
-            </div>
-          )}
-        </Button>
-        {isExpanded && category.items && (
-          <div className="overflow-hidden space-y-1">
-            {category.items.map((item: any) => renderMenuItem(item, true, category.category))}
-          </div>
-        )}
-      </div>
-    );
-  };
+  const sidebarWidth = isCollapsed ? 68 : 240;
 
   return (
     <>
@@ -228,94 +146,129 @@ const Sidebar = () => {
         <motion.div initial={{ opacity: 0, scale: 0.8 }} animate={{ opacity: 1, scale: 1 }} className="fixed top-4 left-4 z-50">
           <Button
             variant="ghost" size="icon"
-            className="bg-background/80 backdrop-blur-sm border shadow-lg hover:shadow-xl transition-all duration-200"
+            className="bg-background/80 backdrop-blur-sm border shadow-lg"
             onClick={() => setIsOpen(!isOpen)}
             aria-label={isOpen ? "Fechar menu" : "Abrir menu"}
-            aria-expanded={isOpen}
           >
-            <motion.div animate={{ rotate: isOpen ? 180 : 0 }} transition={{ duration: 0.2 }}>
-              {isOpen ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
-            </motion.div>
+            {isOpen ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
           </Button>
         </motion.div>
       )}
 
       <motion.div
         initial={false}
-        animate={{ width: isCollapsed ? 64 : 240, x: isMobile && !isOpen ? -240 : 0 }}
-        transition={{ duration: 0.3, ease: "easeInOut" }}
-        className={`fixed left-0 top-0 h-full bg-card/95 backdrop-blur-sm border-r border-primary/10 z-40 ${
-          isMobile ? 'shadow-2xl' : ''
-        } md:relative md:shadow-none md:bg-card flex flex-col`}
-        style={{ width: isMobile ? (isOpen ? 240 : 0) : (isCollapsed ? 64 : 240) }}
+        animate={{ width: sidebarWidth, x: isMobile && !isOpen ? -240 : 0 }}
+        transition={{ duration: 0.25, ease: "easeInOut" }}
+        className={`fixed left-0 top-0 h-full z-40 flex flex-col border-r border-border/50
+          bg-card dark:bg-gradient-to-b dark:from-[hsl(var(--primary-950))] dark:to-[hsl(var(--primary-900))]
+          ${isMobile ? 'shadow-2xl' : 'md:relative md:shadow-none'}`}
+        style={{ width: isMobile ? (isOpen ? 240 : 0) : sidebarWidth }}
       >
-        <div className={`px-4 border-b border-border flex flex-col items-center ${isCollapsed ? 'py-2' : 'py-4'}`}>
-          {isCollapsed ? (
-            <div className="w-10 h-10 flex items-center justify-center flex-shrink-0">
-              <img src={vizzuIcon} alt="VIZZU" className="w-full h-full object-contain" />
-            </div>
-          ) : (
-            <>
-              <div className="w-48 h-48 flex items-center justify-center">
-                <img src={vizzuIcon} alt="VIZZU" className="w-full h-full object-contain" />
-              </div>
-              
-            </>
+        {/* Header - Logo */}
+        <div className={`flex items-center border-b border-border/30 ${isCollapsed ? 'justify-center px-2 py-3' : 'px-4 py-3 gap-3'}`}>
+          <div className={`flex-shrink-0 ${isCollapsed ? 'w-8 h-8' : 'w-10 h-10'}`}>
+            <img src={vizzuIcon} alt="VIZZU" className="w-full h-full object-contain" />
+          </div>
+          {!isCollapsed && (
+            <span className="text-lg font-bold text-foreground dark:text-white tracking-tight">VIZZU</span>
           )}
         </div>
 
-        <nav className="p-3 overflow-y-auto flex-1">
-          <div className="space-y-1">
-            {menuStructure.map((category) => (
-              <div key={category.category}>{renderCategory(category)}</div>
-            ))}
+        {/* Navigation */}
+        <nav className="flex-1 overflow-y-auto py-2 px-2">
+          {menuStructure.map((category) => (
+            <div key={category.category} className="mb-1">
+              {/* Section Label */}
+              {!isCollapsed && (
+                <div className="px-3 pt-4 pb-1.5">
+                  <span className="text-[10px] font-semibold uppercase tracking-widest text-muted-foreground/60 dark:text-white/30">
+                    {category.label}
+                  </span>
+                </div>
+              )}
+              {isCollapsed && <div className="my-2 mx-2 border-t border-border/20" />}
 
-            {isSuperAdmin && (
-              <div className="pt-4 border-t border-amber-500/30">
-                <Button
-                  variant="ghost"
-                  className={`w-full h-10 text-amber-500 hover:bg-amber-500/10 hover:text-amber-400 transition-all duration-200 ${isCollapsed ? 'justify-center' : 'justify-start'}`}
-                  onClick={() => handleNavigation('/superadmin')}
-                >
-                  <Shield className={`h-4 w-4 flex-shrink-0 ${!isCollapsed ? 'mr-3' : 'mr-0'}`} />
-                  <span className={isCollapsed ? 'hidden' : 'block'}>Super Admin</span>
-                </Button>
-              </div>
-            )}
-
-            <div className="pt-3 border-t border-border"></div>
-
-            <div className="space-y-3">
-              <Button 
-                variant="outline" 
-                className={`w-full hover:bg-destructive/10 hover:text-destructive hover:border-destructive/20 transition-all duration-200 ${isCollapsed ? 'justify-center' : 'justify-start'}`} 
-                size="sm" onClick={handleSignOut}
-              >
-                <LogOut className={`h-4 w-4 flex-shrink-0 ${!isCollapsed ? 'mr-2' : 'mr-0'}`} />
-                <span className={isCollapsed ? 'hidden' : 'block'}>Sair</span>
-              </Button>
+              {/* Menu Items */}
+              {category.items.map((menuItem) => {
+                const isActive = isActivePath(menuItem.path);
+                return (
+                  <button
+                    key={menuItem.path}
+                    onClick={() => handleNavigation(menuItem.path)}
+                    className={`w-full flex items-center gap-3 rounded-lg transition-all duration-150 group relative
+                      ${isCollapsed ? 'justify-center px-2 py-2.5 mx-auto' : 'px-3 py-2'}
+                      ${isActive
+                        ? 'bg-primary/10 text-primary dark:bg-white/10 dark:text-white font-medium'
+                        : 'text-muted-foreground hover:bg-muted/50 hover:text-foreground dark:text-white/60 dark:hover:bg-white/5 dark:hover:text-white/90'
+                      }`}
+                  >
+                    {/* Active indicator bar */}
+                    {isActive && !isCollapsed && (
+                      <div className="absolute left-0 top-1/2 -translate-y-1/2 w-[3px] h-5 rounded-r-full bg-primary dark:bg-white" />
+                    )}
+                    <menuItem.icon className={`h-4 w-4 flex-shrink-0 ${isActive ? '' : 'opacity-70 group-hover:opacity-100'}`} />
+                    {!isCollapsed && (
+                      <span className="text-sm truncate">{menuItem.label}</span>
+                    )}
+                    {menuItem.path === "/appointments" && !isCollapsed && (
+                      <Badge variant="secondary" className="ml-auto text-[10px] h-5 px-1.5 bg-primary/10 text-primary dark:bg-white/10 dark:text-white">
+                        12
+                      </Badge>
+                    )}
+                  </button>
+                );
+              })}
             </div>
-          </div>
+          ))}
+
+          {/* Super Admin */}
+          {isSuperAdmin && (
+            <div className="mt-2 pt-2 border-t border-amber-500/20">
+              <button
+                onClick={() => handleNavigation('/superadmin')}
+                className={`w-full flex items-center gap-3 rounded-lg px-3 py-2 text-amber-500 hover:bg-amber-500/10 transition-all
+                  ${isCollapsed ? 'justify-center px-2' : ''}`}
+              >
+                <Shield className="h-4 w-4 flex-shrink-0" />
+                {!isCollapsed && <span className="text-sm font-medium">Super Admin</span>}
+              </button>
+            </div>
+          )}
         </nav>
 
-        <div className="p-4 border-t border-border bg-muted/30 flex items-center justify-between">
-          <div className={`flex items-center gap-3 overflow-hidden ${isCollapsed ? 'hidden' : 'flex'}`}>
-            <div className="w-8 h-8 bg-gradient-to-br from-primary to-primary/70 rounded-full flex items-center justify-center shadow-sm flex-shrink-0">
-              <span className="text-sm font-medium text-primary-foreground">VZ</span>
-            </div>
-            <div className="flex-1 min-w-0">
-              <p className="text-sm font-medium text-foreground truncate">VIZZU</p>
-              <p className="text-xs text-muted-foreground truncate">{getRoleLabel()}</p>
-            </div>
+        {/* Footer */}
+        <div className={`border-t border-border/30 ${isCollapsed ? 'p-2' : 'p-3'}`}>
+          {!isCollapsed && (
+            <button
+              onClick={handleSignOut}
+              className="w-full flex items-center gap-3 px-3 py-2 rounded-lg text-sm text-muted-foreground hover:text-destructive hover:bg-destructive/10 transition-all mb-2 dark:text-white/50 dark:hover:text-red-400"
+            >
+              <LogOut className="h-4 w-4" />
+              <span>Sair</span>
+            </button>
+          )}
+
+          <div className={`flex items-center ${isCollapsed ? 'justify-center' : 'justify-between'}`}>
+            {!isCollapsed && (
+              <div className="flex items-center gap-2.5 min-w-0">
+                <div className="w-7 h-7 bg-gradient-to-br from-primary to-primary/70 rounded-full flex items-center justify-center flex-shrink-0">
+                  <span className="text-[10px] font-bold text-primary-foreground">VZ</span>
+                </div>
+                <div className="min-w-0">
+                  <p className="text-xs font-medium text-foreground dark:text-white truncate">VIZZU</p>
+                  <p className="text-[10px] text-muted-foreground dark:text-white/40 truncate">{getRoleLabel()}</p>
+                </div>
+              </div>
+            )}
+            <Button
+              variant="ghost" size="icon"
+              className="h-7 w-7 text-muted-foreground hover:text-foreground dark:text-white/40 dark:hover:text-white"
+              onClick={() => setIsCollapsed(!isCollapsed)}
+              aria-label={isCollapsed ? "Expandir" : "Colapsar"}
+            >
+              {isCollapsed ? <ChevronsRight className="h-4 w-4" /> : <ChevronsLeft className="h-4 w-4" />}
+            </Button>
           </div>
-          <Button
-            variant="ghost" size="icon"
-            className={`h-8 w-8 transition-transform duration-300 ${isCollapsed ? 'mx-auto' : ''}`}
-            onClick={() => setIsCollapsed(!isCollapsed)}
-            aria-label={isCollapsed ? "Expandir menu" : "Colapsar menu"}
-          >
-            {isCollapsed ? <ChevronsRight className="h-5 w-5" /> : <ChevronsLeft className="h-5 w-5" />}
-          </Button>
         </div>
       </motion.div>
 
@@ -323,7 +276,6 @@ const Sidebar = () => {
         {isOpen && isMobile && (
           <motion.div 
             initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
-            transition={{ duration: 0.2 }}
             className="fixed inset-0 bg-black/50 z-30"
             onClick={() => setIsOpen(false)}
           />
