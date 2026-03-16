@@ -159,7 +159,7 @@ const InactiveClients = ({ clients: propClients, inactiveDays = 30 }: InactiveCl
       <Card>
         <CardHeader className="pb-3">
           <CardTitle className="flex items-center gap-2 text-lg">
-            <UserX className="h-5 w-5 text-orange-500" />
+          <UserX className="h-5 w-5 text-primary-600" />
             Clientes Inativos
           </CardTitle>
         </CardHeader>
