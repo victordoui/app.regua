@@ -125,7 +125,7 @@ const SuperAdminSidebar = () => {
           </div>
           <div>
             <h2 className="font-bold text-foreground">Super Admin</h2>
-            <p className="text-xs text-muted-foreground">Na Régua Platform</p>
+            <p className="text-xs text-muted-foreground">VIZZU Platform</p>
           </div>
         </div>
       </div>

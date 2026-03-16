@@ -83,7 +83,7 @@ const BarberOccupancyCard: React.FC<BarberOccupancyCardProps> = ({ barbers }) =>
                     <span className="text-xs text-muted-foreground">
                       {barber.completedToday}/{barber.appointmentsToday} atendimentos
                     </span>
-                    <span className="text-xs font-medium text-green-600">
+                    <span className="text-xs font-medium text-primary">
                       R$ {barber.revenue.toFixed(0)}
                     </span>
                   </div>

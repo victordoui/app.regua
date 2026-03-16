@@ -205,7 +205,7 @@ const InactiveClients = ({ clients: propClients, inactiveDays = 30 }: InactiveCl
               </div>
               <div className="flex items-center gap-2">
                 {client.daysSinceLastVisit && client.daysSinceLastVisit > 60 && (
-                  <Badge variant="outline" className="text-red-500 border-red-500 text-xs">
+                  <Badge variant="outline" className="text-destructive border-destructive text-xs">
                     +{client.daysSinceLastVisit}d
                   </Badge>
                 )}

@@ -59,8 +59,8 @@ const activityConfig = {
   },
   payment_received: {
     icon: CreditCard,
-    color: 'text-green-500',
-    bgColor: 'bg-green-500/10',
+    color: 'text-primary-400',
+    bgColor: 'bg-primary-400/10',
     label: 'Pagamento'
   }
 };

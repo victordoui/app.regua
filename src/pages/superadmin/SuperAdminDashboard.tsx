@@ -88,7 +88,7 @@ const SuperAdminDashboard = () => {
       <div className="space-y-6">
         <div>
           <h1 className="text-3xl font-bold text-foreground">Dashboard Super Admin</h1>
-          <p className="text-muted-foreground">Visão geral da plataforma Na Régua</p>
+          <p className="text-muted-foreground">Visão geral da plataforma VIZZU</p>
         </div>
 
         {/* Subscription Stats Cards */}

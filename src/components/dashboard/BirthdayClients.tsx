@@ -170,7 +170,7 @@ const BirthdayClients = ({ clients: propClients }: BirthdayClientsProps = {}) =>
                   <p className="font-medium flex items-center gap-2">
                     {client.name}
                     {client.isToday && (
-                      <Badge className="bg-pink-500 text-xs">
+                      <Badge className="bg-primary text-primary-foreground text-xs">
                         <Gift className="h-3 w-3 mr-1" />Hoje!
                       </Badge>
                     )}

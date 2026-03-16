@@ -103,7 +103,7 @@ const DashboardOverview = () => {
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-3">
           {isConnected && (
-            <Badge className="bg-green-500 text-white animate-pulse flex items-center gap-1">
+            <Badge className="bg-primary text-primary-foreground animate-pulse flex items-center gap-1">
               <Wifi className="h-3 w-3" />
               Ao Vivo
             </Badge>

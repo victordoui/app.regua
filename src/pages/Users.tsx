@@ -171,11 +171,11 @@ const Users = () => {
 
   const getStatColor = (color: string) => {
     switch (color) {
-      case "blue": return "from-blue-500 to-blue-600";
-      case "green": return "from-green-500 to-green-600";
-      case "orange": return "from-orange-500 to-orange-600";
-      case "purple": return "from-purple-500 to-purple-600";
-      default: return "from-gray-500 to-gray-600";
+      case "blue": return "from-primary to-primary-800";
+      case "green": return "from-primary-400 to-primary-600";
+      case "orange": return "from-primary-600 to-primary-800";
+      case "purple": return "from-primary to-primary-800";
+      default: return "from-primary to-primary-800";
     }
   };
 

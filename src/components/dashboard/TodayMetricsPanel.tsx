@@ -30,22 +30,22 @@ const TodayMetricsPanel: React.FC<TodayMetricsPanelProps> = ({
       label: 'Receita do Dia',
       value: `R$ ${todayRevenue.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}`,
       icon: DollarSign,
-      color: 'from-green-500 to-green-600',
-      bgColor: 'bg-green-50 dark:bg-green-950/30'
+      color: 'from-primary-400 to-primary-600',
+      bgColor: 'bg-primary-50 dark:bg-primary/10'
     },
     {
       label: 'Concluídos',
       value: todayCompleted.toString(),
       icon: CheckCircle,
-      color: 'from-green-500 to-green-600',
-      bgColor: 'bg-green-50 dark:bg-green-950/30'
+      color: 'from-primary-400 to-primary-600',
+      bgColor: 'bg-primary-50 dark:bg-primary/10'
     },
     {
       label: 'Pendentes',
       value: todayPending.toString(),
       icon: Clock,
-      color: 'from-amber-500 to-amber-600',
-      bgColor: 'bg-amber-50 dark:bg-amber-950/30'
+      color: 'from-primary-600 to-primary-800',
+      bgColor: 'bg-primary-50 dark:bg-primary/10'
     },
     {
       label: 'Tempo Médio',

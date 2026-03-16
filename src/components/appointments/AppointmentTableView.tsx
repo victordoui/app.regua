@@ -209,7 +209,7 @@ const AppointmentTableView: React.FC<AppointmentTableViewProps> = ({
                   <TableCell>
                     <div className="flex items-center gap-2">
                       {isNew(apt) && (
-                        <Badge className="bg-amber-500 text-amber-950 text-[9px] py-0 px-1">
+                        <Badge className="bg-primary text-primary-foreground text-[9px] py-0 px-1">
                           <Sparkles className="w-2 h-2" />
                         </Badge>
                       )}

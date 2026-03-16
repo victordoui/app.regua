@@ -76,7 +76,7 @@ const CustomerSuccessContent = () => {
     switch (status) { case 'pending': return 'Pendente'; case 'reviewed': return 'Analisado'; case 'responded': return 'Respondido'; default: return status; }
   };
   const renderStars = (rating: number) => Array.from({ length: 5 }, (_, i) => (
-    <Star key={i} className={`w-4 h-4 ${i < rating ? 'fill-yellow-400 text-yellow-400' : 'text-muted-foreground/30'}`} />
+    <Star key={i} className={`w-4 h-4 ${i < rating ? 'fill-primary-400 text-primary-400' : 'text-muted-foreground/30'}`} />
   ));
 
   if (isLoadingClients) {
