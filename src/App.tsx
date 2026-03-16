@@ -7,6 +7,7 @@ import { AuthProvider } from "@/contexts/AuthContext";
 import { RoleProvider } from "@/contexts/RoleContext";
 import ProtectedRoute from "@/components/ProtectedRoute";
 import ErrorBoundary from "@/components/ErrorBoundary";
+import UpdateNotificationBanner from "@/components/UpdateNotificationBanner";
 
 // Pages
 import Login from "./pages/Login";
