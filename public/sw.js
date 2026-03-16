@@ -1,18 +1,33 @@
-// Service Worker for Push Notifications
-// Na Régua - Barbershop Management System
+// Service Worker for Push Notifications & Update Detection
+// VIZZU - Gestão inteligente de agendamentos
 
-const CACHE_NAME = 'na-regua-v1';
+const CACHE_NAME = 'vizzu-v2';
 
 // Install event
 self.addEventListener('install', (event) => {
-  console.log('[SW] Service Worker installed');
-  self.skipWaiting();
+  console.log('[SW] New version installed');
+  // Don't skipWaiting automatically — wait for user to click "Update"
 });
 
 // Activate event
 self.addEventListener('activate', (event) => {
   console.log('[SW] Service Worker activated');
-  event.waitUntil(clients.claim());
+  event.waitUntil(
+    caches.keys().then((cacheNames) => {
+      return Promise.all(
+        cacheNames
+          .filter((name) => name !== CACHE_NAME)
+          .map((name) => caches.delete(name))
+      );
+    })
+  );
+});
+
+// Listen for SKIP_WAITING message from client
+self.addEventListener('message', (event) => {
+  if (event.data && event.data.type === 'SKIP_WAITING') {
+    self.skipWaiting();
+  }
 });
 
 // Push event - handle incoming push notifications
@@ -20,7 +35,7 @@ self.addEventListener('push', (event) => {
   console.log('[SW] Push received:', event);
 
   let data = {
-    title: 'Na Régua',
+    title: 'VIZZU',
     body: 'Você tem uma nova notificação',
     icon: '/favicon.ico',
     badge: '/favicon.ico',
@@ -59,28 +74,21 @@ self.addEventListener('push', (event) => {
 
 // Notification click event
 self.addEventListener('notificationclick', (event) => {
-  console.log('[SW] Notification clicked:', event);
-  
   event.notification.close();
-
   const urlToOpen = event.notification.data?.url || '/';
 
-  // Handle action clicks
   if (event.action) {
     console.log('[SW] Action clicked:', event.action);
-    // Handle specific actions here
   }
 
   event.waitUntil(
     clients.matchAll({ type: 'window', includeUncontrolled: true }).then((windowClients) => {
-      // Check if there's already a window open
       for (const client of windowClients) {
         if (client.url.includes(self.location.origin) && 'focus' in client) {
           client.navigate(urlToOpen);
           return client.focus();
         }
       }
-      // If no window is open, open a new one
       if (clients.openWindow) {
         return clients.openWindow(urlToOpen);
       }
@@ -93,22 +101,18 @@ self.addEventListener('notificationclose', (event) => {
   console.log('[SW] Notification closed:', event);
 });
 
-// Background sync (for offline support)
+// Background sync
 self.addEventListener('sync', (event) => {
-  console.log('[SW] Background sync:', event.tag);
-  
   if (event.tag === 'sync-notifications') {
     event.waitUntil(syncNotifications());
   }
 });
 
 async function syncNotifications() {
-  // Implement background sync logic here
   console.log('[SW] Syncing notifications...');
 }
 
-// Fetch event (for caching strategies)
+// Fetch event
 self.addEventListener('fetch', (event) => {
-  // Basic pass-through for now
-  // Can be extended for offline support
+  // Pass-through
 });
