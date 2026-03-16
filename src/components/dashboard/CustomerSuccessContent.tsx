@@ -70,7 +70,7 @@ const CustomerSuccessContent = () => {
   });
 
   const getStatusColor = (status: string) => {
-    switch (status) { case 'pending': return 'bg-yellow-100 text-yellow-800'; case 'reviewed': return 'bg-blue-100 text-blue-800'; case 'responded': return 'bg-green-100 text-green-800'; default: return 'bg-gray-100 text-gray-800'; }
+    switch (status) { case 'pending': return 'bg-primary-100 text-primary-800'; case 'reviewed': return 'bg-primary-200 text-primary'; case 'responded': return 'bg-primary-50 text-primary-600'; default: return 'bg-muted text-muted-foreground'; }
   };
   const getStatusText = (status: string) => {
     switch (status) { case 'pending': return 'Pendente'; case 'reviewed': return 'Analisado'; case 'responded': return 'Respondido'; default: return status; }
