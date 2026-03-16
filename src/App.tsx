@@ -183,6 +183,7 @@ function App() {
               <AppContent />
               <Toaster />
               <Sonner />
+              <UpdateNotificationBanner />
             </RoleProvider>
           </AuthProvider>
         </ErrorBoundary>
