@@ -35,8 +35,8 @@ import { Link } from 'react-router-dom';
 const PLAN_COLORS = {
   trial: '#94a3b8',
   basic: '#3b82f6',
-  pro: '#8b5cf6',
-  enterprise: '#f59e0b',
+  pro: '#2E6FD3',
+  enterprise: '#0F2F6B',
 };
 
 const ROLE_ICONS: Record<string, React.ComponentType<{ className?: string }>> = {
