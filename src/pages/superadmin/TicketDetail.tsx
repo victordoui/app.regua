@@ -13,7 +13,7 @@ import { ptBR } from 'date-fns/locale';
 import type { TicketStatus, TicketPriority } from '@/types/superAdmin';
 
 const statusColors: Record<TicketStatus, string> = {
-  open: 'bg-amber-500/10 text-amber-600 border-amber-500/20',
+  open: 'bg-primary-600/10 text-primary-600 border-primary-600/20',
   in_progress: 'bg-blue-500/10 text-blue-600 border-blue-500/20',
   resolved: 'bg-green-500/10 text-green-600 border-green-500/20',
   closed: 'bg-muted text-muted-foreground border-muted',
