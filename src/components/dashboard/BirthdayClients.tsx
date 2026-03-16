@@ -132,7 +132,7 @@ const BirthdayClients = ({ clients: propClients }: BirthdayClientsProps = {}) =>
       <Card>
         <CardHeader className="pb-3">
           <CardTitle className="flex items-center gap-2 text-lg">
-            <Cake className="h-5 w-5 text-pink-500" />
+            <Cake className="h-5 w-5 text-primary-400" />
             Aniversariantes do Mês
           </CardTitle>
         </CardHeader>
