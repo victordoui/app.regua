@@ -189,7 +189,7 @@ const InactiveClients = ({ clients: propClients, inactiveDays = 30 }: InactiveCl
             <div key={client.id} className="flex items-center justify-between p-2 rounded-lg hover:bg-muted/50">
               <div className="flex items-center gap-3">
                 <Avatar className="h-10 w-10">
-                  <AvatarFallback className="bg-orange-500/10 text-orange-500">
+                  <AvatarFallback className="bg-primary/10 text-primary">
                     {client.name.substring(0, 2).toUpperCase()}
                   </AvatarFallback>
                 </Avatar>
