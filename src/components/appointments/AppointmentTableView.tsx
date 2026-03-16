@@ -204,12 +204,12 @@ const AppointmentTableView: React.FC<AppointmentTableViewProps> = ({
               paginatedAppointments.map((apt) => (
                 <TableRow 
                   key={apt.id}
-                  className={cn(isNew(apt) && "bg-amber-50/50 dark:bg-amber-950/20")}
+                  className={cn(isNew(apt) && "bg-primary-50/50 dark:bg-primary/5")}
                 >
                   <TableCell>
                     <div className="flex items-center gap-2">
                       {isNew(apt) && (
-                        <Badge className="bg-amber-500 text-amber-950 text-[9px] py-0 px-1">
+                        <Badge className="bg-primary text-primary-foreground text-[9px] py-0 px-1">
                           <Sparkles className="w-2 h-2" />
                         </Badge>
                       )}

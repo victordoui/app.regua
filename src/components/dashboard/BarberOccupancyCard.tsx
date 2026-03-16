@@ -20,15 +20,15 @@ interface BarberOccupancyCardProps {
 
 const BarberOccupancyCard: React.FC<BarberOccupancyCardProps> = ({ barbers }) => {
   const getOccupancyColor = (rate: number) => {
-    if (rate >= 80) return 'text-green-600';
-    if (rate >= 50) return 'text-amber-600';
-    return 'text-red-600';
+    if (rate >= 80) return 'text-primary';
+    if (rate >= 50) return 'text-primary-600';
+    return 'text-destructive';
   };
 
   const getProgressColor = (rate: number) => {
-    if (rate >= 80) return 'bg-green-500';
-    if (rate >= 50) return 'bg-amber-500';
-    return 'bg-red-500';
+    if (rate >= 80) return 'bg-primary';
+    if (rate >= 50) return 'bg-primary-600';
+    return 'bg-destructive';
   };
 
   const getInitials = (name: string) => {
@@ -83,7 +83,7 @@ const BarberOccupancyCard: React.FC<BarberOccupancyCardProps> = ({ barbers }) =>
                     <span className="text-xs text-muted-foreground">
                       {barber.completedToday}/{barber.appointmentsToday} atendimentos
                     </span>
-                    <span className="text-xs font-medium text-green-600">
+                    <span className="text-xs font-medium text-primary">
                       R$ {barber.revenue.toFixed(0)}
                     </span>
                   </div>

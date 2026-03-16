@@ -36,9 +36,9 @@ const PLAN_ICONS: Record<string, React.ReactNode> = {
 
 const PLAN_GRADIENTS: Record<string, string> = {
   trial: 'from-slate-500 to-slate-600',
-  basic: 'from-blue-500 to-blue-600',
-  pro: 'from-purple-500 to-purple-600',
-  enterprise: 'from-amber-500 to-orange-500',
+  basic: 'from-primary to-primary-600',
+  pro: 'from-primary-600 to-primary-800',
+  enterprise: 'from-primary-800 to-primary-950',
 };
 
 const formatCurrency = (value: number) =>

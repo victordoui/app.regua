@@ -114,7 +114,7 @@ const BirthdayClients = ({ clients: propClients }: BirthdayClientsProps = {}) =>
       <Card>
         <CardHeader className="pb-3">
           <CardTitle className="flex items-center gap-2 text-lg">
-            <Cake className="h-5 w-5 text-pink-500" />
+            <Cake className="h-5 w-5 text-primary-400" />
             Aniversariantes do Mês
           </CardTitle>
         </CardHeader>
@@ -132,7 +132,7 @@ const BirthdayClients = ({ clients: propClients }: BirthdayClientsProps = {}) =>
       <Card>
         <CardHeader className="pb-3">
           <CardTitle className="flex items-center gap-2 text-lg">
-            <Cake className="h-5 w-5 text-pink-500" />
+            <Cake className="h-5 w-5 text-primary-400" />
             Aniversariantes do Mês
           </CardTitle>
         </CardHeader>
@@ -149,7 +149,7 @@ const BirthdayClients = ({ clients: propClients }: BirthdayClientsProps = {}) =>
     <Card>
       <CardHeader className="pb-3">
         <CardTitle className="flex items-center gap-2 text-lg">
-          <Cake className="h-5 w-5 text-pink-500" />
+          <Cake className="h-5 w-5 text-primary-400" />
           Aniversariantes do Mês
         </CardTitle>
         <CardDescription>
@@ -162,7 +162,7 @@ const BirthdayClients = ({ clients: propClients }: BirthdayClientsProps = {}) =>
             <div key={client.id} className="flex items-center justify-between p-2 rounded-lg hover:bg-muted/50">
               <div className="flex items-center gap-3">
                 <Avatar className="h-10 w-10">
-                  <AvatarFallback className={client.isToday ? 'bg-pink-500 text-white' : ''}>
+                  <AvatarFallback className={client.isToday ? 'bg-primary text-primary-foreground' : ''}>
                     {client.name.substring(0, 2).toUpperCase()}
                   </AvatarFallback>
                 </Avatar>
@@ -170,7 +170,7 @@ const BirthdayClients = ({ clients: propClients }: BirthdayClientsProps = {}) =>
                   <p className="font-medium flex items-center gap-2">
                     {client.name}
                     {client.isToday && (
-                      <Badge className="bg-pink-500 text-xs">
+                      <Badge className="bg-primary text-primary-foreground text-xs">
                         <Gift className="h-3 w-3 mr-1" />Hoje!
                       </Badge>
                     )}

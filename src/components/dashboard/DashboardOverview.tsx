@@ -72,7 +72,7 @@ const DashboardOverview = () => {
     switch (color) {
       case "purple": return "from-primary-800 to-primary-950";
       case "blue": return "from-primary to-primary-800";
-      case "green": return "from-green-500 to-green-600";
+      case "green": return "from-primary-400 to-primary-600";
       case "orange": return "from-primary-600 to-primary";
       case "pink": return "from-primary-400 to-primary-600";
       case "indigo": return "from-accent to-primary";
@@ -103,7 +103,7 @@ const DashboardOverview = () => {
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-3">
           {isConnected && (
-            <Badge className="bg-green-500 text-white animate-pulse flex items-center gap-1">
+            <Badge className="bg-primary text-primary-foreground animate-pulse flex items-center gap-1">
               <Wifi className="h-3 w-3" />
               Ao Vivo
             </Badge>

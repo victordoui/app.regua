@@ -35,14 +35,14 @@ const activityConfig = {
   },
   appointment_completed: {
     icon: CheckCircle,
-    color: 'text-green-500',
-    bgColor: 'bg-green-500/10',
+    color: 'text-primary-400',
+    bgColor: 'bg-primary-400/10',
     label: 'Concluído'
   },
   appointment_cancelled: {
     icon: XCircle,
-    color: 'text-red-500',
-    bgColor: 'bg-red-500/10',
+    color: 'text-destructive',
+    bgColor: 'bg-destructive/10',
     label: 'Cancelado'
   },
   client_created: {
@@ -59,8 +59,8 @@ const activityConfig = {
   },
   payment_received: {
     icon: CreditCard,
-    color: 'text-green-500',
-    bgColor: 'bg-green-500/10',
+    color: 'text-primary-400',
+    bgColor: 'bg-primary-400/10',
     label: 'Pagamento'
   }
 };

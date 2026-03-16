@@ -141,7 +141,7 @@ const InactiveClients = ({ clients: propClients, inactiveDays = 30 }: InactiveCl
       <Card>
         <CardHeader className="pb-3">
           <CardTitle className="flex items-center gap-2 text-lg">
-            <UserX className="h-5 w-5 text-orange-500" />
+          <UserX className="h-5 w-5 text-primary-600" />
             Clientes Inativos
           </CardTitle>
         </CardHeader>
@@ -159,7 +159,7 @@ const InactiveClients = ({ clients: propClients, inactiveDays = 30 }: InactiveCl
       <Card>
         <CardHeader className="pb-3">
           <CardTitle className="flex items-center gap-2 text-lg">
-            <UserX className="h-5 w-5 text-orange-500" />
+          <UserX className="h-5 w-5 text-primary-600" />
             Clientes Inativos
           </CardTitle>
         </CardHeader>
@@ -176,7 +176,7 @@ const InactiveClients = ({ clients: propClients, inactiveDays = 30 }: InactiveCl
     <Card>
       <CardHeader className="pb-3">
         <CardTitle className="flex items-center gap-2 text-lg">
-          <UserX className="h-5 w-5 text-orange-500" />
+          <UserX className="h-5 w-5 text-primary-600" />
           Clientes Inativos
         </CardTitle>
         <CardDescription>
@@ -189,7 +189,7 @@ const InactiveClients = ({ clients: propClients, inactiveDays = 30 }: InactiveCl
             <div key={client.id} className="flex items-center justify-between p-2 rounded-lg hover:bg-muted/50">
               <div className="flex items-center gap-3">
                 <Avatar className="h-10 w-10">
-                  <AvatarFallback className="bg-orange-500/10 text-orange-500">
+                  <AvatarFallback className="bg-primary/10 text-primary">
                     {client.name.substring(0, 2).toUpperCase()}
                   </AvatarFallback>
                 </Avatar>
@@ -205,7 +205,7 @@ const InactiveClients = ({ clients: propClients, inactiveDays = 30 }: InactiveCl
               </div>
               <div className="flex items-center gap-2">
                 {client.daysSinceLastVisit && client.daysSinceLastVisit > 60 && (
-                  <Badge variant="outline" className="text-red-500 border-red-500 text-xs">
+                  <Badge variant="outline" className="text-destructive border-destructive text-xs">
                     +{client.daysSinceLastVisit}d
                   </Badge>
                 )}
