@@ -120,7 +120,7 @@ const SuperAdminSidebar = () => {
     <aside className="w-64 bg-card border-r border-border min-h-screen flex flex-col">
       <div className="p-4 border-b border-border">
         <div className="flex items-center gap-3">
-          <div className="w-10 h-10 bg-gradient-to-r from-amber-500 to-orange-500 rounded-lg flex items-center justify-center">
+          <div className="w-10 h-10 bg-gradient-to-r from-primary-800 to-primary rounded-lg flex items-center justify-center">
             <Shield className="h-5 w-5 text-white" />
           </div>
           <div>
