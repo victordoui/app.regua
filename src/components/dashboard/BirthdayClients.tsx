@@ -162,7 +162,7 @@ const BirthdayClients = ({ clients: propClients }: BirthdayClientsProps = {}) =>
             <div key={client.id} className="flex items-center justify-between p-2 rounded-lg hover:bg-muted/50">
               <div className="flex items-center gap-3">
                 <Avatar className="h-10 w-10">
-                  <AvatarFallback className={client.isToday ? 'bg-pink-500 text-white' : ''}>
+                  <AvatarFallback className={client.isToday ? 'bg-primary text-primary-foreground' : ''}>
                     {client.name.substring(0, 2).toUpperCase()}
                   </AvatarFallback>
                 </Avatar>
