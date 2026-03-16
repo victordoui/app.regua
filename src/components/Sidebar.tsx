@@ -160,7 +160,7 @@ const Sidebar = () => {
         animate={{ width: sidebarWidth, x: isMobile && !isOpen ? -240 : 0 }}
         transition={{ duration: 0.25, ease: "easeInOut" }}
         className={`fixed left-0 top-0 h-full z-40 flex flex-col border-r border-border/50
-          bg-card dark:bg-gradient-to-b dark:from-[hsl(var(--primary-950))] dark:to-[hsl(var(--primary-900))]
+          bg-card dark:bg-gradient-to-b dark:from-[#0F2F6B] dark:to-[#1A3A7A]
           ${isMobile ? 'shadow-2xl' : 'md:relative md:shadow-none'}`}
         style={{ width: isMobile ? (isOpen ? 240 : 0) : sidebarWidth }}
       >
