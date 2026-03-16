@@ -72,7 +72,7 @@ const DashboardOverview = () => {
     switch (color) {
       case "purple": return "from-primary-800 to-primary-950";
       case "blue": return "from-primary to-primary-800";
-      case "green": return "from-green-500 to-green-600";
+      case "green": return "from-primary-400 to-primary-600";
       case "orange": return "from-primary-600 to-primary";
       case "pink": return "from-primary-400 to-primary-600";
       case "indigo": return "from-accent to-primary";
