@@ -204,7 +204,7 @@ const AppointmentTableView: React.FC<AppointmentTableViewProps> = ({
               paginatedAppointments.map((apt) => (
                 <TableRow 
                   key={apt.id}
-                  className={cn(isNew(apt) && "bg-amber-50/50 dark:bg-amber-950/20")}
+                  className={cn(isNew(apt) && "bg-primary-50/50 dark:bg-primary/5")}
                 >
                   <TableCell>
                     <div className="flex items-center gap-2">
