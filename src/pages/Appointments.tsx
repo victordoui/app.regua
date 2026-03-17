@@ -86,7 +86,7 @@ const Appointments = () => {
                 <TabsTrigger value="turnos" className="flex items-center gap-2"><Clock className="h-4 w-4" />Turnos</TabsTrigger>
               </TabsList>
             </Tabs>
-            {topTab === 'agenda' && <Badge variant="outline" className="gap-1.5 animate-pulse"><Radio className="w-3 h-3 text-emerald-500 fill-emerald-500" />Ao Vivo</Badge>}
+            
           </div>
           {topTab === 'agenda' && <div className="flex items-center gap-2"><div className="bg-muted rounded-lg p-1 flex gap-1"><Button variant={displayMode === 'calendar' ? 'default' : 'ghost'} size="sm" onClick={() => setDisplayMode('calendar')} className="gap-1.5"><CalendarDays className="h-4 w-4" /><span className="hidden sm:inline">Calendário</span></Button><Button variant={displayMode === 'table' ? 'default' : 'ghost'} size="sm" onClick={() => setDisplayMode('table')} className="gap-1.5"><Table2 className="h-4 w-4" /><span className="hidden sm:inline">Tabela</span></Button></div></div>}
         </div>
