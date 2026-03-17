@@ -149,7 +149,15 @@ function AppContent() {
         <Route path="/integrations" element={<Navigate to="/" replace />} />
         <Route path="/settings" element={<Navigate to="/settings/company" replace />} />
         <Route path="/booking" element={<Navigate to="/appointments" replace />} />
-        <Route path="/campaigns" element={<Navigate to="/advanced-notifications" replace />} />
+        <Route path="/campaigns" element={<Navigate to="/conversations" replace />} />
+        <Route path="/advanced-notifications" element={<Navigate to="/conversations?tab=notificacoes" replace />} />
+        <Route path="/team-chat" element={<Navigate to="/conversations?tab=chat-equipe" replace />} />
+        <Route path="/gift-cards" element={<Navigate to="/coupons?tab=gift-cards" replace />} />
+        <Route path="/dynamic-pricing" element={<Navigate to="/coupons?tab=precos" replace />} />
+        <Route path="/inventory" element={<Navigate to="/settings/company?tab=estoque" replace />} />
+        <Route path="/gallery" element={<Navigate to="/settings/company?tab=galeria" replace />} />
+        <Route path="/waitlist" element={<Navigate to="/appointments?tab=espera" replace />} />
+        <Route path="/shifts" element={<Navigate to="/appointments?tab=turnos" replace />} />
 
         {/* Rota de fallback */}
         <Route path="*" element={<Navigate to="/" replace />} />
