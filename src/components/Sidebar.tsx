@@ -141,7 +141,7 @@ const Sidebar = () => {
         animate={{ width: sidebarWidth, x: isMobile && !isOpen ? -240 : 0 }}
         transition={{ duration: 0.25, ease: "easeInOut" }}
         className={`fixed left-0 top-0 h-full z-40 flex flex-col
-          bg-background border-r border-border/30
+          bg-card border-r border-border
           ${isMobile ? 'shadow-2xl' : 'md:relative md:shadow-none'}`}
         style={{ width: isMobile ? (isOpen ? 240 : 0) : sidebarWidth }}
       >
@@ -177,12 +177,12 @@ const Sidebar = () => {
                     className={`w-full flex items-center gap-3 rounded-lg transition-all duration-150 group relative
                       ${isCollapsed ? 'justify-center px-2 py-2.5 mx-auto' : 'px-3 py-2'}
                       ${isActive
-                        ? 'bg-primary text-primary-foreground font-medium shadow-sm'
-                        : 'text-muted-foreground hover:bg-card hover:text-foreground'
+                        ? 'bg-primary/[0.08] text-primary font-medium'
+                        : 'text-muted-foreground hover:bg-muted/60 hover:text-foreground'
                       }`}
                   >
                     {isActive && !isCollapsed && (
-                      <div className="absolute left-0 top-1/2 -translate-y-1/2 w-[3px] h-5 rounded-r-full bg-primary-foreground" />
+                      <div className="absolute left-0 top-1/2 -translate-y-1/2 w-[3px] h-5 rounded-r-full bg-primary" />
                     )}
                     <menuItem.icon className={`h-4 w-4 flex-shrink-0 ${isActive ? '' : 'opacity-70 group-hover:opacity-100'}`} />
                     {!isCollapsed && (

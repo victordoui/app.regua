@@ -34,7 +34,7 @@ const StatusCards = ({ items, className }: StatusCardsProps) => {
           <div
             key={index}
             className={cn(
-              "relative flex items-center gap-4 rounded-xl border border-border/40 bg-card p-4 shadow-sm transition-all hover:shadow-md",
+              "relative flex items-center gap-4 rounded-xl border border-border/60 bg-card p-4 shadow-[var(--shadow-subtle)] transition-all hover:shadow-md",
               "border-l-4",
               colors.border
             )}
