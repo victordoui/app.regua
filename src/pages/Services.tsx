@@ -184,11 +184,7 @@ const Services = () => {
   return (
     <Layout>
       <div className="flex-1 space-y-6 p-6">
-        {/* Header */}
-        <div className="flex items-center justify-between">
-          <div>
-            <h1 className="text-xl md:text-2xl font-bold text-foreground">Serviços e Combos</h1>
-          </div>
+        <PageHeader icon={<Scissors className="h-5 w-5" />} title="Serviços e Combos" subtitle="Gerencie seus serviços e combos">
 
           <Dialog open={dialogOpen} onOpenChange={(open) => {
             setDialogOpen(open);
