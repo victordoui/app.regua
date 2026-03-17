@@ -127,10 +127,7 @@ const Referrals = () => {
         {/* Header */}
         <div className="flex items-center justify-between">
           <div>
-            <h1 className="text-3xl font-bold tracking-tight">Indicações</h1>
-            <p className="text-muted-foreground">
-              Gerencie o programa de indicações e recompensas.
-            </p>
+            <h1 className="text-xl md:text-2xl font-bold text-foreground">Indicações</h1>
           </div>
           <Button onClick={() => setIsDialogOpen(true)}>
             <Plus className="h-4 w-4 mr-2" />

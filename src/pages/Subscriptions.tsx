@@ -94,10 +94,7 @@ const Subscriptions = () => {
       <div className="flex-1 space-y-6 p-6">
         <div className="flex items-center justify-between">
           <div>
-            <h1 className="text-3xl font-bold tracking-tight">Assinaturas</h1>
-            <p className="text-muted-foreground">
-              Gerencie planos de assinatura e clientes assinantes
-            </p>
+            <h1 className="text-xl md:text-2xl font-bold text-foreground">Assinaturas</h1>
           </div>
           <div className="flex gap-2">
             <Button onClick={() => { setEditingPlan(null); setIsPlanDialogOpen(true); }}>

@@ -20,10 +20,7 @@ const Index = () => {
     <Layout>
       <div className="flex-1 space-y-6 p-4 lg:p-6">
         <div>
-          <h1 className="text-3xl font-bold text-foreground">Painel Administrativo</h1>
-          <p className="text-sm text-muted-foreground">
-            Visão completa do seu negócio em um só lugar
-          </p>
+          <h1 className="text-xl md:text-2xl font-bold text-foreground">Painel Administrativo</h1>
         </div>
 
         <Tabs defaultValue="overview" className="space-y-6">

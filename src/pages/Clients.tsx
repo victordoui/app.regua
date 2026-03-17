@@ -110,9 +110,6 @@ const Clients = () => {
         <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
           <div>
             <h1 className="text-xl md:text-2xl font-bold text-foreground">Clientes</h1>
-            <p className="text-sm md:text-base text-muted-foreground">
-              Gerencie sua base de clientes
-            </p>
           </div>
           <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
             <DialogTrigger asChild>

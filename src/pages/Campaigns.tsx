@@ -174,10 +174,7 @@ const Campaigns = () => {
         {/* Header */}
         <div className="flex items-center justify-between">
           <div>
-            <h1 className="text-3xl font-bold tracking-tight">Campanhas / Marketing</h1>
-            <p className="text-muted-foreground">
-              Crie e gerencie campanhas de email para seus clientes.
-            </p>
+            <h1 className="text-xl md:text-2xl font-bold text-foreground">Campanhas / Marketing</h1>
           </div>
           <Button onClick={() => handleOpenDialog()}>
             <Plus className="h-4 w-4 mr-2" />

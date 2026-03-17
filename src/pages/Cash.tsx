@@ -71,10 +71,7 @@ const Cash = () => {
       <div className="flex-1 space-y-6 p-6">
         <div className="flex items-center justify-between">
           <div>
-            <h1 className="text-3xl font-bold tracking-tight">Caixa e PDV</h1>
-            <p className="text-muted-foreground">
-              Gerencie vendas de produtos e serviços da barbearia.
-            </p>
+            <h1 className="text-xl md:text-2xl font-bold text-foreground">Caixa e PDV</h1>
           </div>
         </div>
 

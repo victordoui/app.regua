@@ -9,10 +9,7 @@ const Integrations = () => {
       <div className="flex-1 space-y-6 p-6">
         <div className="flex items-center justify-between">
           <div>
-            <h1 className="text-3xl font-bold tracking-tight">Integrações</h1>
-            <p className="text-muted-foreground">
-              Conecte o sistema com ferramentas externas, como WhatsApp e sistemas de pagamento.
-            </p>
+            <h1 className="text-xl md:text-2xl font-bold text-foreground">Integrações</h1>
           </div>
         </div>
 

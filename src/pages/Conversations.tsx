@@ -19,8 +19,7 @@ const Conversations = () => {
     <Layout>
       <div className="flex-1 space-y-6 p-6">
         <div>
-          <h1 className="text-3xl font-bold tracking-tight">Comunicação</h1>
-          <p className="text-muted-foreground">Gerencie conversas, notificações e chat da equipe</p>
+          <h1 className="text-xl md:text-2xl font-bold text-foreground">Comunicação</h1>
         </div>
 
         <Tabs value={defaultTab} onValueChange={handleTabChange}>

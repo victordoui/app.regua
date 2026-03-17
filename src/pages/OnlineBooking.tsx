@@ -165,10 +165,7 @@ const OnlineBooking = () => {
       <div className="flex-1 space-y-6 p-6">
         <div className="max-w-4xl mx-auto">
           <div className="text-center mb-8">
-            <h1 className="text-3xl font-bold text-foreground">Agendamento Online</h1>
-            <p className="text-muted-foreground">
-              Agende seu horário de forma rápida e fácil
-            </p>
+            <h1 className="text-xl md:text-2xl font-bold text-foreground">Agendamento Online</h1>
           </div>
 
           <Card>

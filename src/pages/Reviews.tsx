@@ -37,10 +37,7 @@ const Reviews = () => {
         {/* Header */}
         <div className="flex items-center justify-between">
           <div>
-            <h1 className="text-3xl font-bold tracking-tight">Avaliações</h1>
-            <p className="text-muted-foreground">
-              Gerencie as avaliações dos seus clientes
-            </p>
+            <h1 className="text-xl md:text-2xl font-bold text-foreground">Avaliações</h1>
           </div>
         </div>
 

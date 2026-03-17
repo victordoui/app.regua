@@ -17,7 +17,6 @@ const Settings = () => {
       <div className="flex-1 p-4 md:p-6 space-y-4 md:space-y-6">
       <div>
         <h1 className="text-xl md:text-2xl font-bold text-foreground">Configurações</h1>
-        <p className="text-sm md:text-base text-muted-foreground">Gerencie as configurações do sistema</p>
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
