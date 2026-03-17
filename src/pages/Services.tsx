@@ -11,6 +11,8 @@ import { Switch } from "@/components/ui/switch";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useServices } from "@/hooks/useServices";
 import { Scissors, Plus, Edit, Trash2, Clock, DollarSign, Search, Filter, Power, PowerOff, ImageIcon, Upload, X, Loader2, Package } from "lucide-react";
+import { PageHeader } from "@/components/ui/page-header";
+import { StatusCards } from "@/components/ui/status-cards";
 import Layout from "@/components/Layout";
 import { Service } from "@/types/appointments";
 import { supabase } from "@/integrations/supabase/client";
