@@ -15,8 +15,7 @@ import TodayScheduleCard from "@/components/dashboard/TodayScheduleCard";
 import CTACard from "@/components/dashboard/CTACard";
 
 const DashboardOverview = () => {
-  const navigate = useNavigate();
-  const { metrics, monthlyRevenue, isLoading, isConnected } = useRealtimeDashboard();
+  const { metrics, monthlyRevenue, isLoading } = useRealtimeDashboard();
 
   const container = {
     hidden: { opacity: 0 },
