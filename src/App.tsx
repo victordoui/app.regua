@@ -125,28 +125,18 @@ function AppContent() {
         <Route path="/appointments" element={<ProtectedRoute allowedRoles={['admin', 'barbeiro']}><Appointments /></ProtectedRoute>} />
         <Route path="/clients" element={<ProtectedRoute allowedRoles={['admin', 'barbeiro']}><Clients /></ProtectedRoute>} />
         <Route path="/conversations" element={<ProtectedRoute allowedRoles={['admin', 'barbeiro']}><Conversations /></ProtectedRoute>} />
-        <Route path="/advanced-notifications" element={<ProtectedRoute allowedRoles={['admin', 'barbeiro']}><AdvancedNotifications /></ProtectedRoute>} />
-        <Route path="/team-chat" element={<ProtectedRoute allowedRoles={['admin', 'barbeiro']}><TeamChat /></ProtectedRoute>} />
-        <Route path="/shifts" element={<ProtectedRoute allowedRoles={['admin', 'barbeiro']}><Shifts /></ProtectedRoute>} />
         <Route path="/profile" element={<ProtectedRoute allowedRoles={['admin', 'barbeiro']}><Profile /></ProtectedRoute>} />
 
         {/* Rotas exclusivas do Admin */}
-        
         <Route path="/barbers" element={<ProtectedRoute allowedRoles={['admin']}><BarberManagement /></ProtectedRoute>} />
         <Route path="/services" element={<ProtectedRoute allowedRoles={['admin']}><Services /></ProtectedRoute>} />
-        <Route path="/waitlist" element={<ProtectedRoute allowedRoles={['admin']}><Waitlist /></ProtectedRoute>} />
-        <Route path="/campaigns" element={<ProtectedRoute allowedRoles={['admin']}><Campaigns /></ProtectedRoute>} />
         <Route path="/reports" element={<ProtectedRoute allowedRoles={['admin']}><Reports /></ProtectedRoute>} />
         <Route path="/billing" element={<ProtectedRoute allowedRoles={['admin']}><Billing /></ProtectedRoute>} />
         <Route path="/commissions" element={<ProtectedRoute allowedRoles={['admin']}><Commissions /></ProtectedRoute>} />
         <Route path="/coupons" element={<ProtectedRoute allowedRoles={['admin']}><Coupons /></ProtectedRoute>} />
-        <Route path="/gift-cards" element={<ProtectedRoute allowedRoles={['admin']}><GiftCards /></ProtectedRoute>} />
-        <Route path="/dynamic-pricing" element={<ProtectedRoute allowedRoles={['admin']}><DynamicPricing /></ProtectedRoute>} />
         <Route path="/subscriptions" element={<ProtectedRoute allowedRoles={['admin']}><Subscriptions /></ProtectedRoute>} />
         <Route path="/loyalty" element={<ProtectedRoute allowedRoles={['admin']}><Loyalty /></ProtectedRoute>} />
         <Route path="/settings/company" element={<ProtectedRoute allowedRoles={['admin']}><CompanySettings /></ProtectedRoute>} />
-        <Route path="/inventory" element={<ProtectedRoute allowedRoles={['admin']}><Inventory /></ProtectedRoute>} />
-        <Route path="/gallery" element={<ProtectedRoute allowedRoles={['admin']}><Gallery /></ProtectedRoute>} />
         <Route path="/upgrade" element={<ProtectedRoute allowedRoles={['admin']}><Upgrade /></ProtectedRoute>} />
         <Route path="/users" element={<ProtectedRoute allowedRoles={['admin']}><Users /></ProtectedRoute>} />
         <Route path="/cash" element={<ProtectedRoute allowedRoles={['admin']}><Cash /></ProtectedRoute>} />
