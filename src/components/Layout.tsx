@@ -144,16 +144,6 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
             </Button>
 
             <ThemeToggle />
-
-            {/* Create button */}
-            <Button
-              size="sm"
-              className="rounded-full gap-1.5 h-9 px-4"
-              onClick={() => handleNavigate('/appointments')}
-            >
-              <Plus className="h-4 w-4" />
-              <span className="hidden sm:inline">Criar</span>
-            </Button>
             
             {/* User Profile Dropdown */}
             <DropdownMenu>
