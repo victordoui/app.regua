@@ -20,7 +20,8 @@ import {
   Bell,
   UserCircle,
   Search,
-  ChevronDown
+  ChevronDown,
+  Plus
 } from "lucide-react";
 import { Input } from '@/components/ui/input';
 import { useAuth } from '@/contexts/AuthContext';
@@ -29,15 +30,19 @@ import { ThemeToggle } from '@/components/ui/theme-toggle';
 import { supabase } from '@/integrations/supabase/client';
 import { Badge } from '@/components/ui/badge';
 import TrialBanner from '@/components/TrialBanner';
-import vizzuIcon from '@/assets/vizzu-icon.png';
 
 interface LayoutProps {
   children?: React.ReactNode;
 }
 
+const formatDate = () => {
+  const now = new Date();
+  const months = ['Jan', 'Fev', 'Mar', 'Abr', 'Mai', 'Jun', 'Jul', 'Ago', 'Set', 'Out', 'Nov', 'Dez'];
+  return `${now.getDate()} ${months[now.getMonth()]}, ${now.getFullYear()}`;
+};
+
 const Layout: React.FC<LayoutProps> = ({ children }) => {
-  const [sidebarOpen, setSidebarOpen] = React.useState(false);
-  const [mobileMenuOpen, setMobileMenuOpen] = React.useState(false);
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [unreadCount, setUnreadCount] = useState(0);
   const navigate = useNavigate();
   const { user, signOut } = useAuth();
@@ -46,80 +51,47 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
   useEffect(() => {
     if (user) {
       fetchUnreadCount();
-      setupRealtimeSubscription();
+      const cleanup = setupRealtimeSubscription();
+      return cleanup;
     }
   }, [user]);
 
   const fetchUnreadCount = async () => {
     if (!user) return;
-    
     const { count, error } = await supabase
       .from('notifications')
       .select('*', { count: 'exact', head: true })
       .eq('user_id', user.id)
       .is('read_at', null);
-
-    if (!error && count !== null) {
-      setUnreadCount(count);
-    }
+    if (!error && count !== null) setUnreadCount(count);
   };
 
   const setupRealtimeSubscription = () => {
     const channel = supabase
       .channel('layout-notifications')
-      .on(
-        'postgres_changes',
-        {
-          event: '*',
-          schema: 'public',
-          table: 'notifications',
-          filter: `user_id=eq.${user?.id}`,
-        },
-        () => {
-          fetchUnreadCount();
-        }
-      )
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'notifications', filter: `user_id=eq.${user?.id}` }, () => fetchUnreadCount())
       .subscribe();
-
-    return () => {
-      supabase.removeChannel(channel);
-    };
+    return () => { supabase.removeChannel(channel); };
   };
 
   const handleSignOut = async () => {
     try {
       await signOut();
-      toast({
-        title: "Logout realizado",
-        description: "Você saiu do sistema com sucesso.",
-      });
+      toast({ title: "Logout realizado", description: "Você saiu do sistema com sucesso." });
       navigate("/login");
     } catch (error) {
       console.error("Erro ao fazer logout:", error);
-      toast({
-        title: "Erro ao sair",
-        description: "Ocorreu um erro ao tentar sair.",
-        variant: "destructive",
-      });
+      toast({ title: "Erro ao sair", description: "Ocorreu um erro ao tentar sair.", variant: "destructive" });
     }
   };
 
   const getUserInitials = () => {
-    if (!user?.user_metadata?.full_name) {
-      return user?.email?.charAt(0).toUpperCase() || 'U';
-    }
-    return user.user_metadata.full_name
-      .split(' ')
-      .map((word: string) => word.charAt(0))
-      .join('')
-      .toUpperCase()
-      .slice(0, 2);
+    if (!user?.user_metadata?.full_name) return user?.email?.charAt(0).toUpperCase() || 'U';
+    return user.user_metadata.full_name.split(' ').map((w: string) => w.charAt(0)).join('').toUpperCase().slice(0, 2);
   };
 
-  const getUserName = () => {
-    return user?.user_metadata?.full_name || user?.email || 'Usuário';
-  };
-  
+  const getUserName = () => user?.user_metadata?.full_name || user?.email || 'Usuário';
+
   const handleNavigate = (path: string) => {
     navigate(path);
     setMobileMenuOpen(false);
@@ -129,18 +101,12 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
     <div className="flex h-screen bg-background">
       <Sidebar />
       
-      {/* Main Content */}
       <div className="flex-1 flex flex-col min-w-0">
-        {/* Header */}
-        <header className="bg-card/80 backdrop-blur-sm shadow-sm px-4 lg:px-6 h-16 flex items-center justify-between gap-4 sticky top-0 z-10">
-          {/* Left - Logo */}
+        {/* Header — unified bg-background */}
+        <header className="bg-background border-b border-border/30 px-4 lg:px-6 h-16 flex items-center justify-between gap-4 sticky top-0 z-10">
+          {/* Left */}
           <div className="flex items-center gap-2 min-w-0">
-            <Button
-              variant="ghost"
-              size="sm"
-              className="md:hidden"
-              onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-            >
+            <Button variant="ghost" size="sm" className="md:hidden" onClick={() => setMobileMenuOpen(!mobileMenuOpen)}>
               <Menu className="h-5 w-5" />
             </Button>
           </div>
@@ -151,14 +117,17 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
               <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
               <Input
                 placeholder="Buscar..."
-                className="pl-9 h-9 rounded-full bg-muted/50 border-transparent focus:border-primary focus:bg-background focus:ring-1 focus:ring-primary/30"
+                className="pl-9 h-9 rounded-full bg-card border-border/30 focus:border-primary focus:bg-card focus:ring-1 focus:ring-primary/30"
               />
             </div>
           </div>
 
           {/* Right - Actions */}
-          <div className="flex items-center gap-1">
+          <div className="flex items-center gap-1.5">
             <TrialBanner />
+
+            {/* Date */}
+            <span className="text-xs text-muted-foreground hidden lg:block whitespace-nowrap">{formatDate()}</span>
 
             <Button 
               variant="ghost" 
@@ -168,22 +137,30 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
             >
               <Bell className="h-[1.1rem] w-[1.1rem]" />
               {unreadCount > 0 && (
-                <Badge 
-                  className="absolute -top-0.5 -right-0.5 h-4 w-4 flex items-center justify-center p-0 text-[9px] bg-destructive text-destructive-foreground"
-                >
+                <Badge className="absolute -top-0.5 -right-0.5 h-4 w-4 flex items-center justify-center p-0 text-[9px] bg-destructive text-destructive-foreground">
                   {unreadCount > 9 ? '9+' : unreadCount}
                 </Badge>
               )}
             </Button>
 
             <ThemeToggle />
+
+            {/* Create button */}
+            <Button
+              size="sm"
+              className="rounded-full gap-1.5 h-9 px-4"
+              onClick={() => handleNavigate('/appointments')}
+            >
+              <Plus className="h-4 w-4" />
+              <span className="hidden sm:inline">Criar</span>
+            </Button>
             
             {/* User Profile Dropdown */}
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
-                <Button variant="ghost" className="h-9 rounded-full px-1.5 gap-1.5 hover:bg-muted">
-                  <Avatar className="h-7 w-7 border border-border">
-                    <AvatarFallback className="text-xs">{getUserInitials()}</AvatarFallback>
+                <Button variant="ghost" className="h-9 rounded-full px-1.5 gap-1.5 hover:bg-card">
+                  <Avatar className="h-7 w-7 border border-border/50">
+                    <AvatarFallback className="text-xs bg-primary/10 text-primary">{getUserInitials()}</AvatarFallback>
                   </Avatar>
                   <ChevronDown className="h-3.5 w-3.5 text-muted-foreground hidden sm:block" />
                 </Button>
@@ -192,9 +169,7 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
                 <DropdownMenuLabel className="font-normal">
                   <div className="flex flex-col space-y-1">
                     <p className="text-sm font-medium leading-none">{getUserName()}</p>
-                    <p className="text-xs leading-none text-muted-foreground">
-                      {user?.email}
-                    </p>
+                    <p className="text-xs leading-none text-muted-foreground">{user?.email}</p>
                   </div>
                 </DropdownMenuLabel>
                 <DropdownMenuSeparator />
@@ -229,7 +204,7 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
         <div className="fixed inset-0 z-50 lg:hidden">
           <div className="fixed inset-0 bg-black/50" onClick={() => setMobileMenuOpen(false)} />
           <div className="fixed right-0 top-0 h-full w-64 bg-card shadow-xl">
-            <div className="p-4 border-b border-border">
+            <div className="p-4 border-b border-border/30">
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-3">
                   <Avatar className="h-8 w-8">
@@ -240,31 +215,17 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
                     <p className="text-xs text-muted-foreground">{user?.email}</p>
                   </div>
                 </div>
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  onClick={() => setMobileMenuOpen(false)}
-                >
+                <Button variant="ghost" size="sm" onClick={() => setMobileMenuOpen(false)}>
                   <X className="h-4 w-4" />
                 </Button>
               </div>
             </div>
-            
             <div className="p-4">
-              <Button
-                variant="ghost"
-                className="w-full justify-start mb-2"
-                onClick={() => handleNavigate('/settings')}
-              >
+              <Button variant="ghost" className="w-full justify-start mb-2" onClick={() => handleNavigate('/settings')}>
                 <Settings className="h-4 w-4 mr-2" />
                 Configurações
               </Button>
-              
-              <Button
-                variant="ghost"
-                className="w-full justify-start"
-                onClick={handleSignOut}
-              >
+              <Button variant="ghost" className="w-full justify-start" onClick={handleSignOut}>
                 <LogOut className="h-4 w-4 mr-2" />
                 Sair
               </Button>
