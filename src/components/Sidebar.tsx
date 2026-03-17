@@ -18,8 +18,7 @@ import {
 } from "lucide-react";
 
 const BARBER_PATHS = new Set([
-  '/', '/appointments', '/clients', '/conversations',
-  '/advanced-notifications', '/team-chat', '/shifts', '/profile'
+  '/', '/appointments', '/clients', '/conversations', '/profile'
 ]);
 
 const BARBER_CATEGORIES = new Set(['operacoes', 'comunicacao', 'administracao']);
@@ -53,17 +52,13 @@ const Sidebar = () => {
         { icon: Calendar, label: "Agenda", path: "/appointments" },
         { icon: Users, label: "Clientes", path: "/clients" },
         { icon: Briefcase, label: "Profissionais", path: "/barbers" },
-        { icon: Package, label: "Serviços", path: "/services" },
-        { icon: ListOrdered, label: "Lista de Espera", path: "/waitlist" },
-        { icon: Clock, label: "Turnos", path: "/shifts" }
+        { icon: Package, label: "Serviços", path: "/services" }
       ]
     },
     {
       category: "comunicacao", label: "Comunicação",
       items: [
-        { icon: MessageSquare, label: "Conversas", path: "/conversations" },
-        { icon: Bell, label: "Notificações", path: "/advanced-notifications" },
-        { icon: MessageCircle, label: "Chat Equipe", path: "/team-chat" }
+        { icon: MessageSquare, label: "Conversas", path: "/conversations" }
       ]
     },
     {
@@ -72,9 +67,7 @@ const Sidebar = () => {
         { icon: BarChart3, label: "Insights", path: "/reports" },
         { icon: CreditCard, label: "Contas", path: "/billing" },
         { icon: Receipt, label: "Comissões", path: "/commissions" },
-        { icon: Ticket, label: "Cupons", path: "/coupons" },
-        { icon: Gift, label: "Gift Cards", path: "/gift-cards" },
-        { icon: Tag, label: "Preços Dinâmicos", path: "/dynamic-pricing" },
+        { icon: Tag, label: "Promoções", path: "/coupons" },
         { icon: ShoppingCart, label: "Caixa / PDV", path: "/cash" }
       ]
     },
@@ -88,9 +81,7 @@ const Sidebar = () => {
     {
       category: "empresa", label: "Meu Negócio",
       items: [
-        { icon: Building, label: "Empresa", path: "/settings/company" },
-        { icon: Warehouse, label: "Estoque", path: "/inventory" },
-        { icon: Image, label: "Galeria", path: "/gallery" }
+        { icon: Building, label: "Meu Negócio", path: "/settings/company" }
       ]
     },
     {
