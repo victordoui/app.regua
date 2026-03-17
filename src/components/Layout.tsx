@@ -102,7 +102,7 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
       
       <div className="flex-1 flex flex-col min-w-0">
         {/* Header — unified bg-background */}
-        <header className="bg-background border-b border-border/30 px-4 lg:px-6 h-16 flex items-center justify-between gap-4 sticky top-0 z-10">
+        <header className="bg-card border-b border-border px-4 lg:px-6 h-16 flex items-center justify-between gap-4 sticky top-0 z-10">
           {/* Left */}
           <div className="flex items-center gap-2 min-w-0">
             <Button variant="ghost" size="sm" className="md:hidden" onClick={() => setMobileMenuOpen(!mobileMenuOpen)}>
