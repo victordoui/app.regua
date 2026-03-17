@@ -1,93 +1,34 @@
 import React from "react";
-import { Card, CardContent } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
-import { Progress } from "@/components/ui/progress";
 import { Badge } from "@/components/ui/badge";
-import { Plus, Crown, Calendar, DollarSign, Target, Heart, Users, Wifi } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { Plus, Wifi, Calendar, Clock, DollarSign, Users, TrendingUp, CheckCircle } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { useSubscriptions } from "@/hooks/useSubscriptions";
 import { useRealtimeDashboard } from "@/hooks/useRealtimeDashboard";
 import { motion } from "framer-motion";
-import AppointmentsChart from "@/components/charts/AppointmentsChart";
 import RevenueChart from "@/components/charts/RevenueChart";
 import ServicesChart from "@/components/charts/ServicesChart";
 import OccupancyChart from "@/components/charts/OccupancyChart";
 import RecentActivities from "@/components/dashboard/RecentActivities";
 import BirthdayClients from "@/components/dashboard/BirthdayClients";
 import InactiveClients from "@/components/dashboard/InactiveClients";
+import ProfileCard from "@/components/dashboard/ProfileCard";
+import StatMiniCard from "@/components/dashboard/StatMiniCard";
+import TodayScheduleCard from "@/components/dashboard/TodayScheduleCard";
+import CTACard from "@/components/dashboard/CTACard";
 
 const DashboardOverview = () => {
   const navigate = useNavigate();
-  const { getStats: getSubscriptionStats } = useSubscriptions();
-  const subscriptionStats = getSubscriptionStats();
-  const { metrics, monthlyRevenue, weeklyAppointments, isLoading, isConnected } = useRealtimeDashboard();
-
-  const stats = React.useMemo(() => [
-    {
-      title: "Assinantes Ativos",
-      value: subscriptionStats.activeCount.toString(),
-      change: `MRR: R$ ${subscriptionStats.mrr.toLocaleString('pt-br', { minimumFractionDigits: 2 })}`,
-      icon: Crown, color: "purple", progress: subscriptionStats.retention
-    },
-    {
-      title: "Agendamentos (Mês)",
-      value: metrics.monthAppointments.toString(),
-      change: `Hoje: ${metrics.todayAppointments} agendamentos`,
-      trend: metrics.completedRate > 50 ? "up" : "warning",
-      icon: Calendar, color: "blue", progress: metrics.completedRate
-    },
-    {
-      title: "Receita Mensal",
-      value: `R$ ${metrics.monthRevenue.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}`,
-      change: `Meta: R$ 20.000,00`,
-      trend: metrics.monthRevenue > 0 ? "up" : "down",
-      icon: DollarSign, color: "green",
-      progress: Math.min((metrics.monthRevenue / 20000) * 100, 100)
-    },
-    {
-      title: "Taxa de Ocupação",
-      value: isLoading ? "..." : `${metrics.occupancyRate.toFixed(1)}%`,
-      change: `Baseado em ${metrics.monthAppointments} agendamentos`,
-      trend: metrics.occupancyRate > 80 ? "up" : metrics.occupancyRate > 60 ? "warning" : "down",
-      icon: Target, color: "orange", progress: metrics.occupancyRate
-    },
-    {
-      title: "Taxa de Conclusão",
-      value: isLoading ? "..." : `${metrics.completedRate}%`,
-      change: `${metrics.totalClients} clientes cadastrados`,
-      trend: metrics.completedRate > 80 ? "up" : "warning",
-      icon: Heart, color: "pink", progress: metrics.completedRate
-    },
-    {
-      title: "Novos Clientes",
-      value: metrics.newClientsThisMonth.toString(),
-      change: `Total: ${metrics.totalClients} clientes`,
-      trend: metrics.newClientsThisMonth > 0 ? "up" : "neutral",
-      icon: Users, color: "indigo",
-      progress: metrics.totalClients > 0 ? (metrics.newClientsThisMonth / metrics.totalClients) * 100 : 0
-    }
-  ], [metrics, isLoading, subscriptionStats]);
-
-  const getStatColor = (color: string) => {
-    switch (color) {
-      case "purple": return "from-primary-800 to-primary-950";
-      case "blue": return "from-primary to-primary-800";
-      case "green": return "from-primary-400 to-primary-600";
-      case "orange": return "from-primary-600 to-primary";
-      case "pink": return "from-primary-400 to-primary-600";
-      case "indigo": return "from-accent to-primary";
-      default: return "from-primary to-primary-800";
-    }
-  };
+  const { metrics, monthlyRevenue, isLoading, isConnected } = useRealtimeDashboard();
 
   const container = {
     hidden: { opacity: 0 },
-    show: { opacity: 1, transition: { staggerChildren: 0.1 } }
+    show: { opacity: 1, transition: { staggerChildren: 0.08 } }
   };
 
   const item = {
-    hidden: { opacity: 0, y: 20 },
-    show: { opacity: 1, y: 0 }
+    hidden: { opacity: 0, y: 16 },
+    show: { opacity: 1, y: 0, transition: { duration: 0.4 } }
   };
 
   if (isLoading) {
@@ -99,7 +40,8 @@ const DashboardOverview = () => {
   }
 
   return (
-    <div className="space-y-6">
+    <motion.div variants={container} initial="hidden" animate="show" className="space-y-6">
+      {/* Header */}
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-3">
           {isConnected && (
@@ -115,52 +57,60 @@ const DashboardOverview = () => {
         </Button>
       </div>
 
-      <motion.div variants={container} initial="hidden" animate="show"
-        className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6"
-      >
-        {stats.map((stat, index) => {
-          const Icon = stat.icon;
-          return (
-            <motion.div key={index} variants={item}>
-              <Card className="relative overflow-hidden hover:shadow-lg transition-all duration-300 hover:-translate-y-1">
-                <CardContent className="p-4">
-                  <div className="flex justify-between items-start">
-                    <div className="space-y-2 flex-1">
-                      <p className="text-sm font-medium text-muted-foreground">{stat.title}</p>
-                      <p className="text-2xl font-bold text-foreground">{stat.value}</p>
-                    </div>
-                    <div className={`p-3 rounded-full bg-gradient-to-r ${getStatColor(stat.color)} shadow-md`}>
-                      <Icon className="h-5 w-5 text-white" />
-                    </div>
-                  </div>
-                  <div className="space-y-2 mt-4">
-                    <div className="flex items-center justify-between">
-                      <p className={`text-xs ${
-                        stat.trend === 'up' ? 'text-green-600' :
-                        stat.trend === 'warning' ? 'text-orange-600' :
-                        stat.trend === 'down' ? 'text-red-600' : 'text-muted-foreground'
-                      }`}>{stat.change}</p>
-                      <span className="text-xs text-muted-foreground">{stat.progress?.toFixed(0)}%</span>
-                    </div>
-                    <Progress value={stat.progress || 0} className="h-2" />
-                  </div>
-                </CardContent>
-              </Card>
-            </motion.div>
-          );
-        })}
+      {/* Section 1 — Top: Profile + Stats + Revenue */}
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        <motion.div variants={item}>
+          <ProfileCard />
+        </motion.div>
+
+        <motion.div variants={item} className="space-y-4">
+          <StatMiniCard
+            label="Agendamentos Hoje"
+            value={metrics.todayAppointments.toString()}
+            icon={Calendar}
+            borderColor="border-primary"
+            subtitle={`${metrics.monthAppointments} este mês`}
+          />
+          <StatMiniCard
+            label="Taxa de Conclusão"
+            value={`${metrics.completedRate}%`}
+            icon={CheckCircle}
+            borderColor="border-primary/60"
+            subtitle={`${metrics.totalClients} clientes cadastrados`}
+          />
+          <StatMiniCard
+            label="Novos Clientes"
+            value={metrics.newClientsThisMonth.toString()}
+            icon={Users}
+            borderColor="border-accent"
+            subtitle={`Total: ${metrics.totalClients}`}
+          />
+        </motion.div>
+
+        <motion.div variants={item}>
+          <RevenueChart data={monthlyRevenue} />
+        </motion.div>
+      </div>
+
+      {/* Section 2 — Occupancy (full width) */}
+      <motion.div variants={item}>
+        <OccupancyChart />
       </motion.div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        <AppointmentsChart data={weeklyAppointments} />
-        <RevenueChart data={monthlyRevenue} />
+      {/* Section 3 — Bottom: Schedule + Services + CTA */}
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        <motion.div variants={item}>
+          <TodayScheduleCard />
+        </motion.div>
+        <motion.div variants={item}>
+          <ServicesChart />
+        </motion.div>
+        <motion.div variants={item}>
+          <CTACard />
+        </motion.div>
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        <ServicesChart />
-        <OccupancyChart />
-      </div>
-
+      {/* Existing sections */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         <RecentActivities />
         <BirthdayClients />
@@ -169,7 +119,7 @@ const DashboardOverview = () => {
       <div className="grid grid-cols-1 gap-6">
         <InactiveClients />
       </div>
-    </div>
+    </motion.div>
   );
 };
 
