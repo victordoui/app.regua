@@ -1,93 +1,71 @@
 
 
-# Analise de Paginas Repetitivas e Consolidacao
+# Consolidação de Páginas em Abas + Fix Scroll da Sidebar
 
-Apos analisar todas as paginas e a sidebar, identifiquei os seguintes problemas:
+## 1. Comunicação → Página única com 3 abas
 
----
+Consolidar **Conversas**, **Notificações** e **Chat Equipe** em uma única página `/conversations` com abas:
 
-## 1. Paginas sem funcionalidade real (apenas placeholder "Em Desenvolvimento")
+- **Aba "Conversas"** (default) — conteúdo atual de `Conversations.tsx`
+- **Aba "Notificações"** — conteúdo atual de `AdvancedNotifications.tsx`
+- **Aba "Chat Equipe"** — conteúdo atual de `TeamChat.tsx`
 
-| Pagina | Rota | Situacao |
-|---|---|---|
-| **Criar / Editar Plano** (`SubscriptionCreation`) | `/subscriptions/new` | Placeholder vazio. A pagina `Subscriptions` ja tem botao "Novo Plano" com dialog funcional |
-| **Integracoes** (`Integrations`) | `/integrations` | Placeholder vazio, sem funcionalidade |
+**Sidebar**: Categoria "Comunicação" passa a ter apenas 1 item: `Conversas` (`/conversations`).
 
-**Recomendacao**: Remover ambas da sidebar. `SubscriptionCreation` e redundante com o dialog que ja existe em `Subscriptions`.
-
----
-
-## 2. Paginas que podem ser consolidadas como abas
-
-### 2a. **Comissoes + Regras de Comissao** → Uma unica pagina com abas
-- `Commissions` (`/commissions`) - Calcula comissoes por periodo
-- `CommissionRules` (`/commission-rules`) - Configura regras de comissao
-- Ja existe um botao "Gerenciar Regras" em Comissoes que navega para CommissionRules
-
-**Proposta**: Unificar em `/commissions` com 2 abas: "Comissoes" e "Regras"
-
-### 2b. **Relatorios + Relatorios de Vendas** → Uma unica pagina com abas
-- `Reports` (`/reports`) - Visao financeira geral (receita, agendamentos, clientes)
-- `SalesReports` (`/sales-reports`) - Analise de vendas e ticket medio
-- Ambas mostram dados financeiros com sobreposicao (receita, servicos populares, ticket medio)
-
-**Proposta**: Unificar em `/reports` com abas: "Visao Geral", "Vendas", "Servicos", "Clientes"
-
-### 2c. **Notificacoes Avancadas + Campanhas** → Sobreposicao significativa
-- `AdvancedNotifications` (`/advanced-notifications`) - Tem abas internas: Templates, **Campanhas**, Historico, Configuracoes
-- `Campaigns` (`/campaigns`) - Gerencia campanhas de email
-
-A aba "Campanhas" dentro de Notificacoes Avancadas e a pagina Campanhas fazem a mesma coisa.
-
-**Proposta**: Manter `Campanhas` como pagina independente (mais completa) e remover a aba de campanhas de dentro de AdvancedNotifications, ou vice-versa. A opcao mais limpa e manter so `AdvancedNotifications` que ja tem tudo integrado e remover `Campaigns` da sidebar.
-
-### 2d. **Fidelidade + Indicacoes** → Programa de engajamento
-- `Loyalty` (`/loyalty`) - Pontos e recompensas
-- `Referrals` (`/referrals`) - Indicacoes e recompensas
-
-Ambas tratam de recompensar clientes. Podem ser abas de uma unica pagina "Engajamento" ou "Fidelidade & Indicacoes".
-
-**Proposta**: Unificar em `/loyalty` com abas: "Pontos e Recompensas" e "Indicacoes"
+**Rotas**: Adicionar redirects de `/advanced-notifications` e `/team-chat` para `/conversations`.
 
 ---
 
-## 3. Paginas com funcionalidade duplicada
+## 2. Outras páginas que podem ser consolidadas
 
-### 3a. **Configuracoes Gerais vs Empresa**
-- `Settings` (`/settings`) - Formulario basico com dados da barbearia + perfil do usuario
-- `CompanySettings` (`/settings/company`) - Formulario completo com dados da empresa, identidade visual, link de agendamento
+### 2a. Financeiro: Cupons + Gift Cards + Preços Dinâmicos → "Promoções"
+Três páginas relacionadas a descontos e precificação. Consolidar em `/coupons` com abas:
+- **Aba "Cupons"** — conteúdo de `Coupons.tsx`
+- **Aba "Gift Cards"** — conteúdo de `GiftCards.tsx`
+- **Aba "Preços Dinâmicos"** — conteúdo de `DynamicPricing.tsx`
 
-`Settings` e uma versao pobre de `CompanySettings` + `Profile`. Tudo que tem em Settings ja existe melhor em CompanySettings e Profile.
+Sidebar: 3 itens → 1 item "Promoções".
 
-**Proposta**: Remover `Settings` da sidebar. Manter apenas `CompanySettings` (Empresa) e `Profile` (Meu Perfil).
+### 2b. Meu Negócio: Empresa + Estoque + Galeria → Página única com abas
+- **Aba "Empresa"** — `CompanySettings.tsx`
+- **Aba "Estoque"** — `Inventory.tsx`
+- **Aba "Galeria"** — `Gallery.tsx`
 
-### 3b. **Conversas vs Chat da Equipe**
-- `Conversations` (`/conversations`) - Chat com clientes (mock data)
-- `TeamChat` (`/team-chat`) - Chat interno da equipe
+Sidebar: 3 itens → 1 item "Meu Negócio".
 
-Sao funcionalidades diferentes mas ambas sao chat. Podem coexistir, porem `Conversations` usa apenas dados mock e nao tem funcionalidade real.
+### 2c. Operações: Lista de Espera + Turnos → Abas dentro de "Agenda"
+Ambas são auxiliares à gestão da agenda. Poderiam ser abas em `/appointments`:
+- **Aba "Agenda"** — calendário atual
+- **Aba "Lista de Espera"** — `Waitlist.tsx`
+- **Aba "Turnos"** — `Shifts.tsx`
 
-**Proposta**: Se Conversations nao tem integracao real, considerar remove-la ou marca-la como "em breve".
-
-### 3c. **Agendamento Online (admin)** duplica funcionalidade
-- `OnlineBooking` (`/booking`) - Formulario de agendamento interno com dados mock
-- A pagina `Appointments` ja permite criar agendamentos
-
-**Proposta**: Remover `OnlineBooking` da sidebar. O agendamento ja e feito pela pagina de Appointments.
+Sidebar: Remove 2 itens de Operações.
 
 ---
 
-## Resumo das acoes propostas
+## 3. Fix: Scroll da sidebar subindo ao clicar
 
-| Acao | Detalhes |
+O problema é que ao clicar num item do menu, o `nav` com `overflow-y-auto` faz scroll para o topo. A causa provável é o re-render do componente ou o `button` causando scroll. 
+
+**Fix**: Adicionar `e.preventDefault()` ou usar `scrollTop` preservation. A solução mais simples é adicionar CSS `scroll-behavior: auto` e garantir que o `nav` não resete posição no re-render, usando uma `ref` para manter a posição de scroll.
+
+---
+
+## Resumo do impacto na Sidebar
+
+| Antes | Depois |
 |---|---|
-| **Remover da sidebar** | `SubscriptionCreation`, `Integracoes`, `Settings`, `OnlineBooking` |
-| **Consolidar Comissoes + Regras** | Uma pagina com 2 abas |
-| **Consolidar Relatorios + Rel. Vendas** | Uma pagina com abas expandidas |
-| **Consolidar Fidelidade + Indicacoes** | Uma pagina com 2 abas |
-| **Resolver duplicata Campanhas** | Manter apenas em AdvancedNotifications ou apenas Campaigns (nao ambas) |
+| Comunicação: 3 itens | Comunicação: 1 item (Conversas) |
+| Financeiro: 7 itens | Financeiro: 5 itens (Promoções unifica 3) |
+| Meu Negócio: 3 itens | Meu Negócio: 1 item |
+| Operações: 6 itens | Operações: 4 itens |
+| **Total sidebar: ~24** | **Total sidebar: ~16** |
 
-Isso reduziria a sidebar de ~30 itens para ~24, tornando a navegacao mais limpa e eliminando confusao.
-
-Deseja que eu implemente alguma dessas consolidacoes? Posso comecar por qualquer grupo.
+## Arquivos alterados
+- `src/pages/Conversations.tsx` — reescrita com 3 abas (extrai conteúdo dos outros)
+- `src/pages/Coupons.tsx` — reescrita com 3 abas (Promoções)
+- `src/pages/CompanySettings.tsx` — reescrita com 3 abas (Meu Negócio)
+- `src/pages/Appointments.tsx` — adicionar abas Lista de Espera e Turnos
+- `src/components/Sidebar.tsx` — remover itens consolidados, fix scroll
+- `src/App.tsx` — adicionar redirects das rotas antigas
 
