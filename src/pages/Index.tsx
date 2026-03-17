@@ -8,6 +8,7 @@ import DashboardOverview from "@/components/dashboard/DashboardOverview";
 import CustomerSuccessContent from "@/components/dashboard/CustomerSuccessContent";
 import BarberPerformanceContent from "@/components/dashboard/BarberPerformanceContent";
 import ReviewsContent from "@/components/dashboard/ReviewsContent";
+import { PageHeader } from "@/components/ui/page-header";
 
 const Index = () => {
   const { isBarbeiro, isAdmin, isSuperAdmin } = useRole();
@@ -18,13 +19,15 @@ const Index = () => {
 
   return (
     <Layout>
-      <div className="flex-1 space-y-6 p-4 lg:p-6">
-        <div>
-          <h1 className="text-xl md:text-2xl font-bold text-foreground">Painel Administrativo</h1>
-        </div>
+      <div className="flex-1 space-y-6 p-6">
+        <PageHeader
+          icon={<BarChart3 className="h-5 w-5" />}
+          title="Painel Administrativo"
+          subtitle="Visão geral do seu negócio"
+        />
 
         <Tabs defaultValue="overview" className="space-y-6">
-          <TabsList className="grid w-full grid-cols-4 lg:w-auto lg:inline-grid">
+          <TabsList className="w-full sm:w-auto">
             <TabsTrigger value="overview" className="gap-2">
               <BarChart3 className="h-4 w-4 hidden sm:block" />
               Visão Geral
@@ -46,15 +49,12 @@ const Index = () => {
           <TabsContent value="overview">
             <DashboardOverview />
           </TabsContent>
-
           <TabsContent value="customer-success">
             <CustomerSuccessContent />
           </TabsContent>
-
           <TabsContent value="performance">
             <BarberPerformanceContent />
           </TabsContent>
-
           <TabsContent value="reviews">
             <ReviewsContent />
           </TabsContent>
