@@ -18,8 +18,7 @@ import {
 } from "lucide-react";
 
 const BARBER_PATHS = new Set([
-  '/', '/appointments', '/clients', '/conversations',
-  '/advanced-notifications', '/team-chat', '/shifts', '/profile'
+  '/', '/appointments', '/clients', '/conversations', '/profile'
 ]);
 
 const BARBER_CATEGORIES = new Set(['operacoes', 'comunicacao', 'administracao']);
