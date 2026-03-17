@@ -20,8 +20,7 @@ import {
   Bell,
   UserCircle,
   Search,
-  ChevronDown,
-  Plus
+  ChevronDown
 } from "lucide-react";
 import { Input } from '@/components/ui/input';
 import { useAuth } from '@/contexts/AuthContext';

@@ -37,22 +37,6 @@ const DashboardOverview = () => {
 
   return (
     <motion.div variants={container} initial="hidden" animate="show" className="space-y-6">
-      {/* Header */}
-      <div className="flex items-center justify-between">
-        <div className="flex items-center gap-3">
-          {isConnected && (
-            <Badge className="bg-primary text-primary-foreground animate-pulse flex items-center gap-1">
-              <Wifi className="h-3 w-3" />
-              Ao Vivo
-            </Badge>
-          )}
-        </div>
-        <Button onClick={() => navigate('/appointments')}>
-          <Plus className="h-4 w-4 mr-2" />
-          Novo Agendamento
-        </Button>
-      </div>
-
       {/* Section 1 — Top: Profile + Stats + Revenue */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         <motion.div variants={item}>
