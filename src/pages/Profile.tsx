@@ -33,8 +33,7 @@ const Profile = () => {
     <Layout>
       <div className="space-y-6 max-w-2xl">
         <div>
-          <h1 className="text-3xl font-bold text-foreground">Meu Perfil</h1>
-          <p className="text-muted-foreground">Seus dados pessoais e informações da assinatura</p>
+          <h1 className="text-xl md:text-2xl font-bold text-foreground">Meu Perfil</h1>
         </div>
 
         {/* Personal Data */}

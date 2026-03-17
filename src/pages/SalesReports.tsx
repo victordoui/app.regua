@@ -19,8 +19,7 @@ const SalesReports = () => {
       <div className="flex-1 space-y-6 p-6">
         <div className="flex items-center justify-between flex-wrap gap-4">
           <div>
-            <h1 className="text-3xl font-bold tracking-tight">Relatórios de Vendas</h1>
-            <p className="text-muted-foreground">Análise detalhada de vendas, ticket médio e performance.</p>
+            <h1 className="text-xl md:text-2xl font-bold text-foreground">Relatórios de Vendas</h1>
           </div>
           <div className="flex items-center gap-2">
             <Select value={dateRange} onValueChange={(v) => setDateRange(v as DateRangeType)}>

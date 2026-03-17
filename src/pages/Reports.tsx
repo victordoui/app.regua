@@ -111,8 +111,7 @@ const Reports = () => {
       <div className="flex-1 space-y-6 p-6">
         <div className="flex items-center justify-between">
           <div>
-            <h1 className="text-3xl font-bold tracking-tight">Relatórios</h1>
-            <p className="text-muted-foreground">Visualize os dados e métricas da sua barbearia</p>
+            <h1 className="text-xl md:text-2xl font-bold text-foreground">Relatórios</h1>
           </div>
           <Button><Download className="h-4 w-4 mr-2" />Exportar</Button>
         </div>

@@ -138,10 +138,7 @@ const BarberManagement = () => {
       <div className="flex-1 space-y-6 p-6">
         <div className="flex items-center justify-between">
           <div>
-            <h1 className="text-3xl font-bold tracking-tight">Profissionais</h1>
-            <p className="text-muted-foreground">
-              Gerencie os profissionais do seu negócio
-            </p>
+            <h1 className="text-xl md:text-2xl font-bold text-foreground">Profissionais</h1>
           </div>
           <Button onClick={() => setDialogOpen(true)}>
             <Plus className="h-4 w-4 mr-2" />

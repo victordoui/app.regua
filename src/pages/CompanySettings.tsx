@@ -70,8 +70,7 @@ const CompanySettings = () => {
     <Layout>
       <div className="flex-1 space-y-6 p-6">
         <div>
-          <h1 className="text-3xl font-bold tracking-tight">Meu Negócio</h1>
-          <p className="text-muted-foreground">Empresa, estoque e galeria</p>
+          <h1 className="text-xl md:text-2xl font-bold text-foreground">Meu Negócio</h1>
         </div>
 
         <Tabs value={topTab} onValueChange={(v) => setSearchParams({ tab: v })}>

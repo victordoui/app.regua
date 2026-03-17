@@ -61,13 +61,10 @@ const Upgrade = () => {
             <ArrowLeft className="h-4 w-4 mr-1" /> Voltar
           </Button>
           <div>
-            <h1 className="text-2xl font-bold flex items-center gap-2">
+            <h1 className="text-xl md:text-2xl font-bold text-foreground flex items-center gap-2">
               <Crown className="h-6 w-6 text-primary" />
               Escolha seu Plano
             </h1>
-            <p className="text-muted-foreground text-sm">
-              Faça upgrade do seu trial e desbloqueie todos os recursos.
-            </p>
           </div>
         </div>
 

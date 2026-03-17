@@ -29,10 +29,7 @@ const BarberDashboard = () => {
     <Layout>
       <div className="flex-1 space-y-6 p-6">
         <div>
-          <h1 className="text-3xl font-bold text-foreground">Meu Painel</h1>
-          <p className="text-sm text-muted-foreground">
-            Bem-vindo, {user?.user_metadata?.full_name || 'Profissional'}
-          </p>
+          <h1 className="text-xl md:text-2xl font-bold text-foreground">Meu Painel</h1>
         </div>
 
         <motion.div

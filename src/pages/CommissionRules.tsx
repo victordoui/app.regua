@@ -29,10 +29,7 @@ const CommissionRules: React.FC = () => {
             <ArrowLeft className="h-5 w-5" />
           </Button>
           <div>
-            <h1 className="text-3xl font-bold tracking-tight">Regras de Comissão</h1>
-            <p className="text-muted-foreground">
-              Configure comissões personalizadas por barbeiro e serviço
-            </p>
+            <h1 className="text-xl md:text-2xl font-bold text-foreground">Regras de Comissão</h1>
           </div>
         </div>
 

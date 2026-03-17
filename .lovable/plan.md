@@ -1,54 +1,93 @@
 
 
-# Remover Subtítulos e Padronizar Títulos das Páginas
+# Analise de Paginas Repetitivas e Consolidacao
 
-## Objetivo
-Remover todas as linhas `<p>` de subtítulo das páginas e padronizar todos os `<h1>` para o mesmo tamanho: `text-xl md:text-2xl font-bold text-foreground` (estilo da página Clientes).
+Apos analisar todas as paginas e a sidebar, identifiquei os seguintes problemas:
 
-## Páginas afetadas (~20 arquivos)
+---
 
-Cada página terá:
-1. A linha `<p className="text-...text-muted-foreground">...</p>` removida
-2. O `<h1>` padronizado para `className="text-xl md:text-2xl font-bold text-foreground"`
+## 1. Paginas sem funcionalidade real (apenas placeholder "Em Desenvolvimento")
 
-### Lista de arquivos e mudanças:
-
-| Arquivo | Título | Subtítulo a remover |
+| Pagina | Rota | Situacao |
 |---|---|---|
-| `Clients.tsx` | Clientes | "Gerencie sua base de clientes" |
-| `Index.tsx` | Painel Administrativo | "Visão completa do seu negócio..." |
-| `Conversations.tsx` | Comunicação | "Gerencie conversas, notificações..." |
-| `Coupons.tsx` | Promoções | "Gerencie cupons, gift cards..." |
-| `CompanySettings.tsx` | Meu Negócio | subtítulo existente |
-| `Appointments.tsx` | Agenda | subtítulo existente |
-| `Services.tsx` | Serviços e Combos | "Gerencie serviços individuais..." |
-| `Settings.tsx` | Configurações | "Gerencie as configurações..." |
-| `Reports.tsx` | Relatórios | "Visualize os dados e métricas..." |
-| `Loyalty.tsx` | Fidelidade & Indicações | "Programa de pontos..." |
-| `Commissions.tsx` | Comissões | "Calcule e gerencie..." |
-| `Inventory.tsx` | Estoque | "Gerencie produtos..." |
-| `Waitlist.tsx` | Lista de Espera | "Gerencie clientes aguardando..." |
-| `SalesReports.tsx` | Relatórios de Vendas | "Análise detalhada..." |
-| `Subscriptions.tsx` | Assinaturas | "Gerencie planos de assinatura..." |
-| `SubscriptionCreation.tsx` | Criar / Editar Plano | "Configure novos planos..." |
-| `Campaigns.tsx` | Campanhas | subtítulo existente |
-| `Referrals.tsx` | se houver subtítulo |
-| `BarberManagement.tsx` | se houver subtítulo |
-| `Billing.tsx` | se houver subtítulo |
+| **Criar / Editar Plano** (`SubscriptionCreation`) | `/subscriptions/new` | Placeholder vazio. A pagina `Subscriptions` ja tem botao "Novo Plano" com dialog funcional |
+| **Integracoes** (`Integrations`) | `/integrations` | Placeholder vazio, sem funcionalidade |
 
-Também verificarei páginas superadmin (`SubscribersManagement`, `ExpiringSubscriptions`, etc.) para consistência.
+**Recomendacao**: Remover ambas da sidebar. `SubscriptionCreation` e redundante com o dialog que ja existe em `Subscriptions`.
 
-## Regra de padronização
-```tsx
-// ANTES (variações)
-<h1 className="text-3xl font-bold tracking-tight">Título</h1>
-<p className="text-muted-foreground">Subtítulo descritivo</p>
+---
 
-// DEPOIS (padrão único)
-<h1 className="text-xl md:text-2xl font-bold text-foreground">Título</h1>
-```
+## 2. Paginas que podem ser consolidadas como abas
 
-## Escopo
-- Apenas títulos de cabeçalho de página (não labels de cards, stats ou conteúdo interno)
-- Páginas públicas e de login mantidas como estão (têm layout diferente)
+### 2a. **Comissoes + Regras de Comissao** → Uma unica pagina com abas
+- `Commissions` (`/commissions`) - Calcula comissoes por periodo
+- `CommissionRules` (`/commission-rules`) - Configura regras de comissao
+- Ja existe um botao "Gerenciar Regras" em Comissoes que navega para CommissionRules
+
+**Proposta**: Unificar em `/commissions` com 2 abas: "Comissoes" e "Regras"
+
+### 2b. **Relatorios + Relatorios de Vendas** → Uma unica pagina com abas
+- `Reports` (`/reports`) - Visao financeira geral (receita, agendamentos, clientes)
+- `SalesReports` (`/sales-reports`) - Analise de vendas e ticket medio
+- Ambas mostram dados financeiros com sobreposicao (receita, servicos populares, ticket medio)
+
+**Proposta**: Unificar em `/reports` com abas: "Visao Geral", "Vendas", "Servicos", "Clientes"
+
+### 2c. **Notificacoes Avancadas + Campanhas** → Sobreposicao significativa
+- `AdvancedNotifications` (`/advanced-notifications`) - Tem abas internas: Templates, **Campanhas**, Historico, Configuracoes
+- `Campaigns` (`/campaigns`) - Gerencia campanhas de email
+
+A aba "Campanhas" dentro de Notificacoes Avancadas e a pagina Campanhas fazem a mesma coisa.
+
+**Proposta**: Manter `Campanhas` como pagina independente (mais completa) e remover a aba de campanhas de dentro de AdvancedNotifications, ou vice-versa. A opcao mais limpa e manter so `AdvancedNotifications` que ja tem tudo integrado e remover `Campaigns` da sidebar.
+
+### 2d. **Fidelidade + Indicacoes** → Programa de engajamento
+- `Loyalty` (`/loyalty`) - Pontos e recompensas
+- `Referrals` (`/referrals`) - Indicacoes e recompensas
+
+Ambas tratam de recompensar clientes. Podem ser abas de uma unica pagina "Engajamento" ou "Fidelidade & Indicacoes".
+
+**Proposta**: Unificar em `/loyalty` com abas: "Pontos e Recompensas" e "Indicacoes"
+
+---
+
+## 3. Paginas com funcionalidade duplicada
+
+### 3a. **Configuracoes Gerais vs Empresa**
+- `Settings` (`/settings`) - Formulario basico com dados da barbearia + perfil do usuario
+- `CompanySettings` (`/settings/company`) - Formulario completo com dados da empresa, identidade visual, link de agendamento
+
+`Settings` e uma versao pobre de `CompanySettings` + `Profile`. Tudo que tem em Settings ja existe melhor em CompanySettings e Profile.
+
+**Proposta**: Remover `Settings` da sidebar. Manter apenas `CompanySettings` (Empresa) e `Profile` (Meu Perfil).
+
+### 3b. **Conversas vs Chat da Equipe**
+- `Conversations` (`/conversations`) - Chat com clientes (mock data)
+- `TeamChat` (`/team-chat`) - Chat interno da equipe
+
+Sao funcionalidades diferentes mas ambas sao chat. Podem coexistir, porem `Conversations` usa apenas dados mock e nao tem funcionalidade real.
+
+**Proposta**: Se Conversations nao tem integracao real, considerar remove-la ou marca-la como "em breve".
+
+### 3c. **Agendamento Online (admin)** duplica funcionalidade
+- `OnlineBooking` (`/booking`) - Formulario de agendamento interno com dados mock
+- A pagina `Appointments` ja permite criar agendamentos
+
+**Proposta**: Remover `OnlineBooking` da sidebar. O agendamento ja e feito pela pagina de Appointments.
+
+---
+
+## Resumo das acoes propostas
+
+| Acao | Detalhes |
+|---|---|
+| **Remover da sidebar** | `SubscriptionCreation`, `Integracoes`, `Settings`, `OnlineBooking` |
+| **Consolidar Comissoes + Regras** | Uma pagina com 2 abas |
+| **Consolidar Relatorios + Rel. Vendas** | Uma pagina com abas expandidas |
+| **Consolidar Fidelidade + Indicacoes** | Uma pagina com 2 abas |
+| **Resolver duplicata Campanhas** | Manter apenas em AdvancedNotifications ou apenas Campaigns (nao ambas) |
+
+Isso reduziria a sidebar de ~30 itens para ~24, tornando a navegacao mais limpa e eliminando confusao.
+
+Deseja que eu implemente alguma dessas consolidacoes? Posso comecar por qualquer grupo.
 

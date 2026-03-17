@@ -13,8 +13,7 @@ const BarberPerformance = () => {
     <Layout>
       <div className="flex-1 space-y-6 p-6">
         <div>
-          <h1 className="text-3xl font-bold tracking-tight">Desempenho dos Barbeiros</h1>
-          <p className="text-muted-foreground">Acompanhe as métricas de performance de cada profissional.</p>
+          <h1 className="text-xl md:text-2xl font-bold text-foreground">Desempenho dos Barbeiros</h1>
         </div>
 
         {/* Summary Cards */}

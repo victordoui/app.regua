@@ -95,10 +95,7 @@ const Billing = () => {
       <div className="flex-1 space-y-6 p-6">
         <div className="flex items-center justify-between">
           <div>
-            <h1 className="text-3xl font-bold tracking-tight">Contas a Pagar / Receber</h1>
-            <p className="text-muted-foreground">
-              Gerencie o fluxo de caixa e as obrigações financeiras.
-            </p>
+            <h1 className="text-xl md:text-2xl font-bold text-foreground">Contas a Pagar / Receber</h1>
           </div>
           <Button onClick={() => handleNewTransaction('payable')}>
             <Plus className="h-4 w-4 mr-2" />
