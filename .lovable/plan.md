@@ -1,93 +1,109 @@
 
 
-# Analise de Paginas Repetitivas e Consolidacao
+# Redesign Completo — Padrão Visual SaaS Profissional
 
-Apos analisar todas as paginas e a sidebar, identifiquei os seguintes problemas:
+## Problema Atual
+As páginas têm layouts inconsistentes: espaçamentos diferentes, headers sem padrão, cards de métricas com estilos variados, e falta de uma estrutura visual unificada. Isso dá a impressão de desalinhamento.
 
----
+## Referência Visual (imagem "Todos os Chamados")
+A referência mostra um padrão claro:
+1. **Header**: Ícone + Título bold + subtítulo descritivo + botões de ação à direita
+2. **Abas** (pill style — já implementado)
+3. **Status Cards**: Linha horizontal de cards com label no topo, número grande colorido, ícone à direita
+4. **Busca + Filtros**: Barra de busca full-width + chips de filtro com ícones abaixo
+5. **Contagem**: "X registro(s)" antes do grid
+6. **Grid de Cards**: Cards com informações estruturadas, badges coloridos, bordas sutis
 
-## 1. Paginas sem funcionalidade real (apenas placeholder "Em Desenvolvimento")
+## Estratégia de Implementação
 
-| Pagina | Rota | Situacao |
-|---|---|---|
-| **Criar / Editar Plano** (`SubscriptionCreation`) | `/subscriptions/new` | Placeholder vazio. A pagina `Subscriptions` ja tem botao "Novo Plano" com dialog funcional |
-| **Integracoes** (`Integrations`) | `/integrations` | Placeholder vazio, sem funcionalidade |
+### Fase 1 — Componente Base `PageHeader`
+Criar `src/components/ui/page-header.tsx` — componente reutilizável com:
+- Ícone + título + subtítulo opcional
+- Slot para botões de ação à direita
+- Espaçamento padronizado
 
-**Recomendacao**: Remover ambas da sidebar. `SubscriptionCreation` e redundante com o dialog que ja existe em `Subscriptions`.
+### Fase 2 — Componente `StatusCards`
+Criar `src/components/ui/status-cards.tsx` — barra horizontal de métricas:
+- Layout horizontal scrollável em mobile
+- Número grande + label + ícone por card
+- Suporte a cores por card (como na referência: azul, amarelo, verde, vermelho)
 
----
+### Fase 3 — Componente `SearchFilters`
+Criar `src/components/ui/search-filters.tsx` — busca + filtros chips:
+- Input de busca full-width com ícone
+- Linha de filtros abaixo como chips/buttons com ícones e dropdowns
 
-## 2. Paginas que podem ser consolidadas como abas
+### Fase 4 — Redesign das Páginas (13 páginas)
 
-### 2a. **Comissoes + Regras de Comissao** → Uma unica pagina com abas
-- `Commissions` (`/commissions`) - Calcula comissoes por periodo
-- `CommissionRules` (`/commission-rules`) - Configura regras de comissao
-- Ja existe um botao "Gerenciar Regras" em Comissoes que navega para CommissionRules
+Cada página seguirá esta estrutura:
 
-**Proposta**: Unificar em `/commissions` com 2 abas: "Comissoes" e "Regras"
+```text
+┌─────────────────────────────────────────────┐
+│  [Icon] Título da Página                    │
+│  Descrição breve              [+ Ação] [CSV]│
+├─────────────────────────────────────────────┤
+│  [Aba 1] [Aba 2] [Aba 3]                   │
+├─────────────────────────────────────────────┤
+│  [Total] [Status1] [Status2] [Status3]      │  ← Status Cards
+├─────────────────────────────────────────────┤
+│  🔍 Buscar...                               │
+│  [Filtro1 ▾] [Filtro2 ▾] [Filtro3 ▾]       │
+├─────────────────────────────────────────────┤
+│  X registro(s)                              │
+│  ┌──────┐ ┌──────┐ ┌──────┐                │
+│  │ Card │ │ Card │ │ Card │                 │
+│  └──────┘ └──────┘ └──────┘                │
+└─────────────────────────────────────────────┘
+```
 
-### 2b. **Relatorios + Relatorios de Vendas** → Uma unica pagina com abas
-- `Reports` (`/reports`) - Visao financeira geral (receita, agendamentos, clientes)
-- `SalesReports` (`/sales-reports`) - Analise de vendas e ticket medio
-- Ambas mostram dados financeiros com sobreposicao (receita, servicos populares, ticket medio)
+**Páginas a redesenhar:**
 
-**Proposta**: Unificar em `/reports` com abas: "Visao Geral", "Vendas", "Servicos", "Clientes"
-
-### 2c. **Notificacoes Avancadas + Campanhas** → Sobreposicao significativa
-- `AdvancedNotifications` (`/advanced-notifications`) - Tem abas internas: Templates, **Campanhas**, Historico, Configuracoes
-- `Campaigns` (`/campaigns`) - Gerencia campanhas de email
-
-A aba "Campanhas" dentro de Notificacoes Avancadas e a pagina Campanhas fazem a mesma coisa.
-
-**Proposta**: Manter `Campanhas` como pagina independente (mais completa) e remover a aba de campanhas de dentro de AdvancedNotifications, ou vice-versa. A opcao mais limpa e manter so `AdvancedNotifications` que ja tem tudo integrado e remover `Campaigns` da sidebar.
-
-### 2d. **Fidelidade + Indicacoes** → Programa de engajamento
-- `Loyalty` (`/loyalty`) - Pontos e recompensas
-- `Referrals` (`/referrals`) - Indicacoes e recompensas
-
-Ambas tratam de recompensar clientes. Podem ser abas de uma unica pagina "Engajamento" ou "Fidelidade & Indicacoes".
-
-**Proposta**: Unificar em `/loyalty` com abas: "Pontos e Recompensas" e "Indicacoes"
-
----
-
-## 3. Paginas com funcionalidade duplicada
-
-### 3a. **Configuracoes Gerais vs Empresa**
-- `Settings` (`/settings`) - Formulario basico com dados da barbearia + perfil do usuario
-- `CompanySettings` (`/settings/company`) - Formulario completo com dados da empresa, identidade visual, link de agendamento
-
-`Settings` e uma versao pobre de `CompanySettings` + `Profile`. Tudo que tem em Settings ja existe melhor em CompanySettings e Profile.
-
-**Proposta**: Remover `Settings` da sidebar. Manter apenas `CompanySettings` (Empresa) e `Profile` (Meu Perfil).
-
-### 3b. **Conversas vs Chat da Equipe**
-- `Conversations` (`/conversations`) - Chat com clientes (mock data)
-- `TeamChat` (`/team-chat`) - Chat interno da equipe
-
-Sao funcionalidades diferentes mas ambas sao chat. Podem coexistir, porem `Conversations` usa apenas dados mock e nao tem funcionalidade real.
-
-**Proposta**: Se Conversations nao tem integracao real, considerar remove-la ou marca-la como "em breve".
-
-### 3c. **Agendamento Online (admin)** duplica funcionalidade
-- `OnlineBooking` (`/booking`) - Formulario de agendamento interno com dados mock
-- A pagina `Appointments` ja permite criar agendamentos
-
-**Proposta**: Remover `OnlineBooking` da sidebar. O agendamento ja e feito pela pagina de Appointments.
-
----
-
-## Resumo das acoes propostas
-
-| Acao | Detalhes |
+| Página | Mudanças Principais |
 |---|---|
-| **Remover da sidebar** | `SubscriptionCreation`, `Integracoes`, `Settings`, `OnlineBooking` |
-| **Consolidar Comissoes + Regras** | Uma pagina com 2 abas |
-| **Consolidar Relatorios + Rel. Vendas** | Uma pagina com abas expandidas |
-| **Consolidar Fidelidade + Indicacoes** | Uma pagina com 2 abas |
-| **Resolver duplicata Campanhas** | Manter apenas em AdvancedNotifications ou apenas Campaigns (nao ambas) |
+| **Index.tsx** (Dashboard) | PageHeader com ícone BarChart3, manter tabs e conteúdo interno |
+| **Clients.tsx** | PageHeader + StatusCards (Total, Com Email, Com Telefone) + SearchFilters + grid melhorado |
+| **Services.tsx** | PageHeader + StatusCards (Total, Ativos, Inativos) + SearchFilters + grid |
+| **BarberManagement.tsx** | PageHeader + StatusCards (Total, Ativos, Com Ausência) + grid padronizado |
+| **Appointments.tsx** | PageHeader + manter estrutura calendar/sidebar |
+| **Billing.tsx** | PageHeader + StatusCards (Saldo, Receitas, Despesas) + tabs |
+| **Commissions.tsx** | PageHeader + StatusCards mantidos + tabs |
+| **Reports.tsx** | PageHeader + tabs + conteúdo |
+| **Loyalty.tsx** | PageHeader + StatusCards + tabs |
+| **Coupons.tsx** | PageHeader + tabs |
+| **Conversations.tsx** | PageHeader + tabs |
+| **AdvancedNotifications.tsx** | PageHeader + tabs |
+| **Cash.tsx** | PageHeader + layout melhorado |
+| **CompanySettings.tsx** | PageHeader + tabs |
 
-Isso reduziria a sidebar de ~30 itens para ~24, tornando a navegacao mais limpa e eliminando confusao.
+### Fase 5 — Refinamentos Visuais Globais
+- Cards com `hover:shadow-md transition-all` padronizado
+- Borders mais sutis (`border-border/40`)
+- Espaçamento consistente (`p-6` em todas as páginas)
+- Loading states com skeleton padronizado
+- Empty states com ilustração e texto centralizado
 
-Deseja que eu implemente alguma dessas consolidacoes? Posso comecar por qualquer grupo.
+## Detalhes Técnicos
+
+### `page-header.tsx`
+```tsx
+// Props: icon, title, subtitle, children (ações)
+// Render: flex justify-between, ícone em container bg-primary/10
+```
+
+### `status-cards.tsx`
+```tsx
+// Props: items[] com { label, value, icon, color, suffix? }
+// Render: flex gap-4 overflow-x-auto, cada card com border-l-4 colorido
+```
+
+### `search-filters.tsx`
+```tsx
+// Props: searchValue, onSearch, filters[], resultCount
+// Render: Input full-width + flex wrap gap-2 de filter chips
+```
+
+## Escopo
+- 3 novos componentes reutilizáveis
+- ~14 páginas redesenhadas
+- 0 mudanças em lógica/dados — apenas visual/layout
 
