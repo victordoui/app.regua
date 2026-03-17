@@ -1,8 +1,5 @@
 import React from "react";
-import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
-import { Plus, Wifi, Calendar, Clock, DollarSign, Users, TrendingUp, CheckCircle } from "lucide-react";
-import { useNavigate } from "react-router-dom";
+import { Calendar, Clock, DollarSign, Users, TrendingUp, CheckCircle } from "lucide-react";
 import { useSubscriptions } from "@/hooks/useSubscriptions";
 import { useRealtimeDashboard } from "@/hooks/useRealtimeDashboard";
 import { motion } from "framer-motion";
