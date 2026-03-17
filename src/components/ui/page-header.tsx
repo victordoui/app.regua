@@ -14,7 +14,7 @@ const PageHeader = ({ icon, title, subtitle, children, className }: PageHeaderPr
     <div className={cn("flex flex-col sm:flex-row sm:items-center justify-between gap-4", className)}>
       <div className="flex items-center gap-3">
         {icon && (
-          <div className="flex items-center justify-center h-10 w-10 rounded-lg bg-primary/10 text-primary shrink-0">
+          <div className="flex items-center justify-center h-10 w-10 rounded-lg bg-primary/8 text-primary shrink-0">
             {icon}
           </div>
         )}

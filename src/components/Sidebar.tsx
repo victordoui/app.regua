@@ -182,7 +182,7 @@ const Sidebar = () => {
                       }`}
                   >
                     {isActive && !isCollapsed && (
-                      <div className="absolute left-0 top-1/2 -translate-y-1/2 w-[3px] h-5 rounded-r-full bg-primary-foreground" />
+                      <div className="absolute left-0 top-1/2 -translate-y-1/2 w-[3px] h-5 rounded-r-full bg-primary" />
                     )}
                     <menuItem.icon className={`h-4 w-4 flex-shrink-0 ${isActive ? '' : 'opacity-70 group-hover:opacity-100'}`} />
                     {!isCollapsed && (
