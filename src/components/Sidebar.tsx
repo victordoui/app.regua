@@ -177,8 +177,8 @@ const Sidebar = () => {
                     className={`w-full flex items-center gap-3 rounded-lg transition-all duration-150 group relative
                       ${isCollapsed ? 'justify-center px-2 py-2.5 mx-auto' : 'px-3 py-2'}
                       ${isActive
-                        ? 'bg-primary text-primary-foreground font-medium shadow-sm'
-                        : 'text-muted-foreground hover:bg-card hover:text-foreground'
+                        ? 'bg-primary/[0.08] text-primary font-medium'
+                        : 'text-muted-foreground hover:bg-muted/60 hover:text-foreground'
                       }`}
                   >
                     {isActive && !isCollapsed && (
