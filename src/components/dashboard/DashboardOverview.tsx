@@ -1,8 +1,5 @@
 import React from "react";
-import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
-import { Plus, Wifi, Calendar, Clock, DollarSign, Users, TrendingUp, CheckCircle } from "lucide-react";
-import { useNavigate } from "react-router-dom";
+import { Calendar, Clock, DollarSign, Users, TrendingUp, CheckCircle } from "lucide-react";
 import { useSubscriptions } from "@/hooks/useSubscriptions";
 import { useRealtimeDashboard } from "@/hooks/useRealtimeDashboard";
 import { motion } from "framer-motion";
@@ -18,8 +15,7 @@ import TodayScheduleCard from "@/components/dashboard/TodayScheduleCard";
 import CTACard from "@/components/dashboard/CTACard";
 
 const DashboardOverview = () => {
-  const navigate = useNavigate();
-  const { metrics, monthlyRevenue, isLoading, isConnected } = useRealtimeDashboard();
+  const { metrics, monthlyRevenue, isLoading } = useRealtimeDashboard();
 
   const container = {
     hidden: { opacity: 0 },
@@ -41,22 +37,6 @@ const DashboardOverview = () => {
 
   return (
     <motion.div variants={container} initial="hidden" animate="show" className="space-y-6">
-      {/* Header */}
-      <div className="flex items-center justify-between">
-        <div className="flex items-center gap-3">
-          {isConnected && (
-            <Badge className="bg-primary text-primary-foreground animate-pulse flex items-center gap-1">
-              <Wifi className="h-3 w-3" />
-              Ao Vivo
-            </Badge>
-          )}
-        </div>
-        <Button onClick={() => navigate('/appointments')}>
-          <Plus className="h-4 w-4 mr-2" />
-          Novo Agendamento
-        </Button>
-      </div>
-
       {/* Section 1 — Top: Profile + Stats + Revenue */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         <motion.div variants={item}>
