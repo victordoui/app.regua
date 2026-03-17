@@ -1,57 +1,93 @@
 
 
-# Redesign Completo — Sidebar + Top Bar + Fundo Unificado
+# Analise de Paginas Repetitivas e Consolidacao
 
-## Objetivo
-Unificar visualmente a sidebar, barra superior e área de conteúdo para que compartilhem a mesma cor de fundo escuro, criando o efeito imersivo da referência (estilo Canto dashboard). Atualmente o header usa `bg-card/80` (diferente da sidebar) e o conteúdo usa `bg-background`, criando separações visuais indesejadas.
+Apos analisar todas as paginas e a sidebar, identifiquei os seguintes problemas:
 
-## Mudanças
+---
 
-### 1. `src/components/Layout.tsx` — Header e fundo unificados
-- Remover `bg-card/80 backdrop-blur-sm shadow-sm` do header
-- Usar `bg-background` transparente no header para que se funda com o fundo
-- Adicionar borda inferior sutil (`border-b border-border/30`) no lugar do shadow
-- A barra de busca ganha estilo mais arredondado com fundo `bg-card` (levemente diferente do fundo)
-- Data atual exibida ao lado dos ícones (como na referência: "17 Mar, 2026")
-- Botão "Criar" (primary, rounded-full) à direita, levando para `/appointments`
+## 1. Paginas sem funcionalidade real (apenas placeholder "Em Desenvolvimento")
 
-### 2. `src/components/Sidebar.tsx` — Unificação visual
-- Remover o gradient escuro separado (`dark:from-[#0F2F6B] dark:to-[#1A3A7A]`)
-- Usar `bg-background` para que a sidebar tenha exatamente a mesma cor do fundo principal
-- Manter a borda direita sutil `border-r border-border/30`
-- Labels de categoria em uppercase, tracking-widest, cor muted (como "MAIN MENU" / "PREFERENCE" na referência)
-- Item ativo: fundo `bg-primary text-primary-foreground rounded-lg` com barra lateral esquerda colorida
-- Itens inativos: `text-muted-foreground hover:text-foreground`
+| Pagina | Rota | Situacao |
+|---|---|---|
+| **Criar / Editar Plano** (`SubscriptionCreation`) | `/subscriptions/new` | Placeholder vazio. A pagina `Subscriptions` ja tem botao "Novo Plano" com dialog funcional |
+| **Integracoes** (`Integrations`) | `/integrations` | Placeholder vazio, sem funcionalidade |
 
-### 3. `src/index.css` — Variáveis CSS
-- Ajustar `--background` dark para coincidir com o tom da sidebar: `220 65% 10%`
-- Ajustar `--card` dark para um tom levemente mais claro: `220 60% 14%` (cards se destacam do fundo)
-- Manter as demais variáveis
+**Recomendacao**: Remover ambas da sidebar. `SubscriptionCreation` e redundante com o dialog que ja existe em `Subscriptions`.
 
-### 4. Conteúdo principal (`main`)
-- O `main` usa `bg-background` por padrão — com a unificação de cor, ele automaticamente compartilha o tom da sidebar
-- Cards internos (`bg-card`) ficam levemente mais claros, criando o contraste necessário
+---
 
-## Resultado Visual
-```text
-┌──────────┬──────────────────────────────────────────┐
-│          │  [Search...]    🔔 🌙  Mar 17  [Criar]  │
-│  VIZZU   ├──────────────────────────────────────────│
-│          │                                          │
-│ OPERAÇÕES│   ┌────────┐ ┌────────┐ ┌────────┐      │
-│ ▎Agenda  │   │ Card 1 │ │ Card 2 │ │ Card 3 │      │
-│  Clientes│   └────────┘ └────────┘ └────────┘      │
-│  ...     │                                          │
-│          │   Tudo na mesma cor de fundo escuro       │
-│ ADMIN    │   Cards em bg-card (levemente mais claro)│
-│  Perfil  │                                          │
-└──────────┴──────────────────────────────────────────┘
-```
+## 2. Paginas que podem ser consolidadas como abas
 
-Sidebar, header e fundo compartilham `bg-background`. Cards se destacam com `bg-card`.
+### 2a. **Comissoes + Regras de Comissao** → Uma unica pagina com abas
+- `Commissions` (`/commissions`) - Calcula comissoes por periodo
+- `CommissionRules` (`/commission-rules`) - Configura regras de comissao
+- Ja existe um botao "Gerenciar Regras" em Comissoes que navega para CommissionRules
 
-## Arquivos alterados
-- `src/index.css` — variáveis dark mode (background e card)
-- `src/components/Layout.tsx` — header redesenhado, data atual, botão Criar
-- `src/components/Sidebar.tsx` — cores unificadas, item ativo com fundo primary
+**Proposta**: Unificar em `/commissions` com 2 abas: "Comissoes" e "Regras"
+
+### 2b. **Relatorios + Relatorios de Vendas** → Uma unica pagina com abas
+- `Reports` (`/reports`) - Visao financeira geral (receita, agendamentos, clientes)
+- `SalesReports` (`/sales-reports`) - Analise de vendas e ticket medio
+- Ambas mostram dados financeiros com sobreposicao (receita, servicos populares, ticket medio)
+
+**Proposta**: Unificar em `/reports` com abas: "Visao Geral", "Vendas", "Servicos", "Clientes"
+
+### 2c. **Notificacoes Avancadas + Campanhas** → Sobreposicao significativa
+- `AdvancedNotifications` (`/advanced-notifications`) - Tem abas internas: Templates, **Campanhas**, Historico, Configuracoes
+- `Campaigns` (`/campaigns`) - Gerencia campanhas de email
+
+A aba "Campanhas" dentro de Notificacoes Avancadas e a pagina Campanhas fazem a mesma coisa.
+
+**Proposta**: Manter `Campanhas` como pagina independente (mais completa) e remover a aba de campanhas de dentro de AdvancedNotifications, ou vice-versa. A opcao mais limpa e manter so `AdvancedNotifications` que ja tem tudo integrado e remover `Campaigns` da sidebar.
+
+### 2d. **Fidelidade + Indicacoes** → Programa de engajamento
+- `Loyalty` (`/loyalty`) - Pontos e recompensas
+- `Referrals` (`/referrals`) - Indicacoes e recompensas
+
+Ambas tratam de recompensar clientes. Podem ser abas de uma unica pagina "Engajamento" ou "Fidelidade & Indicacoes".
+
+**Proposta**: Unificar em `/loyalty` com abas: "Pontos e Recompensas" e "Indicacoes"
+
+---
+
+## 3. Paginas com funcionalidade duplicada
+
+### 3a. **Configuracoes Gerais vs Empresa**
+- `Settings` (`/settings`) - Formulario basico com dados da barbearia + perfil do usuario
+- `CompanySettings` (`/settings/company`) - Formulario completo com dados da empresa, identidade visual, link de agendamento
+
+`Settings` e uma versao pobre de `CompanySettings` + `Profile`. Tudo que tem em Settings ja existe melhor em CompanySettings e Profile.
+
+**Proposta**: Remover `Settings` da sidebar. Manter apenas `CompanySettings` (Empresa) e `Profile` (Meu Perfil).
+
+### 3b. **Conversas vs Chat da Equipe**
+- `Conversations` (`/conversations`) - Chat com clientes (mock data)
+- `TeamChat` (`/team-chat`) - Chat interno da equipe
+
+Sao funcionalidades diferentes mas ambas sao chat. Podem coexistir, porem `Conversations` usa apenas dados mock e nao tem funcionalidade real.
+
+**Proposta**: Se Conversations nao tem integracao real, considerar remove-la ou marca-la como "em breve".
+
+### 3c. **Agendamento Online (admin)** duplica funcionalidade
+- `OnlineBooking` (`/booking`) - Formulario de agendamento interno com dados mock
+- A pagina `Appointments` ja permite criar agendamentos
+
+**Proposta**: Remover `OnlineBooking` da sidebar. O agendamento ja e feito pela pagina de Appointments.
+
+---
+
+## Resumo das acoes propostas
+
+| Acao | Detalhes |
+|---|---|
+| **Remover da sidebar** | `SubscriptionCreation`, `Integracoes`, `Settings`, `OnlineBooking` |
+| **Consolidar Comissoes + Regras** | Uma pagina com 2 abas |
+| **Consolidar Relatorios + Rel. Vendas** | Uma pagina com abas expandidas |
+| **Consolidar Fidelidade + Indicacoes** | Uma pagina com 2 abas |
+| **Resolver duplicata Campanhas** | Manter apenas em AdvancedNotifications ou apenas Campaigns (nao ambas) |
+
+Isso reduziria a sidebar de ~30 itens para ~24, tornando a navegacao mais limpa e eliminando confusao.
+
+Deseja que eu implemente alguma dessas consolidacoes? Posso comecar por qualquer grupo.
 
