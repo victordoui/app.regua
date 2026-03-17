@@ -6,6 +6,7 @@ import { Tag, Gift, TrendingUp } from 'lucide-react';
 import CouponsContent from '@/components/promotions/CouponsContent';
 import GiftCardsContent from '@/components/promotions/GiftCardsContent';
 import DynamicPricingContent from '@/components/promotions/DynamicPricingContent';
+import { PageHeader } from '@/components/ui/page-header';
 
 const Coupons = () => {
   const [searchParams, setSearchParams] = useSearchParams();
@@ -14,9 +15,7 @@ const Coupons = () => {
   return (
     <Layout>
       <div className="flex-1 space-y-6 p-6">
-        <div>
-          <h1 className="text-xl md:text-2xl font-bold text-foreground">Promoções</h1>
-        </div>
+        <PageHeader icon={<Tag className="h-5 w-5" />} title="Promoções" subtitle="Cupons, gift cards e preços dinâmicos" />
 
         <Tabs value={defaultTab} onValueChange={(v) => setSearchParams({ tab: v })}>
           <TabsList>
@@ -24,7 +23,6 @@ const Coupons = () => {
             <TabsTrigger value="gift-cards" className="flex items-center gap-2"><Gift className="h-4 w-4" />Gift Cards</TabsTrigger>
             <TabsTrigger value="precos" className="flex items-center gap-2"><TrendingUp className="h-4 w-4" />Preços Dinâmicos</TabsTrigger>
           </TabsList>
-
           <TabsContent value="cupons"><CouponsContent /></TabsContent>
           <TabsContent value="gift-cards"><GiftCardsContent /></TabsContent>
           <TabsContent value="precos"><DynamicPricingContent /></TabsContent>

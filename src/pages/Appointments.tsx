@@ -14,18 +14,15 @@ import { useQuery } from '@tanstack/react-query';
 import { toast } from '@/hooks/use-toast';
 import { format, parseISO, isToday, isThisWeek, subDays, differenceInHours } from 'date-fns';
 import { Button } from '@/components/ui/button';
-import { Badge } from '@/components/ui/badge';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { CalendarDays, Table2, Radio, Clock, ListOrdered } from 'lucide-react';
-
-// Lazy loaded tab content
+import { CalendarDays, Table2, Clock, ListOrdered } from 'lucide-react';
+import { PageHeader } from '@/components/ui/page-header';
 import WaitlistContent from '@/components/schedule/WaitlistContent';
 import ShiftsContent from '@/components/schedule/ShiftsContent';
 
 const Appointments = () => {
   const [searchParams, setSearchParams] = useSearchParams();
   const topTab = searchParams.get("tab") || "agenda";
-
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [editingAppointment, setEditingAppointment] = useState<Appointment | null>(null);
   const [selectedDate, setSelectedDate] = useState<Date | undefined>(new Date());
@@ -45,9 +42,7 @@ const Appointments = () => {
   const { clients, services, barbers, isLoadingClients, isLoadingServices, isLoadingBarbers, fetchAppointments, addAppointment, updateAppointment, updateAppointmentStatus, deleteAppointment, updateAppointmentSeries } = useAppointments();
 
   useEffect(() => { if (barbers && barbers.length > 0 && selectedBarbers.length === 0) setSelectedBarbers(barbers.map(b => b.id)); }, [barbers]);
-
   const barberColorMap = useMemo(() => { const map = new Map<string, string>(); barbers?.forEach((b, i) => map.set(b.id, BARBER_COLORS[i % BARBER_COLORS.length])); return map; }, [barbers]);
-
   const { data: appointments = [], isLoading: isLoadingAppointments, refetch: refetchAppointments } = useQuery<Appointment[], Error>({ queryKey: ["appointments", "calendar", statusFilter], queryFn: () => fetchAppointments(undefined, statusFilter) });
 
   const filteredAppointments = useMemo(() => {
@@ -77,7 +72,16 @@ const Appointments = () => {
   return (
     <Layout>
       <div className="h-[calc(100vh-56px)] flex flex-col">
-        <div className="px-4 py-3 border-b bg-card/50 flex items-center justify-between gap-4 flex-shrink-0">
+        <div className="px-6 py-4 border-b border-border/40 bg-card/50 flex items-center justify-between gap-4 flex-shrink-0">
+          <div className="flex items-center gap-4">
+            <div className="flex items-center justify-center h-10 w-10 rounded-lg bg-primary/10 text-primary shrink-0">
+              <CalendarDays className="h-5 w-5" />
+            </div>
+            <div>
+              <h1 className="text-xl font-bold text-foreground">Agenda</h1>
+              <p className="text-sm text-muted-foreground">Gerencie agendamentos e turnos</p>
+            </div>
+          </div>
           <div className="flex items-center gap-3">
             <Tabs value={topTab} onValueChange={(v) => setSearchParams({ tab: v })}>
               <TabsList>
@@ -86,9 +90,13 @@ const Appointments = () => {
                 <TabsTrigger value="turnos" className="flex items-center gap-2"><Clock className="h-4 w-4" />Turnos</TabsTrigger>
               </TabsList>
             </Tabs>
-            
+            {topTab === 'agenda' && (
+              <div className="bg-muted rounded-lg p-1 flex gap-1">
+                <Button variant={displayMode === 'calendar' ? 'default' : 'ghost'} size="sm" onClick={() => setDisplayMode('calendar')} className="gap-1.5"><CalendarDays className="h-4 w-4" /><span className="hidden sm:inline">Calendário</span></Button>
+                <Button variant={displayMode === 'table' ? 'default' : 'ghost'} size="sm" onClick={() => setDisplayMode('table')} className="gap-1.5"><Table2 className="h-4 w-4" /><span className="hidden sm:inline">Tabela</span></Button>
+              </div>
+            )}
           </div>
-          {topTab === 'agenda' && <div className="flex items-center gap-2"><div className="bg-muted rounded-lg p-1 flex gap-1"><Button variant={displayMode === 'calendar' ? 'default' : 'ghost'} size="sm" onClick={() => setDisplayMode('calendar')} className="gap-1.5"><CalendarDays className="h-4 w-4" /><span className="hidden sm:inline">Calendário</span></Button><Button variant={displayMode === 'table' ? 'default' : 'ghost'} size="sm" onClick={() => setDisplayMode('table')} className="gap-1.5"><Table2 className="h-4 w-4" /><span className="hidden sm:inline">Tabela</span></Button></div></div>}
         </div>
 
         {topTab === 'agenda' ? (
@@ -97,7 +105,7 @@ const Appointments = () => {
               <AppointmentSidebar calendarDate={selectedDate} setCalendarDate={setSelectedDate} statusFilter={statusFilter} setStatusFilter={setStatusFilter} daysWithAppointments={daysWithAppointments} onManualSchedule={() => handleManualSchedule(selectedDate)} barbers={barbers || []} selectedBarbers={selectedBarbers} setSelectedBarbers={setSelectedBarbers} barberColorMap={barberColorMap} createdFilter={createdFilter} setCreatedFilter={setCreatedFilter} newAppointmentsCount={newAppointmentsCount} onShowRecentBookings={() => setShowRecentBookings(true)} />
             </div>
             <div className="flex-1 py-4 pr-2 lg:pr-4 overflow-hidden">
-              {isLoading ? <div className="flex items-center justify-center h-full bg-card rounded-lg border"><div className="flex flex-col items-center gap-3"><div className="animate-spin rounded-full h-8 w-8 border-2 border-primary border-t-transparent"></div><span className="text-sm text-muted-foreground">Carregando...</span></div></div> : displayMode === 'calendar' ? <CalendarView appointments={filteredAppointments} selectedDate={selectedDate || new Date()} onDateChange={setSelectedDate} onTimeSlotClick={handleTimeSlotClick} onEventClick={handleEdit} viewMode={viewMode} onViewModeChange={setViewMode} barberColorMap={barberColorMap} onAppointmentMove={handleAppointmentMove} /> : <AppointmentTableView appointments={filteredAppointments} onEditAppointment={handleEdit} />}
+              {isLoading ? <div className="flex items-center justify-center h-full bg-card rounded-lg border border-border/40"><div className="flex flex-col items-center gap-3"><div className="animate-spin rounded-full h-8 w-8 border-2 border-primary border-t-transparent"></div><span className="text-sm text-muted-foreground">Carregando...</span></div></div> : displayMode === 'calendar' ? <CalendarView appointments={filteredAppointments} selectedDate={selectedDate || new Date()} onDateChange={setSelectedDate} onTimeSlotClick={handleTimeSlotClick} onEventClick={handleEdit} viewMode={viewMode} onViewModeChange={setViewMode} barberColorMap={barberColorMap} onAppointmentMove={handleAppointmentMove} /> : <AppointmentTableView appointments={filteredAppointments} onEditAppointment={handleEdit} />}
             </div>
           </div>
         ) : topTab === 'espera' ? (

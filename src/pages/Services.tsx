@@ -11,6 +11,8 @@ import { Switch } from "@/components/ui/switch";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useServices } from "@/hooks/useServices";
 import { Scissors, Plus, Edit, Trash2, Clock, DollarSign, Search, Filter, Power, PowerOff, ImageIcon, Upload, X, Loader2, Package } from "lucide-react";
+import { PageHeader } from "@/components/ui/page-header";
+import { StatusCards } from "@/components/ui/status-cards";
 import Layout from "@/components/Layout";
 import { Service } from "@/types/appointments";
 import { supabase } from "@/integrations/supabase/client";
@@ -182,11 +184,7 @@ const Services = () => {
   return (
     <Layout>
       <div className="flex-1 space-y-6 p-6">
-        {/* Header */}
-        <div className="flex items-center justify-between">
-          <div>
-            <h1 className="text-xl md:text-2xl font-bold text-foreground">Serviços e Combos</h1>
-          </div>
+        <PageHeader icon={<Scissors className="h-5 w-5" />} title="Serviços e Combos" subtitle="Gerencie seus serviços e combos">
 
           <Dialog open={dialogOpen} onOpenChange={(open) => {
             setDialogOpen(open);
@@ -342,7 +340,7 @@ const Services = () => {
               </form>
             </DialogContent>
           </Dialog>
-        </div>
+        </PageHeader>
 
         {/* Tabs for Services and Combos */}
         <Tabs defaultValue="services" className="w-full">
