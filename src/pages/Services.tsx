@@ -340,7 +340,7 @@ const Services = () => {
               </form>
             </DialogContent>
           </Dialog>
-        </div>
+        </PageHeader>
 
         {/* Tabs for Services and Combos */}
         <Tabs defaultValue="services" className="w-full">
