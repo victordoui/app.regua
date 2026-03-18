@@ -1,7 +1,6 @@
-import { useState, useEffect, useMemo } from "react";
+import { useMemo } from "react";
 import vizzuLogo from "@/assets/vizzu-logo.png";
 import { useNavigate, useLocation } from "react-router-dom";
-import { motion, AnimatePresence } from "framer-motion";
 import { useRole } from "@/contexts/RoleContext";
 import { useAuth } from "@/contexts/AuthContext";
 import {
@@ -12,8 +11,7 @@ import {
   Crown, Heart,
   Building, UserCircle, UserCheck,
   ShoppingCart, Tag,
-  Shield, LogOut,
-  Menu, X, Sparkles
+  Shield, LogOut, Sparkles
 } from "lucide-react";
 
 const BARBER_PATHS = new Set([
@@ -22,22 +20,10 @@ const BARBER_PATHS = new Set([
 const BARBER_CATEGORIES = new Set(['operacoes', 'comunicacao', 'administracao']);
 
 const Sidebar = () => {
-  const [isOpen, setIsOpen] = useState(false);
-  const [isMobile, setIsMobile] = useState(false);
   const navigate = useNavigate();
   const location = useLocation();
   const { isSuperAdmin, isAdmin, isBarbeiro } = useRole();
   const { user } = useAuth();
-
-  useEffect(() => {
-    const checkMobile = () => {
-      setIsMobile(window.innerWidth < 768);
-      if (window.innerWidth >= 768) setIsOpen(false);
-    };
-    checkMobile();
-    window.addEventListener('resize', checkMobile);
-    return () => window.removeEventListener('resize', checkMobile);
-  }, []);
 
   const fullMenuStructure = [
     {
@@ -101,7 +87,6 @@ const Sidebar = () => {
 
   const handleNavigation = (path: string) => {
     navigate(path);
-    setIsOpen(false);
   };
 
   const isActivePath = (path: string) => location.pathname === path;
@@ -124,29 +109,15 @@ const Sidebar = () => {
 
   return (
     <>
-      {/* Mobile toggle */}
-      {isMobile && (
-        <button
-          onClick={() => setIsOpen(!isOpen)}
-          className="fixed top-4 left-4 z-50 w-10 h-10 rounded-[10px] bg-card border border-border shadow-lg flex items-center justify-center"
-          aria-label={isOpen ? "Fechar menu" : "Abrir menu"}
-        >
-          {isOpen ? <X className="h-5 w-5 text-foreground" /> : <Menu className="h-5 w-5 text-foreground" />}
-        </button>
-      )}
-
-      {/* Sidebar */}
-      <aside
-        className={`fixed left-0 top-0 bottom-0 z-40 w-[234px] flex flex-col bg-card border-r border-border transition-transform duration-250 ease-in-out
-          ${isMobile ? (isOpen ? 'translate-x-0 shadow-2xl' : '-translate-x-full') : 'translate-x-0'}`}
-      >
+      {/* Sidebar — desktop only (mobile uses MobileBottomNav via Layout) */}
+      <aside className="fixed left-0 top-0 bottom-0 z-40 w-[234px] flex flex-col bg-card border-r border-border max-md:hidden">
         {/* Brand */}
         <div className="px-5 pt-4 pb-3 flex items-center justify-center border-b border-border">
           <img src={vizzuLogo} alt="VIZZU" className="h-20 w-20 object-contain" />
         </div>
 
         {/* Navigation */}
-        <nav className="flex-1 overflow-y-auto px-3 py-3 scrollbar-modern">
+        <nav className="flex-1 overflow-y-auto px-3 py-3 scrollbar-hidden-hover">
           {menuStructure.map((category) => (
             <div key={category.category} className="mb-4">
               {/* Section label — clean, no divider */}
@@ -232,16 +203,6 @@ const Sidebar = () => {
         </div>
       </aside>
 
-      {/* Mobile overlay */}
-      <AnimatePresence>
-        {isOpen && isMobile && (
-          <motion.div
-            initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
-            className="fixed inset-0 bg-black/50 z-30"
-            onClick={() => setIsOpen(false)}
-          />
-        )}
-      </AnimatePresence>
     </>
   );
 };
