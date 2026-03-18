@@ -78,7 +78,7 @@ const KpiStrip: React.FC<KpiStripProps> = ({ todayAppointments, completedRate, n
             </div>
           </div>
           </div>
-          <div className="flex items-center gap-1.5 text-[11px] text-muted-foreground mt-3">
+          <div className="flex items-center gap-1.5 text-xs text-foreground/60 mt-3">
               <span className={`inline-flex items-center gap-1 text-[10px] font-semibold px-[7px] py-0.5 rounded-full
                 ${kpi.tag.type === 'up' ? 'bg-[hsl(var(--success-bg))] text-[hsl(var(--success))]' : 'bg-[hsl(var(--rose-bg))] text-[hsl(var(--rose))]'}`}>
                 {kpi.tag.type === 'up' ? '▲' : '▼'} {kpi.tag.text}
