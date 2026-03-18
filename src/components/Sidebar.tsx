@@ -8,14 +8,13 @@ import vizzuIcon from "@/assets/vizzu-icon.png";
 import { 
   Home, BarChart3,
   Calendar, Users, Briefcase, Package,
-  MessageSquare,
-  CreditCard, Receipt,
+  MessageSquare, Bell,
+  CreditCard, Ticket, Receipt,
   Crown, Heart,
-  Building, UserCircle, UserCheck,
-  ShoppingCart, Tag,
-  Shield,
-  Menu, X, LogOut, ChevronsLeft, ChevronsRight,
-  Sparkles
+  Building, Image, Warehouse,
+  Shield, ListOrdered, UserCheck, UserCircle,
+  ShoppingCart, Gift, Clock, MessageCircle, Tag,
+  Menu, X, LogOut, ChevronsLeft, ChevronsRight
 } from "lucide-react";
 
 const BARBER_PATHS = new Set([
@@ -44,26 +43,34 @@ const Sidebar = () => {
 
   const fullMenuStructure = [
     { 
-      category: "dashboard", label: "DASHBOARD",
+      category: "dashboard", label: "Dashboard",
       items: [{ icon: Home, label: "Painel", path: "/" }]
     },
     {
-      category: "operacoes", label: "OPERAÇÕES",
+      category: "configuracoes", label: "Configurações",
       items: [
-        { icon: Calendar, label: "Agenda", path: "/appointments", badge: 12 },
+        { icon: Building, label: "Meu Negócio", path: "/settings/company" },
+        { icon: UserCircle, label: "Meu Perfil", path: "/profile" },
+        { icon: UserCheck, label: "Usuários", path: "/users" }
+      ]
+    },
+    {
+      category: "operacoes", label: "Operações",
+      items: [
+        { icon: Calendar, label: "Agenda", path: "/appointments" },
         { icon: Users, label: "Clientes", path: "/clients" },
         { icon: Briefcase, label: "Profissionais", path: "/barbers" },
         { icon: Package, label: "Serviços", path: "/services" }
       ]
     },
     {
-      category: "comunicacao", label: "COMUNICAÇÃO",
+      category: "comunicacao", label: "Comunicação",
       items: [
         { icon: MessageSquare, label: "Conversas", path: "/conversations" }
       ]
     },
     {
-      category: "financeiro", label: "FINANCEIRO",
+      category: "financeiro", label: "Financeiro",
       items: [
         { icon: BarChart3, label: "Insights", path: "/reports" },
         { icon: CreditCard, label: "Contas", path: "/billing" },
@@ -73,13 +80,12 @@ const Sidebar = () => {
       ]
     },
     {
-      category: "configuracoes", label: "GERAL",
+      category: "assinaturas", label: "Engajamento",
       items: [
-        { icon: Building, label: "Meu Negócio", path: "/settings/company" },
-        { icon: UserCircle, label: "Meu Perfil", path: "/profile" },
-        { icon: UserCheck, label: "Usuários", path: "/users" }
+        { icon: Crown, label: "Planos", path: "/subscriptions" },
+        { icon: Heart, label: "Rewards", path: "/loyalty" }
       ]
-    },
+    }
   ];
 
   const menuStructure = useMemo(() => {
@@ -116,8 +122,7 @@ const Sidebar = () => {
         <motion.div initial={{ opacity: 0, scale: 0.8 }} animate={{ opacity: 1, scale: 1 }} className="fixed top-4 left-4 z-50">
           <Button
             variant="ghost" size="icon"
-            className="bg-card/80 backdrop-blur-sm shadow-lg"
-            style={{ border: '1px solid rgba(34,96,184,0.10)' }}
+            className="bg-card/80 backdrop-blur-sm border border-border/30 shadow-lg"
             onClick={() => setIsOpen(!isOpen)}
             aria-label={isOpen ? "Fechar menu" : "Abrir menu"}
           >
@@ -130,56 +135,33 @@ const Sidebar = () => {
         initial={false}
         animate={{ width: sidebarWidth, x: isMobile && !isOpen ? -240 : 0 }}
         transition={{ duration: 0.25, ease: "easeInOut" }}
-        className={`fixed left-0 top-0 h-full z-40 flex flex-col bg-card
+        className={`fixed left-0 top-0 h-full z-40 flex flex-col
+          bg-background border-r border-border/30
           ${isMobile ? 'shadow-2xl' : 'md:relative md:shadow-none'}`}
-        style={{
-          width: isMobile ? (isOpen ? 240 : 0) : sidebarWidth,
-          borderRight: '1px solid rgba(34,96,184,0.10)',
-          boxShadow: isMobile ? undefined : '2px 0 20px rgba(34,96,184,0.06)',
-        }}
+        style={{ width: isMobile ? (isOpen ? 240 : 0) : sidebarWidth }}
       >
         {/* Header - Logo */}
-        <div className={`flex items-center ${isCollapsed ? 'justify-center px-2 py-3' : 'px-4 py-3 gap-3'}`}
-          style={{ borderBottom: '1px solid rgba(34,96,184,0.10)' }}>
-          <div
-            className={`flex-shrink-0 rounded-[10px] flex items-center justify-center ${isCollapsed ? 'w-9 h-9' : 'w-9 h-9'}`}
-            style={{
-              background: 'linear-gradient(135deg, #2260B8, #3A7FD8)',
-              boxShadow: '0 4px 14px rgba(34,96,184,0.22)',
-            }}
-          >
-            <span className="text-white font-montserrat font-extrabold text-sm">V</span>
+        <div className={`flex items-center border-b border-border/30 ${isCollapsed ? 'justify-center px-2 py-3' : 'px-4 py-3 gap-3'}`}>
+          <div className={`flex-shrink-0 ${isCollapsed ? 'w-8 h-8' : 'w-10 h-10'}`}>
+            <img src={vizzuIcon} alt="VIZZU" className="w-full h-full object-contain" />
           </div>
           {!isCollapsed && (
-            <div className="flex items-center gap-2">
-              <span className="font-montserrat font-extrabold text-lg text-primary tracking-[1.8px]">VIZZU</span>
-              <span
-                className="text-[9px] font-semibold px-1.5 py-0.5 rounded-full text-primary"
-                style={{
-                  background: 'rgba(34,96,184,0.08)',
-                  border: '1px solid rgba(34,96,184,0.20)',
-                }}
-              >PRO</span>
-            </div>
+            <span className="text-lg font-bold text-foreground tracking-tight">VIZZU</span>
           )}
         </div>
 
         {/* Navigation */}
-        <nav className="flex-1 overflow-y-auto py-1 px-2 scrollbar-modern">
+        <nav className="flex-1 overflow-y-auto py-0.5 px-2 scrollbar-modern">
           {menuStructure.map((category) => (
-            <div key={category.category} className="mb-0.5">
+            <div key={category.category} className="mb-0">
               {!isCollapsed && (
-                <div className="px-3 pt-3 pb-1 relative">
-                  <span
-                    className="font-open-sans text-[9px] font-semibold uppercase text-muted-foreground/50"
-                    style={{ letterSpacing: '1.3px' }}
-                  >
+              <div className="px-3 pt-0.5 pb-0">
+                  <span className="text-[10px] font-semibold uppercase tracking-widest text-muted-foreground/60">
                     {category.label}
                   </span>
-                  <div className="absolute bottom-0 left-3 right-3 h-px" style={{ background: 'rgba(34,96,184,0.07)' }} />
                 </div>
               )}
-              {isCollapsed && <div className="my-1 mx-2 border-t" style={{ borderColor: 'rgba(34,96,184,0.07)' }} />}
+              {isCollapsed && <div className="my-0.5 mx-2 border-t border-border/20" />}
 
               {category.items.map((menuItem) => {
                 const isActive = isActivePath(menuItem.path);
@@ -187,50 +169,24 @@ const Sidebar = () => {
                   <button
                     key={menuItem.path}
                     onClick={() => handleNavigation(menuItem.path)}
-                    className={`w-full flex items-center gap-2.5 rounded-lg transition-all duration-150 group relative
-                      ${isCollapsed ? 'justify-center px-2 py-1.5 mx-auto' : 'px-3 py-[6px]'}`}
-                    style={isActive ? {
-                      background: 'rgba(34,96,184,0.14)',
-                      color: '#2260B8',
-                      fontWeight: 600,
-                      boxShadow: 'inset 0 0 0 1px rgba(34,96,184,0.20)',
-                    } : {
-                      color: 'hsl(208, 35%, 37%)',
-                    }}
-                    onMouseEnter={(e) => {
-                      if (!isActive) {
-                        e.currentTarget.style.background = 'hsl(214, 100%, 95%)';
-                        e.currentTarget.style.color = 'hsl(215, 60%, 15%)';
-                      }
-                    }}
-                    onMouseLeave={(e) => {
-                      if (!isActive) {
-                        e.currentTarget.style.background = 'transparent';
-                        e.currentTarget.style.color = 'hsl(208, 35%, 37%)';
-                      }
-                    }}
+                    className={`w-full flex items-center gap-2 rounded-lg transition-all duration-150 group relative
+                      ${isCollapsed ? 'justify-center px-2 py-1 mx-auto' : 'px-3 py-0.5'}
+                      ${isActive
+                        ? 'bg-card text-primary font-medium'
+                        : 'text-muted-foreground hover:bg-card/60 hover:text-foreground'
+                      }`}
                   >
-                    <menuItem.icon
-                      className="flex-shrink-0"
-                      style={{
-                        width: 15,
-                        height: 15,
-                        opacity: isActive ? 1 : 0.5,
-                      }}
-                    />
-                    {!isCollapsed && (
-                      <span className="text-[13px] truncate font-open-sans">{menuItem.label}</span>
+                    {isActive && !isCollapsed && (
+                      <div className="absolute left-0 top-1/2 -translate-y-1/2 w-[3px] h-5 rounded-r-full bg-primary" />
                     )}
-                    {'badge' in menuItem && menuItem.badge && !isCollapsed && (
-                      <span
-                        className="ml-auto text-[10px] font-semibold text-white rounded-full min-w-[18px] h-[18px] flex items-center justify-center px-1"
-                        style={{
-                          background: '#2260B8',
-                          boxShadow: '0 2px 8px rgba(34,96,184,0.22)',
-                        }}
-                      >
-                        {menuItem.badge}
-                      </span>
+                    <menuItem.icon className={`h-4 w-4 flex-shrink-0 ${isActive ? '' : 'opacity-70 group-hover:opacity-100'}`} />
+                    {!isCollapsed && (
+                      <span className="text-sm truncate">{menuItem.label}</span>
+                    )}
+                    {menuItem.path === "/appointments" && !isCollapsed && (
+                      <Badge variant="secondary" className="ml-auto text-[10px] h-5 px-1.5 bg-primary/10 text-primary">
+                        12
+                      </Badge>
                     )}
                   </button>
                 );
@@ -239,78 +195,40 @@ const Sidebar = () => {
           ))}
 
           {isSuperAdmin && (
-            <div className="mt-2 pt-2" style={{ borderTop: '1px solid rgba(245, 158, 11, 0.20)' }}>
+            <div className="mt-2 pt-2 border-t border-amber-500/20">
               <button
                 onClick={() => handleNavigation('/superadmin')}
-                className={`w-full flex items-center gap-3 rounded-lg px-3 py-2 text-amber-600 hover:bg-amber-500/10 transition-all
+                className={`w-full flex items-center gap-3 rounded-lg px-3 py-2 text-amber-500 hover:bg-amber-500/10 transition-all
                   ${isCollapsed ? 'justify-center px-2' : ''}`}
               >
                 <Shield className="h-4 w-4 flex-shrink-0" />
-                {!isCollapsed && <span className="text-sm font-semibold">Super Admin</span>}
+                {!isCollapsed && <span className="text-sm font-medium">Super Admin</span>}
               </button>
             </div>
           )}
         </nav>
 
         {/* Footer */}
-        <div className={`${isCollapsed ? 'p-2' : 'p-3'}`} style={{ borderTop: '1px solid rgba(34,96,184,0.10)' }}>
-          {/* Plan card */}
-          {!isCollapsed && (
-            <div
-              className="rounded-xl p-3 mb-2"
-              style={{
-                background: 'linear-gradient(135deg, #F0F6FF, #EDF3FF)',
-                border: '1px solid rgba(34,96,184,0.20)',
-              }}
-            >
-              <div className="flex items-center gap-2 mb-2">
-                <Sparkles className="h-3.5 w-3.5 text-primary" />
-                <span className="text-[11px] font-semibold text-primary">Plano Básico</span>
-              </div>
-              <button
-                className="w-full rounded-lg py-2 text-[12px] font-semibold text-white transition-all"
-                style={{
-                  background: 'linear-gradient(135deg, #2260B8, #3A7FD8)',
-                  boxShadow: '0 3px 12px rgba(34,96,184,0.22)',
-                }}
-                onClick={() => handleNavigation('/upgrade')}
-                onMouseEnter={(e) => { e.currentTarget.style.filter = 'brightness(1.08)'; e.currentTarget.style.transform = 'translateY(-1px)'; }}
-                onMouseLeave={(e) => { e.currentTarget.style.filter = 'brightness(1)'; e.currentTarget.style.transform = 'translateY(0)'; }}
-              >
-                Fazer Upgrade
-              </button>
-            </div>
-          )}
-
-          {/* Sign out */}
+        <div className={`border-t border-border/30 ${isCollapsed ? 'p-2' : 'p-3'}`}>
           {!isCollapsed && (
             <button
               onClick={handleSignOut}
-              className="w-full flex items-center gap-3 px-3 py-2 rounded-lg text-[13px] font-open-sans transition-all"
-              style={{ color: '#DC2626' }}
-              onMouseEnter={(e) => { e.currentTarget.style.background = 'rgba(220,38,38,0.08)'; }}
-              onMouseLeave={(e) => { e.currentTarget.style.background = 'transparent'; }}
+              className="w-full flex items-center gap-3 px-3 py-2 rounded-lg text-sm text-muted-foreground hover:text-destructive hover:bg-destructive/10 transition-all mb-2"
             >
               <LogOut className="h-4 w-4" />
               <span>Sair</span>
             </button>
           )}
 
-          {/* User row + collapse */}
-          <div className={`flex items-center ${isCollapsed ? 'justify-center' : 'justify-between'} mt-1`}>
+          <div className={`flex items-center ${isCollapsed ? 'justify-center' : 'justify-between'}`}>
             {!isCollapsed && (
               <div className="flex items-center gap-2.5 min-w-0">
-                <div
-                  className="w-7 h-7 rounded-full flex items-center justify-center flex-shrink-0"
-                  style={{
-                    background: 'linear-gradient(135deg, #2260B8, #3A7FD8)',
-                  }}
-                >
-                  <span className="text-[10px] font-montserrat font-bold text-white">VZ</span>
+                <div className="w-7 h-7 bg-primary rounded-full flex items-center justify-center flex-shrink-0">
+                  <span className="text-[10px] font-bold text-primary-foreground">VZ</span>
                 </div>
                 <div className="min-w-0">
-                  <p className="text-xs font-montserrat font-semibold text-foreground truncate">VIZZU</p>
-                  <p className="text-[10px] font-open-sans text-muted-foreground truncate">{getRoleLabel()}</p>
+                  <p className="text-xs font-medium text-foreground truncate">VIZZU</p>
+                  <p className="text-[10px] text-muted-foreground truncate">{getRoleLabel()}</p>
                 </div>
               </div>
             )}
@@ -330,7 +248,7 @@ const Sidebar = () => {
         {isOpen && isMobile && (
           <motion.div 
             initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
-            className="fixed inset-0 bg-black/30 z-30"
+            className="fixed inset-0 bg-black/50 z-30"
             onClick={() => setIsOpen(false)}
           />
         )}
