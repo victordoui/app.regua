@@ -1,68 +1,93 @@
 
 
-# Limpeza de Código Obsoleto e Não Utilizado
+# Analise de Paginas Repetitivas e Consolidacao
 
-## Diagnóstico
-
-Após a consolidação de páginas em abas, várias páginas e imports ficaram órfãos no sistema.
-
-### 1. Imports mortos em `src/App.tsx` (importados mas nunca usados em rotas)
-Estes componentes são importados mas **nenhuma rota os renderiza** — as rotas correspondentes usam `<Navigate>`:
-- `AdvancedNotifications` (linha 24)
-- `BarberPerformance` (linha 28)
-- `Campaigns` (linha 29)
-- `CustomerSuccess` (linha 23)
-- `Inventory` (linha 33)
-- `Reviews` (linha 36)
-- `Gallery` (linha 37)
-- `Waitlist` (linha 39)
-- `GiftCards` (linha 41)
-- `DynamicPricing` (linha 42)
-- `Shifts` (linha 43)
-- `TeamChat` (linha 44)
-
-**Ação:** Remover os 12 imports.
-
-### 2. Arquivos de página completamente órfãos (sem import em nenhum lugar do projeto)
-Páginas que existem em `src/pages/` mas não são importadas nem referenciadas:
-- `Integrations.tsx`
-- `SubscriptionCreation.tsx`
-- `Settings.tsx`
-- `CommissionRules.tsx`
-- `SalesReports.tsx`
-- `Referrals.tsx`
-- `OnlineBooking.tsx`
-- `NotFound.tsx`
-- `Notifications.tsx`
-- `NotificationsPage.tsx`
-- `ConversationsPage.tsx`
-
-**Ação:** Deletar estes 11 arquivos.
-
-### 3. Páginas com import mas sem rota ativa — candidatas a deleção
-As 12 páginas do item 1 (AdvancedNotifications, Campaigns, etc.) são importadas mas nunca renderizadas. Suas funcionalidades já foram absorvidas pelas páginas consolidadas.
-
-**Ação:** Deletar estes 12 arquivos após remover os imports.
-
-### 4. Componente `src/components/ui/sidebar.tsx`
-O arquivo está praticamente vazio (só tem um comentário). O sistema usa `src/components/Sidebar.tsx`.
-
-**Ação:** Deletar `src/components/ui/sidebar.tsx`.
+Apos analisar todas as paginas e a sidebar, identifiquei os seguintes problemas:
 
 ---
 
-## Resumo das mudanças
+## 1. Paginas sem funcionalidade real (apenas placeholder "Em Desenvolvimento")
 
-| Ação | Quantidade |
-|------|-----------|
-| Imports removidos de App.tsx | 12 |
-| Arquivos de página deletados | 23 |
-| Componente UI deletado | 1 |
-| **Total de arquivos removidos** | **24** |
+| Pagina | Rota | Situacao |
+|---|---|---|
+| **Criar / Editar Plano** (`SubscriptionCreation`) | `/subscriptions/new` | Placeholder vazio. A pagina `Subscriptions` ja tem botao "Novo Plano" com dialog funcional |
+| **Integracoes** (`Integrations`) | `/integrations` | Placeholder vazio, sem funcionalidade |
 
-### Arquivo editado:
-- **`src/App.tsx`** — remover 12 imports não utilizados, manter todas as rotas e redirects intactos
+**Recomendacao**: Remover ambas da sidebar. `SubscriptionCreation` e redundante com o dialog que ja existe em `Subscriptions`.
 
-### Arquivos deletados:
-`AdvancedNotifications.tsx`, `BarberPerformance.tsx`, `Campaigns.tsx`, `CommissionRules.tsx`, `ConversationsPage.tsx`, `CustomerSuccess.tsx`, `DynamicPricing.tsx`, `Gallery.tsx`, `GiftCards.tsx`, `Integrations.tsx`, `Inventory.tsx`, `NotFound.tsx`, `Notifications.tsx`, `NotificationsPage.tsx`, `OnlineBooking.tsx`, `Referrals.tsx`, `Reviews.tsx`, `SalesReports.tsx`, `Settings.tsx`, `Shifts.tsx`, `SubscriptionCreation.tsx`, `TeamChat.tsx`, `Waitlist.tsx`, `src/components/ui/sidebar.tsx`
+---
+
+## 2. Paginas que podem ser consolidadas como abas
+
+### 2a. **Comissoes + Regras de Comissao** → Uma unica pagina com abas
+- `Commissions` (`/commissions`) - Calcula comissoes por periodo
+- `CommissionRules` (`/commission-rules`) - Configura regras de comissao
+- Ja existe um botao "Gerenciar Regras" em Comissoes que navega para CommissionRules
+
+**Proposta**: Unificar em `/commissions` com 2 abas: "Comissoes" e "Regras"
+
+### 2b. **Relatorios + Relatorios de Vendas** → Uma unica pagina com abas
+- `Reports` (`/reports`) - Visao financeira geral (receita, agendamentos, clientes)
+- `SalesReports` (`/sales-reports`) - Analise de vendas e ticket medio
+- Ambas mostram dados financeiros com sobreposicao (receita, servicos populares, ticket medio)
+
+**Proposta**: Unificar em `/reports` com abas: "Visao Geral", "Vendas", "Servicos", "Clientes"
+
+### 2c. **Notificacoes Avancadas + Campanhas** → Sobreposicao significativa
+- `AdvancedNotifications` (`/advanced-notifications`) - Tem abas internas: Templates, **Campanhas**, Historico, Configuracoes
+- `Campaigns` (`/campaigns`) - Gerencia campanhas de email
+
+A aba "Campanhas" dentro de Notificacoes Avancadas e a pagina Campanhas fazem a mesma coisa.
+
+**Proposta**: Manter `Campanhas` como pagina independente (mais completa) e remover a aba de campanhas de dentro de AdvancedNotifications, ou vice-versa. A opcao mais limpa e manter so `AdvancedNotifications` que ja tem tudo integrado e remover `Campaigns` da sidebar.
+
+### 2d. **Fidelidade + Indicacoes** → Programa de engajamento
+- `Loyalty` (`/loyalty`) - Pontos e recompensas
+- `Referrals` (`/referrals`) - Indicacoes e recompensas
+
+Ambas tratam de recompensar clientes. Podem ser abas de uma unica pagina "Engajamento" ou "Fidelidade & Indicacoes".
+
+**Proposta**: Unificar em `/loyalty` com abas: "Pontos e Recompensas" e "Indicacoes"
+
+---
+
+## 3. Paginas com funcionalidade duplicada
+
+### 3a. **Configuracoes Gerais vs Empresa**
+- `Settings` (`/settings`) - Formulario basico com dados da barbearia + perfil do usuario
+- `CompanySettings` (`/settings/company`) - Formulario completo com dados da empresa, identidade visual, link de agendamento
+
+`Settings` e uma versao pobre de `CompanySettings` + `Profile`. Tudo que tem em Settings ja existe melhor em CompanySettings e Profile.
+
+**Proposta**: Remover `Settings` da sidebar. Manter apenas `CompanySettings` (Empresa) e `Profile` (Meu Perfil).
+
+### 3b. **Conversas vs Chat da Equipe**
+- `Conversations` (`/conversations`) - Chat com clientes (mock data)
+- `TeamChat` (`/team-chat`) - Chat interno da equipe
+
+Sao funcionalidades diferentes mas ambas sao chat. Podem coexistir, porem `Conversations` usa apenas dados mock e nao tem funcionalidade real.
+
+**Proposta**: Se Conversations nao tem integracao real, considerar remove-la ou marca-la como "em breve".
+
+### 3c. **Agendamento Online (admin)** duplica funcionalidade
+- `OnlineBooking` (`/booking`) - Formulario de agendamento interno com dados mock
+- A pagina `Appointments` ja permite criar agendamentos
+
+**Proposta**: Remover `OnlineBooking` da sidebar. O agendamento ja e feito pela pagina de Appointments.
+
+---
+
+## Resumo das acoes propostas
+
+| Acao | Detalhes |
+|---|---|
+| **Remover da sidebar** | `SubscriptionCreation`, `Integracoes`, `Settings`, `OnlineBooking` |
+| **Consolidar Comissoes + Regras** | Uma pagina com 2 abas |
+| **Consolidar Relatorios + Rel. Vendas** | Uma pagina com abas expandidas |
+| **Consolidar Fidelidade + Indicacoes** | Uma pagina com 2 abas |
+| **Resolver duplicata Campanhas** | Manter apenas em AdvancedNotifications ou apenas Campaigns (nao ambas) |
+
+Isso reduziria a sidebar de ~30 itens para ~24, tornando a navegacao mais limpa e eliminando confusao.
+
+Deseja que eu implemente alguma dessas consolidacoes? Posso comecar por qualquer grupo.
 

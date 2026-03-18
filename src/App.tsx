@@ -20,28 +20,14 @@ import Subscriptions from "./pages/Subscriptions";
 import Conversations from "./pages/Conversations";
 import Users from "./pages/Users";
 import Reports from "./pages/Reports";
-import CustomerSuccess from "./pages/CustomerSuccess";
-import AdvancedNotifications from "./pages/AdvancedNotifications";
 import Services from "./pages/Services";
-
-// Novas Páginas
-import BarberPerformance from "./pages/BarberPerformance";
-import Campaigns from "./pages/Campaigns";
 import Billing from "./pages/Billing";
 import Commissions from "./pages/Commissions";
 import CompanySettings from "./pages/CompanySettings";
-import Inventory from "./pages/Inventory";
 import Cash from "./pages/Cash";
 import PublicBookingPage from "./pages/PublicBookingPage";
-import Reviews from "./pages/Reviews";
-import Gallery from "./pages/Gallery";
 import Loyalty from "./pages/Loyalty";
-import Waitlist from "./pages/Waitlist";
 import Coupons from "./pages/Coupons";
-import GiftCards from "./pages/GiftCards";
-import DynamicPricing from "./pages/DynamicPricing";
-import Shifts from "./pages/Shifts";
-import TeamChat from "./pages/TeamChat";
 import ClientHistory from "./pages/client/ClientHistory";
 import ClientLoyalty from "./pages/client/ClientLoyalty";
 import Onboarding from "./pages/Onboarding";
