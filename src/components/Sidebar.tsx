@@ -47,6 +47,14 @@ const Sidebar = () => {
       items: [{ icon: Home, label: "Painel", path: "/" }]
     },
     {
+      category: "configuracoes", label: "Configurações",
+      items: [
+        { icon: Building, label: "Meu Negócio", path: "/settings/company" },
+        { icon: UserCircle, label: "Meu Perfil", path: "/profile" },
+        { icon: UserCheck, label: "Usuários", path: "/users" }
+      ]
+    },
+    {
       category: "operacoes", label: "Operações",
       items: [
         { icon: Calendar, label: "Agenda", path: "/appointments" },
@@ -76,19 +84,6 @@ const Sidebar = () => {
       items: [
         { icon: Crown, label: "Planos", path: "/subscriptions" },
         { icon: Heart, label: "Rewards", path: "/loyalty" }
-      ]
-    },
-    {
-      category: "empresa", label: "Meu Negócio",
-      items: [
-        { icon: Building, label: "Meu Negócio", path: "/settings/company" }
-      ]
-    },
-    {
-      category: "administracao", label: "Administração",
-      items: [
-        { icon: UserCircle, label: "Meu Perfil", path: "/profile" },
-        { icon: UserCheck, label: "Usuários", path: "/users" }
       ]
     }
   ];
@@ -158,9 +153,9 @@ const Sidebar = () => {
         {/* Navigation */}
         <nav className="flex-1 overflow-y-auto py-2 px-2 scrollbar-modern">
           {menuStructure.map((category) => (
-            <div key={category.category} className="mb-1">
+            <div key={category.category} className="mb-0">
               {!isCollapsed && (
-              <div className="px-3 pt-4 pb-1.5">
+              <div className="px-3 pt-2 pb-1">
                   <span className="text-[10px] font-semibold uppercase tracking-widest text-muted-foreground/60">
                     {category.label}
                   </span>
@@ -175,7 +170,7 @@ const Sidebar = () => {
                     key={menuItem.path}
                     onClick={() => handleNavigation(menuItem.path)}
                     className={`w-full flex items-center gap-3 rounded-lg transition-all duration-150 group relative
-                      ${isCollapsed ? 'justify-center px-2 py-2.5 mx-auto' : 'px-3 py-2'}
+                      ${isCollapsed ? 'justify-center px-2 py-2 mx-auto' : 'px-3 py-1.5'}
                       ${isActive
                         ? 'bg-card text-primary font-medium'
                         : 'text-muted-foreground hover:bg-card/60 hover:text-foreground'
