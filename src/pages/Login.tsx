@@ -296,7 +296,7 @@ const Login = () => {
                       <div className="w-full border-t border-gray-200" />
                     </div>
                     <div className="relative flex justify-center">
-                      <span className="bg-white px-3 text-xs text-gray-400 uppercase tracking-wider">Acesso rápido</span>
+                      <span className="bg-white px-3 text-xs text-gray-400 uppercase tracking-wider font-['Open_Sans']">Acesso rápido</span>
                     </div>
                   </div>
 
