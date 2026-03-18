@@ -1,6 +1,7 @@
 import React from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Calendar } from "lucide-react";
+import { Badge } from "@/components/ui/badge";
+import { Clock, Calendar } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
 import { useQuery } from "@tanstack/react-query";
@@ -13,13 +14,6 @@ interface TodayAppointment {
   clients: { name: string } | null;
   services: { name: string } | null;
 }
-
-const statusConfig: Record<string, { dot: string; label: string }> = {
-  completed: { dot: "bg-green-500 shadow-green-500/40", label: "Concluído" },
-  confirmed: { dot: "bg-[#4FA3FF] shadow-[#4FA3FF]/40", label: "Confirmado" },
-  pending: { dot: "bg-yellow-500 shadow-yellow-500/40", label: "Pendente" },
-  cancelled: { dot: "bg-red-500 shadow-red-500/40", label: "Cancelado" },
-};
 
 const TodayScheduleCard: React.FC = () => {
   const { user } = useAuth();
@@ -41,56 +35,58 @@ const TodayScheduleCard: React.FC = () => {
     enabled: !!user?.id,
   });
 
+  const getStatusColor = (status: string) => {
+    switch (status) {
+      case "completed": return "border-green-500";
+      case "confirmed": return "border-primary";
+      case "cancelled": return "border-destructive";
+      default: return "border-muted-foreground";
+    }
+  };
+
+  const getStatusBadge = (status: string) => {
+    switch (status) {
+      case "completed": return <Badge className="bg-green-500/10 text-green-500 text-[10px] border-0">Concluído</Badge>;
+      case "confirmed": return <Badge className="bg-primary/10 text-primary text-[10px] border-0">Confirmado</Badge>;
+      case "cancelled": return <Badge className="bg-destructive/10 text-destructive text-[10px] border-0">Cancelado</Badge>;
+      default: return <Badge variant="secondary" className="text-[10px]">Pendente</Badge>;
+    }
+  };
+
   return (
-    <Card className="rounded-xl h-full border-0">
+    <Card className="rounded-2xl h-full">
       <CardHeader className="pb-3">
         <CardTitle className="text-base flex items-center gap-2">
-          <div className="p-1.5 rounded-lg bg-gradient-to-br from-[#4FA3FF] to-[#1F4FA3]">
-            <Calendar className="h-3.5 w-3.5 text-white" />
-          </div>
+          <Calendar className="h-4 w-4 text-primary" />
           Agenda de Hoje
         </CardTitle>
       </CardHeader>
-      <CardContent className="max-h-[300px] overflow-y-auto pr-2">
+      <CardContent className="space-y-1 max-h-[280px] overflow-y-auto">
         {appointments.length === 0 ? (
-          <div className="text-center py-8 text-muted-foreground text-sm">
+          <div className="text-center py-6 text-muted-foreground text-sm">
             Nenhum agendamento para hoje
           </div>
         ) : (
-          <div className="relative">
-            {appointments.map((apt, index) => {
-              const config = statusConfig[apt.status] || statusConfig.pending;
-              const isLast = index === appointments.length - 1;
-
-              return (
-                <div key={apt.id} className="flex gap-4 relative">
-                  {/* Timeline */}
-                  <div className="flex flex-col items-center">
-                    <div className={`w-3 h-3 rounded-full ${config.dot} shadow-md shrink-0 mt-1`} />
-                    {!isLast && (
-                      <div className="w-px flex-1 bg-border min-h-[32px]" />
-                    )}
-                  </div>
-
-                  {/* Content */}
-                  <div className="pb-4 flex-1 min-w-0">
-                    <div className="flex items-center justify-between gap-2">
-                      <span className="text-xs font-semibold text-primary">
-                        {apt.appointment_time?.slice(0, 5)}
-                      </span>
-                      <span className="text-[10px] text-muted-foreground">{config.label}</span>
-                    </div>
-                    <p className="text-sm font-medium text-foreground truncate">
-                      {apt.clients?.name || "Cliente"}
-                    </p>
-                    <p className="text-xs text-muted-foreground truncate">
-                      {apt.services?.name || "Serviço"}
-                    </p>
-                  </div>
-                </div>
-              );
-            })}
-          </div>
+          appointments.map((apt) => (
+            <div
+              key={apt.id}
+              className={`flex items-center gap-3 p-2.5 rounded-xl hover:bg-muted/50 transition-colors border-l-3 ${getStatusColor(apt.status)}`}
+            >
+              <div className="flex items-center gap-1.5 text-primary min-w-[52px]">
+                <Clock className="h-3 w-3" />
+                <span className="text-xs font-semibold">{apt.appointment_time?.slice(0, 5)}</span>
+              </div>
+              <div className="flex-1 min-w-0">
+                <p className="text-sm font-medium text-foreground truncate">
+                  {apt.clients?.name || "Cliente"}
+                </p>
+                <p className="text-xs text-muted-foreground truncate">
+                  {apt.services?.name || "Serviço"}
+                </p>
+              </div>
+              {getStatusBadge(apt.status)}
+            </div>
+          ))
         )}
       </CardContent>
     </Card>

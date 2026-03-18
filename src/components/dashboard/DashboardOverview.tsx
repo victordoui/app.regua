@@ -1,5 +1,6 @@
 import React from "react";
-import { Calendar, DollarSign, Users, Target } from "lucide-react";
+import { Calendar, Clock, DollarSign, Users, TrendingUp, CheckCircle } from "lucide-react";
+import { useSubscriptions } from "@/hooks/useSubscriptions";
 import { useRealtimeDashboard } from "@/hooks/useRealtimeDashboard";
 import { motion } from "framer-motion";
 import RevenueChart from "@/components/charts/RevenueChart";
@@ -18,12 +19,12 @@ const DashboardOverview = () => {
 
   const container = {
     hidden: { opacity: 0 },
-    show: { opacity: 1, transition: { staggerChildren: 0.06 } }
+    show: { opacity: 1, transition: { staggerChildren: 0.08 } }
   };
 
   const item = {
-    hidden: { opacity: 0, y: 12 },
-    show: { opacity: 1, y: 0, transition: { duration: 0.35 } }
+    hidden: { opacity: 0, y: 16 },
+    show: { opacity: 1, y: 0, transition: { duration: 0.4 } }
   };
 
   if (isLoading) {
@@ -36,77 +37,66 @@ const DashboardOverview = () => {
 
   return (
     <motion.div variants={container} initial="hidden" animate="show" className="space-y-6">
-      {/* KPI Cards — 4 columns */}
-      <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
+      {/* Section 1 — Top: Profile + Stats + Revenue */}
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         <motion.div variants={item}>
+          <ProfileCard />
+        </motion.div>
+
+        <motion.div variants={item} className="space-y-4">
           <StatMiniCard
             label="Agendamentos Hoje"
             value={metrics.todayAppointments.toString()}
             icon={Calendar}
+            borderColor="border-primary"
             subtitle={`${metrics.monthAppointments} este mês`}
-            trend={{ value: "+12%", positive: true }}
           />
-        </motion.div>
-        <motion.div variants={item}>
           <StatMiniCard
-            label="Receita Mensal"
-            value={`R$ ${metrics.monthRevenue.toLocaleString('pt-BR', { minimumFractionDigits: 0 })}`}
-            icon={DollarSign}
-            trend={{ value: "+8%", positive: true }}
+            label="Taxa de Conclusão"
+            value={`${metrics.completedRate}%`}
+            icon={CheckCircle}
+            borderColor="border-primary/60"
+            subtitle={`${metrics.totalClients} clientes cadastrados`}
           />
-        </motion.div>
-        <motion.div variants={item}>
           <StatMiniCard
-            label="Clientes Totais"
-            value={metrics.totalClients.toString()}
+            label="Novos Clientes"
+            value={metrics.newClientsThisMonth.toString()}
             icon={Users}
-            subtitle={`${metrics.newClientsThisMonth} novos`}
-            trend={{ value: `+${metrics.newClientsThisMonth}`, positive: metrics.newClientsThisMonth > 0 }}
+            borderColor="border-accent"
+            subtitle={`Total: ${metrics.totalClients}`}
           />
         </motion.div>
-        <motion.div variants={item}>
-          <StatMiniCard
-            label="Taxa de Ocupação"
-            value={`${metrics.occupancyRate}%`}
-            icon={Target}
-            subtitle={`${metrics.completedRate}% conclusão`}
-            trend={{ value: `${metrics.occupancyRate}%`, positive: metrics.occupancyRate > 60 }}
-          />
-        </motion.div>
-      </div>
 
-      {/* Charts — 2 columns */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         <motion.div variants={item}>
           <RevenueChart data={monthlyRevenue} />
         </motion.div>
-        <motion.div variants={item}>
-          <ServicesChart />
-        </motion.div>
       </div>
 
-      {/* Occupancy full width */}
+      {/* Section 2 — Occupancy (full width) */}
       <motion.div variants={item}>
         <OccupancyChart />
       </motion.div>
 
-      {/* Bottom — 3 columns */}
+      {/* Section 3 — Bottom: Schedule + Services + CTA */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         <motion.div variants={item}>
           <TodayScheduleCard />
         </motion.div>
         <motion.div variants={item}>
-          <RecentActivities />
+          <ServicesChart />
         </motion.div>
-        <motion.div variants={item} className="space-y-6">
-          <ProfileCard />
+        <motion.div variants={item}>
           <CTACard />
         </motion.div>
       </div>
 
-      {/* Base */}
+      {/* Existing sections */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        <RecentActivities />
         <BirthdayClients />
+      </div>
+
+      <div className="grid grid-cols-1 gap-6">
         <InactiveClients />
       </div>
     </motion.div>
