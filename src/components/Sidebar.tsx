@@ -235,6 +235,9 @@ const Sidebar = () => {
                         </button>
                       );
                     })}
+                  </motion.div>
+                )}
+              </AnimatePresence>
             </div>
           ))}
 
