@@ -167,8 +167,9 @@ const Sidebar = () => {
       >
         {/* Brand */}
         <div className="px-5 pt-[18px] pb-4 flex items-center gap-[10px] border-b border-[hsl(var(--border))]">
-          <span className="font-heading text-lg font-extrabold tracking-[1.5px] text-foreground">
-            <span className="text-primary">VIZZU</span>
+          <img src={vizzuLogo} alt="VIZZU" className="h-8 w-8 object-contain" />
+          <span className="font-heading text-lg font-extrabold tracking-[1.5px] text-primary">
+            VIZZU
           </span>
         </div>
 
