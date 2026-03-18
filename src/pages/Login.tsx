@@ -303,21 +303,21 @@ const Login = () => {
                   <div className="grid grid-cols-3 gap-2">
                     <button
                       onClick={() => handleQuickLogin('barber')}
-                      className="flex flex-col items-center gap-1 py-3 px-2 rounded-xl border border-[#2E6FD3]/30 text-[#1F4FA3] hover:bg-[#1F4FA3] hover:text-white transition-all duration-300 text-xs font-medium"
+                      className="flex flex-col items-center gap-1 py-3 px-2 rounded-xl border border-[#2E6FD3]/30 text-[#1F4FA3] hover:bg-[#1F4FA3] hover:text-white transition-all duration-300 text-xs font-medium font-['Open_Sans']"
                     >
                       <User className="h-4 w-4" />
                       Profissional
                     </button>
                     <button
                       onClick={() => handleQuickLogin('admin')}
-                      className="flex flex-col items-center gap-1 py-3 px-2 rounded-xl border border-[#2E6FD3]/30 text-[#1F4FA3] hover:bg-[#1F4FA3] hover:text-white transition-all duration-300 text-xs font-medium"
+                      className="flex flex-col items-center gap-1 py-3 px-2 rounded-xl border border-[#2E6FD3]/30 text-[#1F4FA3] hover:bg-[#1F4FA3] hover:text-white transition-all duration-300 text-xs font-medium font-['Open_Sans']"
                     >
                       <Crown className="h-4 w-4" />
                       Admin
                     </button>
                     <button
                       onClick={() => handleQuickLogin('superadmin')}
-                      className="flex flex-col items-center gap-1 py-3 px-2 rounded-xl border border-amber-400/40 text-amber-600 hover:bg-gradient-to-r hover:from-amber-500 hover:to-orange-500 hover:text-white transition-all duration-300 text-xs font-medium"
+                      className="flex flex-col items-center gap-1 py-3 px-2 rounded-xl border border-amber-400/40 text-amber-600 hover:bg-gradient-to-r hover:from-amber-500 hover:to-orange-500 hover:text-white transition-all duration-300 text-xs font-medium font-['Open_Sans']"
                     >
                       <Shield className="h-4 w-4" />
                       Super
