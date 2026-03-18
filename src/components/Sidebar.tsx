@@ -14,7 +14,7 @@ import {
   Building, Image, Warehouse,
   Shield, ListOrdered, UserCheck, UserCircle,
   ShoppingCart, Gift, Clock, MessageCircle, Tag,
-  Menu, X, LogOut, ChevronsLeft, ChevronsRight
+  Menu, X, LogOut, ChevronsLeft, ChevronsRight, ChevronDown
 } from "lucide-react";
 
 const BARBER_PATHS = new Set([
@@ -27,6 +27,7 @@ const Sidebar = () => {
   const [isOpen, setIsOpen] = useState(false);
   const [isMobile, setIsMobile] = useState(false);
   const [isCollapsed, setIsCollapsed] = useState(false);
+  const [openCategories, setOpenCategories] = useState<Set<string>>(new Set());
   const navigate = useNavigate();
   const location = useLocation();
   const { isSuperAdmin, isAdmin, isBarbeiro } = useRole();
@@ -99,6 +100,32 @@ const Sidebar = () => {
     return [];
   }, [isSuperAdmin, isAdmin, isBarbeiro]);
 
+  // Initialize all categories as open on first render
+  useEffect(() => {
+    if (menuStructure.length > 0 && openCategories.size === 0) {
+      setOpenCategories(new Set(menuStructure.map(c => c.category)));
+    }
+  }, [menuStructure]);
+
+  // Ensure category with active route stays open
+  useEffect(() => {
+    const activeCategory = menuStructure.find(cat =>
+      cat.items.some(item => location.pathname === item.path)
+    );
+    if (activeCategory && !openCategories.has(activeCategory.category)) {
+      setOpenCategories(prev => new Set([...prev, activeCategory.category]));
+    }
+  }, [location.pathname, menuStructure]);
+
+  const toggleCategory = (category: string) => {
+    setOpenCategories(prev => {
+      const next = new Set(prev);
+      if (next.has(category)) next.delete(category);
+      else next.add(category);
+      return next;
+    });
+  };
+
   const handleNavigation = (path: string) => {
     navigate(path);
     setIsOpen(false);
@@ -155,42 +182,62 @@ const Sidebar = () => {
           {menuStructure.map((category) => (
             <div key={category.category} className="mb-0">
               {!isCollapsed && (
-              <div className="px-3 pt-0.5 pb-0">
+                <button
+                  onClick={() => toggleCategory(category.category)}
+                  className="w-full flex items-center justify-between px-3 pt-0.5 pb-0 group/cat"
+                >
                   <span className="text-[10px] font-semibold uppercase tracking-widest text-muted-foreground/60">
                     {category.label}
                   </span>
-                </div>
+                  <ChevronDown
+                    className={`h-3 w-3 text-muted-foreground/40 transition-transform duration-200 ${
+                      openCategories.has(category.category) ? '' : '-rotate-90'
+                    }`}
+                  />
+                </button>
               )}
               {isCollapsed && <div className="my-0.5 mx-2 border-t border-border/20" />}
 
-              {category.items.map((menuItem) => {
-                const isActive = isActivePath(menuItem.path);
-                return (
-                  <button
-                    key={menuItem.path}
-                    onClick={() => handleNavigation(menuItem.path)}
-                    className={`w-full flex items-center gap-2 rounded-lg transition-all duration-150 group relative
-                      ${isCollapsed ? 'justify-center px-2 py-1 mx-auto' : 'px-3 py-0.5'}
-                      ${isActive
-                        ? 'bg-card text-primary font-medium'
-                        : 'text-muted-foreground hover:bg-card/60 hover:text-foreground'
-                      }`}
+              <AnimatePresence initial={false}>
+                {(isCollapsed || openCategories.has(category.category)) && (
+                  <motion.div
+                    initial={{ height: 0, opacity: 0 }}
+                    animate={{ height: 'auto', opacity: 1 }}
+                    exit={{ height: 0, opacity: 0 }}
+                    transition={{ duration: 0.2, ease: 'easeInOut' }}
+                    className="overflow-hidden"
                   >
-                    {isActive && !isCollapsed && (
-                      <div className="absolute left-0 top-1/2 -translate-y-1/2 w-[3px] h-5 rounded-r-full bg-primary" />
-                    )}
-                    <menuItem.icon className={`h-4 w-4 flex-shrink-0 ${isActive ? '' : 'opacity-70 group-hover:opacity-100'}`} />
-                    {!isCollapsed && (
-                      <span className="text-sm truncate">{menuItem.label}</span>
-                    )}
-                    {menuItem.path === "/appointments" && !isCollapsed && (
-                      <Badge variant="secondary" className="ml-auto text-[10px] h-5 px-1.5 bg-primary/10 text-primary">
-                        12
-                      </Badge>
-                    )}
-                  </button>
-                );
-              })}
+                    {category.items.map((menuItem) => {
+                      const isActive = isActivePath(menuItem.path);
+                      return (
+                        <button
+                          key={menuItem.path}
+                          onClick={() => handleNavigation(menuItem.path)}
+                          className={`w-full flex items-center gap-2 rounded-lg transition-all duration-150 group relative
+                            ${isCollapsed ? 'justify-center px-2 py-1 mx-auto' : 'px-3 py-0.5'}
+                            ${isActive
+                              ? 'bg-card text-primary font-medium'
+                              : 'text-muted-foreground hover:bg-card/60 hover:text-foreground'
+                            }`}
+                        >
+                          {isActive && !isCollapsed && (
+                            <div className="absolute left-0 top-1/2 -translate-y-1/2 w-[3px] h-5 rounded-r-full bg-primary" />
+                          )}
+                          <menuItem.icon className={`h-4 w-4 flex-shrink-0 ${isActive ? '' : 'opacity-70 group-hover:opacity-100'}`} />
+                          {!isCollapsed && (
+                            <span className="text-sm truncate">{menuItem.label}</span>
+                          )}
+                          {menuItem.path === "/appointments" && !isCollapsed && (
+                            <Badge variant="secondary" className="ml-auto text-[10px] h-5 px-1.5 bg-primary/10 text-primary">
+                              12
+                            </Badge>
+                          )}
+                        </button>
+                      );
+                    })}
+                  </motion.div>
+                )}
+              </AnimatePresence>
             </div>
           ))}
 
