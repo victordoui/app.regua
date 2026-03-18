@@ -31,7 +31,11 @@ export default defineConfig(({ mode }) => ({
       includeAssets: ['logo-vizzu.png', 'robots.txt'],
       workbox: {
         maximumFileSizeToCacheInBytes: 5 * 1024 * 1024, // 5 MiB
-        globPatterns: ['**/*.{js,css,html,ico,png,svg,woff,woff2}'],
+        globPatterns: ['**/*.{js,css,ico,png,svg,woff,woff2}'],
+        cleanupOutdatedCaches: true,
+        skipWaiting: true,
+        clientsClaim: true,
+        navigateFallback: null,
       },
       manifest: {
         name: 'VIZZU',

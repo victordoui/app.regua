@@ -107,8 +107,11 @@ export function usePushNotifications() {
         }
       }
 
-      // Register service worker
-      const registration = await navigator.serviceWorker.register('/sw.js');
+      // Use existing SW registration if available (avoid overwriting Workbox SW)
+      let registration = await navigator.serviceWorker.getRegistration();
+      if (!registration) {
+        registration = await navigator.serviceWorker.register('/sw.js');
+      }
       await navigator.serviceWorker.ready;
 
       // Subscribe to push
