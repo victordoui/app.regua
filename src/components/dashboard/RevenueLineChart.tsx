@@ -14,7 +14,7 @@ const RevenueLineChart: React.FC<RevenueLineChartProps> = ({ data }) => {
         </button>
       </div>
 
-      <div className="px-[18px] pb-[14px]">
+      <div className="px-5 pb-5">
         {/* Legend */}
         <div className="flex gap-[14px] mb-2.5">
           <div className="flex items-center gap-[5px] text-[11px] text-muted-foreground">
