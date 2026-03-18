@@ -141,7 +141,7 @@ const Sidebar = () => {
     return 'Usuário';
   };
 
-  const sidebarWidth = isCollapsed ? 68 : 240;
+  const sidebarWidth = isCollapsed ? 68 : 234;
 
   return (
     <>
