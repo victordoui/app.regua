@@ -1,36 +1,34 @@
 import { useState, useEffect, useMemo } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
-import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { motion, AnimatePresence } from "framer-motion";
 import { useRole } from "@/contexts/RoleContext";
-import vizzuIcon from "@/assets/vizzu-icon.png";
-import { 
+import { useAuth } from "@/contexts/AuthContext";
+import {
   Home, BarChart3,
   Calendar, Users, Briefcase, Package,
-  MessageSquare, Bell,
-  CreditCard, Ticket, Receipt,
+  MessageSquare,
+  CreditCard, Receipt,
   Crown, Heart,
-  Building, Image, Warehouse,
-  Shield, ListOrdered, UserCheck, UserCircle,
-  ShoppingCart, Gift, Clock, MessageCircle, Tag,
-  Menu, X, LogOut, ChevronsLeft, ChevronsRight, ChevronDown
+  Building, UserCircle, UserCheck,
+  ShoppingCart, Tag,
+  Shield, Search, LogOut,
+  Menu, X, ChevronUp
 } from "lucide-react";
 
 const BARBER_PATHS = new Set([
   '/', '/appointments', '/clients', '/conversations', '/profile'
 ]);
-
 const BARBER_CATEGORIES = new Set(['operacoes', 'comunicacao', 'administracao']);
 
 const Sidebar = () => {
   const [isOpen, setIsOpen] = useState(false);
   const [isMobile, setIsMobile] = useState(false);
-  const [isCollapsed, setIsCollapsed] = useState(false);
-  const [openCategories, setOpenCategories] = useState<Set<string>>(new Set());
+  const [searchQuery, setSearchQuery] = useState("");
   const navigate = useNavigate();
   const location = useLocation();
   const { isSuperAdmin, isAdmin, isBarbeiro } = useRole();
+  const { user } = useAuth();
 
   useEffect(() => {
     const checkMobile = () => {
@@ -42,32 +40,46 @@ const Sidebar = () => {
     return () => window.removeEventListener('resize', checkMobile);
   }, []);
 
+  // ⌘K shortcut
+  useEffect(() => {
+    const handler = (e: KeyboardEvent) => {
+      if ((e.metaKey || e.ctrlKey) && e.key === 'k') {
+        e.preventDefault();
+        document.getElementById('sb-search-input')?.focus();
+      }
+    };
+    window.addEventListener('keydown', handler);
+    return () => window.removeEventListener('keydown', handler);
+  }, []);
+
   const fullMenuStructure = [
-    { 
+    {
       category: "dashboard", label: "Dashboard",
-      items: [{ icon: Home, label: "Painel", path: "/" }]
+      items: [
+        { icon: Home, label: "Painel", path: "/" },
+        { icon: Building, label: "Configurações", path: "/settings/company" },
+      ]
     },
     {
-      category: "configuracoes", label: "Configurações",
+      category: "negocio", label: "Meu Negócio",
       items: [
-        { icon: Building, label: "Meu Negócio", path: "/settings/company" },
         { icon: UserCircle, label: "Meu Perfil", path: "/profile" },
-        { icon: UserCheck, label: "Usuários", path: "/users" }
+        { icon: UserCheck, label: "Usuários", path: "/users" },
       ]
     },
     {
       category: "operacoes", label: "Operações",
       items: [
-        { icon: Calendar, label: "Agenda", path: "/appointments" },
+        { icon: Calendar, label: "Agenda", path: "/appointments", badge: 8 },
         { icon: Users, label: "Clientes", path: "/clients" },
         { icon: Briefcase, label: "Profissionais", path: "/barbers" },
-        { icon: Package, label: "Serviços", path: "/services" }
+        { icon: Package, label: "Serviços", path: "/services" },
       ]
     },
     {
       category: "comunicacao", label: "Comunicação",
       items: [
-        { icon: MessageSquare, label: "Conversas", path: "/conversations" }
+        { icon: MessageSquare, label: "Conversas", path: "/conversations" },
       ]
     },
     {
@@ -77,16 +89,16 @@ const Sidebar = () => {
         { icon: CreditCard, label: "Contas", path: "/billing" },
         { icon: Receipt, label: "Comissões", path: "/commissions" },
         { icon: Tag, label: "Promoções", path: "/coupons" },
-        { icon: ShoppingCart, label: "Caixa / PDV", path: "/cash" }
+        { icon: ShoppingCart, label: "Caixa / PDV", path: "/cash" },
       ]
     },
     {
-      category: "assinaturas", label: "Engajamento",
+      category: "engajamento", label: "Engajamento",
       items: [
         { icon: Crown, label: "Planos", path: "/subscriptions" },
-        { icon: Heart, label: "Rewards", path: "/loyalty" }
+        { icon: Heart, label: "Rewards", path: "/loyalty" },
       ]
-    }
+    },
   ];
 
   const menuStructure = useMemo(() => {
@@ -100,38 +112,22 @@ const Sidebar = () => {
     return [];
   }, [isSuperAdmin, isAdmin, isBarbeiro]);
 
-  // Initialize all categories as open on first render
-  useEffect(() => {
-    if (menuStructure.length > 0 && openCategories.size === 0) {
-      setOpenCategories(new Set(menuStructure.map(c => c.category)));
-    }
-  }, [menuStructure]);
-
-  // Ensure category with active route stays open
-  useEffect(() => {
-    const activeCategory = menuStructure.find(cat =>
-      cat.items.some(item => location.pathname === item.path)
-    );
-    if (activeCategory && !openCategories.has(activeCategory.category)) {
-      setOpenCategories(prev => new Set([...prev, activeCategory.category]));
-    }
-  }, [location.pathname, menuStructure]);
-
-  const toggleCategory = (category: string) => {
-    setOpenCategories(prev => {
-      const next = new Set(prev);
-      if (next.has(category)) next.delete(category);
-      else next.add(category);
-      return next;
-    });
-  };
+  const filteredMenu = useMemo(() => {
+    if (!searchQuery.trim()) return menuStructure;
+    const q = searchQuery.toLowerCase();
+    return menuStructure
+      .map(cat => ({
+        ...cat,
+        items: cat.items.filter(item => item.label.toLowerCase().includes(q))
+      }))
+      .filter(cat => cat.items.length > 0);
+  }, [menuStructure, searchQuery]);
 
   const handleNavigation = (path: string) => {
     navigate(path);
     setIsOpen(false);
   };
 
-  const handleSignOut = () => navigate("/login");
   const isActivePath = (path: string) => location.pathname === path;
 
   const getRoleLabel = () => {
@@ -141,159 +137,151 @@ const Sidebar = () => {
     return 'Usuário';
   };
 
-  const sidebarWidth = isCollapsed ? 68 : 234;
+  const getUserInitials = () => {
+    const name = user?.user_metadata?.full_name || user?.email || 'VZ';
+    return name.split(' ').map((n: string) => n[0]).join('').slice(0, 2).toUpperCase();
+  };
+
+  const getUserName = () => {
+    return user?.user_metadata?.full_name || user?.email?.split('@')[0] || 'Usuário';
+  };
 
   return (
     <>
+      {/* Mobile toggle */}
       {isMobile && (
-        <motion.div initial={{ opacity: 0, scale: 0.8 }} animate={{ opacity: 1, scale: 1 }} className="fixed top-4 left-4 z-50">
-          <Button
-            variant="ghost" size="icon"
-            className="bg-card/80 backdrop-blur-sm border border-border/30 shadow-lg"
-            onClick={() => setIsOpen(!isOpen)}
-            aria-label={isOpen ? "Fechar menu" : "Abrir menu"}
-          >
-            {isOpen ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
-          </Button>
-        </motion.div>
+        <button
+          onClick={() => setIsOpen(!isOpen)}
+          className="fixed top-4 left-4 z-50 w-10 h-10 rounded-[10px] bg-white border border-[hsl(var(--border))] shadow-lg flex items-center justify-center"
+          aria-label={isOpen ? "Fechar menu" : "Abrir menu"}
+        >
+          {isOpen ? <X className="h-5 w-5 text-foreground" /> : <Menu className="h-5 w-5 text-foreground" />}
+        </button>
       )}
 
-      <motion.div
-        initial={false}
-        animate={{ width: sidebarWidth, x: isMobile && !isOpen ? -240 : 0 }}
-        transition={{ duration: 0.25, ease: "easeInOut" }}
-        className={`fixed left-0 top-0 h-full z-40 flex flex-col
-          bg-background border-r border-border/30
-          ${isMobile ? 'shadow-2xl' : 'md:relative md:shadow-none'}`}
-        style={{ width: isMobile ? (isOpen ? 240 : 0) : sidebarWidth }}
+      {/* Sidebar */}
+      <aside
+        className={`fixed left-0 top-0 bottom-0 z-40 w-[234px] flex flex-col bg-white border-r border-[hsl(var(--border))] transition-transform duration-250 ease-in-out
+          ${isMobile ? (isOpen ? 'translate-x-0 shadow-2xl' : '-translate-x-full') : 'translate-x-0'}`}
       >
-        {/* Header - Logo */}
-        <div className={`flex items-center border-b border-border/30 ${isCollapsed ? 'justify-center px-2 py-3' : 'px-4 py-3 gap-3'}`}>
-          <div className={`flex-shrink-0 ${isCollapsed ? 'w-8 h-8' : 'w-10 h-10'}`}>
-            <img src={vizzuIcon} alt="VIZZU" className="w-full h-full object-contain" />
-          </div>
-          {!isCollapsed && (
-            <span className="text-lg font-bold text-foreground tracking-tight">VIZZU</span>
-          )}
+        {/* Brand */}
+        <div className="px-5 pt-[18px] pb-4 flex items-center gap-[10px] border-b border-[hsl(var(--border))]">
+          <span className="font-heading text-lg font-extrabold tracking-[1.5px] text-foreground">
+            <span className="text-primary">VIZZU</span>
+          </span>
+        </div>
+
+        {/* Search */}
+        <div className="mx-3 mt-[14px] mb-2 flex items-center gap-2 bg-[hsl(var(--card-2))] border border-[hsl(var(--border))] rounded-[10px] px-3 py-2 focus-within:border-primary transition-colors">
+          <Search className="h-3.5 w-3.5 text-muted-foreground flex-shrink-0" />
+          <input
+            id="sb-search-input"
+            type="text"
+            placeholder="Buscar..."
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+            className="border-none bg-transparent outline-none text-xs text-foreground w-full placeholder:text-muted-foreground font-body"
+          />
+          <kbd className="text-[10px] text-muted-foreground border border-[hsl(var(--border))] rounded px-1.5 py-0.5 whitespace-nowrap flex-shrink-0">
+            ⌘K
+          </kbd>
         </div>
 
         {/* Navigation */}
-        <nav className="flex-1 overflow-y-auto py-0.5 px-2 scrollbar-modern">
-          {menuStructure.map((category) => (
-            <div key={category.category} className="mb-0">
-              {!isCollapsed && (
-                <button
-                  onClick={() => toggleCategory(category.category)}
-                  className="w-full flex items-center justify-between px-3 pt-0.5 pb-0 group/cat"
-                >
-                  <span className="text-[10px] font-semibold uppercase tracking-widest text-muted-foreground/60">
-                    {category.label}
-                  </span>
-                  <ChevronDown
-                    className={`h-3 w-3 text-muted-foreground/40 transition-transform duration-200 ${
-                      openCategories.has(category.category) ? '' : '-rotate-90'
-                    }`}
-                  />
-                </button>
-              )}
-              {isCollapsed && <div className="my-0.5 mx-2 border-t border-border/20" />}
+        <nav className="flex-1 overflow-y-auto px-[10px] py-1 scrollbar-modern">
+          {filteredMenu.map((category) => (
+            <div key={category.category} className="mb-5">
+              {/* Section label */}
+              <div className="flex items-center gap-2 px-[10px] mb-1">
+                <span className="text-[9px] font-semibold uppercase tracking-[1.2px] text-muted-foreground whitespace-nowrap">
+                  {category.label}
+                </span>
+                <div className="flex-1 h-px bg-[hsl(var(--border))]" />
+              </div>
 
-              <AnimatePresence initial={false}>
-                {(isCollapsed || openCategories.has(category.category)) && (
-                  <motion.div
-                    initial={{ height: 0, opacity: 0 }}
-                    animate={{ height: 'auto', opacity: 1 }}
-                    exit={{ height: 0, opacity: 0 }}
-                    transition={{ duration: 0.2, ease: 'easeInOut' }}
-                    className="overflow-hidden"
+              {/* Items */}
+              {category.items.map((item) => {
+                const isActive = isActivePath(item.path);
+                const Icon = item.icon;
+                return (
+                  <button
+                    key={item.path}
+                    onClick={() => handleNavigation(item.path)}
+                    className={`w-full flex items-center gap-[10px] px-[10px] py-2 rounded-lg text-[13px] font-medium cursor-pointer transition-all duration-150 mb-px relative
+                      ${isActive
+                        ? 'bg-primary text-white font-semibold'
+                        : 'text-muted-foreground hover:bg-[hsl(var(--primary-50))] hover:text-primary'
+                      }`}
                   >
-                    {category.items.map((menuItem) => {
-                      const isActive = isActivePath(menuItem.path);
-                      return (
-                        <button
-                          key={menuItem.path}
-                          onClick={() => handleNavigation(menuItem.path)}
-                          className={`w-full flex items-center gap-2 rounded-lg transition-all duration-150 group relative
-                            ${isCollapsed ? 'justify-center px-2 py-1 mx-auto' : 'px-3 py-0.5'}
-                            ${isActive
-                              ? 'bg-card text-primary font-medium'
-                              : 'text-muted-foreground hover:bg-card/60 hover:text-foreground'
-                            }`}
-                        >
-                          {isActive && !isCollapsed && (
-                            <div className="absolute left-0 top-1/2 -translate-y-1/2 w-[3px] h-5 rounded-r-full bg-primary" />
-                          )}
-                          <menuItem.icon className={`h-4 w-4 flex-shrink-0 ${isActive ? '' : 'opacity-70 group-hover:opacity-100'}`} />
-                          {!isCollapsed && (
-                            <span className="text-sm truncate">{menuItem.label}</span>
-                          )}
-                          {menuItem.path === "/appointments" && !isCollapsed && (
-                            <Badge variant="secondary" className="ml-auto text-[10px] h-5 px-1.5 bg-primary/10 text-primary">
-                              12
-                            </Badge>
-                          )}
-                        </button>
-                      );
-                    })}
-                  </motion.div>
-                )}
-              </AnimatePresence>
+                    <Icon className={`h-[15px] w-[15px] flex-shrink-0 transition-opacity ${isActive ? 'opacity-100' : 'opacity-45 group-hover:opacity-80'}`} />
+                    <span className="truncate">{item.label}</span>
+                    {item.badge && (
+                      <span className={`ml-auto min-w-[20px] h-[18px] rounded-full px-[5px] flex items-center justify-center text-[10px] font-bold
+                        ${isActive ? 'bg-white/25 text-white' : 'bg-primary text-white'}`}>
+                        {item.badge}
+                      </span>
+                    )}
+                  </button>
+                );
+              })}
             </div>
           ))}
 
+          {/* Super Admin */}
           {isSuperAdmin && (
             <div className="mt-2 pt-2 border-t border-amber-500/20">
               <button
                 onClick={() => handleNavigation('/superadmin')}
-                className={`w-full flex items-center gap-3 rounded-lg px-3 py-2 text-amber-500 hover:bg-amber-500/10 transition-all
-                  ${isCollapsed ? 'justify-center px-2' : ''}`}
+                className={`w-full flex items-center gap-[10px] px-[10px] py-2 rounded-lg text-[13px] font-medium text-amber-500 hover:bg-amber-500/10 transition-all
+                  ${isActivePath('/superadmin') ? 'bg-amber-500/10' : ''}`}
               >
-                <Shield className="h-4 w-4 flex-shrink-0" />
-                {!isCollapsed && <span className="text-sm font-medium">Super Admin</span>}
+                <Shield className="h-[15px] w-[15px] flex-shrink-0" />
+                <span>Super Admin</span>
               </button>
             </div>
           )}
         </nav>
 
         {/* Footer */}
-        <div className={`border-t border-border/30 ${isCollapsed ? 'p-2' : 'p-3'}`}>
-          {!isCollapsed && (
+        <div className="p-3 border-t border-[hsl(var(--border))]">
+          {/* Upgrade card */}
+          <div className="bg-gradient-to-br from-[hsl(var(--primary-50))] to-[#EDE9FE] border border-[rgba(37,99,235,0.22)] rounded-[14px] p-3 mb-[10px]">
+            <div className="font-heading text-xs font-bold text-foreground mb-0.5">Desbloqueie tudo</div>
+            <div className="text-[10px] text-muted-foreground mb-[10px] leading-snug">
+              Acesse relatórios avançados e integrações.
+            </div>
             <button
-              onClick={handleSignOut}
-              className="w-full flex items-center gap-3 px-3 py-2 rounded-lg text-sm text-muted-foreground hover:text-destructive hover:bg-destructive/10 transition-all mb-2"
+              onClick={() => handleNavigation('/upgrade')}
+              className="w-full bg-primary text-white border-none rounded-[7px] py-[7px] text-xs font-semibold cursor-pointer transition-all hover:bg-[hsl(var(--brand))] hover:-translate-y-px shadow-[0_3px_10px_rgba(37,99,235,0.16)]"
             >
-              <LogOut className="h-4 w-4" />
-              <span>Sair</span>
+              Fazer Upgrade
             </button>
-          )}
+          </div>
 
-          <div className={`flex items-center ${isCollapsed ? 'justify-center' : 'justify-between'}`}>
-            {!isCollapsed && (
-              <div className="flex items-center gap-2.5 min-w-0">
-                <div className="w-7 h-7 bg-primary rounded-full flex items-center justify-center flex-shrink-0">
-                  <span className="text-[10px] font-bold text-primary-foreground">VZ</span>
-                </div>
-                <div className="min-w-0">
-                  <p className="text-xs font-medium text-foreground truncate">VIZZU</p>
-                  <p className="text-[10px] text-muted-foreground truncate">{getRoleLabel()}</p>
-                </div>
-              </div>
-            )}
-            <Button
-              variant="ghost" size="icon"
-              className="h-7 w-7 text-muted-foreground hover:text-foreground"
-              onClick={() => setIsCollapsed(!isCollapsed)}
-              aria-label={isCollapsed ? "Expandir" : "Colapsar"}
+          {/* User row */}
+          <div className="flex items-center gap-[9px] px-0.5 py-1">
+            <div className="w-8 h-8 rounded-full bg-gradient-to-br from-primary to-[hsl(var(--brand-light))] flex items-center justify-center text-[11px] font-bold text-white flex-shrink-0 shadow-[0_2px_8px_rgba(37,99,235,0.16)]">
+              {getUserInitials()}
+            </div>
+            <div className="min-w-0 flex-1">
+              <div className="text-xs font-semibold text-foreground truncate">{getUserName()}</div>
+              <div className="text-[10px] text-muted-foreground truncate">{getRoleLabel()}</div>
+            </div>
+            <button
+              onClick={() => navigate('/login')}
+              className="p-1.5 rounded-md text-muted-foreground hover:text-destructive hover:bg-destructive/10 transition-all"
+              aria-label="Sair"
             >
-              {isCollapsed ? <ChevronsRight className="h-4 w-4" /> : <ChevronsLeft className="h-4 w-4" />}
-            </Button>
+              <LogOut className="h-3.5 w-3.5" />
+            </button>
           </div>
         </div>
-      </motion.div>
+      </aside>
 
+      {/* Mobile overlay */}
       <AnimatePresence>
         {isOpen && isMobile && (
-          <motion.div 
+          <motion.div
             initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
             className="fixed inset-0 bg-black/50 z-30"
             onClick={() => setIsOpen(false)}
