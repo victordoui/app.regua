@@ -1,14 +1,8 @@
 import React from "react";
 import Layout from "@/components/Layout";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { BarChart3, TrendingUp, Target, Star } from "lucide-react";
 import { useRole } from "@/contexts/RoleContext";
 import BarberDashboard from "./BarberDashboard";
 import DashboardOverview from "@/components/dashboard/DashboardOverview";
-import CustomerSuccessContent from "@/components/dashboard/CustomerSuccessContent";
-import BarberPerformanceContent from "@/components/dashboard/BarberPerformanceContent";
-import ReviewsContent from "@/components/dashboard/ReviewsContent";
-import { PageHeader } from "@/components/ui/page-header";
 
 const Index = () => {
   const { isBarbeiro, isAdmin, isSuperAdmin } = useRole();
@@ -19,47 +13,7 @@ const Index = () => {
 
   return (
     <Layout>
-      <div className="flex-1 space-y-6 p-6">
-        <PageHeader
-          icon={<BarChart3 className="h-5 w-5" />}
-          title="Painel Administrativo"
-          subtitle="Visão geral do seu negócio"
-        />
-
-        <Tabs defaultValue="overview" className="space-y-6">
-          <TabsList className="w-full sm:w-auto">
-            <TabsTrigger value="overview" className="gap-2">
-              <BarChart3 className="h-4 w-4 hidden sm:block" />
-              Visão Geral
-            </TabsTrigger>
-            <TabsTrigger value="customer-success" className="gap-2">
-              <TrendingUp className="h-4 w-4 hidden sm:block" />
-              Sucesso do Cliente
-            </TabsTrigger>
-            <TabsTrigger value="performance" className="gap-2">
-              <Target className="h-4 w-4 hidden sm:block" />
-              Desempenho
-            </TabsTrigger>
-            <TabsTrigger value="reviews" className="gap-2">
-              <Star className="h-4 w-4 hidden sm:block" />
-              Avaliações
-            </TabsTrigger>
-          </TabsList>
-
-          <TabsContent value="overview">
-            <DashboardOverview />
-          </TabsContent>
-          <TabsContent value="customer-success">
-            <CustomerSuccessContent />
-          </TabsContent>
-          <TabsContent value="performance">
-            <BarberPerformanceContent />
-          </TabsContent>
-          <TabsContent value="reviews">
-            <ReviewsContent />
-          </TabsContent>
-        </Tabs>
-      </div>
+      <DashboardOverview />
     </Layout>
   );
 };

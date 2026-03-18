@@ -1,31 +1,23 @@
 import React from "react";
-import { Calendar, Clock, DollarSign, Users, TrendingUp, CheckCircle } from "lucide-react";
-import { useSubscriptions } from "@/hooks/useSubscriptions";
+import { useNavigate } from "react-router-dom";
 import { useRealtimeDashboard } from "@/hooks/useRealtimeDashboard";
-import { motion } from "framer-motion";
-import RevenueChart from "@/components/charts/RevenueChart";
-import ServicesChart from "@/components/charts/ServicesChart";
-import OccupancyChart from "@/components/charts/OccupancyChart";
-import RecentActivities from "@/components/dashboard/RecentActivities";
-import BirthdayClients from "@/components/dashboard/BirthdayClients";
-import InactiveClients from "@/components/dashboard/InactiveClients";
-import ProfileCard from "@/components/dashboard/ProfileCard";
-import StatMiniCard from "@/components/dashboard/StatMiniCard";
-import TodayScheduleCard from "@/components/dashboard/TodayScheduleCard";
-import CTACard from "@/components/dashboard/CTACard";
+import { useCompanySettings } from "@/hooks/useCompanySettings";
+import { format } from "date-fns";
+import { ptBR } from "date-fns/locale";
+import { Calendar, CheckCircle, Users, DollarSign, Plus, SlidersHorizontal } from "lucide-react";
+import HeroSection from "./HeroSection";
+import KpiStrip from "./KpiStrip";
+import OccupationHeatmap from "./OccupationHeatmap";
+import RevenueLineChart from "./RevenueLineChart";
+import MiniCalendarPanel from "./MiniCalendarPanel";
+import TodayAppointmentsPanel from "./TodayAppointmentsPanel";
+import RecentTransactionsPanel from "./RecentTransactionsPanel";
+import ProfessionalsPanel from "./ProfessionalsPanel";
+import MonthRevenueDonut from "./MonthRevenueDonut";
 
 const DashboardOverview = () => {
   const { metrics, monthlyRevenue, isLoading } = useRealtimeDashboard();
-
-  const container = {
-    hidden: { opacity: 0 },
-    show: { opacity: 1, transition: { staggerChildren: 0.08 } }
-  };
-
-  const item = {
-    hidden: { opacity: 0, y: 16 },
-    show: { opacity: 1, y: 0, transition: { duration: 0.4 } }
-  };
+  const navigate = useNavigate();
 
   if (isLoading) {
     return (
@@ -36,70 +28,33 @@ const DashboardOverview = () => {
   }
 
   return (
-    <motion.div variants={container} initial="hidden" animate="show" className="space-y-6">
-      {/* Section 1 — Top: Profile + Stats + Revenue */}
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        <motion.div variants={item}>
-          <ProfileCard />
-        </motion.div>
+    <div className="space-y-[18px]">
+      <HeroSection />
 
-        <motion.div variants={item} className="space-y-4">
-          <StatMiniCard
-            label="Agendamentos Hoje"
-            value={metrics.todayAppointments.toString()}
-            icon={Calendar}
-            borderColor="border-primary"
-            subtitle={`${metrics.monthAppointments} este mês`}
-          />
-          <StatMiniCard
-            label="Taxa de Conclusão"
-            value={`${metrics.completedRate}%`}
-            icon={CheckCircle}
-            borderColor="border-primary/60"
-            subtitle={`${metrics.totalClients} clientes cadastrados`}
-          />
-          <StatMiniCard
-            label="Novos Clientes"
-            value={metrics.newClientsThisMonth.toString()}
-            icon={Users}
-            borderColor="border-accent"
-            subtitle={`Total: ${metrics.totalClients}`}
-          />
-        </motion.div>
+      <KpiStrip
+        todayAppointments={metrics.todayAppointments}
+        completedRate={metrics.completedRate}
+        newClients={metrics.newClientsThisMonth}
+        dayRevenue={metrics.monthRevenue}
+      />
 
-        <motion.div variants={item}>
-          <RevenueChart data={monthlyRevenue} />
-        </motion.div>
+      {/* Main Grid: Heatmap + Revenue Chart + Right Column */}
+      <div className="grid grid-cols-1 lg:grid-cols-[1fr_1fr_300px] gap-[14px]">
+        <OccupationHeatmap />
+        <RevenueLineChart data={monthlyRevenue} />
+        <div className="flex flex-col gap-[14px]">
+          <MiniCalendarPanel />
+          <TodayAppointmentsPanel />
+        </div>
       </div>
 
-      {/* Section 2 — Occupancy (full width) */}
-      <motion.div variants={item}>
-        <OccupancyChart />
-      </motion.div>
-
-      {/* Section 3 — Bottom: Schedule + Services + CTA */}
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        <motion.div variants={item}>
-          <TodayScheduleCard />
-        </motion.div>
-        <motion.div variants={item}>
-          <ServicesChart />
-        </motion.div>
-        <motion.div variants={item}>
-          <CTACard />
-        </motion.div>
+      {/* Bottom Row */}
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-[14px]">
+        <RecentTransactionsPanel />
+        <ProfessionalsPanel />
+        <MonthRevenueDonut monthRevenue={metrics.monthRevenue} />
       </div>
-
-      {/* Existing sections */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        <RecentActivities />
-        <BirthdayClients />
-      </div>
-
-      <div className="grid grid-cols-1 gap-6">
-        <InactiveClients />
-      </div>
-    </motion.div>
+    </div>
   );
 };
 
