@@ -50,7 +50,7 @@ const RevenueLineChart: React.FC<RevenueLineChartProps> = ({ data }) => {
           {/* Peak dot + tooltip */}
           <circle cx="274" cy="30" r="4" fill="#fff" stroke="hsl(217, 91%, 60%)" strokeWidth="2" />
           <rect x="220" y="6" width="100" height="22" rx="5" fill="#1E293B" />
-          <text x="270" y="21" fontSize="9.5" fill="white" textAnchor="middle" fontWeight="600" fontFamily="Open Sans,sans-serif">
+          <text x="270" y="21" fontSize="9.5" fill="white" textAnchor="middle" fontWeight="600" fontFamily="Montserrat,sans-serif">
             Nov · R$ 7.240
           </text>
           <circle cx="340" cy="20" r="4" fill="hsl(217, 91%, 60%)" />
