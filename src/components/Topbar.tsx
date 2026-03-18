@@ -50,8 +50,12 @@ const Topbar = () => {
         </kbd>
       </div>
 
-      {/* Right actions */}
+      {/* Date + Right actions */}
       <div className="flex items-center gap-3 ml-4">
+        <div className="inline-flex items-center gap-1.5 bg-[hsl(var(--card-2))] border border-[hsl(var(--border))] rounded-lg px-3 py-1.5 text-xs font-medium text-muted-foreground">
+          <Calendar className="h-3 w-3" />
+          {format(new Date(), "dd MMM, yyyy", { locale: ptBR })}
+        </div>
         <button
           className="relative p-2 rounded-lg text-muted-foreground hover:text-foreground hover:bg-[hsl(var(--card-2))] transition-colors"
           aria-label="Notificações"
