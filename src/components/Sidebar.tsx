@@ -108,102 +108,95 @@ const Sidebar = () => {
   };
 
   return (
-    <>
-      {/* Sidebar — desktop only (mobile uses MobileBottomNav via Layout) */}
-      <aside className="fixed left-0 top-0 bottom-0 z-40 w-[234px] flex flex-col bg-card border-r border-border max-md:hidden">
-        {/* Brand */}
-        <div className="px-5 pt-4 pb-3 flex items-center justify-center border-b border-border">
-          <img src={vizzuLogo} alt="VIZZU" className="h-20 w-20 object-contain" />
-        </div>
+    <aside className="fixed left-0 top-0 bottom-0 z-40 w-[234px] flex flex-col bg-[hsl(210_40%_98%)] border-r border-border max-md:hidden">
+      {/* Brand — logo + name inline */}
+      <div className="px-5 pt-5 pb-4 flex items-center gap-3 border-b border-border">
+        <img src={vizzuLogo} alt="VIZZU" className="h-10 w-10 object-contain" />
+        <span className="text-lg font-bold text-foreground tracking-tight">VIZZU</span>
+      </div>
 
-        {/* Navigation */}
-        <nav className="flex-1 overflow-y-auto px-3 py-3 scrollbar-hidden-hover">
-          {menuStructure.map((category) => (
-            <div key={category.category} className="mb-4">
-              {/* Section label — clean, no divider */}
-              <div className="px-3 mb-2">
-                <span className="text-[10px] font-semibold uppercase tracking-[1.2px] text-primary/60">
-                  {category.label}
-                </span>
-              </div>
-
-              {/* Items */}
-              <div className="space-y-0.5">
-                {category.items.map((item) => {
-                  const isActive = isActivePath(item.path);
-                  const Icon = item.icon;
-                  return (
-                    <button
-                      key={item.path}
-                      onClick={() => handleNavigation(item.path)}
-                      className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-[13px] font-medium cursor-pointer transition-all duration-150 relative
-                        ${isActive
-                          ? 'bg-primary text-primary-foreground font-semibold'
-                          : 'text-muted-foreground hover:bg-muted hover:text-foreground'
-                        }`}
-                    >
-                      <Icon className={`h-4 w-4 flex-shrink-0 ${isActive ? 'opacity-100' : 'opacity-60'}`} />
-                      <span className="truncate">{item.label}</span>
-                      {item.badge && (
-                        <span className={`ml-auto w-5 h-5 rounded-full flex items-center justify-center text-[10px] font-bold
-                          ${isActive ? 'bg-primary-foreground/25 text-primary-foreground' : 'bg-orange-400 text-white'}`}>
-                          {item.badge}
-                        </span>
-                      )}
-                    </button>
-                  );
-                })}
-              </div>
+      {/* Navigation */}
+      <nav className="flex-1 overflow-y-auto px-3 py-3 scrollbar-hidden-hover">
+        {menuStructure.map((category) => (
+          <div key={category.category} className="mb-4">
+            <div className="px-3 mb-2">
+              <span className="text-[10px] font-semibold uppercase tracking-[1.2px] text-[hsl(215_16%_62%)]">
+                {category.label}
+              </span>
             </div>
-          ))}
 
-          {/* Super Admin */}
-          {isSuperAdmin && (
-            <div className="mt-2 pt-2 border-t border-amber-500/20">
-              <button
-                onClick={() => handleNavigation('/superadmin')}
-                className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-[13px] font-medium text-amber-500 hover:bg-amber-500/10 transition-all
-                  ${isActivePath('/superadmin') ? 'bg-amber-500/10' : ''}`}
-              >
-                <Shield className="h-4 w-4 flex-shrink-0" />
-                <span>Super Admin</span>
-              </button>
+            <div className="space-y-0.5">
+              {category.items.map((item) => {
+                const isActive = isActivePath(item.path);
+                const Icon = item.icon;
+                return (
+                  <button
+                    key={item.path}
+                    onClick={() => handleNavigation(item.path)}
+                    className={`w-full flex items-center gap-3 px-3 py-3 rounded-lg text-[13px] font-medium cursor-pointer transition-all duration-150 relative
+                      ${isActive
+                        ? 'bg-primary text-primary-foreground font-semibold'
+                        : 'text-muted-foreground hover:bg-muted hover:text-foreground'
+                      }`}
+                  >
+                    <Icon className={`h-4 w-4 flex-shrink-0 ${isActive ? 'opacity-100' : 'opacity-60'}`} />
+                    <span className="truncate">{item.label}</span>
+                    {item.badge && (
+                      <span className={`ml-auto w-5 h-5 rounded-full flex items-center justify-center text-[10px] font-bold
+                        ${isActive ? 'bg-primary-foreground/25 text-primary-foreground' : 'bg-orange-400 text-white'}`}>
+                        {item.badge}
+                      </span>
+                    )}
+                  </button>
+                );
+              })}
             </div>
-          )}
-        </nav>
+          </div>
+        ))}
 
-        {/* Footer */}
-        <div className="p-3 border-t border-border space-y-2">
-          {/* Compact upgrade button */}
-          <button
-            onClick={() => handleNavigation('/upgrade')}
-            className="w-full h-8 flex items-center justify-center gap-1.5 rounded-lg border border-primary/30 text-primary text-xs font-semibold hover:bg-primary hover:text-primary-foreground transition-all duration-200"
-          >
-            <Sparkles className="h-3.5 w-3.5" />
-            Fazer Upgrade
-          </button>
-
-          {/* User row */}
-          <div className="flex items-center gap-2 px-0.5 py-1">
-            <div className="w-8 h-8 rounded-full bg-gradient-to-br from-primary to-primary/70 flex items-center justify-center text-[11px] font-bold text-primary-foreground flex-shrink-0">
-              {getUserInitials()}
-            </div>
-            <div className="min-w-0 flex-1">
-              <div className="text-xs font-semibold text-foreground truncate">{getUserName()}</div>
-              <div className="text-[10px] text-muted-foreground truncate">{getRoleLabel()}</div>
-            </div>
+        {/* Super Admin */}
+        {isSuperAdmin && (
+          <div className="mt-2 pt-2 border-t border-amber-500/20">
             <button
-              onClick={() => navigate('/login')}
-              className="p-1.5 rounded-md text-muted-foreground hover:text-destructive hover:bg-destructive/10 transition-all"
-              aria-label="Sair"
+              onClick={() => handleNavigation('/superadmin')}
+              className={`w-full flex items-center gap-3 px-3 py-3 rounded-lg text-[13px] font-medium text-amber-500 hover:bg-amber-500/10 transition-all
+                ${isActivePath('/superadmin') ? 'bg-amber-500/10' : ''}`}
             >
-              <LogOut className="h-3.5 w-3.5" />
+              <Shield className="h-4 w-4 flex-shrink-0" />
+              <span>Super Admin</span>
             </button>
           </div>
-        </div>
-      </aside>
+        )}
+      </nav>
 
-    </>
+      {/* Footer */}
+      <div className="p-3 border-t border-border space-y-2">
+        <button
+          onClick={() => handleNavigation('/upgrade')}
+          className="w-full h-8 flex items-center justify-center gap-1.5 rounded-lg border border-primary/30 text-primary text-xs font-semibold hover:bg-primary hover:text-primary-foreground transition-all duration-200"
+        >
+          <Sparkles className="h-3.5 w-3.5" />
+          Fazer Upgrade
+        </button>
+
+        <div className="flex items-center gap-2 px-0.5 py-1">
+          <div className="w-8 h-8 rounded-full bg-gradient-to-br from-primary to-primary/70 flex items-center justify-center text-[11px] font-bold text-primary-foreground flex-shrink-0">
+            {getUserInitials()}
+          </div>
+          <div className="min-w-0 flex-1">
+            <div className="text-xs font-semibold text-foreground truncate">{getUserName()}</div>
+            <div className="text-[10px] text-muted-foreground truncate">{getRoleLabel()}</div>
+          </div>
+          <button
+            onClick={() => navigate('/login')}
+            className="p-1.5 rounded-md text-muted-foreground hover:text-destructive hover:bg-destructive/10 transition-all"
+            aria-label="Sair"
+          >
+            <LogOut className="h-3.5 w-3.5" />
+          </button>
+        </div>
+      </div>
+    </aside>
   );
 };
 
