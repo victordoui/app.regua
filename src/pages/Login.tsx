@@ -187,7 +187,7 @@ const Login = () => {
           <div className="flex bg-gray-100 rounded-xl p-1 mb-8">
             <button
               onClick={() => setActiveTab("login")}
-              className={`flex-1 py-2.5 text-sm font-semibold rounded-lg transition-all duration-300 ${
+              className={`flex-1 py-2.5 text-sm font-semibold rounded-lg transition-all duration-300 font-['Open_Sans'] ${
                 activeTab === "login"
                   ? "bg-white text-[#1F4FA3] shadow-sm"
                   : "text-gray-500 hover:text-gray-700"
