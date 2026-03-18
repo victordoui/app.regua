@@ -24,7 +24,7 @@ const MiniCalendarPanel = () => {
   const dowLabels = ["D", "S", "T", "Q", "Q", "S", "S"];
 
   return (
-    <div className="bg-white border border-[hsl(var(--border))] rounded-[14px] p-4">
+    <div className="bg-white border border-[hsl(var(--border))] rounded-[14px] p-5">
       {/* Header */}
       <div className="flex items-center justify-between mb-3">
         <span className="font-heading text-[13px] font-bold text-foreground capitalize">
@@ -62,7 +62,7 @@ const MiniCalendarPanel = () => {
           return (
             <div key={i} className="flex items-center justify-center">
               <div
-                className={`w-[26px] h-[26px] rounded-full flex items-center justify-center text-[11px] cursor-pointer transition-colors relative
+                className={`w-[30px] h-[30px] rounded-full flex items-center justify-center text-[11px] cursor-pointer transition-colors relative
                   ${today ? 'bg-primary text-white font-bold' : ''}
                   ${!inMonth ? 'text-[hsl(var(--clean-gray-300))]' : !today ? 'text-foreground hover:bg-[hsl(var(--primary-100))]' : ''}
                   ${hasApt && !today ? 'font-semibold' : ''}`}

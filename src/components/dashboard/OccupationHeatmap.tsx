@@ -22,9 +22,9 @@ const dayLabels = ["Seg", "Ter", "Qua", "Qui", "Sex", "Sáb", "Dom"];
 
 const OccupationHeatmap = () => {
   return (
-    <div className="bg-white border border-[hsl(var(--border))] rounded-[14px] overflow-hidden">
+    <div className="bg-white border border-[hsl(var(--border))] rounded-[14px] overflow-hidden min-h-[300px]">
       {/* Header */}
-      <div className="flex items-center justify-between px-[18px] pt-[14px] pb-[10px]">
+      <div className="flex items-center justify-between px-5 pt-4 pb-3">
         <span className="font-heading text-[13px] font-bold text-foreground">Ocupação por Horário</span>
         <button className="flex items-center gap-[5px] border border-[hsl(var(--border))] rounded-[7px] px-[10px] py-1 text-[11px] text-muted-foreground bg-transparent cursor-pointer hover:bg-[hsl(var(--card-2))]">
           Esta Semana
@@ -32,7 +32,7 @@ const OccupationHeatmap = () => {
       </div>
 
       {/* Legend */}
-      <div className="px-[18px] pb-1.5 flex gap-2 flex-wrap">
+      <div className="px-5 pb-1.5 flex gap-2 flex-wrap">
         <div className="flex items-center gap-1 text-[10px] text-muted-foreground">
           <div className="w-2.5 h-2.5 rounded-[3px] bg-[hsl(var(--primary-50))]" />Livre
         </div>
@@ -45,8 +45,8 @@ const OccupationHeatmap = () => {
       </div>
 
       {/* Grid */}
-      <div className="px-[18px] pb-[14px]">
-        <div className="grid grid-cols-[38px_repeat(7,1fr)] grid-rows-[24px_repeat(5,36px)] gap-1.5">
+      <div className="px-5 pb-5">
+        <div className="grid grid-cols-[38px_repeat(7,1fr)] grid-rows-[24px_repeat(5,40px)] gap-[6px]">
           {/* Column headers */}
           <div />
           {dayLabels.map(d => (

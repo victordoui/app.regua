@@ -6,15 +6,15 @@ interface RevenueLineChartProps {
 
 const RevenueLineChart: React.FC<RevenueLineChartProps> = ({ data }) => {
   return (
-    <div className="bg-white border border-[hsl(var(--border))] rounded-[14px] overflow-hidden">
-      <div className="flex items-center justify-between px-[18px] pt-[14px] pb-[10px]">
+    <div className="bg-white border border-[hsl(var(--border))] rounded-[14px] overflow-hidden min-h-[300px]">
+      <div className="flex items-center justify-between px-5 pt-4 pb-3">
         <span className="font-heading text-[13px] font-bold text-foreground">Faturamento Mensal</span>
         <button className="flex items-center gap-[5px] border border-[hsl(var(--border))] rounded-[7px] px-[10px] py-1 text-[11px] text-muted-foreground bg-transparent cursor-pointer hover:bg-[hsl(var(--card-2))]">
           Últimos 6 meses
         </button>
       </div>
 
-      <div className="px-[18px] pb-[14px]">
+      <div className="px-5 pb-5">
         {/* Legend */}
         <div className="flex gap-[14px] mb-2.5">
           <div className="flex items-center gap-[5px] text-[11px] text-muted-foreground">
@@ -26,7 +26,7 @@ const RevenueLineChart: React.FC<RevenueLineChartProps> = ({ data }) => {
         </div>
 
         {/* SVG Chart */}
-        <svg width="100%" height="200" viewBox="0 0 340 200" preserveAspectRatio="none" className="block">
+        <svg width="100%" height="240" viewBox="0 0 340 240" preserveAspectRatio="none" className="block">
           <defs>
             <linearGradient id="rg" x1="0" y1="0" x2="0" y2="1">
               <stop offset="0%" stopColor="hsl(217, 91%, 60%)" stopOpacity="0.15" />

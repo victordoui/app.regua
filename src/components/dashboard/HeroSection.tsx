@@ -11,7 +11,7 @@ const HeroSection = () => {
   const companyName = settings?.company_name || "Usuário";
 
   return (
-    <div className="mb-2">
+    <div className="mb-4">
       <div className="flex items-center justify-between mb-1">
         <h1 className="font-heading text-[22px] font-extrabold text-foreground tracking-tight flex items-center gap-2">
           Olá, {companyName} 👋
