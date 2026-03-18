@@ -169,8 +169,8 @@ const Sidebar = () => {
                   <button
                     key={menuItem.path}
                     onClick={() => handleNavigation(menuItem.path)}
-                    className={`w-full flex items-center gap-3 rounded-lg transition-all duration-150 group relative
-                      ${isCollapsed ? 'justify-center px-2 py-2 mx-auto' : 'px-3 py-1.5'}
+                    className={`w-full flex items-center gap-2 rounded-lg transition-all duration-150 group relative
+                      ${isCollapsed ? 'justify-center px-2 py-1.5 mx-auto' : 'px-3 py-1'}
                       ${isActive
                         ? 'bg-card text-primary font-medium'
                         : 'text-muted-foreground hover:bg-card/60 hover:text-foreground'
