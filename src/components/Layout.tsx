@@ -47,9 +47,7 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
       <Sidebar />
       <Topbar />
       <main className="flex-1 md:ml-[234px] overflow-auto px-8 pb-12 pt-[5rem]">
-        <div className="max-w-[1400px] mx-auto">
-          {children}
-        </div>
+        {children}
       </main>
     </div>
   );
