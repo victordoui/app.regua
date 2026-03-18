@@ -47,6 +47,14 @@ const Sidebar = () => {
       items: [{ icon: Home, label: "Painel", path: "/" }]
     },
     {
+      category: "configuracoes", label: "Configurações",
+      items: [
+        { icon: Building, label: "Meu Negócio", path: "/settings/company" },
+        { icon: UserCircle, label: "Meu Perfil", path: "/profile" },
+        { icon: UserCheck, label: "Usuários", path: "/users" }
+      ]
+    },
+    {
       category: "operacoes", label: "Operações",
       items: [
         { icon: Calendar, label: "Agenda", path: "/appointments" },
@@ -76,19 +84,6 @@ const Sidebar = () => {
       items: [
         { icon: Crown, label: "Planos", path: "/subscriptions" },
         { icon: Heart, label: "Rewards", path: "/loyalty" }
-      ]
-    },
-    {
-      category: "empresa", label: "Meu Negócio",
-      items: [
-        { icon: Building, label: "Meu Negócio", path: "/settings/company" }
-      ]
-    },
-    {
-      category: "administracao", label: "Administração",
-      items: [
-        { icon: UserCircle, label: "Meu Perfil", path: "/profile" },
-        { icon: UserCheck, label: "Usuários", path: "/users" }
       ]
     }
   ];
