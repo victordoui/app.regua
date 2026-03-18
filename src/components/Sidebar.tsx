@@ -89,7 +89,6 @@ const Sidebar = () => {
 
   const handleNavigation = (path: string) => {
     navigate(path);
-    setIsOpen(false);
   };
 
   const isActivePath = (path: string) => location.pathname === path;
