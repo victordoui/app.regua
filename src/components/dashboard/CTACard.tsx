@@ -9,10 +9,10 @@ const CTACard: React.FC = () => {
   const navigate = useNavigate();
 
   return (
-    <Card className="rounded-2xl overflow-hidden h-full bg-gradient-to-br from-primary/20 via-primary/10 to-background border-primary/20">
+    <Card className="rounded-xl overflow-hidden h-full border-0 bg-gradient-to-br from-[#1F4FA3]/30 via-[#4FA3FF]/10 to-card border border-[#4FA3FF]/20">
       <CardContent className="p-5 flex flex-col justify-between h-full gap-4">
         <div className="space-y-3">
-          <Badge className="bg-primary/20 text-primary border-0 text-[10px] uppercase tracking-wider">
+          <Badge className="bg-[#4FA3FF]/15 text-[#4FA3FF] border-0 text-[10px] uppercase tracking-wider">
             <Sparkles className="h-3 w-3 mr-1" />
             VIZZU Insights
           </Badge>
@@ -26,10 +26,7 @@ const CTACard: React.FC = () => {
         </div>
 
         <div className="space-y-2">
-          <Button
-            onClick={() => navigate("/reports")}
-            className="w-full gap-2"
-          >
+          <Button onClick={() => navigate("/reports")} className="w-full gap-2">
             <BarChart3 className="h-4 w-4" />
             Ver Relatórios
             <ArrowRight className="h-4 w-4" />

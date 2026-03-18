@@ -1,6 +1,7 @@
 import React from 'react';
-import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Legend } from 'recharts';
+import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Legend, Area } from 'recharts';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Activity } from 'lucide-react';
 
 interface OccupancyChartProps {
   data?: { hour: string; occupancy: number; target: number }[];
@@ -23,62 +24,82 @@ const defaultData = [
 
 const OccupancyChart: React.FC<OccupancyChartProps> = ({ data = defaultData }) => {
   return (
-    <Card>
+    <Card className="rounded-xl border-0">
       <CardHeader className="pb-2">
-        <CardTitle className="text-lg">Taxa de Ocupação por Horário</CardTitle>
+        <CardTitle className="text-base flex items-center gap-2">
+          <div className="p-1.5 rounded-lg bg-gradient-to-br from-[#4FA3FF] to-[#1F4FA3]">
+            <Activity className="h-3.5 w-3.5 text-white" />
+          </div>
+          Taxa de Ocupação por Horário
+        </CardTitle>
       </CardHeader>
       <CardContent>
         <div className="h-[250px]">
           <ResponsiveContainer width="100%" height="100%">
             <LineChart data={data} margin={{ top: 10, right: 10, left: -20, bottom: 0 }}>
-              <CartesianGrid strokeDasharray="3 3" className="stroke-muted" />
-              <XAxis 
-                dataKey="hour" 
-                tick={{ fill: 'hsl(var(--muted-foreground))', fontSize: 12 }}
-                axisLine={{ stroke: 'hsl(var(--border))' }}
+              <defs>
+                <linearGradient id="occupancyGradient" x1="0" y1="0" x2="0" y2="1">
+                  <stop offset="0%" stopColor="#4FA3FF" stopOpacity={0.15} />
+                  <stop offset="100%" stopColor="#4FA3FF" stopOpacity={0} />
+                </linearGradient>
+                <filter id="glow">
+                  <feGaussianBlur stdDeviation="3" result="coloredBlur" />
+                  <feMerge>
+                    <feMergeNode in="coloredBlur" />
+                    <feMergeNode in="SourceGraphic" />
+                  </feMerge>
+                </filter>
+              </defs>
+              <CartesianGrid strokeDasharray="3 3" stroke="#333333" />
+              <XAxis
+                dataKey="hour"
+                tick={{ fill: '#B0B0B0', fontSize: 12 }}
+                axisLine={{ stroke: '#404040' }}
+                tickLine={false}
               />
-              <YAxis 
+              <YAxis
                 domain={[0, 100]}
                 tickFormatter={(value) => `${value}%`}
-                tick={{ fill: 'hsl(var(--muted-foreground))', fontSize: 12 }}
-                axisLine={{ stroke: 'hsl(var(--border))' }}
+                tick={{ fill: '#B0B0B0', fontSize: 12 }}
+                axisLine={false}
+                tickLine={false}
               />
-              <Tooltip 
+              <Tooltip
                 formatter={(value: number, name: string) => [
-                  `${value}%`, 
+                  `${value}%`,
                   name === 'occupancy' ? 'Ocupação' : 'Meta'
                 ]}
-                contentStyle={{ 
-                  backgroundColor: 'hsl(var(--card))',
-                  border: '1px solid hsl(var(--border))',
+                contentStyle={{
+                  backgroundColor: '#282828',
+                  border: '1px solid #404040',
                   borderRadius: '8px',
-                  color: 'hsl(var(--foreground))'
+                  color: '#FFFFFF',
                 }}
-                labelStyle={{ color: 'hsl(var(--foreground))' }}
+                labelStyle={{ color: '#B0B0B0' }}
               />
-              <Legend 
+              <Legend
                 formatter={(value) => (
-                  <span style={{ color: 'hsl(var(--foreground))', fontSize: '12px' }}>
+                  <span style={{ color: '#B0B0B0', fontSize: '12px' }}>
                     {value === 'occupancy' ? 'Ocupação' : 'Meta'}
                   </span>
                 )}
               />
-              <Line 
-                type="monotone" 
-                dataKey="target" 
-                stroke="hsl(var(--muted-foreground))" 
+              <Line
+                type="monotone"
+                dataKey="target"
+                stroke="#404040"
                 strokeWidth={2}
-                strokeDasharray="5 5"
+                strokeDasharray="6 4"
                 dot={false}
                 name="target"
               />
-              <Line 
-                type="monotone" 
-                dataKey="occupancy" 
-                stroke="hsl(var(--primary))" 
-                strokeWidth={2}
-                dot={{ fill: 'hsl(var(--primary))', strokeWidth: 2 }}
-                activeDot={{ r: 6, fill: 'hsl(var(--primary))' }}
+              <Line
+                type="monotone"
+                dataKey="occupancy"
+                stroke="#4FA3FF"
+                strokeWidth={2.5}
+                dot={{ fill: '#4FA3FF', strokeWidth: 0, r: 3, filter: 'url(#glow)' }}
+                activeDot={{ r: 6, fill: '#4FA3FF', stroke: '#1A1A1A', strokeWidth: 2 }}
                 name="occupancy"
               />
             </LineChart>
