@@ -26,33 +26,6 @@ export default defineConfig(({ mode }) => ({
   },
   plugins: [
     react(),
-    VitePWA({
-      registerType: 'autoUpdate',
-      includeAssets: ['logo-vizzu.png', 'robots.txt'],
-      workbox: {
-        maximumFileSizeToCacheInBytes: 5 * 1024 * 1024, // 5 MiB
-        globPatterns: ['**/*.{js,css,ico,png,svg,woff,woff2}'],
-        cleanupOutdatedCaches: true,
-        skipWaiting: true,
-        clientsClaim: true,
-        navigateFallback: null,
-      },
-      manifest: {
-        name: 'VIZZU',
-        short_name: 'VIZZU',
-        description: 'Gestão inteligente de agendamentos para profissionais de serviços.',
-        theme_color: '#0ea5e9',
-        background_color: '#0f172a',
-        display: 'standalone',
-        start_url: '/',
-        scope: '/',
-        lang: 'pt-BR',
-        icons: [
-          { src: '/logo-vizzu.png', sizes: '192x192', type: 'image/png', purpose: 'any maskable' },
-          { src: '/logo-vizzu.png', sizes: '512x512', type: 'image/png', purpose: 'any maskable' }
-        ]
-      }
-    }),
     mode === 'development' && componentTagger(),
   ].filter(Boolean),
   resolve: {
