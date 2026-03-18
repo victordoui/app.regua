@@ -149,7 +149,7 @@ const Login = () => {
                 <div className="w-10 h-10 rounded-lg bg-white/10 flex items-center justify-center flex-shrink-0">
                   <f.icon className="w-5 h-5" />
                 </div>
-                <span className="text-sm font-medium">{f.text}</span>
+                <span className="text-sm font-medium font-['Open_Sans']">{f.text}</span>
               </motion.div>
             ))}
           </div>
