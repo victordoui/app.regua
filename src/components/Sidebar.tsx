@@ -161,7 +161,7 @@ const Sidebar = () => {
                   </span>
                 </div>
               )}
-              {isCollapsed && <div className="my-2 mx-2 border-t border-border/20" />}
+              {isCollapsed && <div className="my-1 mx-2 border-t border-border/20" />}
 
               {category.items.map((menuItem) => {
                 const isActive = isActivePath(menuItem.path);
