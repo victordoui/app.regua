@@ -35,8 +35,8 @@ const ProfessionalsPanel = () => {
         </div>
       ) : (
         displayBarbers.map((barber, i) => {
-          const initials = barber.name
-            ?.split(' ')
+          const initials = (barber.full_name || '')
+            .split(' ')
             .map((n: string) => n[0])
             .join('')
             .slice(0, 2)
