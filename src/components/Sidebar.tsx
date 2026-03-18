@@ -101,16 +101,6 @@ const Sidebar = () => {
     return [];
   }, [isSuperAdmin, isAdmin, isBarbeiro]);
 
-  const filteredMenu = useMemo(() => {
-    if (!searchQuery.trim()) return menuStructure;
-    const q = searchQuery.toLowerCase();
-    return menuStructure
-      .map(cat => ({
-        ...cat,
-        items: cat.items.filter(item => item.label.toLowerCase().includes(q))
-      }))
-      .filter(cat => cat.items.length > 0);
-  }, [menuStructure, searchQuery]);
 
   const handleNavigation = (path: string) => {
     navigate(path);
