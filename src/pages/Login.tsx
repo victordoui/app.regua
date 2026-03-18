@@ -400,7 +400,7 @@ const Login = () => {
 
                     <Button
                       type="submit"
-                      className="w-full h-12 text-base font-semibold rounded-xl text-white shadow-lg hover:shadow-xl transition-all duration-300 group"
+                      className="w-full h-12 text-base font-semibold rounded-xl text-white shadow-lg hover:shadow-xl transition-all duration-300 group font-['Open_Sans']"
                       style={{ background: "linear-gradient(135deg, #4FA3FF, #1F4FA3)" }}
                       disabled={loading}
                     >
