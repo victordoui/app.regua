@@ -142,7 +142,7 @@ function AppContent() {
         <Route path="/dynamic-pricing" element={<Navigate to="/coupons?tab=precos" replace />} />
         <Route path="/inventory" element={<Navigate to="/settings/company?tab=estoque" replace />} />
         <Route path="/gallery" element={<Navigate to="/settings/company?tab=galeria" replace />} />
-        <Route path="/customer-success" element={<Navigate to="/" replace />} />
+        <Route path="/customer-success" element={<Navigate to="/?tab=sucesso-cliente" replace />} />
         <Route path="/barber-performance" element={<Navigate to="/" replace />} />
         <Route path="/reviews" element={<Navigate to="/" replace />} />
         <Route path="/waitlist" element={<Navigate to="/appointments?tab=espera" replace />} />
