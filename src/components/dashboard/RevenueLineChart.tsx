@@ -26,7 +26,7 @@ const RevenueLineChart: React.FC<RevenueLineChartProps> = ({ data }) => {
         </div>
 
         {/* SVG Chart */}
-        <svg width="100%" height="160" viewBox="0 0 340 160" preserveAspectRatio="none" className="block">
+        <svg width="100%" height="200" viewBox="0 0 340 200" preserveAspectRatio="none" className="block">
           <defs>
             <linearGradient id="rg" x1="0" y1="0" x2="0" y2="1">
               <stop offset="0%" stopColor="hsl(217, 91%, 60%)" stopOpacity="0.15" />

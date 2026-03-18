@@ -28,7 +28,7 @@ const DashboardOverview = () => {
   }
 
   return (
-    <div className="space-y-[18px]">
+    <div className="space-y-6">
       <HeroSection />
 
       <KpiStrip
@@ -39,17 +39,17 @@ const DashboardOverview = () => {
       />
 
       {/* Main Grid: Heatmap + Revenue Chart + Right Column */}
-      <div className="grid grid-cols-1 lg:grid-cols-[1fr_1fr_300px] gap-[14px]">
+      <div className="grid grid-cols-1 lg:grid-cols-[1fr_1fr_300px] gap-5">
         <OccupationHeatmap />
         <RevenueLineChart data={monthlyRevenue} />
-        <div className="flex flex-col gap-[14px]">
+        <div className="flex flex-col gap-5">
           <MiniCalendarPanel />
           <TodayAppointmentsPanel />
         </div>
       </div>
 
       {/* Bottom Row */}
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-[14px]">
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-5">
         <RecentTransactionsPanel />
         <ProfessionalsPanel />
         <MonthRevenueDonut monthRevenue={metrics.monthRevenue} />
