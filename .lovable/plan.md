@@ -1,93 +1,125 @@
 
 
-# Analise de Paginas Repetitivas e Consolidacao
+# Redesign Completo — Dark Mode SaaS Profissional
 
-Apos analisar todas as paginas e a sidebar, identifiquei os seguintes problemas:
+## Objetivo
+Transformar todo o sistema (exceto Login) em um dashboard dark mode profissional inspirado na imagem de referência, usando a paleta azul VIZZU como cor primária.
 
----
+## Mudanças Principais
 
-## 1. Paginas sem funcionalidade real (apenas placeholder "Em Desenvolvimento")
+### 1. CSS Variables — Dark Mode como padrão (`src/index.css`)
 
-| Pagina | Rota | Situacao |
+Reescrever as variáveis `:root` para que o modo padrão seja dark, baseado nas specs fornecidas:
+
+| Variável | Valor (HSL) | Hex Aprox. |
 |---|---|---|
-| **Criar / Editar Plano** (`SubscriptionCreation`) | `/subscriptions/new` | Placeholder vazio. A pagina `Subscriptions` ja tem botao "Novo Plano" com dialog funcional |
-| **Integracoes** (`Integrations`) | `/integrations` | Placeholder vazio, sem funcionalidade |
+| `--background` | `0 0% 10%` | `#1A1A1A` |
+| `--card` | `0 0% 16%` | `#282828` |
+| `--foreground` | `0 0% 100%` | `#FFFFFF` |
+| `--muted-foreground` | `0 0% 69%` | `#B0B0B0` |
+| `--border` | `0 0% 25%` | `#404040` |
+| `--input` | `0 0% 16%` | `#282828` |
+| `--primary` | gradient `#4FA3FF → #1F4FA3` (base: `213 100% 65%`) |
+| `--muted` | `0 0% 13%` | `#212121` |
 
-**Recomendacao**: Remover ambas da sidebar. `SubscriptionCreation` e redundante com o dialog que ja existe em `Subscriptions`.
+O `.dark` class mantém os mesmos valores (já é dark por padrão). O light mode (`:root` sem `.dark`) recebe os valores atuais do light mode como fallback, mas o tema padrão será forçado como `dark`.
 
----
+Sombras atualizadas para dark mode: `rgba(0,0,0,0.3)` base.
 
-## 2. Paginas que podem ser consolidadas como abas
+### 2. Forçar Dark Mode como padrão (`src/App.tsx`)
 
-### 2a. **Comissoes + Regras de Comissao** → Uma unica pagina com abas
-- `Commissions` (`/commissions`) - Calcula comissoes por periodo
-- `CommissionRules` (`/commission-rules`) - Configura regras de comissao
-- Ja existe um botao "Gerenciar Regras" em Comissoes que navega para CommissionRules
+Alterar `ThemeProvider` para `defaultTheme="dark"` e `forcedTheme="dark"` (ou remover toggle). Manter `ThemeToggle` funcional caso o usuário queira light mode futuro, mas o padrão será dark.
 
-**Proposta**: Unificar em `/commissions` com 2 abas: "Comissoes" e "Regras"
+### 3. Sidebar (`src/components/Sidebar.tsx`)
 
-### 2b. **Relatorios + Relatorios de Vendas** → Uma unica pagina com abas
-- `Reports` (`/reports`) - Visao financeira geral (receita, agendamentos, clientes)
-- `SalesReports` (`/sales-reports`) - Analise de vendas e ticket medio
-- Ambas mostram dados financeiros com sobreposicao (receita, servicos populares, ticket medio)
+- Background: `bg-[#1A1A1A]` (igual ao fundo principal, sem borda separadora forte)
+- Item ativo: fundo `bg-[#282828]` com texto/ícone `text-primary` (#4FA3FF)
+- Itens inativos: `text-[#B0B0B0]`
+- Category labels: `text-[#808080]` uppercase
+- Borda direita sutil: `border-[#282828]`
+- User footer com avatar circular
 
-**Proposta**: Unificar em `/reports` com abas: "Visao Geral", "Vendas", "Servicos", "Clientes"
+### 4. Header/Layout (`src/components/Layout.tsx`)
 
-### 2c. **Notificacoes Avancadas + Campanhas** → Sobreposicao significativa
-- `AdvancedNotifications` (`/advanced-notifications`) - Tem abas internas: Templates, **Campanhas**, Historico, Configuracoes
-- `Campaigns` (`/campaigns`) - Gerencia campanhas de email
+- Background: `bg-[#1A1A1A]`
+- Search input: `bg-[#282828] border-[#404040]` text white, placeholder `#B0B0B0`
+- Ícones: `text-[#B0B0B0]` hover `text-white`
+- Botão "Create" estilo: gradient primary azul, rounded-full
 
-A aba "Campanhas" dentro de Notificacoes Avancadas e a pagina Campanhas fazem a mesma coisa.
+### 5. Cards (`src/components/ui/card.tsx`)
 
-**Proposta**: Manter `Campanhas` como pagina independente (mais completa) e remover a aba de campanhas de dentro de AdvancedNotifications, ou vice-versa. A opcao mais limpa e manter so `AdvancedNotifications` que ja tem tudo integrado e remover `Campaigns` da sidebar.
+- Background: `bg-[#282828]`
+- Border: `border-[#333333]/50`
+- Shadow: `0px 4px 10px rgba(0,0,0,0.3)`
+- Hover: sombra levemente mais forte
+- `border-radius: 12px`
 
-### 2d. **Fidelidade + Indicacoes** → Programa de engajamento
-- `Loyalty` (`/loyalty`) - Pontos e recompensas
-- `Referrals` (`/referrals`) - Indicacoes e recompensas
+### 6. StatusCards (`src/components/ui/status-cards.tsx`)
 
-Ambas tratam de recompensar clientes. Podem ser abas de uma unica pagina "Engajamento" ou "Fidelidade & Indicacoes".
+- Background `#282828`, border-left colorido mantido
+- Texto de valor em branco ou cor de destaque
+- Label em `#B0B0B0`
+- Shadow dark mode
 
-**Proposta**: Unificar em `/loyalty` com abas: "Pontos e Recompensas" e "Indicacoes"
+### 7. Tabs (`src/components/ui/tabs.tsx`)
 
----
+- TabsList: `bg-[#1A1A1A]` ou `bg-[#212121]`
+- Tab ativa: `bg-[#282828]` text white, shadow sutil
+- Tab inativa: `text-[#B0B0B0]`
 
-## 3. Paginas com funcionalidade duplicada
+### 8. Buttons (`src/components/ui/button.tsx`)
 
-### 3a. **Configuracoes Gerais vs Empresa**
-- `Settings` (`/settings`) - Formulario basico com dados da barbearia + perfil do usuario
-- `CompanySettings` (`/settings/company`) - Formulario completo com dados da empresa, identidade visual, link de agendamento
+- Default/primary: `bg-gradient-to-r from-[#4FA3FF] to-[#1F4FA3]` text white
+- Secondary: `bg-[#282828] text-[#4FA3FF]`
+- Outline: `border-[#404040] text-white hover:bg-[#282828]`
+- Ghost: `text-[#B0B0B0] hover:bg-[#282828] hover:text-white`
+- border-radius `8px`
 
-`Settings` e uma versao pobre de `CompanySettings` + `Profile`. Tudo que tem em Settings ja existe melhor em CompanySettings e Profile.
+### 9. Input (`src/components/ui/input.tsx`)
 
-**Proposta**: Remover `Settings` da sidebar. Manter apenas `CompanySettings` (Empresa) e `Profile` (Meu Perfil).
+- `bg-[#282828] border-[#404040] text-white placeholder:text-[#808080]`
 
-### 3b. **Conversas vs Chat da Equipe**
-- `Conversations` (`/conversations`) - Chat com clientes (mock data)
-- `TeamChat` (`/team-chat`) - Chat interno da equipe
+### 10. PageHeader (`src/components/ui/page-header.tsx`)
 
-Sao funcionalidades diferentes mas ambas sao chat. Podem coexistir, porem `Conversations` usa apenas dados mock e nao tem funcionalidade real.
+- Title: `text-white`
+- Subtitle: `text-[#B0B0B0]`
+- Icon container: `bg-[#282828] text-primary`
 
-**Proposta**: Se Conversations nao tem integracao real, considerar remove-la ou marca-la como "em breve".
+### 11. SearchFilters (`src/components/ui/search-filters.tsx`)
 
-### 3c. **Agendamento Online (admin)** duplica funcionalidade
-- `OnlineBooking` (`/booking`) - Formulario de agendamento interno com dados mock
-- A pagina `Appointments` ja permite criar agendamentos
+- Input dark themed
+- Filter chips: `bg-[#282828] text-[#B0B0B0] border-[#404040]`
 
-**Proposta**: Remover `OnlineBooking` da sidebar. O agendamento ja e feito pela pagina de Appointments.
+### 12. Tabelas (se houver `table.tsx`)
 
----
+- Header: `bg-[#1A1A1A] text-white`
+- Rows alternadas: `#282828` / `#2E2E2E`
+- Text: `text-[#B0B0B0]`
 
-## Resumo das acoes propostas
+### 13. Popover, Dialog, DropdownMenu, Select, Sheet
 
-| Acao | Detalhes |
-|---|---|
-| **Remover da sidebar** | `SubscriptionCreation`, `Integracoes`, `Settings`, `OnlineBooking` |
-| **Consolidar Comissoes + Regras** | Uma pagina com 2 abas |
-| **Consolidar Relatorios + Rel. Vendas** | Uma pagina com abas expandidas |
-| **Consolidar Fidelidade + Indicacoes** | Uma pagina com 2 abas |
-| **Resolver duplicata Campanhas** | Manter apenas em AdvancedNotifications ou apenas Campaigns (nao ambas) |
+Estes componentes shadcn herdam de `--popover` e `--card`, então a mudança nas CSS variables cuida da maior parte. Verificar que não há classes hardcoded de light mode.
 
-Isso reduziria a sidebar de ~30 itens para ~24, tornando a navegacao mais limpa e eliminando confusao.
+## Arquivos a editar (~12 arquivos)
 
-Deseja que eu implemente alguma dessas consolidacoes? Posso comecar por qualquer grupo.
+1. `src/index.css` — variáveis dark mode como padrão
+2. `src/App.tsx` — `defaultTheme="dark"`
+3. `src/components/Sidebar.tsx` — cores dark
+4. `src/components/Layout.tsx` — header dark
+5. `src/components/ui/card.tsx` — dark card style
+6. `src/components/ui/button.tsx` — gradient primary
+7. `src/components/ui/input.tsx` — dark input
+8. `src/components/ui/tabs.tsx` — dark tabs
+9. `src/components/ui/page-header.tsx` — dark header
+10. `src/components/ui/status-cards.tsx` — dark cards
+11. `src/components/ui/search-filters.tsx` — dark filters
+12. `src/components/ui/table.tsx` — dark table rows
+
+## O que NÃO muda
+- `src/pages/Login.tsx` — mantém design atual
+- Lógica de dados, hooks, rotas — zero alterações
+- Estrutura de páginas (PageHeader + Tabs + StatusCards + SearchFilters) — mantida
+
+## Resultado
+Interface dark mode profissional, coesa, com paleta azul VIZZU, inspirada na referência Canto Dashboard.
 
