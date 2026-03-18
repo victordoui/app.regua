@@ -2,9 +2,7 @@ import React from "react";
 import { useNavigate } from "react-router-dom";
 import { useCompanySettings } from "@/hooks/useCompanySettings";
 import { useRealtimeDashboard } from "@/hooks/useRealtimeDashboard";
-import { format } from "date-fns";
-import { ptBR } from "date-fns/locale";
-import { Calendar, Plus, SlidersHorizontal } from "lucide-react";
+import { Plus, SlidersHorizontal } from "lucide-react";
 
 const HeroSection = () => {
   const navigate = useNavigate();
