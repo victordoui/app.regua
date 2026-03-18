@@ -1,6 +1,6 @@
 import React from "react";
-import { Calendar, CheckCircle, Clock, XCircle } from "lucide-react";
-import { useAuth } from "@/contexts/AuthContext";
+import { Calendar, Clock, DollarSign, Users, TrendingUp, CheckCircle } from "lucide-react";
+import { useSubscriptions } from "@/hooks/useSubscriptions";
 import { useRealtimeDashboard } from "@/hooks/useRealtimeDashboard";
 import { motion } from "framer-motion";
 import RevenueChart from "@/components/charts/RevenueChart";
@@ -9,15 +9,13 @@ import OccupancyChart from "@/components/charts/OccupancyChart";
 import RecentActivities from "@/components/dashboard/RecentActivities";
 import BirthdayClients from "@/components/dashboard/BirthdayClients";
 import InactiveClients from "@/components/dashboard/InactiveClients";
+import ProfileCard from "@/components/dashboard/ProfileCard";
+import StatMiniCard from "@/components/dashboard/StatMiniCard";
 import TodayScheduleCard from "@/components/dashboard/TodayScheduleCard";
-import DashboardStatCard from "@/components/dashboard/DashboardStatCard";
+import CTACard from "@/components/dashboard/CTACard";
 
 const DashboardOverview = () => {
-  const { user } = useAuth();
   const { metrics, monthlyRevenue, isLoading } = useRealtimeDashboard();
-
-  const firstName = user?.user_metadata?.full_name?.split(" ")[0] || 
-                    user?.email?.split("@")[0] || "Usuário";
 
   const container = {
     hidden: { opacity: 0 },
@@ -32,97 +30,73 @@ const DashboardOverview = () => {
   if (isLoading) {
     return (
       <div className="flex items-center justify-center min-h-[400px]">
-        <div className="text-muted-foreground font-inter">Carregando dashboard...</div>
+        <div className="text-muted-foreground">Carregando dashboard...</div>
       </div>
     );
   }
 
-  const pendingCount = metrics.monthAppointments - Math.round(metrics.monthAppointments * metrics.completedRate / 100);
-  const completedCount = metrics.monthAppointments - pendingCount;
-  const cancelledEstimate = Math.round(metrics.monthAppointments * 0.05);
-
   return (
-    <motion.div variants={container} initial="hidden" animate="show" className="space-y-6 font-inter">
-      {/* Welcome Section */}
-      <motion.div variants={item}>
-        <h1 className="text-2xl font-extrabold text-foreground font-montserrat">
-          Organize e cresça, {firstName}! 🔥
-        </h1>
-        <p className="text-sm text-muted-foreground mt-1 font-opensans">
-          Acompanhe seus agendamentos, receita e desempenho em tempo real.
-        </p>
-      </motion.div>
-
-      {/* 4 Status Cards */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+    <motion.div variants={container} initial="hidden" animate="show" className="space-y-6">
+      {/* Section 1 — Top: Profile + Stats + Revenue */}
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         <motion.div variants={item}>
-          <DashboardStatCard
-            title="Agendamentos Hoje"
+          <ProfileCard />
+        </motion.div>
+
+        <motion.div variants={item} className="space-y-4">
+          <StatMiniCard
+            label="Agendamentos Hoje"
             value={metrics.todayAppointments.toString()}
-            subtitle={`${metrics.monthAppointments} este mês`}
             icon={Calendar}
-            iconBgClass="bg-primary/10"
-            iconColorClass="text-primary"
+            borderColor="border-primary"
+            subtitle={`${metrics.monthAppointments} este mês`}
           />
-        </motion.div>
-        <motion.div variants={item}>
-          <DashboardStatCard
-            title="Concluídos"
-            value={completedCount.toString()}
-            subtitle="nas últimas 24h"
+          <StatMiniCard
+            label="Taxa de Conclusão"
+            value={`${metrics.completedRate}%`}
             icon={CheckCircle}
-            iconBgClass="bg-green-100 dark:bg-green-900/30"
-            iconColorClass="text-green-600"
+            borderColor="border-primary/60"
+            subtitle={`${metrics.totalClients} clientes cadastrados`}
+          />
+          <StatMiniCard
+            label="Novos Clientes"
+            value={metrics.newClientsThisMonth.toString()}
+            icon={Users}
+            borderColor="border-accent"
+            subtitle={`Total: ${metrics.totalClients}`}
           />
         </motion.div>
-        <motion.div variants={item}>
-          <DashboardStatCard
-            title="Pendentes"
-            value={pendingCount.toString()}
-            subtitle="aguardando confirmação"
-            icon={Clock}
-            iconBgClass="bg-amber-100 dark:bg-amber-900/30"
-            iconColorClass="text-amber-600"
-          />
-        </motion.div>
-        <motion.div variants={item}>
-          <DashboardStatCard
-            title="Cancelados"
-            value={cancelledEstimate.toString()}
-            subtitle="nas últimas 24h"
-            icon={XCircle}
-            iconBgClass="bg-red-100 dark:bg-red-900/30"
-            iconColorClass="text-red-600"
-          />
-        </motion.div>
-      </div>
 
-      {/* 2 Charts side by side */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         <motion.div variants={item}>
           <RevenueChart data={monthlyRevenue} />
         </motion.div>
-        <motion.div variants={item}>
-          <OccupancyChart />
-        </motion.div>
       </div>
 
-      {/* Today Schedule — full width */}
+      {/* Section 2 — Occupancy (full width) */}
       <motion.div variants={item}>
-        <TodayScheduleCard />
+        <OccupancyChart />
       </motion.div>
 
-      {/* Services Chart + Recent Activities */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+      {/* Section 3 — Bottom: Schedule + Services + CTA */}
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        <motion.div variants={item}>
+          <TodayScheduleCard />
+        </motion.div>
         <motion.div variants={item}>
           <ServicesChart />
         </motion.div>
-        <RecentActivities />
+        <motion.div variants={item}>
+          <CTACard />
+        </motion.div>
       </div>
 
-      {/* Birthday + Inactive */}
+      {/* Existing sections */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        <RecentActivities />
         <BirthdayClients />
+      </div>
+
+      <div className="grid grid-cols-1 gap-6">
         <InactiveClients />
       </div>
     </motion.div>
