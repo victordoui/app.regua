@@ -160,8 +160,8 @@ const Sidebar = () => {
           {menuStructure.map((category) => (
             <div key={category.category} className="mb-1">
               {!isCollapsed && (
-                <div className="px-3 pt-4 pb-1.5">
-                  <span className="text-[10px] font-semibold uppercase tracking-widest text-muted-foreground/50">
+              <div className="px-3 pt-4 pb-1.5">
+                  <span className="text-[10px] font-semibold uppercase tracking-widest text-muted-foreground/60">
                     {category.label}
                   </span>
                 </div>
