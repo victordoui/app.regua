@@ -46,7 +46,7 @@ const OccupationHeatmap = () => {
 
       {/* Grid */}
       <div className="px-[18px] pb-[14px]">
-        <div className="grid grid-cols-[38px_repeat(7,1fr)] grid-rows-[20px_repeat(5,28px)] gap-1">
+        <div className="grid grid-cols-[38px_repeat(7,1fr)] grid-rows-[24px_repeat(5,36px)] gap-1.5">
           {/* Column headers */}
           <div />
           {dayLabels.map(d => (
