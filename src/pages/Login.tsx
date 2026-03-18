@@ -426,7 +426,7 @@ const Login = () => {
           <div className="text-center mt-10">
             <button
               onClick={() => navigate('/vendas')}
-              className="text-[#1F4FA3] hover:underline text-sm font-medium mb-3 block mx-auto"
+              className="text-[#1F4FA3] hover:underline text-sm font-medium mb-3 block mx-auto font-['Open_Sans']"
             >
               Conheça nossos planos →
             </button>
