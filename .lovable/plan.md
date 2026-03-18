@@ -1,93 +1,49 @@
 
 
-# Analise de Paginas Repetitivas e Consolidacao
+# Ajustar Layout do Dashboard — Visual SaaS Premium
 
-Apos analisar todas as paginas e a sidebar, identifiquei os seguintes problemas:
+## Resumo
+Ajustar proporções, espaçamentos e alturas dos componentes do dashboard para eliminar o aspecto "achatado/wide" e criar um visual mais equilibrado e premium.
 
----
+## Arquivos a editar (7 arquivos)
 
-## 1. Paginas sem funcionalidade real (apenas placeholder "Em Desenvolvimento")
+### 1. `src/components/dashboard/DashboardOverview.tsx`
+- Envolver todo o conteúdo em um container com `max-w-[1280px] mx-auto`
+- Aumentar `space-y-6` para `space-y-7`
+- Alterar grid principal de `lg:grid-cols-[1fr_1fr_300px]` para `lg:grid-cols-[2fr_2fr_1fr]` com `gap-6`
+- Grid inferior: `gap-6`
 
-| Pagina | Rota | Situacao |
-|---|---|---|
-| **Criar / Editar Plano** (`SubscriptionCreation`) | `/subscriptions/new` | Placeholder vazio. A pagina `Subscriptions` ja tem botao "Novo Plano" com dialog funcional |
-| **Integracoes** (`Integrations`) | `/integrations` | Placeholder vazio, sem funcionalidade |
+### 2. `src/components/dashboard/KpiStrip.tsx`
+- Alterar grid de `lg:grid-cols-4` para `grid-cols-[repeat(auto-fit,minmax(240px,1fr))]`
+- Aumentar `gap-4` para `gap-5`
+- Card: adicionar `min-h-[130px]`, aumentar padding para `p-6`, mudar layout para `flex flex-col justify-between`
+- Valor principal: manter `text-[28px]`
+- Label: `text-[11px]`
 
-**Recomendacao**: Remover ambas da sidebar. `SubscriptionCreation` e redundante com o dialog que ja existe em `Subscriptions`.
+### 3. `src/components/dashboard/OccupationHeatmap.tsx`
+- Adicionar `min-h-[300px]` ao container
+- Aumentar padding: `px-5 pb-5`
+- Grid: aumentar `gap-1.5` para `gap-[6px]`, row height de `36px` para `40px`
+- Header padding: `px-5 pt-4 pb-3`
 
----
+### 4. `src/components/dashboard/RevenueLineChart.tsx`
+- Adicionar `min-h-[300px]` ao container
+- Aumentar SVG height de `200` para `240`
+- Aumentar padding: `px-5 pb-5`
 
-## 2. Paginas que podem ser consolidadas como abas
+### 5. `src/components/dashboard/MiniCalendarPanel.tsx`
+- Aumentar padding de `p-4` para `p-5`
+- Aumentar tamanho das células do dia de `w-[26px] h-[26px]` para `w-[30px] h-[30px]`
 
-### 2a. **Comissoes + Regras de Comissao** → Uma unica pagina com abas
-- `Commissions` (`/commissions`) - Calcula comissoes por periodo
-- `CommissionRules` (`/commission-rules`) - Configura regras de comissao
-- Ja existe um botao "Gerenciar Regras" em Comissoes que navega para CommissionRules
+### 6. `src/components/dashboard/RecentTransactionsPanel.tsx`, `ProfessionalsPanel.tsx`, `MonthRevenueDonut.tsx`
+- Adicionar `min-h-[260px]` ao container de cada um
+- Aumentar padding do header: `px-5 pt-4 pb-3`
+- Aumentar padding interno das linhas/conteúdo
 
-**Proposta**: Unificar em `/commissions` com 2 abas: "Comissoes" e "Regras"
+### 7. `src/components/dashboard/HeroSection.tsx`
+- Aumentar `mb-2` para `mb-4` para mais respiro antes dos KPIs
 
-### 2b. **Relatorios + Relatorios de Vendas** → Uma unica pagina com abas
-- `Reports` (`/reports`) - Visao financeira geral (receita, agendamentos, clientes)
-- `SalesReports` (`/sales-reports`) - Analise de vendas e ticket medio
-- Ambas mostram dados financeiros com sobreposicao (receita, servicos populares, ticket medio)
-
-**Proposta**: Unificar em `/reports` com abas: "Visao Geral", "Vendas", "Servicos", "Clientes"
-
-### 2c. **Notificacoes Avancadas + Campanhas** → Sobreposicao significativa
-- `AdvancedNotifications` (`/advanced-notifications`) - Tem abas internas: Templates, **Campanhas**, Historico, Configuracoes
-- `Campaigns` (`/campaigns`) - Gerencia campanhas de email
-
-A aba "Campanhas" dentro de Notificacoes Avancadas e a pagina Campanhas fazem a mesma coisa.
-
-**Proposta**: Manter `Campanhas` como pagina independente (mais completa) e remover a aba de campanhas de dentro de AdvancedNotifications, ou vice-versa. A opcao mais limpa e manter so `AdvancedNotifications` que ja tem tudo integrado e remover `Campaigns` da sidebar.
-
-### 2d. **Fidelidade + Indicacoes** → Programa de engajamento
-- `Loyalty` (`/loyalty`) - Pontos e recompensas
-- `Referrals` (`/referrals`) - Indicacoes e recompensas
-
-Ambas tratam de recompensar clientes. Podem ser abas de uma unica pagina "Engajamento" ou "Fidelidade & Indicacoes".
-
-**Proposta**: Unificar em `/loyalty` com abas: "Pontos e Recompensas" e "Indicacoes"
-
----
-
-## 3. Paginas com funcionalidade duplicada
-
-### 3a. **Configuracoes Gerais vs Empresa**
-- `Settings` (`/settings`) - Formulario basico com dados da barbearia + perfil do usuario
-- `CompanySettings` (`/settings/company`) - Formulario completo com dados da empresa, identidade visual, link de agendamento
-
-`Settings` e uma versao pobre de `CompanySettings` + `Profile`. Tudo que tem em Settings ja existe melhor em CompanySettings e Profile.
-
-**Proposta**: Remover `Settings` da sidebar. Manter apenas `CompanySettings` (Empresa) e `Profile` (Meu Perfil).
-
-### 3b. **Conversas vs Chat da Equipe**
-- `Conversations` (`/conversations`) - Chat com clientes (mock data)
-- `TeamChat` (`/team-chat`) - Chat interno da equipe
-
-Sao funcionalidades diferentes mas ambas sao chat. Podem coexistir, porem `Conversations` usa apenas dados mock e nao tem funcionalidade real.
-
-**Proposta**: Se Conversations nao tem integracao real, considerar remove-la ou marca-la como "em breve".
-
-### 3c. **Agendamento Online (admin)** duplica funcionalidade
-- `OnlineBooking` (`/booking`) - Formulario de agendamento interno com dados mock
-- A pagina `Appointments` ja permite criar agendamentos
-
-**Proposta**: Remover `OnlineBooking` da sidebar. O agendamento ja e feito pela pagina de Appointments.
-
----
-
-## Resumo das acoes propostas
-
-| Acao | Detalhes |
-|---|---|
-| **Remover da sidebar** | `SubscriptionCreation`, `Integracoes`, `Settings`, `OnlineBooking` |
-| **Consolidar Comissoes + Regras** | Uma pagina com 2 abas |
-| **Consolidar Relatorios + Rel. Vendas** | Uma pagina com abas expandidas |
-| **Consolidar Fidelidade + Indicacoes** | Uma pagina com 2 abas |
-| **Resolver duplicata Campanhas** | Manter apenas em AdvancedNotifications ou apenas Campaigns (nao ambas) |
-
-Isso reduziria a sidebar de ~30 itens para ~24, tornando a navegacao mais limpa e eliminando confusao.
-
-Deseja que eu implemente alguma dessas consolidacoes? Posso comecar por qualquer grupo.
+## Regras mantidas
+- Sem alteração de cores, fontes ou identidade visual
+- Apenas proporção, espaçamento e layout
 
