@@ -13,7 +13,7 @@ import {
   Crown, Heart,
   Building, UserCircle, UserCheck,
   ShoppingCart, Tag,
-  Shield, Search, LogOut,
+  Shield, LogOut,
   Menu, X, ChevronUp
 } from "lucide-react";
 
@@ -25,7 +25,6 @@ const BARBER_CATEGORIES = new Set(['operacoes', 'comunicacao', 'administracao'])
 const Sidebar = () => {
   const [isOpen, setIsOpen] = useState(false);
   const [isMobile, setIsMobile] = useState(false);
-  const [searchQuery, setSearchQuery] = useState("");
   const navigate = useNavigate();
   const location = useLocation();
   const { isSuperAdmin, isAdmin, isBarbeiro } = useRole();
@@ -41,17 +40,6 @@ const Sidebar = () => {
     return () => window.removeEventListener('resize', checkMobile);
   }, []);
 
-  // ⌘K shortcut
-  useEffect(() => {
-    const handler = (e: KeyboardEvent) => {
-      if ((e.metaKey || e.ctrlKey) && e.key === 'k') {
-        e.preventDefault();
-        document.getElementById('sb-search-input')?.focus();
-      }
-    };
-    window.addEventListener('keydown', handler);
-    return () => window.removeEventListener('keydown', handler);
-  }, []);
 
   const fullMenuStructure = [
     {
@@ -113,16 +101,6 @@ const Sidebar = () => {
     return [];
   }, [isSuperAdmin, isAdmin, isBarbeiro]);
 
-  const filteredMenu = useMemo(() => {
-    if (!searchQuery.trim()) return menuStructure;
-    const q = searchQuery.toLowerCase();
-    return menuStructure
-      .map(cat => ({
-        ...cat,
-        items: cat.items.filter(item => item.label.toLowerCase().includes(q))
-      }))
-      .filter(cat => cat.items.length > 0);
-  }, [menuStructure, searchQuery]);
 
   const handleNavigation = (path: string) => {
     navigate(path);
@@ -170,25 +148,10 @@ const Sidebar = () => {
           <img src={vizzuLogo} alt="VIZZU" className="h-32 w-32 object-contain" />
         </div>
 
-        {/* Search */}
-        <div className="mx-3 mt-[14px] mb-2 flex items-center gap-2 bg-[hsl(var(--card-2))] border border-[hsl(var(--border))] rounded-[10px] px-3 py-2 focus-within:border-primary transition-colors">
-          <Search className="h-3.5 w-3.5 text-muted-foreground flex-shrink-0" />
-          <input
-            id="sb-search-input"
-            type="text"
-            placeholder="Buscar..."
-            value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
-            className="border-none bg-transparent outline-none text-xs text-foreground w-full placeholder:text-muted-foreground font-body"
-          />
-          <kbd className="text-[10px] text-muted-foreground border border-[hsl(var(--border))] rounded px-1.5 py-0.5 whitespace-nowrap flex-shrink-0">
-            ⌘K
-          </kbd>
-        </div>
 
         {/* Navigation */}
         <nav className="flex-1 overflow-y-auto px-[10px] py-1 scrollbar-modern">
-          {filteredMenu.map((category) => (
+          {menuStructure.map((category) => (
             <div key={category.category} className="mb-5">
               {/* Section label */}
               <div className="flex items-center gap-2 px-[10px] mb-1">
