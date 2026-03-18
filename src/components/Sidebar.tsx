@@ -2,7 +2,6 @@ import { useMemo } from "react";
 import vizzuLogo from "@/assets/vizzu-logo.png";
 import { useNavigate, useLocation } from "react-router-dom";
 import { useRole } from "@/contexts/RoleContext";
-import { useRole } from "@/contexts/RoleContext";
 import { useAuth } from "@/contexts/AuthContext";
 import {
   Home, BarChart3,
