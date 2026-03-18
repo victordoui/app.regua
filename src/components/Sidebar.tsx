@@ -1,4 +1,5 @@
 import { useState, useEffect, useMemo } from "react";
+import vizzuLogo from "@/assets/vizzu-logo.png";
 import { useNavigate, useLocation } from "react-router-dom";
 import { Badge } from "@/components/ui/badge";
 import { motion, AnimatePresence } from "framer-motion";
