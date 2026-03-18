@@ -150,7 +150,7 @@
 
   /* Typography — Montserrat for headings, Open Sans for body */
   html, body {
-    font-family: "Open Sans", sans-serif;
+    font-family: "Montserrat", sans-serif;
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
     text-rendering: optimizeLegibility;
@@ -158,11 +158,12 @@
   }
 
   h1, h2, h3, h4, h5, h6 {
-    font-family: "Nunito", sans-serif;
+    font-family: "Montserrat", sans-serif;
+    letter-spacing: -0.02em;
   }
 
-  h1 { @apply text-[26px] font-bold text-foreground; }
-  h2 { @apply text-xl font-bold; }
+  h1 { @apply text-2xl font-extrabold tracking-tight text-foreground; }
+  h2 { @apply text-xl font-bold tracking-tight; }
   h3 { @apply text-lg font-bold; }
   h4 { @apply text-base font-semibold; }
   h5 { @apply text-sm font-semibold; }

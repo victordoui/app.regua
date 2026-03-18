@@ -13,7 +13,7 @@ const HeroSection = () => {
   return (
     <div className="mb-1">
       <div className="flex items-center justify-between mb-1">
-        <h1 className="text-[24px] font-bold text-foreground flex items-center gap-2">
+        <h1 className="font-heading text-[22px] font-extrabold text-foreground tracking-tight flex items-center gap-2">
           Olá, {companyName} 👋
         </h1>
         <div className="flex items-center gap-2.5">
