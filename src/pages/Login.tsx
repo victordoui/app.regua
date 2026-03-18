@@ -134,8 +134,8 @@ const Login = () => {
           className="relative z-10 text-center max-w-md"
         >
           <img src={vizzuIcon} alt="VIZZU" className="w-28 h-28 mx-auto mb-6 object-contain drop-shadow-2xl" />
-          <h1 className="text-4xl font-bold text-white mb-3 tracking-tight">VIZZU</h1>
-          <p className="text-white/80 text-lg mb-10">Visualize. Organize. Cresça.</p>
+          <h1 className="text-4xl font-extrabold text-white mb-3 tracking-tight font-['Montserrat']">VIZZU</h1>
+          <p className="text-white/80 text-lg mb-10 font-['Open_Sans']">Visualize. Organize. Cresça.</p>
 
           <div className="space-y-4">
             {features.map((f, i) => (
@@ -149,7 +149,7 @@ const Login = () => {
                 <div className="w-10 h-10 rounded-lg bg-white/10 flex items-center justify-center flex-shrink-0">
                   <f.icon className="w-5 h-5" />
                 </div>
-                <span className="text-sm font-medium">{f.text}</span>
+                <span className="text-sm font-medium font-['Open_Sans']">{f.text}</span>
               </motion.div>
             ))}
           </div>
@@ -162,8 +162,8 @@ const Login = () => {
         style={{ background: "linear-gradient(135deg, #4FA3FF, #1F4FA3, #0F2F6B)" }}
       >
         <img src={vizzuIcon} alt="VIZZU" className="w-16 h-16 mx-auto mb-2 object-contain" />
-        <h1 className="text-2xl font-bold text-white">VIZZU</h1>
-        <p className="text-white/70 text-sm">Visualize. Organize. Cresça.</p>
+        <h1 className="text-2xl font-extrabold text-white font-['Montserrat']">VIZZU</h1>
+        <p className="text-white/70 text-sm font-['Open_Sans']">Visualize. Organize. Cresça.</p>
       </div>
 
       {/* Right Panel - Form */}
@@ -175,10 +175,10 @@ const Login = () => {
           className="w-full max-w-md"
         >
           <div className="mb-8">
-            <h2 className="text-2xl font-bold text-[#0F2F6B]">
+            <h2 className="text-2xl font-bold text-[#0F2F6B] font-['Montserrat']">
               {activeTab === "login" ? "Bem-vindo de volta" : "Crie sua conta"}
             </h2>
-            <p className="text-gray-500 mt-1">
+            <p className="text-gray-500 mt-1 font-['Open_Sans']">
               {activeTab === "login" ? "Acesse sua conta para continuar" : "Comece a gerenciar seus agendamentos"}
             </p>
           </div>
@@ -187,7 +187,7 @@ const Login = () => {
           <div className="flex bg-gray-100 rounded-xl p-1 mb-8">
             <button
               onClick={() => setActiveTab("login")}
-              className={`flex-1 py-2.5 text-sm font-semibold rounded-lg transition-all duration-300 ${
+              className={`flex-1 py-2.5 text-sm font-semibold rounded-lg transition-all duration-300 font-['Open_Sans'] ${
                 activeTab === "login"
                   ? "bg-white text-[#1F4FA3] shadow-sm"
                   : "text-gray-500 hover:text-gray-700"
@@ -197,7 +197,7 @@ const Login = () => {
             </button>
             <button
               onClick={() => setActiveTab("register")}
-              className={`flex-1 py-2.5 text-sm font-semibold rounded-lg transition-all duration-300 ${
+              className={`flex-1 py-2.5 text-sm font-semibold rounded-lg transition-all duration-300 font-['Open_Sans'] ${
                 activeTab === "register"
                   ? "bg-white text-[#1F4FA3] shadow-sm"
                   : "text-gray-500 hover:text-gray-700"
@@ -223,7 +223,7 @@ const Login = () => {
                       name="email"
                       render={({ field }) => (
                         <FormItem>
-                          <FormLabel className="text-gray-700">E-mail</FormLabel>
+                          <FormLabel className="text-gray-700 font-['Open_Sans']">E-mail</FormLabel>
                           <FormControl>
                             <div className="relative">
                               <Mail className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400" />
@@ -244,7 +244,7 @@ const Login = () => {
                       name="password"
                       render={({ field }) => (
                         <FormItem>
-                          <FormLabel className="text-gray-700">Senha</FormLabel>
+                          <FormLabel className="text-gray-700 font-['Open_Sans']">Senha</FormLabel>
                           <FormControl>
                             <div className="relative">
                               <Lock className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400" />
@@ -270,7 +270,7 @@ const Login = () => {
 
                     <Button
                       type="submit"
-                      className="w-full h-12 text-base font-semibold rounded-xl text-white shadow-lg hover:shadow-xl transition-all duration-300 group"
+                      className="w-full h-12 text-base font-semibold rounded-xl text-white shadow-lg hover:shadow-xl transition-all duration-300 group font-['Open_Sans']"
                       style={{ background: "linear-gradient(135deg, #4FA3FF, #1F4FA3)" }}
                       disabled={loading}
                     >
@@ -296,28 +296,28 @@ const Login = () => {
                       <div className="w-full border-t border-gray-200" />
                     </div>
                     <div className="relative flex justify-center">
-                      <span className="bg-white px-3 text-xs text-gray-400 uppercase tracking-wider">Acesso rápido</span>
+                      <span className="bg-white px-3 text-xs text-gray-400 uppercase tracking-wider font-['Open_Sans']">Acesso rápido</span>
                     </div>
                   </div>
 
                   <div className="grid grid-cols-3 gap-2">
                     <button
                       onClick={() => handleQuickLogin('barber')}
-                      className="flex flex-col items-center gap-1 py-3 px-2 rounded-xl border border-[#2E6FD3]/30 text-[#1F4FA3] hover:bg-[#1F4FA3] hover:text-white transition-all duration-300 text-xs font-medium"
+                      className="flex flex-col items-center gap-1 py-3 px-2 rounded-xl border border-[#2E6FD3]/30 text-[#1F4FA3] hover:bg-[#1F4FA3] hover:text-white transition-all duration-300 text-xs font-medium font-['Open_Sans']"
                     >
                       <User className="h-4 w-4" />
                       Profissional
                     </button>
                     <button
                       onClick={() => handleQuickLogin('admin')}
-                      className="flex flex-col items-center gap-1 py-3 px-2 rounded-xl border border-[#2E6FD3]/30 text-[#1F4FA3] hover:bg-[#1F4FA3] hover:text-white transition-all duration-300 text-xs font-medium"
+                      className="flex flex-col items-center gap-1 py-3 px-2 rounded-xl border border-[#2E6FD3]/30 text-[#1F4FA3] hover:bg-[#1F4FA3] hover:text-white transition-all duration-300 text-xs font-medium font-['Open_Sans']"
                     >
                       <Crown className="h-4 w-4" />
                       Admin
                     </button>
                     <button
                       onClick={() => handleQuickLogin('superadmin')}
-                      className="flex flex-col items-center gap-1 py-3 px-2 rounded-xl border border-amber-400/40 text-amber-600 hover:bg-gradient-to-r hover:from-amber-500 hover:to-orange-500 hover:text-white transition-all duration-300 text-xs font-medium"
+                      className="flex flex-col items-center gap-1 py-3 px-2 rounded-xl border border-amber-400/40 text-amber-600 hover:bg-gradient-to-r hover:from-amber-500 hover:to-orange-500 hover:text-white transition-all duration-300 text-xs font-medium font-['Open_Sans']"
                     >
                       <Shield className="h-4 w-4" />
                       Super
@@ -342,7 +342,7 @@ const Login = () => {
                       name="fullName"
                       render={({ field }) => (
                         <FormItem>
-                          <FormLabel className="text-gray-700">Nome Completo</FormLabel>
+                          <FormLabel className="text-gray-700 font-['Open_Sans']">Nome Completo</FormLabel>
                           <FormControl>
                             <Input
                               {...field}
@@ -360,7 +360,7 @@ const Login = () => {
                       name="email"
                       render={({ field }) => (
                         <FormItem>
-                          <FormLabel className="text-gray-700">E-mail</FormLabel>
+                          <FormLabel className="text-gray-700 font-['Open_Sans']">E-mail</FormLabel>
                           <FormControl>
                             <div className="relative">
                               <Mail className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400" />
@@ -381,7 +381,7 @@ const Login = () => {
                       name="password"
                       render={({ field }) => (
                         <FormItem>
-                          <FormLabel className="text-gray-700">Senha</FormLabel>
+                          <FormLabel className="text-gray-700 font-['Open_Sans']">Senha</FormLabel>
                           <FormControl>
                             <div className="relative">
                               <Lock className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400" />
@@ -400,7 +400,7 @@ const Login = () => {
 
                     <Button
                       type="submit"
-                      className="w-full h-12 text-base font-semibold rounded-xl text-white shadow-lg hover:shadow-xl transition-all duration-300 group"
+                      className="w-full h-12 text-base font-semibold rounded-xl text-white shadow-lg hover:shadow-xl transition-all duration-300 group font-['Open_Sans']"
                       style={{ background: "linear-gradient(135deg, #4FA3FF, #1F4FA3)" }}
                       disabled={loading}
                     >
@@ -426,11 +426,11 @@ const Login = () => {
           <div className="text-center mt-10">
             <button
               onClick={() => navigate('/vendas')}
-              className="text-[#1F4FA3] hover:underline text-sm font-medium mb-3 block mx-auto"
+              className="text-[#1F4FA3] hover:underline text-sm font-medium mb-3 block mx-auto font-['Open_Sans']"
             >
               Conheça nossos planos →
             </button>
-            <p className="text-gray-400 text-xs">© 2025 VIZZU - Todos os direitos reservados</p>
+            <p className="text-gray-400 text-xs font-['Open_Sans']">© 2025 VIZZU - Todos os direitos reservados</p>
           </div>
         </motion.div>
       </div>
