@@ -38,10 +38,10 @@ const RevenueLineChart: React.FC<RevenueLineChartProps> = ({ data }) => {
             <line key={y} x1="28" y1={y} x2="340" y2={y} stroke="#F1F5F9" strokeWidth="1" />
           ))}
           {/* Y labels */}
-          <text x="0" y="19" fontSize="8" fill="#94A3B8" fontFamily="Open Sans,sans-serif">8k</text>
-          <text x="0" y="49" fontSize="8" fill="#94A3B8" fontFamily="Open Sans,sans-serif">6k</text>
-          <text x="0" y="79" fontSize="8" fill="#94A3B8" fontFamily="Open Sans,sans-serif">4k</text>
-          <text x="0" y="109" fontSize="8" fill="#94A3B8" fontFamily="Open Sans,sans-serif">2k</text>
+          <text x="0" y="19" fontSize="8" fill="#94A3B8" fontFamily="Montserrat,sans-serif">8k</text>
+          <text x="0" y="49" fontSize="8" fill="#94A3B8" fontFamily="Montserrat,sans-serif">6k</text>
+          <text x="0" y="79" fontSize="8" fill="#94A3B8" fontFamily="Montserrat,sans-serif">4k</text>
+          <text x="0" y="109" fontSize="8" fill="#94A3B8" fontFamily="Montserrat,sans-serif">2k</text>
           {/* Meta dashed */}
           <line x1="28" y1="56" x2="340" y2="56" stroke="hsl(142, 71%, 45%)" strokeWidth="1.5" strokeDasharray="5,4" opacity="0.5" />
           {/* Revenue area */}
