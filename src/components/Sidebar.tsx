@@ -13,7 +13,7 @@ import {
   Crown, Heart,
   Building, UserCircle, UserCheck,
   ShoppingCart, Tag,
-  Shield, Search, LogOut,
+  Shield, LogOut,
   Menu, X, ChevronUp
 } from "lucide-react";
 
