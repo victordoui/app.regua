@@ -70,7 +70,7 @@ const KpiStrip: React.FC<KpiStripProps> = ({ todayAppointments, completedRate, n
             {kpi.icon}
           </div>
           <div className="flex-1 min-w-0">
-            <div className="text-[11px] font-semibold uppercase tracking-[0.8px] text-muted-foreground mb-1">
+            <div className="text-xs font-semibold uppercase tracking-[0.8px] text-foreground/70 mb-1">
               {kpi.label}
             </div>
             <div className={`font-heading text-[28px] font-extrabold leading-none tracking-tight ${kpi.valueColor || 'text-foreground'}`}>
