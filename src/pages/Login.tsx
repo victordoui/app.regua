@@ -134,8 +134,8 @@ const Login = () => {
           className="relative z-10 text-center max-w-md"
         >
           <img src={vizzuIcon} alt="VIZZU" className="w-28 h-28 mx-auto mb-6 object-contain drop-shadow-2xl" />
-          <h1 className="text-4xl font-bold text-white mb-3 tracking-tight">VIZZU</h1>
-          <p className="text-white/80 text-lg mb-10">Visualize. Organize. Cresça.</p>
+          <h1 className="text-4xl font-extrabold text-white mb-3 tracking-tight font-['Montserrat']">VIZZU</h1>
+          <p className="text-white/80 text-lg mb-10 font-['Open_Sans']">Visualize. Organize. Cresça.</p>
 
           <div className="space-y-4">
             {features.map((f, i) => (
