@@ -1,93 +1,98 @@
 
 
-# Analise de Paginas Repetitivas e Consolidacao
+# Plano: Mobile bottom nav, scrollbar sutil, Minha Empresa sem sub-abas aninhadas, splash screen
 
-Apos analisar todas as paginas e a sidebar, identifiquei os seguintes problemas:
-
----
-
-## 1. Paginas sem funcionalidade real (apenas placeholder "Em Desenvolvimento")
-
-| Pagina | Rota | Situacao |
-|---|---|---|
-| **Criar / Editar Plano** (`SubscriptionCreation`) | `/subscriptions/new` | Placeholder vazio. A pagina `Subscriptions` ja tem botao "Novo Plano" com dialog funcional |
-| **Integracoes** (`Integrations`) | `/integrations` | Placeholder vazio, sem funcionalidade |
-
-**Recomendacao**: Remover ambas da sidebar. `SubscriptionCreation` e redundante com o dialog que ja existe em `Subscriptions`.
+Este plano cobre 4 frentes solicitadas. Vou detalhar cada uma.
 
 ---
 
-## 2. Paginas que podem ser consolidadas como abas
+## 1. Mobile: Bottom navigation bar com 5 botões (admin)
 
-### 2a. **Comissoes + Regras de Comissao** → Uma unica pagina com abas
-- `Commissions` (`/commissions`) - Calcula comissoes por periodo
-- `CommissionRules` (`/commission-rules`) - Configura regras de comissao
-- Ja existe um botao "Gerenciar Regras" em Comissoes que navega para CommissionRules
+Atualmente no mobile, o `Layout.tsx` mostra a sidebar com toggle hamburger. No mobile, vamos esconder a sidebar e o topbar, e mostrar uma bottom navigation bar fixa com 5 ícones principais.
 
-**Proposta**: Unificar em `/commissions` com 2 abas: "Comissoes" e "Regras"
+### Alterações
 
-### 2b. **Relatorios + Relatorios de Vendas** → Uma unica pagina com abas
-- `Reports` (`/reports`) - Visao financeira geral (receita, agendamentos, clientes)
-- `SalesReports` (`/sales-reports`) - Analise de vendas e ticket medio
-- Ambas mostram dados financeiros com sobreposicao (receita, servicos populares, ticket medio)
+**`src/components/Layout.tsx`**
+- Importar `useIsMobile` de `@/hooks/use-mobile`
+- Se mobile: renderizar um layout sem Sidebar/Topbar, com bottom nav de 5 botões
+- Botões: Painel (`/`), Agenda (`/appointments`), Clientes (`/clients`), Empresa (`/settings/company`), Mais (abre sheet/drawer com demais opções)
+- Estilo: fundo branco, ícones na cor `primary` quando ativo, `muted-foreground` quando inativo, labels em `text-[10px]`
+- Padding bottom no main para não sobrepor o nav
 
-**Proposta**: Unificar em `/reports` com abas: "Visao Geral", "Vendas", "Servicos", "Clientes"
+**`src/components/Sidebar.tsx`**
+- No mobile, não renderizar nada (o Layout cuida)
 
-### 2c. **Notificacoes Avancadas + Campanhas** → Sobreposicao significativa
-- `AdvancedNotifications` (`/advanced-notifications`) - Tem abas internas: Templates, **Campanhas**, Historico, Configuracoes
-- `Campaigns` (`/campaigns`) - Gerencia campanhas de email
+**`src/components/Topbar.tsx`**
+- No mobile, simplificar para apenas logo + avatar (sem search bar)
 
-A aba "Campanhas" dentro de Notificacoes Avancadas e a pagina Campanhas fazem a mesma coisa.
-
-**Proposta**: Manter `Campanhas` como pagina independente (mais completa) e remover a aba de campanhas de dentro de AdvancedNotifications, ou vice-versa. A opcao mais limpa e manter so `AdvancedNotifications` que ja tem tudo integrado e remover `Campaigns` da sidebar.
-
-### 2d. **Fidelidade + Indicacoes** → Programa de engajamento
-- `Loyalty` (`/loyalty`) - Pontos e recompensas
-- `Referrals` (`/referrals`) - Indicacoes e recompensas
-
-Ambas tratam de recompensar clientes. Podem ser abas de uma unica pagina "Engajamento" ou "Fidelidade & Indicacoes".
-
-**Proposta**: Unificar em `/loyalty` com abas: "Pontos e Recompensas" e "Indicacoes"
+### Paleta de cores
+- Ativo: `text-primary` (azul VIZZU #2563EB)
+- Inativo: `text-muted-foreground`
+- Background: `bg-background` (branco)
+- Border top: `border-border`
 
 ---
 
-## 3. Paginas com funcionalidade duplicada
+## 2. Scrollbar da sidebar mais sutil
 
-### 3a. **Configuracoes Gerais vs Empresa**
-- `Settings` (`/settings`) - Formulario basico com dados da barbearia + perfil do usuario
-- `CompanySettings` (`/settings/company`) - Formulario completo com dados da empresa, identidade visual, link de agendamento
+### Alterações em `src/index.css`
+- Reduzir a scrollbar da sidebar para quase invisível:
+  - `scrollbar-width: none` por padrão (Firefox)
+  - `::-webkit-scrollbar { width: 2px }` 
+  - Thumb com opacidade muito baixa, aparece apenas no hover do container
+- Criar classe `scrollbar-hidden-hover`: scrollbar invisível, aparece só no hover da sidebar
 
-`Settings` e uma versao pobre de `CompanySettings` + `Profile`. Tudo que tem em Settings ja existe melhor em CompanySettings e Profile.
-
-**Proposta**: Remover `Settings` da sidebar. Manter apenas `CompanySettings` (Empresa) e `Profile` (Meu Perfil).
-
-### 3b. **Conversas vs Chat da Equipe**
-- `Conversations` (`/conversations`) - Chat com clientes (mock data)
-- `TeamChat` (`/team-chat`) - Chat interno da equipe
-
-Sao funcionalidades diferentes mas ambas sao chat. Podem coexistir, porem `Conversations` usa apenas dados mock e nao tem funcionalidade real.
-
-**Proposta**: Se Conversations nao tem integracao real, considerar remove-la ou marca-la como "em breve".
-
-### 3c. **Agendamento Online (admin)** duplica funcionalidade
-- `OnlineBooking` (`/booking`) - Formulario de agendamento interno com dados mock
-- A pagina `Appointments` ja permite criar agendamentos
-
-**Proposta**: Remover `OnlineBooking` da sidebar. O agendamento ja e feito pela pagina de Appointments.
+### Alteração em `src/components/Sidebar.tsx`
+- Trocar `scrollbar-modern` por nova classe `scrollbar-hidden-hover`
 
 ---
 
-## Resumo das acoes propostas
+## 3. Minha Empresa — eliminar sub-abas aninhadas
 
-| Acao | Detalhes |
-|---|---|
-| **Remover da sidebar** | `SubscriptionCreation`, `Integracoes`, `Settings`, `OnlineBooking` |
-| **Consolidar Comissoes + Regras** | Uma pagina com 2 abas |
-| **Consolidar Relatorios + Rel. Vendas** | Uma pagina com abas expandidas |
-| **Consolidar Fidelidade + Indicacoes** | Uma pagina com 2 abas |
-| **Resolver duplicata Campanhas** | Manter apenas em AdvancedNotifications ou apenas Campaigns (nao ambas) |
+Atualmente: 3 abas top-level (Empresa, Estoque, Galeria) e dentro de "Empresa" mais 3 sub-abas (Dados, Visual, Link). Isso cria sub-abas de sub-abas.
 
-Isso reduziria a sidebar de ~30 itens para ~24, tornando a navegacao mais limpa e eliminando confusao.
+### Solução: Nivelar tudo em abas únicas
+**`src/pages/CompanySettings.tsx`**
+- Remover o nível interno de tabs (Dados/Visual/Link)
+- Criar 5 abas no nível principal: **Dados**, **Visual**, **Link**, **Estoque**, **Galeria**
+- Cada aba mostra seu conteúdo diretamente, sem aninhamento
+- Manter o `PageHeader` e o botão Salvar no topo (visível nas abas Dados/Visual/Link)
 
-Deseja que eu implemente alguma dessas consolidacoes? Posso comecar por qualquer grupo.
+```text
+Antes:                          Depois:
+[Empresa] [Estoque] [Galeria]   [Dados] [Visual] [Link] [Estoque] [Galeria]
+   └─ [Dados] [Visual] [Link]
+```
+
+---
+
+## 4. Splash/Loading screen com logo VIZZU no mobile
+
+### Novo componente: `src/components/MobileSplashScreen.tsx`
+- Tela cheia com fundo primário ou branco
+- Logo VIZZU (mesma `vizzu-logo.png` da sidebar) centralizada
+- Animação fade-in/fade-out de ~1.5s
+- Aparece apenas em dispositivos mobile na primeira carga
+
+### Integração em `src/App.tsx` ou `src/components/Layout.tsx`
+- Mostrar splash por 1.5s na montagem inicial se `isMobile`
+
+---
+
+## 5. Logo no manifest (ícone do app)
+
+### `public/manifest.webmanifest`
+- Atualizar os ícones para usar o logo VIZZU (`vizzu-icon.png` ou gerar versões 192x192 e 512x512)
+- Garantir que `src/assets/vizzu-icon.png` seja copiado para `public/` com os tamanhos corretos
+
+---
+
+## Resumo de arquivos alterados
+1. `src/components/Layout.tsx` — layout responsivo com bottom nav mobile
+2. `src/components/Sidebar.tsx` — esconder no mobile, trocar classe scrollbar
+3. `src/components/Topbar.tsx` — simplificar no mobile
+4. `src/index.css` — nova classe scrollbar ultra-sutil
+5. `src/pages/CompanySettings.tsx` — nivelar abas (5 abas flat)
+6. `src/components/MobileSplashScreen.tsx` — novo componente splash
+7. `public/manifest.webmanifest` — atualizar ícones
 
