@@ -9,19 +9,19 @@ const buttonVariants = cva(
   {
     variants: {
       variant: {
-        default: "bg-primary text-primary-foreground hover:bg-primary/90 hover:shadow-md hover:shadow-primary/20",
+        default: "bg-gradient-to-r from-primary to-primary-500 text-primary-foreground hover:opacity-90 hover:shadow-lg hover:shadow-primary/20",
         destructive:
           "bg-destructive text-destructive-foreground hover:bg-destructive/90 hover:shadow-lg hover:shadow-destructive/25",
         outline:
-          "border border-input bg-background hover:bg-accent hover:text-accent-foreground hover:border-accent",
+          "border border-border bg-transparent text-foreground hover:bg-card hover:text-foreground",
         secondary:
-          "bg-secondary text-secondary-foreground hover:bg-secondary/80 hover:shadow-md",
-        ghost: "hover:bg-accent hover:text-accent-foreground",
+          "bg-card text-primary hover:bg-card/80",
+        ghost: "text-muted-foreground hover:bg-card hover:text-foreground",
         link: "text-primary underline-offset-4 hover:underline",
-        hero: "bg-gradient-to-r from-primary to-primary-600 text-primary-foreground hover:from-primary/90 hover:to-primary-600/90 shadow-lg hover:shadow-xl hover:-translate-y-1 transition-all duration-300",
-        barber: "bg-gradient-to-r from-primary to-primary-800 text-primary-foreground shadow-md hover:shadow-lg hover:-translate-y-0.5 transition-all duration-300",
+        hero: "bg-gradient-to-r from-primary to-primary-500 text-primary-foreground hover:opacity-90 shadow-lg hover:shadow-xl transition-all duration-300",
+        barber: "bg-gradient-to-r from-primary to-primary-800 text-primary-foreground shadow-md hover:shadow-lg transition-all duration-300",
         "barber-outline": "border-2 border-primary text-primary hover:bg-primary hover:text-primary-foreground transition-all duration-300",
-        modern: "bg-gradient-to-r from-primary to-primary-600 text-primary-foreground shadow-md hover:shadow-xl hover:shadow-primary/30 hover:-translate-y-1 transition-all duration-300 ease-out border-0",
+        modern: "bg-gradient-to-r from-primary to-primary-500 text-primary-foreground shadow-md hover:shadow-xl hover:shadow-primary/30 transition-all duration-300 ease-out border-0",
       },
       size: {
         default: "h-10 px-4 py-2",
