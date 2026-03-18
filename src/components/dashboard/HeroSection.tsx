@@ -8,6 +8,7 @@ const HeroSection = () => {
   const navigate = useNavigate();
   const { settings } = useCompanySettings();
   const { metrics } = useRealtimeDashboard();
+  const companyName = settings?.company_name || "Usuário";
 
   return (
     <div className="mb-1">
