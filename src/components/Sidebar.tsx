@@ -27,6 +27,7 @@ const Sidebar = () => {
   const [isOpen, setIsOpen] = useState(false);
   const [isMobile, setIsMobile] = useState(false);
   const [isCollapsed, setIsCollapsed] = useState(false);
+  const [openCategories, setOpenCategories] = useState<Set<string>>(new Set());
   const navigate = useNavigate();
   const location = useLocation();
   const { isSuperAdmin, isAdmin, isBarbeiro } = useRole();
