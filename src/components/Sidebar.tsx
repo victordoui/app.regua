@@ -25,7 +25,6 @@ const BARBER_CATEGORIES = new Set(['operacoes', 'comunicacao', 'administracao'])
 const Sidebar = () => {
   const [isOpen, setIsOpen] = useState(false);
   const [isMobile, setIsMobile] = useState(false);
-  const [searchQuery, setSearchQuery] = useState("");
   const navigate = useNavigate();
   const location = useLocation();
   const { isSuperAdmin, isAdmin, isBarbeiro } = useRole();
