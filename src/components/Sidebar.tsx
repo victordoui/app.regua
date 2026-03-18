@@ -46,7 +46,7 @@ const Sidebar = () => {
       category: "dashboard", label: "Dashboard",
       items: [
         { icon: Home, label: "Painel", path: "/" },
-        { icon: Building, label: "Configurações", path: "/settings/company" },
+        { icon: Building, label: "Minha Empresa", path: "/settings/company" },
       ]
     },
     {

@@ -62,7 +62,7 @@ const CompanySettings = () => {
   return (
     <Layout>
       <div className="flex-1 space-y-6 p-6">
-        <PageHeader icon={<Building className="h-5 w-5" />} title="Meu Negócio" subtitle="Configurações da empresa" />
+        <PageHeader icon={<Building className="h-5 w-5" />} title="Minha Empresa" subtitle="Gerencie os dados da sua empresa" />
 
         <Tabs value={topTab} onValueChange={(v) => setSearchParams({ tab: v })}>
           <TabsList>
