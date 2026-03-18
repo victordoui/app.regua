@@ -1,37 +1,93 @@
 
 
-# Plano: Sidebar estilo clean com badges circulares + Upgrade compacto
+# Analise de Paginas Repetitivas e Consolidacao
 
-## Referência da imagem
-A sidebar de referência tem:
-- Labels de seção em azul claro (uppercase, sem linha divisória ao lado)
-- Items com ícones em cinza suave, texto em cinza escuro, sem background no hover pesado
-- Item ativo com fundo azul arredondado e texto branco
-- Badges circulares coloridos (laranja/vermelho) à direita dos items
-- Espaçamento generoso entre items, visual limpo e arejado
-- Sem card de upgrade pesado — apenas um botão compacto
+Apos analisar todas as paginas e a sidebar, identifiquei os seguintes problemas:
 
-## Alterações em `src/components/Sidebar.tsx`
+---
 
-### 1. Labels de seção — estilo clean
-- Remover a linha divisória (`h-px bg-border`) ao lado do label
-- Mudar cor do label para `text-primary/60` (azul suave como na referência)
-- Aumentar ligeiramente o tamanho para `text-[10px]`
+## 1. Paginas sem funcionalidade real (apenas placeholder "Em Desenvolvimento")
 
-### 2. Items do menu — mais arejados
-- Aumentar padding vertical dos items para `py-2.5`
-- Ícones com opacidade mais suave: `opacity-60` no estado normal (não 0.45)
-- Remover `mb-px`, usar espaçamento natural
-- Badge: trocar de `bg-primary` para badge circular colorido estilo referência (`bg-orange-400 text-white` ou `bg-red-400`), formato circular `w-5 h-5 rounded-full`
+| Pagina | Rota | Situacao |
+|---|---|---|
+| **Criar / Editar Plano** (`SubscriptionCreation`) | `/subscriptions/new` | Placeholder vazio. A pagina `Subscriptions` ja tem botao "Novo Plano" com dialog funcional |
+| **Integracoes** (`Integrations`) | `/integrations` | Placeholder vazio, sem funcionalidade |
 
-### 3. Upgrade card — compacto
-- Remover o card com título e descrição
-- Substituir por um botão simples e menor: uma linha só, com ícone Sparkles + "Upgrade", `text-xs`, altura `h-8`, estilo outline ou ghost com destaque primário
-- Reduz drasticamente o espaço ocupado no footer
+**Recomendacao**: Remover ambas da sidebar. `SubscriptionCreation` e redundante com o dialog que ja existe em `Subscriptions`.
 
-### 4. Logo — reduzir tamanho
-- De `h-32 w-32` para `h-20 w-20` para dar mais espaço à navegação
+---
 
-## Resultado
-Sidebar visualmente alinhada com a referência: clean, arejada, labels em azul suave, badges circulares, e upgrade compacto no footer.
+## 2. Paginas que podem ser consolidadas como abas
+
+### 2a. **Comissoes + Regras de Comissao** → Uma unica pagina com abas
+- `Commissions` (`/commissions`) - Calcula comissoes por periodo
+- `CommissionRules` (`/commission-rules`) - Configura regras de comissao
+- Ja existe um botao "Gerenciar Regras" em Comissoes que navega para CommissionRules
+
+**Proposta**: Unificar em `/commissions` com 2 abas: "Comissoes" e "Regras"
+
+### 2b. **Relatorios + Relatorios de Vendas** → Uma unica pagina com abas
+- `Reports` (`/reports`) - Visao financeira geral (receita, agendamentos, clientes)
+- `SalesReports` (`/sales-reports`) - Analise de vendas e ticket medio
+- Ambas mostram dados financeiros com sobreposicao (receita, servicos populares, ticket medio)
+
+**Proposta**: Unificar em `/reports` com abas: "Visao Geral", "Vendas", "Servicos", "Clientes"
+
+### 2c. **Notificacoes Avancadas + Campanhas** → Sobreposicao significativa
+- `AdvancedNotifications` (`/advanced-notifications`) - Tem abas internas: Templates, **Campanhas**, Historico, Configuracoes
+- `Campaigns` (`/campaigns`) - Gerencia campanhas de email
+
+A aba "Campanhas" dentro de Notificacoes Avancadas e a pagina Campanhas fazem a mesma coisa.
+
+**Proposta**: Manter `Campanhas` como pagina independente (mais completa) e remover a aba de campanhas de dentro de AdvancedNotifications, ou vice-versa. A opcao mais limpa e manter so `AdvancedNotifications` que ja tem tudo integrado e remover `Campaigns` da sidebar.
+
+### 2d. **Fidelidade + Indicacoes** → Programa de engajamento
+- `Loyalty` (`/loyalty`) - Pontos e recompensas
+- `Referrals` (`/referrals`) - Indicacoes e recompensas
+
+Ambas tratam de recompensar clientes. Podem ser abas de uma unica pagina "Engajamento" ou "Fidelidade & Indicacoes".
+
+**Proposta**: Unificar em `/loyalty` com abas: "Pontos e Recompensas" e "Indicacoes"
+
+---
+
+## 3. Paginas com funcionalidade duplicada
+
+### 3a. **Configuracoes Gerais vs Empresa**
+- `Settings` (`/settings`) - Formulario basico com dados da barbearia + perfil do usuario
+- `CompanySettings` (`/settings/company`) - Formulario completo com dados da empresa, identidade visual, link de agendamento
+
+`Settings` e uma versao pobre de `CompanySettings` + `Profile`. Tudo que tem em Settings ja existe melhor em CompanySettings e Profile.
+
+**Proposta**: Remover `Settings` da sidebar. Manter apenas `CompanySettings` (Empresa) e `Profile` (Meu Perfil).
+
+### 3b. **Conversas vs Chat da Equipe**
+- `Conversations` (`/conversations`) - Chat com clientes (mock data)
+- `TeamChat` (`/team-chat`) - Chat interno da equipe
+
+Sao funcionalidades diferentes mas ambas sao chat. Podem coexistir, porem `Conversations` usa apenas dados mock e nao tem funcionalidade real.
+
+**Proposta**: Se Conversations nao tem integracao real, considerar remove-la ou marca-la como "em breve".
+
+### 3c. **Agendamento Online (admin)** duplica funcionalidade
+- `OnlineBooking` (`/booking`) - Formulario de agendamento interno com dados mock
+- A pagina `Appointments` ja permite criar agendamentos
+
+**Proposta**: Remover `OnlineBooking` da sidebar. O agendamento ja e feito pela pagina de Appointments.
+
+---
+
+## Resumo das acoes propostas
+
+| Acao | Detalhes |
+|---|---|
+| **Remover da sidebar** | `SubscriptionCreation`, `Integracoes`, `Settings`, `OnlineBooking` |
+| **Consolidar Comissoes + Regras** | Uma pagina com 2 abas |
+| **Consolidar Relatorios + Rel. Vendas** | Uma pagina com abas expandidas |
+| **Consolidar Fidelidade + Indicacoes** | Uma pagina com 2 abas |
+| **Resolver duplicata Campanhas** | Manter apenas em AdvancedNotifications ou apenas Campaigns (nao ambas) |
+
+Isso reduziria a sidebar de ~30 itens para ~24, tornando a navegacao mais limpa e eliminando confusao.
+
+Deseja que eu implemente alguma dessas consolidacoes? Posso comecar por qualquer grupo.
 
