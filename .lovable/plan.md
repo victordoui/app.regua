@@ -1,93 +1,79 @@
 
 
-# Analise de Paginas Repetitivas e Consolidacao
+# Redesign do Dashboard — Estilo Premium Dark Mode
 
-Apos analisar todas as paginas e a sidebar, identifiquei os seguintes problemas:
+## Visão Geral
 
----
+Redesenhar o `DashboardOverview` e seus subcomponentes para seguir o estilo da imagem de referência: KPI cards grandes com ícones em gradiente azul, gráficos estilizados com a paleta VIZZU, ProfileCard compacto e elegante, e agenda do dia com visual timeline.
 
-## 1. Paginas sem funcionalidade real (apenas placeholder "Em Desenvolvimento")
+## Arquivos a editar
 
-| Pagina | Rota | Situacao |
-|---|---|---|
-| **Criar / Editar Plano** (`SubscriptionCreation`) | `/subscriptions/new` | Placeholder vazio. A pagina `Subscriptions` ja tem botao "Novo Plano" com dialog funcional |
-| **Integracoes** (`Integrations`) | `/integrations` | Placeholder vazio, sem funcionalidade |
+### 1. `src/components/dashboard/DashboardOverview.tsx` — Novo layout de grid
 
-**Recomendacao**: Remover ambas da sidebar. `SubscriptionCreation` e redundante com o dialog que ja existe em `Subscriptions`.
+Reorganizar o layout em 4 seções:
+- **Topo**: 4 KPI cards grandes em grid `grid-cols-2 lg:grid-cols-4` (Agendamentos Hoje, Receita do Mês, Clientes Totais, Taxa de Ocupação)
+- **Meio**: 2 colunas — Gráfico de Receita (AreaChart, não BarChart) + Gráfico de Serviços (donut)
+- **Inferior**: 3 colunas — Agenda do Dia + Atividades Recentes + ProfileCard/CTA
+- **Base**: Aniversariantes + Inativos (mantém)
 
----
+Remover `StatMiniCard` individual e usar novos KPI cards grandes.
 
-## 2. Paginas que podem ser consolidadas como abas
+### 2. `src/components/dashboard/StatMiniCard.tsx` → Redesign como `KPICard`
 
-### 2a. **Comissoes + Regras de Comissao** → Uma unica pagina com abas
-- `Commissions` (`/commissions`) - Calcula comissoes por periodo
-- `CommissionRules` (`/commission-rules`) - Configura regras de comissao
-- Ja existe um botao "Gerenciar Regras" em Comissoes que navega para CommissionRules
+Transformar em card grande estilo referência:
+- Fundo `bg-[#282828]` com `rounded-xl`
+- Ícone em circle com gradiente azul (`bg-gradient-to-r from-[#4FA3FF] to-[#1F4FA3]`)
+- Valor grande (`text-3xl font-bold text-white`)
+- Label em `text-[#B0B0B0] text-sm`
+- Subtítulo com indicador de tendência (seta verde/vermelha + percentual)
+- Sem border-left, visual mais limpo e amplo
 
-**Proposta**: Unificar em `/commissions` com 2 abas: "Comissoes" e "Regras"
+### 3. `src/components/dashboard/ProfileCard.tsx` — Compactar
 
-### 2b. **Relatorios + Relatorios de Vendas** → Uma unica pagina com abas
-- `Reports` (`/reports`) - Visao financeira geral (receita, agendamentos, clientes)
-- `SalesReports` (`/sales-reports`) - Analise de vendas e ticket medio
-- Ambas mostram dados financeiros com sobreposicao (receita, servicos populares, ticket medio)
+- Manter avatar + nome + badge de plano
+- Adicionar barra de progresso azul "uso do plano" ou "agendamentos restantes"
+- Remover QR code da card (deixar em settings)
+- Background com gradiente sutil `from-[#282828] to-[#1F1F1F]`
 
-**Proposta**: Unificar em `/reports` com abas: "Visao Geral", "Vendas", "Servicos", "Clientes"
+### 4. `src/components/dashboard/TodayScheduleCard.tsx` — Visual timeline
 
-### 2c. **Notificacoes Avancadas + Campanhas** → Sobreposicao significativa
-- `AdvancedNotifications` (`/advanced-notifications`) - Tem abas internas: Templates, **Campanhas**, Historico, Configuracoes
-- `Campaigns` (`/campaigns`) - Gerencia campanhas de email
+- Manter lógica de dados
+- Redesenhar visual: timeline vertical com dot indicator colorido por status
+- Linha de conexão entre agendamentos (`border-l-2 border-[#404040]`)
+- Horário à esquerda, info à direita
+- Status dot: verde (concluído), azul (confirmado), amarelo (pendente), vermelho (cancelado)
+- Max height com scroll suave
 
-A aba "Campanhas" dentro de Notificacoes Avancadas e a pagina Campanhas fazem a mesma coisa.
+### 5. `src/components/charts/RevenueChart.tsx` — AreaChart com gradiente
 
-**Proposta**: Manter `Campanhas` como pagina independente (mais completa) e remover a aba de campanhas de dentro de AdvancedNotifications, ou vice-versa. A opcao mais limpa e manter so `AdvancedNotifications` que ja tem tudo integrado e remover `Campaigns` da sidebar.
+- Trocar `BarChart` → `AreaChart` com fill gradiente azul (transparente → `#4FA3FF`)
+- Stroke `#4FA3FF`, strokeWidth 2
+- Grid lines mais sutis (`stroke: #333333`)
+- Tooltip dark estilizado
+- Remover borda do card (já herda do sistema)
 
-### 2d. **Fidelidade + Indicacoes** → Programa de engajamento
-- `Loyalty` (`/loyalty`) - Pontos e recompensas
-- `Referrals` (`/referrals`) - Indicacoes e recompensas
+### 6. `src/components/charts/OccupancyChart.tsx` — Refinamento
 
-Ambas tratam de recompensar clientes. Podem ser abas de uma unica pagina "Engajamento" ou "Fidelidade & Indicacoes".
+- Manter `LineChart`
+- Stroke primário com `#4FA3FF`, meta com `#404040` tracejada
+- Área preenchida sutil sob a linha de ocupação
+- Dots com glow effect (`filter: drop-shadow`)
 
-**Proposta**: Unificar em `/loyalty` com abas: "Pontos e Recompensas" e "Indicacoes"
+### 7. `src/components/charts/ServicesChart.tsx` — Donut refinado
 
----
+- Paleta: `#4FA3FF`, `#1F4FA3`, `#6BB8FF`, `#0D3A8F`, `#404040`
+- Inner radius maior (60) para visual donut mais elegante
+- Legend inline abaixo com dots coloridos
+- Texto central com total de serviços
 
-## 3. Paginas com funcionalidade duplicada
+### 8. `src/components/dashboard/CTACard.tsx` — Card com gradiente azul
 
-### 3a. **Configuracoes Gerais vs Empresa**
-- `Settings` (`/settings`) - Formulario basico com dados da barbearia + perfil do usuario
-- `CompanySettings` (`/settings/company`) - Formulario completo com dados da empresa, identidade visual, link de agendamento
+- Background: `bg-gradient-to-br from-[#1F4FA3]/30 to-[#4FA3FF]/10`
+- Borda sutil `border-[#4FA3FF]/20`
+- Botão primário gradiente
+- Manter conteúdo (relatórios)
 
-`Settings` e uma versao pobre de `CompanySettings` + `Profile`. Tudo que tem em Settings ja existe melhor em CompanySettings e Profile.
+## Resultado
 
-**Proposta**: Remover `Settings` da sidebar. Manter apenas `CompanySettings` (Empresa) e `Profile` (Meu Perfil).
-
-### 3b. **Conversas vs Chat da Equipe**
-- `Conversations` (`/conversations`) - Chat com clientes (mock data)
-- `TeamChat` (`/team-chat`) - Chat interno da equipe
-
-Sao funcionalidades diferentes mas ambas sao chat. Podem coexistir, porem `Conversations` usa apenas dados mock e nao tem funcionalidade real.
-
-**Proposta**: Se Conversations nao tem integracao real, considerar remove-la ou marca-la como "em breve".
-
-### 3c. **Agendamento Online (admin)** duplica funcionalidade
-- `OnlineBooking` (`/booking`) - Formulario de agendamento interno com dados mock
-- A pagina `Appointments` ja permite criar agendamentos
-
-**Proposta**: Remover `OnlineBooking` da sidebar. O agendamento ja e feito pela pagina de Appointments.
-
----
-
-## Resumo das acoes propostas
-
-| Acao | Detalhes |
-|---|---|
-| **Remover da sidebar** | `SubscriptionCreation`, `Integracoes`, `Settings`, `OnlineBooking` |
-| **Consolidar Comissoes + Regras** | Uma pagina com 2 abas |
-| **Consolidar Relatorios + Rel. Vendas** | Uma pagina com abas expandidas |
-| **Consolidar Fidelidade + Indicacoes** | Uma pagina com 2 abas |
-| **Resolver duplicata Campanhas** | Manter apenas em AdvancedNotifications ou apenas Campaigns (nao ambas) |
-
-Isso reduziria a sidebar de ~30 itens para ~24, tornando a navegacao mais limpa e eliminando confusao.
-
-Deseja que eu implemente alguma dessas consolidacoes? Posso comecar por qualquer grupo.
+Dashboard premium dark mode com KPIs visuais impactantes, gráficos com paleta azul consistente, e agenda do dia em formato timeline. Hierarquia visual clara entre métricas, gráficos e listas operacionais.
 
