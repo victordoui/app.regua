@@ -250,6 +250,20 @@
   .scrollbar-modern::-webkit-scrollbar-track { background: transparent; }
   .scrollbar-modern::-webkit-scrollbar-thumb { background: hsl(213, 27%, 84%); border-radius: 4px; }
   .scrollbar-modern::-webkit-scrollbar-thumb:hover { background: hsl(215, 16%, 47%); }
+
+  /* Ultra-subtle scrollbar — invisible until hover */
+  .scrollbar-hidden-hover {
+    scrollbar-width: none;
+  }
+  .scrollbar-hidden-hover::-webkit-scrollbar { width: 0; }
+  .scrollbar-hidden-hover:hover { scrollbar-width: thin; scrollbar-color: hsl(213, 27%, 84%, 0.3) transparent; }
+  .scrollbar-hidden-hover:hover::-webkit-scrollbar { width: 3px; }
+  .scrollbar-hidden-hover:hover::-webkit-scrollbar-track { background: transparent; }
+  .scrollbar-hidden-hover:hover::-webkit-scrollbar-thumb { background: hsl(213, 27%, 84%, 0.4); border-radius: 3px; }
+  .scrollbar-hidden-hover:hover::-webkit-scrollbar-thumb:hover { background: hsl(213, 27%, 84%, 0.6); }
+
+  /* Safe area for mobile bottom nav */
+  .safe-area-bottom { padding-bottom: env(safe-area-inset-bottom, 0); }
 }
 
 /* Accessibility */
