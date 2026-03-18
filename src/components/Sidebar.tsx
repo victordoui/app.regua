@@ -153,9 +153,9 @@ const Sidebar = () => {
         {/* Navigation */}
         <nav className="flex-1 overflow-y-auto py-2 px-2 scrollbar-modern">
           {menuStructure.map((category) => (
-            <div key={category.category} className="mb-1">
+            <div key={category.category} className="mb-0">
               {!isCollapsed && (
-              <div className="px-3 pt-4 pb-1.5">
+              <div className="px-3 pt-2 pb-1">
                   <span className="text-[10px] font-semibold uppercase tracking-widest text-muted-foreground/60">
                     {category.label}
                   </span>
