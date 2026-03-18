@@ -14,7 +14,7 @@ import {
   Building, Image, Warehouse,
   Shield, ListOrdered, UserCheck, UserCircle,
   ShoppingCart, Gift, Clock, MessageCircle, Tag,
-  Menu, X, LogOut, ChevronsLeft, ChevronsRight
+  Menu, X, LogOut, ChevronsLeft, ChevronsRight, ChevronDown
 } from "lucide-react";
 
 const BARBER_PATHS = new Set([
