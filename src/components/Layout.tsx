@@ -25,7 +25,6 @@ import {
 import { Input } from '@/components/ui/input';
 import { useAuth } from '@/contexts/AuthContext';
 import { useToast } from '@/hooks/use-toast';
-import { ThemeToggle } from '@/components/ui/theme-toggle';
 import { supabase } from '@/integrations/supabase/client';
 import { Badge } from '@/components/ui/badge';
 import TrialBanner from '@/components/TrialBanner';
@@ -101,8 +100,17 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
       <Sidebar />
       
       <div className="flex-1 flex flex-col min-w-0">
-        {/* Header — unified bg-background */}
-        <header className="bg-background border-b border-border px-4 lg:px-6 h-16 flex items-center justify-between gap-4 sticky top-0 z-10">
+        {/* Topbar — glassmorphism */}
+        <header
+          className="px-4 lg:px-6 h-[60px] flex items-center justify-between gap-4 sticky top-0 z-10"
+          style={{
+            background: 'rgba(255, 255, 255, 0.92)',
+            backdropFilter: 'blur(16px)',
+            WebkitBackdropFilter: 'blur(16px)',
+            borderBottom: '1px solid rgba(34, 96, 184, 0.10)',
+            boxShadow: '0 1px 12px rgba(34, 96, 184, 0.06)',
+          }}
+        >
           {/* Left */}
           <div className="flex items-center gap-2 min-w-0">
             <Button variant="ghost" size="sm" className="md:hidden" onClick={() => setMobileMenuOpen(!mobileMenuOpen)}>
@@ -111,13 +119,35 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
           </div>
 
           {/* Center - Search */}
-          <div className="flex-1 max-w-md hidden sm:block">
+          <div className="flex-1 max-w-[400px] hidden sm:block">
             <div className="relative">
-              <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-              <Input
+              <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4" style={{ color: 'hsl(210, 25%, 75%)' }} />
+              <input
                 placeholder="Buscar..."
-                className="pl-9 h-9 rounded-full bg-card border-border focus:border-primary focus:ring-1 focus:ring-primary/30"
+                className="w-full pl-9 pr-12 h-9 rounded-[10px] text-[13px] font-open-sans outline-none transition-all duration-200"
+                style={{
+                  background: 'hsl(216, 100%, 98%)',
+                  border: '1px solid rgba(34, 96, 184, 0.10)',
+                  color: 'hsl(215, 60%, 15%)',
+                }}
+                onFocus={(e) => {
+                  e.currentTarget.style.borderColor = '#3278D4';
+                  e.currentTarget.style.boxShadow = '0 0 0 3px rgba(34,96,184,0.10)';
+                  e.currentTarget.style.background = '#fff';
+                }}
+                onBlur={(e) => {
+                  e.currentTarget.style.borderColor = 'rgba(34,96,184,0.10)';
+                  e.currentTarget.style.boxShadow = 'none';
+                  e.currentTarget.style.background = 'hsl(216, 100%, 98%)';
+                }}
               />
+              <span
+                className="absolute right-3 top-1/2 -translate-y-1/2 text-[10px] font-open-sans px-1.5 py-0.5 rounded"
+                style={{
+                  border: '1px solid rgba(34,96,184,0.18)',
+                  color: 'hsl(210, 25%, 60%)',
+                }}
+              >⌘K</span>
             </div>
           </div>
 
@@ -125,9 +155,16 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
           <div className="flex items-center gap-1.5">
             <TrialBanner />
 
-            {/* Date */}
-            <span className="text-xs text-muted-foreground hidden lg:block whitespace-nowrap">{formatDate()}</span>
+            {/* Date pill */}
+            <span
+              className="text-[11px] font-open-sans hidden lg:block whitespace-nowrap px-2.5 py-1 rounded-full"
+              style={{
+                color: 'hsl(210, 25%, 60%)',
+                background: 'hsl(214, 100%, 95%)',
+              }}
+            >{formatDate()}</span>
 
+            {/* Bell */}
             <Button 
               variant="ghost" 
               size="icon"
@@ -136,29 +173,35 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
             >
               <Bell className="h-[1.1rem] w-[1.1rem]" />
               {unreadCount > 0 && (
-                <Badge className="absolute -top-0.5 -right-0.5 h-4 w-4 flex items-center justify-center p-0 text-[9px] bg-destructive text-destructive-foreground">
+                <span
+                  className="absolute -top-0.5 -right-0.5 h-4 w-4 flex items-center justify-center rounded-full text-[9px] font-semibold text-white"
+                  style={{ background: '#DC2626' }}
+                >
                   {unreadCount > 9 ? '9+' : unreadCount}
-                </Badge>
+                </span>
               )}
             </Button>
-
-            <ThemeToggle />
             
             {/* User Profile Dropdown */}
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
-                <Button variant="ghost" className="h-9 rounded-full px-1.5 gap-1.5 hover:bg-card">
-                  <Avatar className="h-7 w-7 border border-border/50">
-                    <AvatarFallback className="text-xs bg-primary/10 text-primary">{getUserInitials()}</AvatarFallback>
-                  </Avatar>
+                <Button variant="ghost" className="h-9 rounded-full px-1.5 gap-1.5 hover:bg-accent">
+                  <div
+                    className="h-7 w-7 rounded-full flex items-center justify-center"
+                    style={{
+                      background: 'linear-gradient(135deg, #2260B8, #3A7FD8)',
+                    }}
+                  >
+                    <span className="text-[10px] font-montserrat font-bold text-white">{getUserInitials()}</span>
+                  </div>
                   <ChevronDown className="h-3.5 w-3.5 text-muted-foreground hidden sm:block" />
                 </Button>
               </DropdownMenuTrigger>
               <DropdownMenuContent className="w-56" align="end" forceMount>
                 <DropdownMenuLabel className="font-normal">
                   <div className="flex flex-col space-y-1">
-                    <p className="text-sm font-medium leading-none">{getUserName()}</p>
-                    <p className="text-xs leading-none text-muted-foreground">{user?.email}</p>
+                    <p className="text-sm font-semibold font-montserrat leading-none">{getUserName()}</p>
+                    <p className="text-xs leading-none text-muted-foreground font-open-sans">{user?.email}</p>
                   </div>
                 </DropdownMenuLabel>
                 <DropdownMenuSeparator />
@@ -191,17 +234,20 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
       {/* Mobile Menu */}
       {mobileMenuOpen && (
         <div className="fixed inset-0 z-50 lg:hidden">
-          <div className="fixed inset-0 bg-black/50" onClick={() => setMobileMenuOpen(false)} />
+          <div className="fixed inset-0 bg-black/30" onClick={() => setMobileMenuOpen(false)} />
           <div className="fixed right-0 top-0 h-full w-64 bg-card shadow-xl">
-            <div className="p-4 border-b border-border/30">
+            <div className="p-4" style={{ borderBottom: '1px solid rgba(34,96,184,0.10)' }}>
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-3">
-                  <Avatar className="h-8 w-8">
-                    <AvatarFallback>{getUserInitials()}</AvatarFallback>
-                  </Avatar>
+                  <div
+                    className="h-8 w-8 rounded-full flex items-center justify-center"
+                    style={{ background: 'linear-gradient(135deg, #2260B8, #3A7FD8)' }}
+                  >
+                    <span className="text-xs font-montserrat font-bold text-white">{getUserInitials()}</span>
+                  </div>
                   <div>
-                    <p className="text-sm font-medium">{getUserName()}</p>
-                    <p className="text-xs text-muted-foreground">{user?.email}</p>
+                    <p className="text-sm font-semibold font-montserrat">{getUserName()}</p>
+                    <p className="text-xs text-muted-foreground font-open-sans">{user?.email}</p>
                   </div>
                 </div>
                 <Button variant="ghost" size="sm" onClick={() => setMobileMenuOpen(false)}>
@@ -214,7 +260,7 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
                 <Settings className="h-4 w-4 mr-2" />
                 Configurações
               </Button>
-              <Button variant="ghost" className="w-full justify-start" onClick={handleSignOut}>
+              <Button variant="ghost" className="w-full justify-start text-destructive" onClick={handleSignOut}>
                 <LogOut className="h-4 w-4 mr-2" />
                 Sair
               </Button>
