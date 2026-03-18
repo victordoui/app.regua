@@ -342,7 +342,7 @@ const Login = () => {
                       name="fullName"
                       render={({ field }) => (
                         <FormItem>
-                          <FormLabel className="text-gray-700">Nome Completo</FormLabel>
+                          <FormLabel className="text-gray-700 font-['Open_Sans']">Nome Completo</FormLabel>
                           <FormControl>
                             <Input
                               {...field}
