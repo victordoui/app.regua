@@ -58,14 +58,15 @@ const KpiStrip: React.FC<KpiStripProps> = ({ todayAppointments, completedRate, n
   };
 
   return (
-    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 animate-[fadeUp_0.4s_ease_both]">
+    <div className="grid grid-cols-1 sm:grid-cols-2 grid-cols-[repeat(auto-fit,minmax(240px,1fr))] gap-5 animate-[fadeUp_0.4s_ease_both]">
       {kpis.map((kpi) => (
         <div
           key={kpi.label}
-          className={`relative overflow-hidden bg-white border border-[hsl(var(--border))] rounded-[14px] p-5 flex items-center gap-4 cursor-pointer transition-all hover:shadow-[0_4px_20px_rgba(15,23,42,0.07)] hover:-translate-y-px
+          className={`relative overflow-hidden bg-white border border-[hsl(var(--border))] rounded-[14px] p-6 min-h-[130px] flex flex-col justify-between cursor-pointer transition-all hover:shadow-[0_4px_20px_rgba(15,23,42,0.07)] hover:-translate-y-px
             before:content-[''] before:absolute before:top-0 before:left-0 before:right-0 before:h-[3px] before:rounded-t-[14px] ${borderColors[kpi.color]}`}
         >
-          <div className={`w-11 h-11 rounded-xl flex items-center justify-center flex-shrink-0 ${kpi.iconBg}`}>
+          <div className="flex items-center gap-4">
+          <div className={`w-12 h-12 rounded-xl flex items-center justify-center flex-shrink-0 ${kpi.iconBg}`}>
             {kpi.icon}
           </div>
           <div className="flex-1 min-w-0">
