@@ -120,7 +120,7 @@ const Sidebar = () => {
         </div>
 
         {/* Navigation */}
-        <nav className="flex-1 overflow-y-auto px-3 py-3 scrollbar-modern">
+        <nav className="flex-1 overflow-y-auto px-3 py-3 scrollbar-hidden-hover">
           {menuStructure.map((category) => (
             <div key={category.category} className="mb-4">
               {/* Section label — clean, no divider */}
