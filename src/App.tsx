@@ -117,11 +117,11 @@ function AppContent() {
         <Route path="/cadastro" element={<SignupPage />} />
         <Route path="/vendas" element={<SalesPage />} />
 
-        {/* Dashboard - Admin vê completo, Barbeiro vê simplificado */}
+        {/* Dashboard */}
         <Route path="/" element={<ProtectedRoute allowedRoles={['admin', 'barbeiro']}><Dashboard /></ProtectedRoute>} />
         <Route path="/barber-dashboard" element={<ProtectedRoute allowedRoles={['barbeiro']}><BarberDashboard /></ProtectedRoute>} />
 
-        {/* Rotas compartilhadas: Admin + Barbeiro */}
+        {/* Rotas compartilhadas */}
         <Route path="/appointments" element={<ProtectedRoute allowedRoles={['admin', 'barbeiro']}><Appointments /></ProtectedRoute>} />
         <Route path="/clients" element={<ProtectedRoute allowedRoles={['admin', 'barbeiro']}><Clients /></ProtectedRoute>} />
         <Route path="/conversations" element={<ProtectedRoute allowedRoles={['admin', 'barbeiro']}><Conversations /></ProtectedRoute>} />
@@ -141,7 +141,7 @@ function AppContent() {
         <Route path="/users" element={<ProtectedRoute allowedRoles={['admin']}><Users /></ProtectedRoute>} />
         <Route path="/cash" element={<ProtectedRoute allowedRoles={['admin']}><Cash /></ProtectedRoute>} />
 
-        {/* Redirects for removed/consolidated routes */}
+        {/* Redirects */}
         <Route path="/subscriptions/new" element={<Navigate to="/subscriptions" replace />} />
         <Route path="/referrals" element={<Navigate to="/loyalty" replace />} />
         <Route path="/commission-rules" element={<Navigate to="/commissions" replace />} />
@@ -159,7 +159,6 @@ function AppContent() {
         <Route path="/waitlist" element={<Navigate to="/appointments?tab=espera" replace />} />
         <Route path="/shifts" element={<Navigate to="/appointments?tab=turnos" replace />} />
 
-        {/* Rota de fallback */}
         <Route path="*" element={<Navigate to="/" replace />} />
       </Routes>
     </BrowserRouter>
@@ -169,12 +168,12 @@ function AppContent() {
 function App() {
   return (
     <QueryClientProvider client={queryClient}>
-        <ThemeProvider
-          attribute="class"
-          defaultTheme="dark"
-          enableSystem={false}
-          disableTransitionOnChange
-        >
+      <ThemeProvider
+        attribute="class"
+        defaultTheme="light"
+        enableSystem={false}
+        disableTransitionOnChange
+      >
         <ErrorBoundary>
           <AuthProvider>
             <RoleProvider>
