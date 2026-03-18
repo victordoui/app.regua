@@ -38,10 +38,10 @@ const RevenueLineChart: React.FC<RevenueLineChartProps> = ({ data }) => {
             <line key={y} x1="28" y1={y} x2="340" y2={y} stroke="#F1F5F9" strokeWidth="1" />
           ))}
           {/* Y labels */}
-          <text x="0" y="19" fontSize="8" fill="#94A3B8" fontFamily="Open Sans,sans-serif">8k</text>
-          <text x="0" y="49" fontSize="8" fill="#94A3B8" fontFamily="Open Sans,sans-serif">6k</text>
-          <text x="0" y="79" fontSize="8" fill="#94A3B8" fontFamily="Open Sans,sans-serif">4k</text>
-          <text x="0" y="109" fontSize="8" fill="#94A3B8" fontFamily="Open Sans,sans-serif">2k</text>
+          <text x="0" y="19" fontSize="8" fill="#94A3B8" fontFamily="Montserrat,sans-serif">8k</text>
+          <text x="0" y="49" fontSize="8" fill="#94A3B8" fontFamily="Montserrat,sans-serif">6k</text>
+          <text x="0" y="79" fontSize="8" fill="#94A3B8" fontFamily="Montserrat,sans-serif">4k</text>
+          <text x="0" y="109" fontSize="8" fill="#94A3B8" fontFamily="Montserrat,sans-serif">2k</text>
           {/* Meta dashed */}
           <line x1="28" y1="56" x2="340" y2="56" stroke="hsl(142, 71%, 45%)" strokeWidth="1.5" strokeDasharray="5,4" opacity="0.5" />
           {/* Revenue area */}
@@ -50,14 +50,14 @@ const RevenueLineChart: React.FC<RevenueLineChartProps> = ({ data }) => {
           {/* Peak dot + tooltip */}
           <circle cx="274" cy="30" r="4" fill="#fff" stroke="hsl(217, 91%, 60%)" strokeWidth="2" />
           <rect x="220" y="6" width="100" height="22" rx="5" fill="#1E293B" />
-          <text x="270" y="21" fontSize="9.5" fill="white" textAnchor="middle" fontWeight="600" fontFamily="Open Sans,sans-serif">
+          <text x="270" y="21" fontSize="9.5" fill="white" textAnchor="middle" fontWeight="600" fontFamily="Montserrat,sans-serif">
             Nov · R$ 7.240
           </text>
           <circle cx="340" cy="20" r="4" fill="hsl(217, 91%, 60%)" />
           {/* X labels */}
           {['Out', 'Nov', 'Dez', 'Jan', 'Fev', 'Mar'].map((label, i) => {
             const x = 36 + i * (304 / 5);
-            return <text key={label} x={x} y="148" fontSize="8" fill="#94A3B8" textAnchor="middle" fontFamily="Open Sans,sans-serif">{label}</text>;
+            return <text key={label} x={x} y="148" fontSize="8" fill="#94A3B8" textAnchor="middle" fontFamily="Montserrat,sans-serif">{label}</text>;
           })}
         </svg>
       </div>

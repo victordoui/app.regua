@@ -148,7 +148,7 @@
     scroll-behavior: smooth;
   }
 
-  /* Typography — Montserrat for headings, Open Sans for body */
+  /* Typography — Montserrat for all text */
   html, body {
     font-family: "Montserrat", sans-serif;
     -webkit-font-smoothing: antialiased;
