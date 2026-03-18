@@ -162,8 +162,8 @@ const Login = () => {
         style={{ background: "linear-gradient(135deg, #4FA3FF, #1F4FA3, #0F2F6B)" }}
       >
         <img src={vizzuIcon} alt="VIZZU" className="w-16 h-16 mx-auto mb-2 object-contain" />
-        <h1 className="text-2xl font-bold text-white">VIZZU</h1>
-        <p className="text-white/70 text-sm">Visualize. Organize. Cresça.</p>
+        <h1 className="text-2xl font-extrabold text-white font-['Montserrat']">VIZZU</h1>
+        <p className="text-white/70 text-sm font-['Open_Sans']">Visualize. Organize. Cresça.</p>
       </div>
 
       {/* Right Panel - Form */}
