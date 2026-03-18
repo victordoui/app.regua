@@ -58,7 +58,7 @@ const KpiStrip: React.FC<KpiStripProps> = ({ todayAppointments, completedRate, n
   };
 
   return (
-    <div className="grid grid-cols-1 sm:grid-cols-2 grid-cols-[repeat(auto-fit,minmax(240px,1fr))] gap-5 animate-[fadeUp_0.4s_ease_both]">
+    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5 animate-[fadeUp_0.4s_ease_both]">
       {kpis.map((kpi) => (
         <div
           key={kpi.label}
