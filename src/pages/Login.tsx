@@ -175,10 +175,10 @@ const Login = () => {
           className="w-full max-w-md"
         >
           <div className="mb-8">
-            <h2 className="text-2xl font-bold text-[#0F2F6B]">
+            <h2 className="text-2xl font-bold text-[#0F2F6B] font-['Montserrat']">
               {activeTab === "login" ? "Bem-vindo de volta" : "Crie sua conta"}
             </h2>
-            <p className="text-gray-500 mt-1">
+            <p className="text-gray-500 mt-1 font-['Open_Sans']">
               {activeTab === "login" ? "Acesse sua conta para continuar" : "Comece a gerenciar seus agendamentos"}
             </p>
           </div>
