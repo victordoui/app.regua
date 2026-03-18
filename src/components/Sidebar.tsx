@@ -151,17 +151,17 @@ const Sidebar = () => {
         </div>
 
         {/* Navigation */}
-        <nav className="flex-1 overflow-y-auto py-1 px-2 scrollbar-modern">
+        <nav className="flex-1 overflow-y-auto py-0.5 px-2 scrollbar-modern">
           {menuStructure.map((category) => (
             <div key={category.category} className="mb-0">
               {!isCollapsed && (
-              <div className="px-3 pt-1 pb-0.5">
+              <div className="px-3 pt-0.5 pb-0">
                   <span className="text-[10px] font-semibold uppercase tracking-widest text-muted-foreground/60">
                     {category.label}
                   </span>
                 </div>
               )}
-              {isCollapsed && <div className="my-1 mx-2 border-t border-border/20" />}
+              {isCollapsed && <div className="my-0.5 mx-2 border-t border-border/20" />}
 
               {category.items.map((menuItem) => {
                 const isActive = isActivePath(menuItem.path);
@@ -170,7 +170,7 @@ const Sidebar = () => {
                     key={menuItem.path}
                     onClick={() => handleNavigation(menuItem.path)}
                     className={`w-full flex items-center gap-2 rounded-lg transition-all duration-150 group relative
-                      ${isCollapsed ? 'justify-center px-2 py-1.5 mx-auto' : 'px-3 py-1'}
+                      ${isCollapsed ? 'justify-center px-2 py-1 mx-auto' : 'px-3 py-0.5'}
                       ${isActive
                         ? 'bg-card text-primary font-medium'
                         : 'text-muted-foreground hover:bg-card/60 hover:text-foreground'
