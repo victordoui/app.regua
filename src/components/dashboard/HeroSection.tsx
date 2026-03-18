@@ -8,8 +8,7 @@ const HeroSection = () => {
   const navigate = useNavigate();
   const { settings } = useCompanySettings();
   const { metrics } = useRealtimeDashboard();
-  const today = new Date();
-  const dateStr = format(today, "dd MMM, yyyy", { locale: ptBR });
+  const companyName = settings?.company_name || "Usuário";
   const companyName = settings?.company_name || "Usuário";
 
   return (
