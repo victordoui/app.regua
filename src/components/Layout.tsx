@@ -11,7 +11,7 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
     <div className="flex h-screen bg-background">
       <Sidebar />
       <Topbar />
-      <main className="flex-1 md:ml-[234px] overflow-auto p-7 pb-10 pt-[4.5rem]">
+      <main className="flex-1 md:ml-[234px] overflow-auto px-8 pb-12 pt-[5rem]">
         {children}
       </main>
     </div>
