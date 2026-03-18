@@ -112,22 +112,8 @@ const Sidebar = () => {
 
   return (
     <>
-      {/* Mobile toggle */}
-      {isMobile && (
-        <button
-          onClick={() => setIsOpen(!isOpen)}
-          className="fixed top-4 left-4 z-50 w-10 h-10 rounded-[10px] bg-card border border-border shadow-lg flex items-center justify-center"
-          aria-label={isOpen ? "Fechar menu" : "Abrir menu"}
-        >
-          {isOpen ? <X className="h-5 w-5 text-foreground" /> : <Menu className="h-5 w-5 text-foreground" />}
-        </button>
-      )}
-
-      {/* Sidebar */}
-      <aside
-        className={`fixed left-0 top-0 bottom-0 z-40 w-[234px] flex flex-col bg-card border-r border-border transition-transform duration-250 ease-in-out
-          ${isMobile ? (isOpen ? 'translate-x-0 shadow-2xl' : '-translate-x-full') : 'translate-x-0'}`}
-      >
+      {/* Sidebar — desktop only (mobile uses MobileBottomNav via Layout) */}
+      <aside className="fixed left-0 top-0 bottom-0 z-40 w-[234px] flex flex-col bg-card border-r border-border max-md:hidden">
         {/* Brand */}
         <div className="px-5 pt-4 pb-3 flex items-center justify-center border-b border-border">
           <img src={vizzuLogo} alt="VIZZU" className="h-20 w-20 object-contain" />
