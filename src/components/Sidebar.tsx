@@ -166,11 +166,8 @@ const Sidebar = () => {
           ${isMobile ? (isOpen ? 'translate-x-0 shadow-2xl' : '-translate-x-full') : 'translate-x-0'}`}
       >
         {/* Brand */}
-        <div className="px-5 pt-[18px] pb-4 flex items-center gap-[10px] border-b border-[hsl(var(--border))]">
-          <img src={vizzuLogo} alt="VIZZU" className="h-8 w-8 object-contain" />
-          <span className="font-heading text-lg font-extrabold tracking-[1.5px] text-primary">
-            VIZZU
-          </span>
+        <div className="px-5 pt-[18px] pb-4 flex items-center justify-center border-b border-[hsl(var(--border))]">
+          <img src={vizzuLogo} alt="VIZZU" className="h-32 w-32 object-contain" />
         </div>
 
         {/* Search */}
