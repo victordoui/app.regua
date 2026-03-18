@@ -1,93 +1,47 @@
 
 
-# Analise de Paginas Repetitivas e Consolidacao
+# Replicar layout do PlanMate adaptado ao VIZZU
 
-Apos analisar todas as paginas e a sidebar, identifiquei os seguintes problemas:
-
----
-
-## 1. Paginas sem funcionalidade real (apenas placeholder "Em Desenvolvimento")
-
-| Pagina | Rota | Situacao |
-|---|---|---|
-| **Criar / Editar Plano** (`SubscriptionCreation`) | `/subscriptions/new` | Placeholder vazio. A pagina `Subscriptions` ja tem botao "Novo Plano" com dialog funcional |
-| **Integracoes** (`Integrations`) | `/integrations` | Placeholder vazio, sem funcionalidade |
-
-**Recomendacao**: Remover ambas da sidebar. `SubscriptionCreation` e redundante com o dialog que ja existe em `Subscriptions`.
+## Análise da Imagem de Referência
+O dashboard PlanMate apresenta: (1) saudação personalizada com subtítulo, (2) 4 status cards horizontais com ícone colorido, título, valor grande e subtítulo, (3) dois gráficos lado a lado (linha + barras), (4) timeline/calendário na parte inferior. A fonte usada é **Inter** (padrão em dashboards SaaS modernos).
 
 ---
 
-## 2. Paginas que podem ser consolidadas como abas
+## Mudanças Planejadas
 
-### 2a. **Comissoes + Regras de Comissao** → Uma unica pagina com abas
-- `Commissions` (`/commissions`) - Calcula comissoes por periodo
-- `CommissionRules` (`/commission-rules`) - Configura regras de comissao
-- Ja existe um botao "Gerenciar Regras" em Comissoes que navega para CommissionRules
+### 1. Adicionar fonte Inter (`index.html` + `tailwind.config.ts`)
+- Adicionar `Inter:wght@400;500;600;700` ao Google Fonts já existente no `index.html`
+- Configurar `fontFamily: { inter: ['Inter', 'sans-serif'] }` no Tailwind
+- Aplicar `font-inter` como fonte base do dashboard (mantendo Montserrat/Open Sans nas demais páginas, ou migrando globalmente conforme preferência)
 
-**Proposta**: Unificar em `/commissions` com 2 abas: "Comissoes" e "Regras"
+### 2. Redesenhar `DashboardOverview.tsx` — layout inspirado no PlanMate
+- **Seção de boas-vindas**: Greeting personalizado ("Organize e cresça, [Nome]! 🔥") com subtítulo descritivo, substituindo o ProfileCard do topo
+- **4 Status Cards horizontais** (grid 4 colunas): Agendamentos Hoje, Concluídos, Pendentes, Cancelados — cada um com ícone colorido em circle badge, título, valor grande e subtítulo "nas últimas 24h". Redesenhar o `StatMiniCard` ou criar novo componente `DashboardStatCard`
+- **2 Gráficos lado a lado** (grid 2 colunas): RevenueChart + OccupancyChart (ou ServicesChart)
+- **Seção inferior**: TodayScheduleCard em largura total (estilo timeline), seguido de RecentActivities + BirthdayClients
 
-### 2b. **Relatorios + Relatorios de Vendas** → Uma unica pagina com abas
-- `Reports` (`/reports`) - Visao financeira geral (receita, agendamentos, clientes)
-- `SalesReports` (`/sales-reports`) - Analise de vendas e ticket medio
-- Ambas mostram dados financeiros com sobreposicao (receita, servicos populares, ticket medio)
+### 3. Criar componente `DashboardStatCard.tsx`
+- Card com: ícone em círculo colorido (cor customizável), título em texto pequeno, valor numérico grande (font-bold), subtítulo em cinza
+- Menu de 3 pontos (⋯) no canto superior direito (decorativo, como na referência)
+- Estilo: fundo branco, border sutil, rounded-xl
 
-**Proposta**: Unificar em `/reports` com abas: "Visao Geral", "Vendas", "Servicos", "Clientes"
+### 4. Seção de boas-vindas (`WelcomeSection`)
+- Nome do usuário extraído do `useAuth()`
+- Título em font-bold grande + emoji
+- Subtítulo descritivo em texto muted
 
-### 2c. **Notificacoes Avancadas + Campanhas** → Sobreposicao significativa
-- `AdvancedNotifications` (`/advanced-notifications`) - Tem abas internas: Templates, **Campanhas**, Historico, Configuracoes
-- `Campaigns` (`/campaigns`) - Gerencia campanhas de email
-
-A aba "Campanhas" dentro de Notificacoes Avancadas e a pagina Campanhas fazem a mesma coisa.
-
-**Proposta**: Manter `Campanhas` como pagina independente (mais completa) e remover a aba de campanhas de dentro de AdvancedNotifications, ou vice-versa. A opcao mais limpa e manter so `AdvancedNotifications` que ja tem tudo integrado e remover `Campaigns` da sidebar.
-
-### 2d. **Fidelidade + Indicacoes** → Programa de engajamento
-- `Loyalty` (`/loyalty`) - Pontos e recompensas
-- `Referrals` (`/referrals`) - Indicacoes e recompensas
-
-Ambas tratam de recompensar clientes. Podem ser abas de uma unica pagina "Engajamento" ou "Fidelidade & Indicacoes".
-
-**Proposta**: Unificar em `/loyalty` com abas: "Pontos e Recompensas" e "Indicacoes"
+### 5. Mover ProfileCard
+- O ProfileCard atual sai do grid principal e pode ser acessado via header/dropdown (já existe lá)
 
 ---
 
-## 3. Paginas com funcionalidade duplicada
+## Arquivos Modificados
+1. **`index.html`** — adicionar Inter ao Google Fonts
+2. **`tailwind.config.ts`** — adicionar `fontFamily.inter`
+3. **`src/components/dashboard/DashboardStatCard.tsx`** — novo componente de stat card estilo PlanMate
+4. **`src/components/dashboard/DashboardOverview.tsx`** — redesenhar layout completo
+5. **`src/index.css`** — (opcional) aplicar Inter como font-family base
 
-### 3a. **Configuracoes Gerais vs Empresa**
-- `Settings` (`/settings`) - Formulario basico com dados da barbearia + perfil do usuario
-- `CompanySettings` (`/settings/company`) - Formulario completo com dados da empresa, identidade visual, link de agendamento
-
-`Settings` e uma versao pobre de `CompanySettings` + `Profile`. Tudo que tem em Settings ja existe melhor em CompanySettings e Profile.
-
-**Proposta**: Remover `Settings` da sidebar. Manter apenas `CompanySettings` (Empresa) e `Profile` (Meu Perfil).
-
-### 3b. **Conversas vs Chat da Equipe**
-- `Conversations` (`/conversations`) - Chat com clientes (mock data)
-- `TeamChat` (`/team-chat`) - Chat interno da equipe
-
-Sao funcionalidades diferentes mas ambas sao chat. Podem coexistir, porem `Conversations` usa apenas dados mock e nao tem funcionalidade real.
-
-**Proposta**: Se Conversations nao tem integracao real, considerar remove-la ou marca-la como "em breve".
-
-### 3c. **Agendamento Online (admin)** duplica funcionalidade
-- `OnlineBooking` (`/booking`) - Formulario de agendamento interno com dados mock
-- A pagina `Appointments` ja permite criar agendamentos
-
-**Proposta**: Remover `OnlineBooking` da sidebar. O agendamento ja e feito pela pagina de Appointments.
-
----
-
-## Resumo das acoes propostas
-
-| Acao | Detalhes |
-|---|---|
-| **Remover da sidebar** | `SubscriptionCreation`, `Integracoes`, `Settings`, `OnlineBooking` |
-| **Consolidar Comissoes + Regras** | Uma pagina com 2 abas |
-| **Consolidar Relatorios + Rel. Vendas** | Uma pagina com abas expandidas |
-| **Consolidar Fidelidade + Indicacoes** | Uma pagina com 2 abas |
-| **Resolver duplicata Campanhas** | Manter apenas em AdvancedNotifications ou apenas Campaigns (nao ambas) |
-
-Isso reduziria a sidebar de ~30 itens para ~24, tornando a navegacao mais limpa e eliminando confusao.
-
-Deseja que eu implemente alguma dessas consolidacoes? Posso comecar por qualquer grupo.
+## Resultado
+Dashboard com visual clean inspirado no PlanMate: saudação pessoal, 4 cards de métricas horizontais, gráficos lado a lado, e seções operacionais abaixo — tudo adaptado ao contexto VIZZU (agendamentos, clientes, receita).
 
