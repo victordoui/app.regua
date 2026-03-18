@@ -32,7 +32,7 @@ const OccupationHeatmap = () => {
       </div>
 
       {/* Legend */}
-      <div className="px-[18px] pb-1.5 flex gap-2 flex-wrap">
+      <div className="px-5 pb-1.5 flex gap-2 flex-wrap">
         <div className="flex items-center gap-1 text-[10px] text-muted-foreground">
           <div className="w-2.5 h-2.5 rounded-[3px] bg-[hsl(var(--primary-50))]" />Livre
         </div>
