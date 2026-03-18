@@ -11,8 +11,7 @@ import {
   Crown, Heart,
   Building, UserCircle, UserCheck,
   ShoppingCart, Tag,
-  Shield, LogOut,
-  Menu, X, Sparkles
+  Shield, LogOut, Sparkles
 } from "lucide-react";
 
 const BARBER_PATHS = new Set([
