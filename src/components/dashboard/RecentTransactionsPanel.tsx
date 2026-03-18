@@ -15,8 +15,8 @@ const RecentTransactionsPanel = () => {
   const transactions = todayAppointments.slice(0, 5);
 
   return (
-    <div className="bg-white border border-[hsl(var(--border))] rounded-[14px] overflow-hidden">
-      <div className="flex items-center justify-between px-[18px] pt-[14px] pb-[10px]">
+    <div className="bg-white border border-[hsl(var(--border))] rounded-[14px] overflow-hidden min-h-[260px]">
+      <div className="flex items-center justify-between px-5 pt-4 pb-3">
         <span className="font-heading text-[13px] font-bold text-foreground">Transações Recentes</span>
         <button
           onClick={() => navigate('/billing')}

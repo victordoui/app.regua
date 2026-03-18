@@ -70,19 +70,20 @@ const KpiStrip: React.FC<KpiStripProps> = ({ todayAppointments, completedRate, n
             {kpi.icon}
           </div>
           <div className="flex-1 min-w-0">
-            <div className="text-[10px] font-semibold uppercase tracking-[0.8px] text-muted-foreground mb-1">
+            <div className="text-[11px] font-semibold uppercase tracking-[0.8px] text-muted-foreground mb-1">
               {kpi.label}
             </div>
-            <div className={`font-heading text-[28px] font-extrabold leading-none tracking-tight mb-1 ${kpi.valueColor || 'text-foreground'}`}>
+            <div className={`font-heading text-[28px] font-extrabold leading-none tracking-tight ${kpi.valueColor || 'text-foreground'}`}>
               {kpi.value}
             </div>
-            <div className="flex items-center gap-1.5 text-[11px] text-muted-foreground">
+          </div>
+          </div>
+          <div className="flex items-center gap-1.5 text-[11px] text-muted-foreground mt-3">
               <span className={`inline-flex items-center gap-1 text-[10px] font-semibold px-[7px] py-0.5 rounded-full
                 ${kpi.tag.type === 'up' ? 'bg-[hsl(var(--success-bg))] text-[hsl(var(--success))]' : 'bg-[hsl(var(--rose-bg))] text-[hsl(var(--rose))]'}`}>
                 {kpi.tag.type === 'up' ? '▲' : '▼'} {kpi.tag.text}
               </span>
               {kpi.foot}
-            </div>
           </div>
         </div>
       ))}
