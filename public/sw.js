@@ -1,17 +1,17 @@
-// Service Worker for Push Notifications & Update Detection
+// Service Worker for Push Notifications
 // VIZZU - Gestão inteligente de agendamentos
 
-const CACHE_NAME = 'vizzu-v2';
+const CACHE_NAME = 'vizzu-v3';
 
-// Install event
+// Install event — skip waiting immediately
 self.addEventListener('install', (event) => {
-  console.log('[SW] New version installed');
-  // Don't skipWaiting automatically — wait for user to click "Update"
+  console.log('[SW] New version installed, activating immediately');
+  self.skipWaiting();
 });
 
-// Activate event
+// Activate event — claim all clients immediately
 self.addEventListener('activate', (event) => {
-  console.log('[SW] Service Worker activated');
+  console.log('[SW] Service Worker activated, claiming clients');
   event.waitUntil(
     caches.keys().then((cacheNames) => {
       return Promise.all(
@@ -19,11 +19,11 @@ self.addEventListener('activate', (event) => {
           .filter((name) => name !== CACHE_NAME)
           .map((name) => caches.delete(name))
       );
-    })
+    }).then(() => self.clients.claim())
   );
 });
 
-// Listen for SKIP_WAITING message from client
+// Listen for SKIP_WAITING message from client (legacy support)
 self.addEventListener('message', (event) => {
   if (event.data && event.data.type === 'SKIP_WAITING') {
     self.skipWaiting();
@@ -112,7 +112,14 @@ async function syncNotifications() {
   console.log('[SW] Syncing notifications...');
 }
 
-// Fetch event
+// Fetch event — network-first for navigation, pass-through for others
 self.addEventListener('fetch', (event) => {
-  // Pass-through
+  // Don't cache navigation requests — always go to network
+  if (event.request.mode === 'navigate') {
+    event.respondWith(
+      fetch(event.request).catch(() => caches.match(event.request))
+    );
+    return;
+  }
+  // Pass-through for everything else
 });
