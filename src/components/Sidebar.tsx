@@ -100,6 +100,32 @@ const Sidebar = () => {
     return [];
   }, [isSuperAdmin, isAdmin, isBarbeiro]);
 
+  // Initialize all categories as open on first render
+  useEffect(() => {
+    if (menuStructure.length > 0 && openCategories.size === 0) {
+      setOpenCategories(new Set(menuStructure.map(c => c.category)));
+    }
+  }, [menuStructure]);
+
+  // Ensure category with active route stays open
+  useEffect(() => {
+    const activeCategory = menuStructure.find(cat =>
+      cat.items.some(item => location.pathname === item.path)
+    );
+    if (activeCategory && !openCategories.has(activeCategory.category)) {
+      setOpenCategories(prev => new Set([...prev, activeCategory.category]));
+    }
+  }, [location.pathname, menuStructure]);
+
+  const toggleCategory = (category: string) => {
+    setOpenCategories(prev => {
+      const next = new Set(prev);
+      if (next.has(category)) next.delete(category);
+      else next.add(category);
+      return next;
+    });
+  };
+
   const handleNavigation = (path: string) => {
     navigate(path);
     setIsOpen(false);
