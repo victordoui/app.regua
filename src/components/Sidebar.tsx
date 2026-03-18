@@ -46,12 +46,12 @@ const Sidebar = () => {
       category: "dashboard", label: "Dashboard",
       items: [
         { icon: Home, label: "Painel", path: "/" },
-        { icon: Building, label: "Minha Empresa", path: "/settings/company" },
       ]
     },
     {
       category: "negocio", label: "Meu Negócio",
       items: [
+        { icon: Building, label: "Minha Empresa", path: "/settings/company" },
         { icon: UserCircle, label: "Meu Perfil", path: "/profile" },
         { icon: UserCheck, label: "Usuários", path: "/users" },
       ]
