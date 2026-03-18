@@ -151,7 +151,7 @@ const Sidebar = () => {
         </div>
 
         {/* Navigation */}
-        <nav className="flex-1 overflow-y-auto py-1 px-2 scrollbar-modern">
+        <nav className="flex-1 overflow-y-auto py-0.5 px-2 scrollbar-modern">
           {menuStructure.map((category) => (
             <div key={category.category} className="mb-0">
               {!isCollapsed && (
