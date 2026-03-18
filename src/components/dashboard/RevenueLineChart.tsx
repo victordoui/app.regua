@@ -57,7 +57,7 @@ const RevenueLineChart: React.FC<RevenueLineChartProps> = ({ data }) => {
           {/* X labels */}
           {['Out', 'Nov', 'Dez', 'Jan', 'Fev', 'Mar'].map((label, i) => {
             const x = 36 + i * (304 / 5);
-            return <text key={label} x={x} y="148" fontSize="8" fill="#94A3B8" textAnchor="middle" return <text key={label} x={x} y="148" fontSize="8" fill="#94A3B8" textAnchor="middle" fontFamily="Montserrat,sans-serif">{label}</text>;;
+            return <text key={label} x={x} y="148" fontSize="8" fill="#94A3B8" textAnchor="middle" fontFamily="Montserrat,sans-serif">{label}</text>;
           })}
         </svg>
       </div>
