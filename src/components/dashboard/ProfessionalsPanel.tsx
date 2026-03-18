@@ -52,8 +52,8 @@ const ProfessionalsPanel = () => {
                 <span className="absolute bottom-px right-px w-2 h-2 rounded-full border-[1.5px] border-white bg-[hsl(var(--success))]" />
               </div>
               <div className="flex-1 min-w-0">
-                <div className="text-xs font-semibold text-foreground truncate">{barber.name}</div>
-                <div className="text-[10px] text-muted-foreground mt-px truncate">{barber.specialty || 'Barbeiro'}</div>
+<div className="text-xs font-semibold text-foreground truncate">{barber.full_name}</div>
+                <div className="text-[10px] text-muted-foreground mt-px truncate">{barber.specialties?.[0] || 'Barbeiro'}</div>
               </div>
               <div className="text-right flex-shrink-0">
                 <div className="font-heading text-[13px] font-bold text-foreground">
