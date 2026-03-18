@@ -141,7 +141,7 @@ const Sidebar = () => {
         animate={{ width: sidebarWidth, x: isMobile && !isOpen ? -240 : 0 }}
         transition={{ duration: 0.25, ease: "easeInOut" }}
         className={`fixed left-0 top-0 h-full z-40 flex flex-col
-          bg-card border-r border-border
+          bg-background border-r border-border/30
           ${isMobile ? 'shadow-2xl' : 'md:relative md:shadow-none'}`}
         style={{ width: isMobile ? (isOpen ? 240 : 0) : sidebarWidth }}
       >
@@ -160,8 +160,8 @@ const Sidebar = () => {
           {menuStructure.map((category) => (
             <div key={category.category} className="mb-1">
               {!isCollapsed && (
-                <div className="px-3 pt-4 pb-1.5">
-                  <span className="text-[10px] font-semibold uppercase tracking-widest text-muted-foreground/50">
+              <div className="px-3 pt-4 pb-1.5">
+                  <span className="text-[10px] font-semibold uppercase tracking-widest text-muted-foreground/60">
                     {category.label}
                   </span>
                 </div>
@@ -177,8 +177,8 @@ const Sidebar = () => {
                     className={`w-full flex items-center gap-3 rounded-lg transition-all duration-150 group relative
                       ${isCollapsed ? 'justify-center px-2 py-2.5 mx-auto' : 'px-3 py-2'}
                       ${isActive
-                        ? 'bg-primary/[0.08] text-primary font-medium'
-                        : 'text-muted-foreground hover:bg-muted/60 hover:text-foreground'
+                        ? 'bg-card text-primary font-medium'
+                        : 'text-muted-foreground hover:bg-card/60 hover:text-foreground'
                       }`}
                   >
                     {isActive && !isCollapsed && (

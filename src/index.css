@@ -8,81 +8,122 @@ All colors MUST be HSL.
 
 @layer base {
   :root {
-    /* VIZZU Design System - Clean Light Mode */
-    --background: 220 14% 96%;
-    --foreground: 222 47% 11%;
+    /* VIZZU Design System — Dark Mode Professional (default) */
+    --background: 0 0% 10%; /* #1A1A1A */
+    --foreground: 0 0% 100%; /* #FFFFFF */
 
-    --card: 0 0% 100%;
-    --card-foreground: 222 47% 11%;
+    --card: 0 0% 16%; /* #282828 */
+    --card-foreground: 0 0% 100%;
 
-    --popover: 0 0% 100%;
-    --popover-foreground: 222 47% 11%;
+    --popover: 0 0% 16%;
+    --popover-foreground: 0 0% 100%;
 
-    /* VIZZU Brand Palette */
-    --primary: 221 68% 38%; /* #1F4FA3 */
+    /* VIZZU Brand Palette — primary accent #4FA3FF */
+    --primary: 213 100% 65%; /* #4FA3FF */
     --primary-foreground: 0 0% 100%;
-    
+
     --primary-50: 213 100% 97%;
-    --primary-100: 213 100% 93%;
-    --primary-200: 213 100% 85%;
-    --primary-300: 213 100% 75%;
-    --primary-400: 213 100% 65%; /* #4FA3FF Accent */
-    --primary-500: 221 68% 38%;
-    --primary-600: 216 64% 50%; /* #2E6FD3 Secondary */
+    --primary-100: 213 100% 90%;
+    --primary-200: 213 100% 80%;
+    --primary-300: 213 100% 70%;
+    --primary-400: 213 100% 65%; /* #4FA3FF */
+    --primary-500: 221 68% 38%; /* #1F4FA3 */
+    --primary-600: 216 64% 50%; /* #2E6FD3 */
     --primary-700: 221 68% 38%;
-    --primary-800: 219 76% 24%; /* #0F2F6B Dark */
+    --primary-800: 219 76% 24%; /* #0F2F6B */
     --primary-900: 219 76% 18%;
     --primary-950: 219 76% 12%;
-    
-    --primary-rgb: 31, 79, 163;
 
-    --secondary: 216 64% 50%; /* #2E6FD3 */
-    --secondary-foreground: 0 0% 100%;
-    --secondary-rgb: 46, 111, 211;
-    
-    --muted: 220 14% 93%;
-    --muted-foreground: 220 9% 44%;
+    --primary-rgb: 79, 163, 255;
 
-    --accent: 213 100% 65%; /* #4FA3FF */
+    --secondary: 0 0% 16%; /* card-level bg for secondary buttons */
+    --secondary-foreground: 213 100% 65%;
+    --secondary-rgb: 40, 40, 40;
+
+    --muted: 0 0% 13%; /* #212121 */
+    --muted-foreground: 0 0% 69%; /* #B0B0B0 */
+
+    --accent: 0 0% 16%;
     --accent-foreground: 0 0% 100%;
 
-    --destructive: 0 84.2% 60.2%;
-    --destructive-foreground: 210 40% 98%;
+    --destructive: 0 72% 51%; /* #DC3545 */
+    --destructive-foreground: 0 0% 100%;
 
-    --border: 220 13% 87%;
-    --input: 220 13% 87%;
-    --ring: 221 68% 38%;
+    --border: 0 0% 25%; /* #404040 */
+    --input: 0 0% 16%; /* #282828 */
+    --ring: 213 100% 65%;
 
-    /* Clean system colors */
-    --clean-black: 222 47% 11%;
+    /* System grays for dark mode */
+    --clean-black: 0 0% 0%;
     --clean-white: 0 0% 100%;
-    --clean-gray-50: 220 14% 96%;
-    --clean-gray-100: 220 14% 93%;
-    --clean-gray-200: 220 13% 87%;
-    --clean-gray-300: 213 27% 84%;
-    --clean-gray-400: 215 20% 65%;
-    --clean-gray-500: 215 16% 47%;
-    
-    /* Modern Gradients */
+    --clean-gray-50: 0 0% 10%;
+    --clean-gray-100: 0 0% 13%;
+    --clean-gray-200: 0 0% 20%;
+    --clean-gray-300: 0 0% 25%;
+    --clean-gray-400: 0 0% 50%; /* #808080 */
+    --clean-gray-500: 0 0% 69%;
+
+    /* Status colors */
+    --success: 134 61% 41%; /* #28A745 */
+    --warning: 45 100% 51%; /* #FFC107 */
+
+    /* Gradients */
     --gradient-primary: linear-gradient(135deg, hsl(213, 100%, 65%), hsl(221, 68%, 38%));
-    --gradient-secondary: linear-gradient(135deg, hsl(var(--secondary)), hsl(var(--clean-white)));
-    --gradient-subtle: linear-gradient(180deg, hsl(var(--clean-white)), hsl(var(--clean-gray-50)));
+    --gradient-secondary: linear-gradient(135deg, hsl(0, 0%, 16%), hsl(0, 0%, 20%));
+    --gradient-subtle: linear-gradient(180deg, hsl(0, 0%, 13%), hsl(0, 0%, 10%));
     --gradient-from: 213 100% 65%;
     --gradient-via: 221 68% 38%;
     --gradient-to: 219 76% 24%;
-    
-    /* Modern Shadows - Refined depth */
-    --shadow-elegant: 0 20px 40px -5px rgba(0, 0, 0, 0.08), 0 10px 20px -5px rgba(0, 0, 0, 0.03);
-    --shadow-subtle: 0 1px 3px 0 rgba(0, 0, 0, 0.06), 0 1px 2px -1px rgba(0, 0, 0, 0.04);
-    --shadow-modern: 0 10px 30px -10px rgba(37, 99, 235, 0.12);
-    
-    /* Glassmorphism Refined */
-    --glass-bg: rgba(255, 255, 255, 0.7);
-    --glass-border: rgba(255, 255, 255, 0.5);
-    --glass-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.15);
+
+    /* Shadows — dark mode optimised */
+    --shadow-elegant: 0 20px 40px -5px rgba(0, 0, 0, 0.4), 0 10px 20px -5px rgba(0, 0, 0, 0.25);
+    --shadow-subtle: 0 4px 10px 0 rgba(0, 0, 0, 0.3);
+    --shadow-modern: 0 10px 30px -10px rgba(79, 163, 255, 0.15);
+
+    /* Glass */
+    --glass-bg: rgba(40, 40, 40, 0.6);
+    --glass-border: rgba(255, 255, 255, 0.06);
+    --glass-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.5);
 
     --radius: 0.75rem;
 
+    --sidebar-background: 0 0% 10%;
+    --sidebar-foreground: 0 0% 69%;
+    --sidebar-primary: 213 100% 65%;
+    --sidebar-primary-foreground: 0 0% 100%;
+    --sidebar-accent: 0 0% 16%;
+    --sidebar-accent-foreground: 0 0% 100%;
+    --sidebar-border: 0 0% 16%;
+    --sidebar-ring: 213 100% 65%;
+  }
+
+  /* Light mode kept as fallback — users can toggle if desired */
+  .light {
+    --background: 220 14% 96%;
+    --foreground: 222 47% 11%;
+    --card: 0 0% 100%;
+    --card-foreground: 222 47% 11%;
+    --popover: 0 0% 100%;
+    --popover-foreground: 222 47% 11%;
+    --primary: 221 68% 38%;
+    --primary-foreground: 0 0% 100%;
+    --secondary: 216 64% 50%;
+    --secondary-foreground: 0 0% 100%;
+    --muted: 220 14% 93%;
+    --muted-foreground: 220 9% 44%;
+    --accent: 213 100% 65%;
+    --accent-foreground: 0 0% 100%;
+    --destructive: 0 84.2% 60.2%;
+    --destructive-foreground: 210 40% 98%;
+    --border: 220 13% 87%;
+    --input: 220 13% 87%;
+    --ring: 221 68% 38%;
+    --shadow-subtle: 0 1px 3px 0 rgba(0, 0, 0, 0.06), 0 1px 2px -1px rgba(0, 0, 0, 0.04);
+    --shadow-elegant: 0 20px 40px -5px rgba(0, 0, 0, 0.08), 0 10px 20px -5px rgba(0, 0, 0, 0.03);
+    --shadow-modern: 0 10px 30px -10px rgba(37, 99, 235, 0.12);
+    --glass-bg: rgba(255, 255, 255, 0.7);
+    --glass-border: rgba(255, 255, 255, 0.5);
+    --glass-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.15);
     --sidebar-background: 0 0% 100%;
     --sidebar-foreground: 240 5.3% 26.1%;
     --sidebar-primary: 240 5.9% 10%;
@@ -93,64 +134,8 @@ All colors MUST be HSL.
     --sidebar-ring: 217.2 91.2% 59.8%;
   }
 
-  .dark {
-    --background: 220 65% 10%;
-    --foreground: 210 40% 98%;
-
-    --card: 220 60% 14%;
-    --card-foreground: 210 40% 98%;
-
-    --popover: 220 65% 12%;
-    --popover-foreground: 210 40% 98%;
-
-    --primary: 217 91% 60%;
-    --primary-foreground: 222 47% 11%;
-    
-    --primary-50: 217 91% 10%;
-    --primary-100: 217 91% 15%;
-    --primary-200: 217 91% 20%;
-    --primary-300: 217 91% 30%;
-    --primary-400: 217 91% 40%;
-    --primary-500: 217 91% 60%;
-    --primary-600: 217 91% 70%;
-    --primary-700: 217 91% 80%;
-    --primary-800: 217 91% 90%;
-    --primary-900: 217 91% 95%;
-    --primary-950: 217 91% 98%;
-    
-    --primary-rgb: 96, 165, 250;
-
-    --secondary: 220 60% 16%;
-    --secondary-foreground: 210 40% 98%;
-    --secondary-rgb: 16, 33, 65;
-
-    --muted: 220 55% 18%;
-    --muted-foreground: 215 20.2% 65.1%;
-
-    --accent: 220 60% 16%;
-    --accent-foreground: 210 40% 98%;
-
-    --destructive: 0 62.8% 30.6%;
-    --destructive-foreground: 210 40% 98%;
-
-    --border: 220 50% 20%;
-    --input: 220 50% 20%;
-    --ring: 212.7 26.8% 83.9%;
-    
-    /* Dark mode glassmorphism */
-    --glass-bg: rgba(15, 23, 42, 0.6);
-    --glass-border: rgba(255, 255, 255, 0.08);
-    --glass-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.5);
-
-    --sidebar-background: 240 5.9% 10%;
-    --sidebar-foreground: 240 4.8% 95.9%;
-    --sidebar-primary: 224.3 76.3% 48%;
-    --sidebar-primary-foreground: 0 0% 100%;
-    --sidebar-accent: 240 3.7% 15.9%;
-    --sidebar-accent-foreground: 240 4.8% 95.9%;
-    --sidebar-border: 240 3.7% 15.9%;
-    --sidebar-ring: 217.2 91.2% 59.8%;
-  }
+  /* .dark inherits :root defaults — no overrides needed */
+  .dark {}
 }
 
 @layer base {

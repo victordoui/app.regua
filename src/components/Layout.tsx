@@ -102,7 +102,7 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
       
       <div className="flex-1 flex flex-col min-w-0">
         {/* Header — unified bg-background */}
-        <header className="bg-card border-b border-border px-4 lg:px-6 h-16 flex items-center justify-between gap-4 sticky top-0 z-10">
+        <header className="bg-background border-b border-border px-4 lg:px-6 h-16 flex items-center justify-between gap-4 sticky top-0 z-10">
           {/* Left */}
           <div className="flex items-center gap-2 min-w-0">
             <Button variant="ghost" size="sm" className="md:hidden" onClick={() => setMobileMenuOpen(!mobileMenuOpen)}>
@@ -116,7 +116,7 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
               <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
               <Input
                 placeholder="Buscar..."
-                className="pl-9 h-9 rounded-full bg-background border-border focus:border-primary focus:bg-card focus:ring-1 focus:ring-primary/30"
+                className="pl-9 h-9 rounded-full bg-card border-border focus:border-primary focus:ring-1 focus:ring-primary/30"
               />
             </div>
           </div>
