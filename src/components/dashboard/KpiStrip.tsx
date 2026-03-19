@@ -18,7 +18,7 @@ const KpiStrip: React.FC<KpiStripProps> = ({ todayAppointments, completedRate, n
   const kpis = [
     {
       label: "Agendamentos Hoje",
-      value: todayAppointments.toString(),
+      value: displayAppointments.toString(),
       color: "blue" as const,
       iconBg: "bg-[hsl(var(--primary-50))]",
       icon: <Calendar className="h-[22px] w-[22px] text-primary" strokeWidth={1.8} />,
@@ -27,7 +27,7 @@ const KpiStrip: React.FC<KpiStripProps> = ({ todayAppointments, completedRate, n
     },
     {
       label: "Taxa de Conclusão",
-      value: `${completedRate}%`,
+      value: `${displayRate}%`,
       valueColor: "text-[hsl(var(--success))]",
       color: "green" as const,
       iconBg: "bg-[hsl(var(--success-bg))]",
@@ -37,17 +37,17 @@ const KpiStrip: React.FC<KpiStripProps> = ({ todayAppointments, completedRate, n
     },
     {
       label: "Novos Clientes",
-      value: newClients.toString(),
+      value: displayClients.toString(),
       valueColor: "text-[hsl(var(--warning))]",
       color: "amber" as const,
       iconBg: "bg-[hsl(var(--warning-bg))]",
       icon: <Users className="h-[22px] w-[22px] text-[hsl(var(--warning))]" strokeWidth={1.8} />,
-      tag: { type: "down" as const, text: `${newClients}` },
+      tag: { type: "down" as const, text: `${displayClients}` },
       foot: "este mês",
     },
     {
       label: "Receita do Dia",
-      value: `R$ ${dayRevenue.toLocaleString('pt-BR', { minimumFractionDigits: 0 })}`,
+      value: `R$ ${displayRevenue.toLocaleString('pt-BR', { minimumFractionDigits: 0 })}`,
       color: "rose" as const,
       iconBg: "bg-[hsl(var(--rose-bg))]",
       icon: <DollarSign className="h-[22px] w-[22px] text-[hsl(var(--rose))]" strokeWidth={1.8} />,
