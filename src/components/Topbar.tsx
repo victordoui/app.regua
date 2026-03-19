@@ -38,7 +38,7 @@ const Topbar = () => {
   return (
     <header className="fixed top-0 right-0 left-[234px] z-30 h-14 bg-card border-b border-border flex items-center justify-between px-7 max-md:left-0">
       {/* Search */}
-      <div className="flex items-center gap-2 bg-[hsl(var(--card-2))] border border-[hsl(var(--border))] rounded-[10px] px-3 py-2 w-full max-w-md focus-within:border-primary transition-colors">
+      <div className="flex items-center gap-2 bg-secondary border border-border rounded-[10px] px-3 py-2 w-full max-w-md focus-within:border-primary transition-colors">
         <Search className="h-4 w-4 text-muted-foreground flex-shrink-0" />
         <input
           id="topbar-search-input"
@@ -46,7 +46,7 @@ const Topbar = () => {
           placeholder="Buscar..."
           className="border-none bg-transparent outline-none text-sm text-foreground w-full placeholder:text-muted-foreground"
         />
-        <kbd className="text-[10px] text-muted-foreground border border-[hsl(var(--border))] rounded px-1.5 py-0.5 whitespace-nowrap flex-shrink-0">
+        <kbd className="text-[10px] text-muted-foreground border border-border rounded px-1.5 py-0.5 whitespace-nowrap flex-shrink-0">
           ⌘K
         </kbd>
       </div>
