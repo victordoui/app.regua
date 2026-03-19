@@ -1,40 +1,28 @@
 
 
-# Limpeza de Código — Arquivos e Hooks Não Utilizados
+# Garantir 5 nomes no Ranking de Profissionais
 
-## Situação Atual
-O projeto acumulou componentes, hooks e utilitários que não são importados em lugar nenhum. Isso aumenta o bundle, confunde a manutenção e polui o codebase.
+## Problema
+O componente `ProfessionalsPanel` só usa os nomes mock quando não há nenhum barbeiro real. Se existirem 1-4 barbeiros reais, ele mostra apenas esses, sem completar até 5.
 
-## Arquivos a Remover
+## Alteração
 
-### Componentes sem uso (nunca importados)
-| Arquivo | Motivo |
-|---|---|
-| `src/components/CompanyPagePreview.tsx` | Não importado |
-| `src/components/IntelligentScheduling.tsx` | Não importado |
-| `src/components/booking/DynamicPriceDisplay.tsx` | Não importado |
-| `src/components/booking/ServiceFilters.tsx` | Não importado |
-| `src/components/client/StoriesCarousel.tsx` | Não importado |
-| `src/components/ui/use-toast.tsx` | Duplicata — todo mundo usa `@/hooks/use-toast` |
-| `src/components/ui/use-mobile.tsx` | Duplicata — todo mundo usa `@/hooks/use-mobile` |
+### `src/components/dashboard/ProfessionalsPanel.tsx`
+- Mudar a lógica de `displayBarbers`: sempre garantir exatamente 5 itens
+- Se houver barbeiros reais, usar eles primeiro e preencher o restante com mock até completar 5
+- Se não houver nenhum, usar os 5 mock
 
-### Hooks sem uso (nunca importados)
-| Arquivo | Motivo |
-|---|---|
-| `src/hooks/useEmailCampaigns.ts` | Não importado em nenhum arquivo |
-| `src/hooks/usePushNotifications.ts` | Não importado em nenhum arquivo |
+```text
+Lógica atual:
+  realBarbers = barbers.slice(0, 5)
+  displayBarbers = realBarbers.length > 0 ? realBarbers : mockBarbers
 
-### Utilitários sem uso
-| Arquivo | Motivo |
-|---|---|
-| `src/lib/appointmentUtils.ts` | Não importado em nenhum arquivo |
+Nova lógica:
+  realBarbers = barbers.slice(0, 5)
+  displayBarbers = realBarbers.length >= 5 
+    ? realBarbers 
+    : [...realBarbers, ...mockBarbers.slice(realBarbers.length)].slice(0, 5)
+```
 
-### Outros
-| Arquivo | Motivo |
-|---|---|
-| `vite.config.ts.timestamp-1760494324946-073a4f0ac3db7.mjs` | Arquivo temporário gerado pelo Vite |
-
-## Total: 11 arquivos para remover
-
-Nenhuma alteração funcional — apenas exclusão de dead code.
+Alteração mínima — 1 arquivo, ~3 linhas.
 
