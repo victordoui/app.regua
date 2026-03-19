@@ -35,7 +35,7 @@ const MonthRevenueDonut: React.FC<MonthRevenueDonutProps> = ({ monthRevenue }) =
         {/* Donut + Legend */}
         <div className="flex items-center gap-[18px] mb-4">
           <svg width="90" height="90" viewBox="0 0 90 90" className="flex-shrink-0">
-            <circle cx="45" cy="45" r="32" fill="none" stroke="#F1F5F9" strokeWidth="11" />
+            <circle cx="45" cy="45" r="32" fill="none" stroke="hsl(var(--muted))" strokeWidth="11" />
             <circle cx="45" cy="45" r="32" fill="none" stroke="hsl(217, 91%, 60%)" strokeWidth="11"
               strokeDasharray="107 95" strokeDashoffset="0" strokeLinecap="round" transform="rotate(-90 45 45)" />
             <circle cx="45" cy="45" r="32" fill="none" stroke="hsl(142, 71%, 45%)" strokeWidth="11"
