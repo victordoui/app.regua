@@ -141,11 +141,11 @@ const Users = () => {
 
   const getRoleColor = (role: string) => {
     switch (role) {
-      case "admin": return "bg-red-100 text-red-800";
-      case "barbeiro": return "bg-blue-100 text-blue-800";
-      case "recepcionista": return "bg-green-100 text-green-800";
-      case "cliente": return "bg-gray-100 text-gray-800";
-      default: return "bg-gray-100 text-gray-800";
+      case "admin": return "bg-[hsl(var(--rose-bg))] text-[hsl(var(--rose))]";
+      case "barbeiro": return "bg-[hsl(var(--primary-50))] text-primary";
+      case "recepcionista": return "bg-[hsl(var(--success-bg))] text-[hsl(var(--success))]";
+      case "cliente": return "bg-secondary text-foreground";
+      default: return "bg-secondary text-foreground";
     }
   };
 
