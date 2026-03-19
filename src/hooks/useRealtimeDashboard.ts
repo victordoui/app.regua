@@ -9,6 +9,7 @@ interface DashboardMetrics {
   todayAppointments: number;
   monthAppointments: number;
   monthRevenue: number;
+  todayRevenue: number;
   totalClients: number;
   newClientsThisMonth: number;
   completedRate: number;
