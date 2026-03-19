@@ -68,7 +68,7 @@ const DashboardOverview = () => {
               </div>
             </div>
 
-            <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
+            <div className="grid grid-cols-1 lg:grid-cols-[1fr_1fr_1fr] gap-4 items-start">
               <RecentTransactionsPanel />
               <ProfessionalsPanel />
               <MonthRevenueDonut monthRevenue={metrics.monthRevenue} />

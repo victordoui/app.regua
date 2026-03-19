@@ -15,12 +15,12 @@ const RecentTransactionsPanel = () => {
   const transactions = todayAppointments.slice(0, 5);
 
   return (
-    <div className="bg-card border border-[hsl(var(--border))] rounded-[14px] overflow-hidden">
+    <div className="bg-card border border-border rounded-[14px] overflow-hidden h-fit">
       <div className="flex items-center justify-between px-5 pt-4 pb-3">
         <span className="font-heading text-[15px] font-bold text-foreground">Transações Recentes</span>
         <button
-          onClick={() => navigate('/billing')}
-          className="text-[11px] font-semibold text-primary cursor-pointer hover:text-[hsl(var(--brand))]"
+          onClick={() => navigate("/billing")}
+          className="text-[11px] font-semibold text-primary cursor-pointer hover:opacity-80"
         >
           Ver todas →
         </button>
@@ -29,37 +29,37 @@ const RecentTransactionsPanel = () => {
       <table className="w-full">
         <thead>
           <tr>
-            <th className="text-left text-[10px] font-semibold text-muted-foreground uppercase tracking-[0.5px] px-[18px] pb-2 border-b border-[hsl(var(--border))]">Cliente</th>
-            <th className="text-left text-[10px] font-semibold text-muted-foreground uppercase tracking-[0.5px] pb-2 border-b border-[hsl(var(--border))]">Serviço</th>
-            <th className="text-left text-[10px] font-semibold text-muted-foreground uppercase tracking-[0.5px] pb-2 border-b border-[hsl(var(--border))]">Status</th>
-            <th className="text-right text-[10px] font-semibold text-muted-foreground uppercase tracking-[0.5px] px-[18px] pb-2 border-b border-[hsl(var(--border))]">Valor</th>
+            <th className="text-left text-[10px] font-semibold text-muted-foreground uppercase tracking-[0.5px] px-5 pb-2.5 border-b border-border">Cliente</th>
+            <th className="text-left text-[10px] font-semibold text-muted-foreground uppercase tracking-[0.5px] pb-2.5 border-b border-border">Serviço</th>
+            <th className="text-left text-[10px] font-semibold text-muted-foreground uppercase tracking-[0.5px] pb-2.5 border-b border-border">Status</th>
+            <th className="text-right text-[10px] font-semibold text-muted-foreground uppercase tracking-[0.5px] px-5 pb-2.5 border-b border-border">Valor</th>
           </tr>
         </thead>
         <tbody>
           {transactions.length === 0 ? (
             <tr>
-              <td colSpan={4} className="text-center text-xs text-muted-foreground py-6 px-[18px]">
+              <td colSpan={4} className="text-center text-xs text-muted-foreground py-8 px-5">
                 Nenhuma transação recente.
               </td>
             </tr>
           ) : (
             transactions.map((tx) => {
               const status = statusConfig[tx.status] || statusConfig.pending;
-              const isCancelled = tx.status === 'cancelled';
+              const isCancelled = tx.status === "cancelled";
               return (
-                <tr key={tx.id} className="border-b border-[hsl(var(--border))] last:border-b-0 hover:bg-[hsl(var(--card-2))] cursor-pointer transition-colors">
-                  <td className="px-[18px] py-[10px]">
-                    <div className="text-xs font-semibold text-foreground">{tx.clients?.name || 'Cliente'}</div>
-                    <div className="text-[10px] text-muted-foreground mt-px">#{tx.id.slice(0, 4)}</div>
+                <tr key={tx.id} className="border-b border-border last:border-b-0 hover:bg-accent/50 cursor-pointer transition-colors">
+                  <td className="px-5 py-3">
+                    <div className="text-sm font-semibold text-foreground">{tx.clients?.name || "Cliente"}</div>
+                    <div className="text-[10px] text-muted-foreground mt-0.5">#{tx.id.slice(0, 4)}</div>
                   </td>
-                  <td className="text-xs text-muted-foreground py-[10px]">{tx.services?.name || 'Serviço'}</td>
-                  <td className="py-[10px]">
-                    <span className={`inline-flex items-center gap-1 text-[10px] font-semibold px-[9px] py-[3px] rounded-full ${status.className}`}>
+                  <td className="text-xs text-muted-foreground py-3">{tx.services?.name || "Serviço"}</td>
+                  <td className="py-3">
+                    <span className={`inline-flex items-center gap-1 text-[11px] font-semibold px-2.5 py-1 rounded-full ${status.className}`}>
                       {status.label}
                     </span>
                   </td>
-                  <td className={`text-right px-[18px] py-[10px] font-heading text-xs font-bold ${isCancelled ? 'text-[hsl(var(--rose))]' : 'text-foreground'}`}>
-                    {isCancelled ? '–' : ''} R$ {tx.total_price || tx.services?.price || 0}
+                  <td className={`text-right px-5 py-3 font-heading text-sm font-bold ${isCancelled ? "text-[hsl(var(--rose))]" : "text-foreground"}`}>
+                    {isCancelled ? "–" : ""} R$ {tx.total_price || tx.services?.price || 0}
                   </td>
                 </tr>
               );

@@ -1,30 +1,51 @@
 import React from "react";
+import { PieChart, Pie, Cell, ResponsiveContainer } from "recharts";
 
 interface MonthRevenueDonutProps {
   monthRevenue: number;
 }
+
+const COLORS = [
+  "hsl(217, 91%, 60%)",
+  "hsl(142, 71%, 45%)",
+  "#F97316",
+];
 
 const MonthRevenueDonut: React.FC<MonthRevenueDonutProps> = ({ monthRevenue }) => {
   const goal = 27500;
   const percent = Math.min(Math.round((monthRevenue / goal) * 100), 100);
   const remaining = Math.max(goal - monthRevenue, 0);
 
+  const donutData = [
+    { name: "Corte", value: 53 },
+    { name: "Barba", value: 25 },
+    { name: "Outros", value: 22 },
+  ];
+
+  const legendItems = [
+    { color: "bg-primary", label: "Corte", pct: "53%" },
+    { color: "bg-[hsl(142,71%,45%)]", label: "Barba", pct: "25%" },
+    { color: "bg-[#F97316]", label: "Outros", pct: "22%" },
+  ];
+
   return (
-    <div className="bg-card border border-[hsl(var(--border))] rounded-[14px] overflow-hidden">
+    <div className="bg-card border border-border rounded-[14px] overflow-hidden h-fit">
       <div className="flex items-center justify-between px-5 pt-4 pb-3">
         <span className="font-heading text-[15px] font-bold text-foreground">Receita do Mês</span>
-        <button className="text-[11px] font-semibold text-primary cursor-pointer hover:text-[hsl(var(--brand))]">
+        <button className="text-[11px] font-semibold text-primary cursor-pointer hover:opacity-80">
           Detalhes →
         </button>
       </div>
 
-      <div className="px-[18px] pb-[14px]">
+      <div className="px-5 pb-4">
         {/* Total */}
         <div className="mb-3">
-          <div className="text-[10px] text-muted-foreground mb-0.5">Total em {new Date().toLocaleString('pt-BR', { month: 'long' })}</div>
+          <div className="text-[10px] text-muted-foreground mb-0.5">
+            Total em {new Date().toLocaleString("pt-BR", { month: "long" })}
+          </div>
           <div className="flex items-baseline">
             <span className="font-heading text-2xl font-extrabold text-foreground tracking-tight">
-              R$ {monthRevenue.toLocaleString('pt-BR', { minimumFractionDigits: 0 })}
+              R$ {monthRevenue.toLocaleString("pt-BR", { minimumFractionDigits: 0 })}
             </span>
             <span className="inline-flex items-center gap-1 text-[11px] font-semibold text-[hsl(var(--success))] ml-2">
               ▲ +14%
@@ -33,25 +54,35 @@ const MonthRevenueDonut: React.FC<MonthRevenueDonutProps> = ({ monthRevenue }) =
         </div>
 
         {/* Donut + Legend */}
-        <div className="flex items-center gap-[18px] mb-4">
-          <svg width="90" height="90" viewBox="0 0 90 90" className="flex-shrink-0">
-            <circle cx="45" cy="45" r="32" fill="none" stroke="hsl(var(--muted))" strokeWidth="11" />
-            <circle cx="45" cy="45" r="32" fill="none" stroke="hsl(217, 91%, 60%)" strokeWidth="11"
-              strokeDasharray="107 95" strokeDashoffset="0" strokeLinecap="round" transform="rotate(-90 45 45)" />
-            <circle cx="45" cy="45" r="32" fill="none" stroke="hsl(142, 71%, 45%)" strokeWidth="11"
-              strokeDasharray="50 152" strokeDashoffset="-107" strokeLinecap="round" transform="rotate(-90 45 45)" />
-            <circle cx="45" cy="45" r="32" fill="none" stroke="#F97316" strokeWidth="11"
-              strokeDasharray="25 177" strokeDashoffset="-157" strokeLinecap="round" transform="rotate(-90 45 45)" />
-            <text x="45" y="43" textAnchor="middle" fontSize="12" fontWeight="800" fontFamily="Montserrat,sans-serif" fill="currentColor" className="text-foreground">{percent}%</text>
-            <text x="45" y="56" textAnchor="middle" fontSize="8" fill="currentColor" fontFamily="Montserrat,sans-serif" className="text-muted-foreground">da meta</text>
-          </svg>
+        <div className="flex items-center gap-4 mb-4">
+          <div className="w-[90px] h-[90px] flex-shrink-0 relative">
+            <ResponsiveContainer width="100%" height="100%">
+              <PieChart>
+                <Pie
+                  data={donutData}
+                  cx="50%"
+                  cy="50%"
+                  innerRadius={25}
+                  outerRadius={38}
+                  paddingAngle={3}
+                  dataKey="value"
+                  strokeWidth={0}
+                >
+                  {donutData.map((_, index) => (
+                    <Cell key={`cell-${index}`} fill={COLORS[index]} />
+                  ))}
+                </Pie>
+              </PieChart>
+            </ResponsiveContainer>
+            {/* Center label */}
+            <div className="absolute inset-0 flex flex-col items-center justify-center pointer-events-none">
+              <span className="font-heading text-xs font-extrabold text-foreground">{percent}%</span>
+              <span className="text-[8px] text-muted-foreground">da meta</span>
+            </div>
+          </div>
 
           <div className="flex-1 flex flex-col gap-2">
-            {[
-              { color: "bg-primary", label: "Corte", pct: "53%" },
-              { color: "bg-[hsl(var(--success))]", label: "Barba", pct: "25%" },
-              { color: "bg-[#F97316]", label: "Outros", pct: "22%" },
-            ].map(item => (
+            {legendItems.map((item) => (
               <div key={item.label} className="flex items-center justify-between">
                 <div className="flex items-center gap-1.5 text-[11px] text-muted-foreground">
                   <div className={`w-2 h-2 rounded-full ${item.color}`} />
@@ -67,17 +98,17 @@ const MonthRevenueDonut: React.FC<MonthRevenueDonutProps> = ({ monthRevenue }) =
         <div>
           <div className="flex justify-between text-[11px] text-muted-foreground mb-1.5">
             <span>Meta do mês</span>
-            <span className="font-semibold text-foreground">R$ {goal.toLocaleString('pt-BR')}</span>
+            <span className="font-semibold text-foreground">R$ {goal.toLocaleString("pt-BR")}</span>
           </div>
-          <div className="h-1.5 bg-[hsl(var(--primary-50))] rounded-full overflow-hidden">
+          <div className="h-1.5 bg-muted rounded-full overflow-hidden">
             <div
-              className="h-full bg-gradient-to-r from-primary to-[hsl(var(--brand-light))] rounded-full transition-all"
+              className="h-full bg-gradient-to-r from-primary to-primary/70 rounded-full transition-all"
               style={{ width: `${percent}%` }}
             />
           </div>
           <div className="flex justify-between text-[10px] text-muted-foreground mt-1">
             <span>0</span>
-            <span>Falta R$ {remaining.toLocaleString('pt-BR')}</span>
+            <span>Falta R$ {remaining.toLocaleString("pt-BR")}</span>
           </div>
         </div>
       </div>
