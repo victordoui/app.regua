@@ -144,11 +144,17 @@ export const useRealtimeDashboard = () => {
 
       const isEmpty = todayAppts.length === 0 && monthAppts.length === 0 && clients.length === 0;
 
+      // Calculate today's revenue
+      const todayRevenue = todayAppts
+        .filter(a => a.status === 'completed')
+        .reduce((sum, a) => sum + ((a as any).total_price || 0), 0);
+
       if (isEmpty) {
         setMetrics({
           todayAppointments: 12,
           monthAppointments: 187,
           monthRevenue: 18450,
+          todayRevenue: 2350,
           totalClients: 342,
           newClientsThisMonth: 23,
           completedRate: 87,
