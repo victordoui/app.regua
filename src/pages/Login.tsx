@@ -347,7 +347,7 @@ const Login = () => {
                             <Input
                               {...field}
                               placeholder="Seu nome completo"
-                              className="h-12 border-[#1F4FA3]/20 focus:border-[#1F4FA3] focus:ring-[#1F4FA3]/20 bg-white rounded-xl"
+                              className="h-12 border-[#1F4FA3]/20 focus:border-[#1F4FA3] focus:ring-[#1F4FA3]/20 bg-card rounded-xl"
                             />
                           </FormControl>
                           <FormMessage />
