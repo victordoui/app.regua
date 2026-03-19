@@ -46,6 +46,9 @@ const DashboardOverview = () => {
       <Tabs value={currentTab} onValueChange={handleTabChange}>
         <TabsList>
           <TabsTrigger value="overview">Visão Geral</TabsTrigger>
+          <TabsTrigger value="desempenho">
+            <Users className="h-4 w-4 mr-1.5" /> Desempenho dos Profissionais
+          </TabsTrigger>
           <TabsTrigger value="sucesso-cliente">
             <HeartHandshake className="h-4 w-4 mr-1.5" /> Sucesso do Cliente
           </TabsTrigger>
@@ -75,12 +78,6 @@ const DashboardOverview = () => {
               <MonthRevenueDonut monthRevenue={metrics.monthRevenue} />
             </div>
 
-            <div className="space-y-6 pt-4">
-              <h2 className="text-lg font-bold text-foreground flex items-center gap-2">
-                <Users className="h-5 w-5 text-primary" /> Desempenho dos Profissionais
-              </h2>
-              <BarberPerformanceContent />
-            </div>
 
             <div className="space-y-6 pt-4">
               <h2 className="text-lg font-bold text-foreground flex items-center gap-2">
@@ -96,6 +93,10 @@ const DashboardOverview = () => {
 
         <TabsContent value="sucesso-cliente">
           <CustomerSuccessContent />
+        </TabsContent>
+
+        <TabsContent value="desempenho">
+          <BarberPerformanceContent />
         </TabsContent>
       </Tabs>
     </div>
