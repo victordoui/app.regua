@@ -27,7 +27,7 @@ const MiniCalendarPanel = () => {
     <div className="bg-card border border-[hsl(var(--border))] rounded-[14px] p-5">
       {/* Header */}
       <div className="flex items-center justify-between mb-3">
-        <span className="font-heading text-[13px] font-bold text-foreground capitalize">
+        <span className="font-heading text-[15px] font-bold text-foreground capitalize">
           {format(currentMonth, "MMMM yyyy", { locale: ptBR })}
         </span>
         <div className="flex gap-1">

@@ -58,7 +58,7 @@ const KpiStrip: React.FC<KpiStripProps> = ({ todayAppointments, completedRate, n
   };
 
   return (
-    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5 animate-[fadeUp_0.4s_ease_both]">
+    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 animate-[fadeUp_0.4s_ease_both]">
       {kpis.map((kpi) => (
         <div
           key={kpi.label}
@@ -70,10 +70,10 @@ const KpiStrip: React.FC<KpiStripProps> = ({ todayAppointments, completedRate, n
             {kpi.icon}
           </div>
           <div className="flex-1 min-w-0">
-            <div className="text-sm font-medium text-foreground/70 mb-1">
+            <div className="text-[15px] font-medium text-foreground/70 mb-1">
               {kpi.label}
             </div>
-            <div className={`font-heading text-2xl font-bold leading-none tracking-tight ${kpi.valueColor || 'text-foreground'}`}>
+            <div className={`font-heading text-3xl font-bold leading-none tracking-tight ${kpi.valueColor || 'text-foreground'}`}>
               {kpi.value}
             </div>
           </div>

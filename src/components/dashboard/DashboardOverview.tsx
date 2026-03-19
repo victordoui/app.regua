@@ -39,7 +39,7 @@ const DashboardOverview = () => {
   }
 
   return (
-    <div className="max-w-[1280px] mx-auto space-y-7">
+    <div className="space-y-5">
       <HeroSection />
 
       <Tabs value={currentTab} onValueChange={handleTabChange}>
@@ -59,16 +59,16 @@ const DashboardOverview = () => {
               dayRevenue={metrics.monthRevenue}
             />
 
-            <div className="grid grid-cols-1 lg:grid-cols-[2fr_2fr_1fr] gap-6">
+            <div className="grid grid-cols-1 lg:grid-cols-[1fr_1fr_280px] gap-4">
               <OccupationHeatmap />
               <RevenueLineChart data={monthlyRevenue} />
-              <div className="flex flex-col gap-6">
+              <div className="flex flex-col gap-4">
                 <MiniCalendarPanel />
                 <TodayAppointmentsPanel />
               </div>
             </div>
 
-            <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+            <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
               <RecentTransactionsPanel />
               <ProfessionalsPanel />
               <MonthRevenueDonut monthRevenue={metrics.monthRevenue} />

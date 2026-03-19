@@ -112,8 +112,8 @@ const Sidebar = () => {
       {/* Sidebar — desktop only (mobile uses MobileBottomNav via Layout) */}
       <aside className="fixed left-0 top-0 bottom-0 z-40 w-[234px] flex flex-col bg-card border-r border-border max-md:hidden">
         {/* Brand */}
-        <div className="px-5 pt-4 pb-3 flex items-center justify-center border-b border-border">
-          <img src={vizzuLogo} alt="VIZZU" className="h-20 w-20 object-contain" />
+        <div className="px-5 pt-4 pb-3 flex items-center justify-center">
+          <img src={vizzuLogo} alt="VIZZU" className="h-24 w-24 object-contain" />
         </div>
 
         {/* Navigation */}
@@ -122,7 +122,7 @@ const Sidebar = () => {
             <div key={category.category} className="mb-4">
               {/* Section label — clean, no divider */}
               <div className="px-3 mb-2">
-                <span className="text-[10px] font-semibold uppercase tracking-[1.2px] text-primary/60">
+                <span className="text-[11px] font-semibold uppercase tracking-[1.2px] text-primary/60">
                   {category.label}
                 </span>
               </div>
@@ -136,7 +136,7 @@ const Sidebar = () => {
                     <button
                       key={item.path}
                       onClick={() => handleNavigation(item.path)}
-                      className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-[13px] font-semibold cursor-pointer transition-all duration-150 relative
+                      className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-[14px] font-semibold cursor-pointer transition-all duration-150 relative
                         ${isActive
                           ? 'bg-primary text-primary-foreground'
                           : 'text-muted-foreground hover:bg-muted hover:text-foreground'
