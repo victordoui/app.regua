@@ -112,8 +112,8 @@ const Sidebar = () => {
       {/* Sidebar — desktop only (mobile uses MobileBottomNav via Layout) */}
       <aside className="fixed left-0 top-0 bottom-0 z-40 w-[234px] flex flex-col bg-card border-r border-border max-md:hidden">
         {/* Brand */}
-        <div className="px-5 pt-4 pb-3 flex items-center justify-center border-b border-border">
-          <img src={vizzuLogo} alt="VIZZU" className="h-20 w-20 object-contain" />
+        <div className="px-5 pt-4 pb-3 flex items-center justify-center">
+          <img src={vizzuLogo} alt="VIZZU" className="h-24 w-24 object-contain" />
         </div>
 
         {/* Navigation */}
