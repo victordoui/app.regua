@@ -5,12 +5,17 @@ import { Button } from "@/components/ui/button"
 
 export function ThemeToggle() {
   const { resolvedTheme, setTheme } = useTheme()
+  const [mounted, setMounted] = React.useState(false)
+
+  React.useEffect(() => setMounted(true), [])
+
+  if (!mounted) return <div className="h-9 w-9" />
 
   return (
     <Button
       variant="ghost"
       size="icon"
-      className="h-9 w-9 rounded-full text-muted-foreground hover:text-foreground"
+      className="h-9 w-9 rounded-full text-muted-foreground hover:text-foreground hover:bg-muted transition-colors"
       onClick={() => setTheme(resolvedTheme === "dark" ? "light" : "dark")}
     >
       {resolvedTheme === "dark" ? (

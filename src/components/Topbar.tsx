@@ -57,8 +57,9 @@ const Topbar = () => {
           <Calendar className="h-3 w-3" />
           {format(new Date(), "dd MMM, yyyy", { locale: ptBR })}
         </div>
+        <ThemeToggle />
         <button
-          className="relative p-2 rounded-lg text-muted-foreground hover:text-foreground hover:bg-[hsl(var(--card-2))] transition-colors"
+          className="relative p-2 rounded-lg text-muted-foreground hover:text-foreground hover:bg-muted transition-colors"
           aria-label="Notificações"
           onClick={() => navigate('/notifications')}
         >
@@ -66,7 +67,7 @@ const Topbar = () => {
           <span className="absolute top-1.5 right-1.5 w-2 h-2 rounded-full bg-primary" />
         </button>
 
-        <div className="w-8 h-8 rounded-full bg-gradient-to-br from-primary to-[hsl(var(--brand-light))] flex items-center justify-center text-[11px] font-bold text-white flex-shrink-0 shadow-[0_2px_8px_rgba(37,99,235,0.16)]">
+        <div className="w-8 h-8 rounded-full bg-gradient-to-br from-primary to-primary/70 flex items-center justify-center text-[11px] font-bold text-primary-foreground flex-shrink-0 shadow-[0_2px_8px_rgba(37,99,235,0.16)]">
           {getUserInitials()}
         </div>
       </div>

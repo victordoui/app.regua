@@ -294,6 +294,10 @@
   ::-webkit-scrollbar-thumb { background: hsl(213, 27%, 84%); border-radius: 4px; }
   ::-webkit-scrollbar-thumb:hover { background: hsl(215, 16%, 47%); }
   * { scrollbar-width: thin; scrollbar-color: hsl(213, 27%, 84%) transparent; }
+
+  .dark ::-webkit-scrollbar-thumb { background: hsl(215, 25%, 25%); }
+  .dark ::-webkit-scrollbar-thumb:hover { background: hsl(215, 20%, 35%); }
+  .dark * { scrollbar-color: hsl(215, 25%, 25%) transparent; }
 }
 
 @layer components {
