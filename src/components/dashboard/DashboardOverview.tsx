@@ -15,6 +15,7 @@ import MonthRevenueDonut from "./MonthRevenueDonut";
 import CustomerSuccessContent from "./CustomerSuccessContent";
 import BarberPerformanceContent from "./BarberPerformanceContent";
 import ReviewsContent from "./ReviewsContent";
+import AnalyticsDashboard from "./AnalyticsDashboard";
 
 const DashboardOverview = () => {
   const { metrics, monthlyRevenue, isLoading } = useRealtimeDashboard();
@@ -87,6 +88,9 @@ const DashboardOverview = () => {
               </h2>
               <ReviewsContent />
             </div>
+
+            {/* Analytics Dashboard Section */}
+            <AnalyticsDashboard />
           </div>
         </TabsContent>
 
