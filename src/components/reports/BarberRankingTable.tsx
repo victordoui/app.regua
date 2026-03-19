@@ -29,9 +29,9 @@ const BarberRankingTable: React.FC<BarberRankingTableProps> = ({ barbers }) => {
   };
 
   const getCompletionColor = (rate: number) => {
-    if (rate >= 90) return 'text-green-600';
-    if (rate >= 70) return 'text-amber-600';
-    return 'text-red-600';
+    if (rate >= 90) return 'text-[hsl(var(--success))]';
+    if (rate >= 70) return 'text-[hsl(var(--warning))]';
+    return 'text-[hsl(var(--rose))]';
   };
 
   return (
