@@ -5,6 +5,7 @@ import { useRole } from "@/contexts/RoleContext";
 import { useNavigate } from "react-router-dom";
 import { format } from "date-fns";
 import { ptBR } from "date-fns/locale";
+import { ThemeToggle } from "@/components/ui/theme-toggle";
 
 const Topbar = () => {
   const { user } = useAuth();
