@@ -39,7 +39,7 @@ const DashboardOverview = () => {
   }
 
   return (
-    <div className="max-w-[1280px] mx-auto space-y-7">
+    <div className="space-y-5">
       <HeroSection />
 
       <Tabs value={currentTab} onValueChange={handleTabChange}>
