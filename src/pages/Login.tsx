@@ -293,7 +293,7 @@ const Login = () => {
                 <div className="mt-8">
                   <div className="relative mb-4">
                     <div className="absolute inset-0 flex items-center">
-                      <div className="w-full border-t border-gray-200" />
+                      <div className="w-full border-t border-border" />
                     </div>
                     <div className="relative flex justify-center">
                       <span className="bg-white px-3 text-xs text-gray-400 uppercase tracking-wider font-['Open_Sans']">Acesso rápido</span>
