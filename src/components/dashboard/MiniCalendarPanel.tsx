@@ -24,7 +24,7 @@ const MiniCalendarPanel = () => {
   const dowLabels = ["D", "S", "T", "Q", "Q", "S", "S"];
 
   return (
-    <div className="bg-white border border-[hsl(var(--border))] rounded-[14px] p-5">
+    <div className="bg-card border border-[hsl(var(--border))] rounded-[14px] p-5">
       {/* Header */}
       <div className="flex items-center justify-between mb-3">
         <span className="font-heading text-[13px] font-bold text-foreground capitalize">
