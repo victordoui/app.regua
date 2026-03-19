@@ -80,7 +80,7 @@ const PublicBookingPage = () => {
 
   if (error || !settings) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-gray-100 p-4">
+      <div className="min-h-screen flex items-center justify-center bg-background p-4">
         <Card className="p-8 text-center max-w-md">
           <h1 className="text-2xl font-bold mb-4">Erro</h1>
           <p className="text-muted-foreground">{error || "Barbearia Não Encontrada"}</p>
