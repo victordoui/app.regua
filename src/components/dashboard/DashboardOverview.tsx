@@ -88,6 +88,9 @@ const DashboardOverview = () => {
               </h2>
               <ReviewsContent />
             </div>
+
+            {/* Analytics Dashboard Section */}
+            <AnalyticsDashboard />
           </div>
         </TabsContent>
 
