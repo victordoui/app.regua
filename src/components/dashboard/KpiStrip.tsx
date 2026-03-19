@@ -62,7 +62,7 @@ const KpiStrip: React.FC<KpiStripProps> = ({ todayAppointments, completedRate, n
       {kpis.map((kpi) => (
         <div
           key={kpi.label}
-          className={`relative overflow-hidden bg-white border border-[hsl(var(--border))] rounded-[14px] p-6 min-h-[130px] flex flex-col justify-between cursor-pointer transition-all hover:shadow-[0_4px_20px_rgba(15,23,42,0.07)] hover:-translate-y-px
+          className={`relative overflow-hidden bg-card border border-[hsl(var(--border))] rounded-[14px] p-6 min-h-[130px] flex flex-col justify-between cursor-pointer transition-all hover:shadow-[0_4px_20px_rgba(15,23,42,0.07)] hover:-translate-y-px
             before:content-[''] before:absolute before:top-0 before:left-0 before:right-0 before:h-[3px] before:rounded-t-[14px] ${borderColors[kpi.color]}`}
         >
           <div className="flex items-center gap-4">

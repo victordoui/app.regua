@@ -11,7 +11,7 @@ const TodayAppointmentsPanel = () => {
   const appointments = todayAppointments.slice(0, 4);
 
   return (
-    <div className="bg-white border border-[hsl(var(--border))] rounded-[14px] overflow-hidden flex-1">
+    <div className="bg-card border border-[hsl(var(--border))] rounded-[14px] overflow-hidden flex-1">
       <div className="flex items-center justify-between px-[18px] pt-[14px] pb-[10px]">
         <span className="font-heading text-[13px] font-bold text-foreground">Hoje</span>
         <button

@@ -18,7 +18,7 @@ const StepServiceSelection: React.FC<StepServiceSelectionProps> = ({ services, b
             className={`p-4 border rounded-lg cursor-pointer transition-colors ${
               bookingForm.selectedService === service.id
                 ? 'border-primary bg-primary/5 shadow-md'
-                : 'border-gray-200 hover:border-gray-300'
+                : 'border-border hover:border-border/80'
             }`}
             onClick={() => setBookingForm(prev => ({ ...prev, selectedService: service.id }))}
           >

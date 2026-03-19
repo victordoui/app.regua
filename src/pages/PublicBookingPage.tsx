@@ -97,7 +97,7 @@ const PublicBookingPage = () => {
 
   // O roteamento interno do cliente
   return (
-    <div style={dynamicStyles} className="min-h-screen bg-gray-50 dark:bg-gray-900">
+    <div style={dynamicStyles} className="min-h-screen bg-secondary">
       <PublicLayout settings={settings}>
         <Routes>
           {/* Rota de Novo Agendamento (o fluxo de 5 passos) */}

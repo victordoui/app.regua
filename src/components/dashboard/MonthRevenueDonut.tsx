@@ -42,8 +42,8 @@ const MonthRevenueDonut: React.FC<MonthRevenueDonutProps> = ({ monthRevenue }) =
               strokeDasharray="50 152" strokeDashoffset="-107" strokeLinecap="round" transform="rotate(-90 45 45)" />
             <circle cx="45" cy="45" r="32" fill="none" stroke="#F97316" strokeWidth="11"
               strokeDasharray="25 177" strokeDashoffset="-157" strokeLinecap="round" transform="rotate(-90 45 45)" />
-            <text x="45" y="43" textAnchor="middle" fontSize="12" fontWeight="800" fontFamily="Montserrat,sans-serif" fill="hsl(222, 47%, 11%)">{percent}%</text>
-            <text x="45" y="56" textAnchor="middle" fontSize="8" fill="#94A3B8" fontFamily="Montserrat,sans-serif">da meta</text>
+            <text x="45" y="43" textAnchor="middle" fontSize="12" fontWeight="800" fontFamily="Montserrat,sans-serif" fill="currentColor" className="text-foreground">{percent}%</text>
+            <text x="45" y="56" textAnchor="middle" fontSize="8" fill="currentColor" fontFamily="Montserrat,sans-serif" className="text-muted-foreground">da meta</text>
           </svg>
 
           <div className="flex-1 flex flex-col gap-2">

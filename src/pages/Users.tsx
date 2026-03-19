@@ -300,8 +300,8 @@ const Users = () => {
                 {filteredUsers.map((user) => (
                   <div key={user.id} className="flex items-center justify-between p-4 border border-border rounded-lg hover:bg-muted/50 transition-colors">
                     <div className="flex items-center gap-4">
-                      <div className="w-12 h-12 bg-gray-200 rounded-full flex items-center justify-center">
-                        <span className="text-gray-500 font-medium">
+                      <div className="w-12 h-12 bg-muted rounded-full flex items-center justify-center">
+                        <span className="text-muted-foreground font-medium">
                           {getInitials(user.display_name)}
                         </span>
                       </div>

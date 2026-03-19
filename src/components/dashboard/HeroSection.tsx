@@ -19,7 +19,7 @@ const HeroSection = () => {
         <div className="flex items-center gap-2.5">
           <button
             onClick={() => {}}
-            className="flex items-center gap-[7px] border border-[hsl(var(--border))] bg-white rounded-[9px] px-4 py-[9px] text-[13px] font-medium text-muted-foreground cursor-pointer transition-all hover:bg-[hsl(var(--card-2))] hover:text-foreground"
+            className="flex items-center gap-[7px] border border-[hsl(var(--border))] bg-card rounded-[9px] px-4 py-[9px] text-[13px] font-medium text-muted-foreground cursor-pointer transition-all hover:bg-[hsl(var(--card-2))] hover:text-foreground"
           >
             <SlidersHorizontal className="h-[13px] w-[13px]" />
             Filtros

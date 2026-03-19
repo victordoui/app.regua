@@ -86,7 +86,7 @@ const BarberRankingTable: React.FC<BarberRankingTableProps> = ({ barbers }) => {
                     </div>
                   </TableCell>
                   <TableCell className="text-center">
-                    <span className="font-bold text-green-600">
+                    <span className="font-bold text-[hsl(var(--success))]">
                       R$ {barber.totalRevenue.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
                     </span>
                   </TableCell>

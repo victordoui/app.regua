@@ -127,7 +127,7 @@ const PixPayment: React.FC<PixPaymentProps> = ({
 
         {/* QR Code */}
         {!isExpired && (
-          <div className="flex justify-center p-4 bg-white rounded-lg">
+          <div className="flex justify-center p-4 bg-card rounded-lg border border-border">
             <QRCodeSVG 
               value={pixCode} 
               size={200}

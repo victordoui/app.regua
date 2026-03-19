@@ -33,13 +33,13 @@ const MiniCalendarPanel = () => {
         <div className="flex gap-1">
           <button
             onClick={() => setCurrentMonth(subMonths(currentMonth, 1))}
-            className="w-[26px] h-[26px] border border-[hsl(var(--border))] rounded-[7px] bg-white flex items-center justify-center text-muted-foreground cursor-pointer hover:bg-primary hover:text-white hover:border-primary transition-all"
+            className="w-[26px] h-[26px] border border-[hsl(var(--border))] rounded-[7px] bg-card flex items-center justify-center text-muted-foreground cursor-pointer hover:bg-primary hover:text-white hover:border-primary transition-all"
           >
             <ChevronLeft className="h-3 w-3" />
           </button>
           <button
             onClick={() => setCurrentMonth(addMonths(currentMonth, 1))}
-            className="w-[26px] h-[26px] border border-[hsl(var(--border))] rounded-[7px] bg-white flex items-center justify-center text-muted-foreground cursor-pointer hover:bg-primary hover:text-white hover:border-primary transition-all"
+            className="w-[26px] h-[26px] border border-[hsl(var(--border))] rounded-[7px] bg-card flex items-center justify-center text-muted-foreground cursor-pointer hover:bg-primary hover:text-white hover:border-primary transition-all"
           >
             <ChevronRight className="h-3 w-3" />
           </button>

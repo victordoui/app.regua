@@ -91,7 +91,7 @@ export const SeoMetaFields = ({
         <div className="space-y-2">
           <Label className="text-sm font-medium">Preview no WhatsApp</Label>
           <div className="p-3 bg-[#dcf8c6] rounded-lg max-w-xs">
-            <div className="bg-white rounded-lg overflow-hidden shadow-sm">
+            <div className="bg-card rounded-lg overflow-hidden shadow-sm">
               <div className="h-24 bg-gradient-to-br from-primary/20 to-secondary/20 flex items-center justify-center">
                 <Globe className="h-12 w-12 text-primary/40" />
               </div>

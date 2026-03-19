@@ -430,7 +430,7 @@ const Login = () => {
             >
               Conheça nossos planos →
             </button>
-            <p className="text-gray-400 text-xs font-['Open_Sans']">© 2025 VIZZU - Todos os direitos reservados</p>
+            <p className="text-muted-foreground text-xs font-['Open_Sans']">© 2025 VIZZU - Todos os direitos reservados</p>
           </div>
         </motion.div>
       </div>
