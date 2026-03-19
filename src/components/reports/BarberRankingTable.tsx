@@ -23,15 +23,15 @@ const BarberRankingTable: React.FC<BarberRankingTableProps> = ({ barbers }) => {
 
   const getRankBadge = (index: number) => {
     if (index === 0) return <Trophy className="h-5 w-5 text-yellow-500" />;
-    if (index === 1) return <Trophy className="h-5 w-5 text-gray-400" />;
+    if (index === 1) return <Trophy className="h-5 w-5 text-muted-foreground" />;
     if (index === 2) return <Trophy className="h-5 w-5 text-amber-700" />;
     return <span className="text-muted-foreground font-medium">{index + 1}º</span>;
   };
 
   const getCompletionColor = (rate: number) => {
-    if (rate >= 90) return 'text-green-600';
-    if (rate >= 70) return 'text-amber-600';
-    return 'text-red-600';
+    if (rate >= 90) return 'text-[hsl(var(--success))]';
+    if (rate >= 70) return 'text-[hsl(var(--warning))]';
+    return 'text-[hsl(var(--rose))]';
   };
 
   return (
@@ -86,7 +86,7 @@ const BarberRankingTable: React.FC<BarberRankingTableProps> = ({ barbers }) => {
                     </div>
                   </TableCell>
                   <TableCell className="text-center">
-                    <span className="font-bold text-green-600">
+                    <span className="font-bold text-[hsl(var(--success))]">
                       R$ {barber.totalRevenue.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
                     </span>
                   </TableCell>

@@ -24,7 +24,7 @@ const MiniCalendarPanel = () => {
   const dowLabels = ["D", "S", "T", "Q", "Q", "S", "S"];
 
   return (
-    <div className="bg-white border border-[hsl(var(--border))] rounded-[14px] p-5">
+    <div className="bg-card border border-[hsl(var(--border))] rounded-[14px] p-5">
       {/* Header */}
       <div className="flex items-center justify-between mb-3">
         <span className="font-heading text-[13px] font-bold text-foreground capitalize">
@@ -33,13 +33,13 @@ const MiniCalendarPanel = () => {
         <div className="flex gap-1">
           <button
             onClick={() => setCurrentMonth(subMonths(currentMonth, 1))}
-            className="w-[26px] h-[26px] border border-[hsl(var(--border))] rounded-[7px] bg-white flex items-center justify-center text-muted-foreground cursor-pointer hover:bg-primary hover:text-white hover:border-primary transition-all"
+            className="w-[26px] h-[26px] border border-[hsl(var(--border))] rounded-[7px] bg-card flex items-center justify-center text-muted-foreground cursor-pointer hover:bg-primary hover:text-white hover:border-primary transition-all"
           >
             <ChevronLeft className="h-3 w-3" />
           </button>
           <button
             onClick={() => setCurrentMonth(addMonths(currentMonth, 1))}
-            className="w-[26px] h-[26px] border border-[hsl(var(--border))] rounded-[7px] bg-white flex items-center justify-center text-muted-foreground cursor-pointer hover:bg-primary hover:text-white hover:border-primary transition-all"
+            className="w-[26px] h-[26px] border border-[hsl(var(--border))] rounded-[7px] bg-card flex items-center justify-center text-muted-foreground cursor-pointer hover:bg-primary hover:text-white hover:border-primary transition-all"
           >
             <ChevronRight className="h-3 w-3" />
           </button>

@@ -72,7 +72,7 @@ const PublicBookingPage = () => {
 
   if (loading) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-gray-100">
+      <div className="min-h-screen flex items-center justify-center bg-background">
         <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary"></div>
       </div>
     );
@@ -80,7 +80,7 @@ const PublicBookingPage = () => {
 
   if (error || !settings) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-gray-100 p-4">
+      <div className="min-h-screen flex items-center justify-center bg-background p-4">
         <Card className="p-8 text-center max-w-md">
           <h1 className="text-2xl font-bold mb-4">Erro</h1>
           <p className="text-muted-foreground">{error || "Barbearia Não Encontrada"}</p>
@@ -97,7 +97,7 @@ const PublicBookingPage = () => {
 
   // O roteamento interno do cliente
   return (
-    <div style={dynamicStyles} className="min-h-screen bg-gray-50 dark:bg-gray-900">
+    <div style={dynamicStyles} className="min-h-screen bg-secondary">
       <PublicLayout settings={settings}>
         <Routes>
           {/* Rota de Novo Agendamento (o fluxo de 5 passos) */}

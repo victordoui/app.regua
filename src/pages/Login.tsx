@@ -167,7 +167,7 @@ const Login = () => {
       </div>
 
       {/* Right Panel - Form */}
-      <div className="flex-1 flex items-center justify-center p-6 lg:p-12 bg-white">
+      <div className="flex-1 flex items-center justify-center p-6 lg:p-12 bg-background">
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
@@ -178,19 +178,19 @@ const Login = () => {
             <h2 className="text-2xl font-bold text-[#0F2F6B] font-['Montserrat']">
               {activeTab === "login" ? "Bem-vindo de volta" : "Crie sua conta"}
             </h2>
-            <p className="text-gray-500 mt-1 font-['Open_Sans']">
+            <p className="text-muted-foreground mt-1 font-['Open_Sans']">
               {activeTab === "login" ? "Acesse sua conta para continuar" : "Comece a gerenciar seus agendamentos"}
             </p>
           </div>
 
           {/* Pill Tabs */}
-          <div className="flex bg-gray-100 rounded-xl p-1 mb-8">
+          <div className="flex bg-secondary rounded-xl p-1 mb-8">
             <button
               onClick={() => setActiveTab("login")}
               className={`flex-1 py-2.5 text-sm font-semibold rounded-lg transition-all duration-300 font-['Open_Sans'] ${
                 activeTab === "login"
-                  ? "bg-white text-[#1F4FA3] shadow-sm"
-                  : "text-gray-500 hover:text-gray-700"
+                  ? "bg-card text-[#1F4FA3] shadow-sm"
+                  : "text-muted-foreground hover:text-foreground"
               }`}
             >
               Entrar
@@ -199,8 +199,8 @@ const Login = () => {
               onClick={() => setActiveTab("register")}
               className={`flex-1 py-2.5 text-sm font-semibold rounded-lg transition-all duration-300 font-['Open_Sans'] ${
                 activeTab === "register"
-                  ? "bg-white text-[#1F4FA3] shadow-sm"
-                  : "text-gray-500 hover:text-gray-700"
+                  ? "bg-card text-[#1F4FA3] shadow-sm"
+                  : "text-muted-foreground hover:text-foreground"
               }`}
             >
               Cadastrar
@@ -223,14 +223,14 @@ const Login = () => {
                       name="email"
                       render={({ field }) => (
                         <FormItem>
-                          <FormLabel className="text-gray-700 font-['Open_Sans']">E-mail</FormLabel>
+                          <FormLabel className="text-foreground font-['Open_Sans']">E-mail</FormLabel>
                           <FormControl>
                             <div className="relative">
-                              <Mail className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400" />
+                              <Mail className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
                               <Input
                                 {...field}
                                 placeholder="seu@email.com"
-                                className="pl-10 h-12 border-[#1F4FA3]/20 focus:border-[#1F4FA3] focus:ring-[#1F4FA3]/20 bg-white rounded-xl"
+                                className="pl-10 h-12 border-[#1F4FA3]/20 focus:border-[#1F4FA3] focus:ring-[#1F4FA3]/20 bg-card rounded-xl"
                               />
                             </div>
                           </FormControl>
@@ -244,19 +244,19 @@ const Login = () => {
                       name="password"
                       render={({ field }) => (
                         <FormItem>
-                          <FormLabel className="text-gray-700 font-['Open_Sans']">Senha</FormLabel>
+                          <FormLabel className="text-foreground font-['Open_Sans']">Senha</FormLabel>
                           <FormControl>
                             <div className="relative">
-                              <Lock className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400" />
+                              <Lock className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
                               <Input
                                 {...field}
                                 type={showPassword ? "text" : "password"}
                                 placeholder="Sua senha"
-                                className="pl-10 pr-12 h-12 border-[#1F4FA3]/20 focus:border-[#1F4FA3] focus:ring-[#1F4FA3]/20 bg-white rounded-xl"
+                                className="pl-10 pr-12 h-12 border-[#1F4FA3]/20 focus:border-[#1F4FA3] focus:ring-[#1F4FA3]/20 bg-card rounded-xl"
                               />
                               <button
                                 type="button"
-                                className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600"
+                                className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground"
                                 onClick={() => setShowPassword(!showPassword)}
                               >
                                 {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
@@ -293,10 +293,10 @@ const Login = () => {
                 <div className="mt-8">
                   <div className="relative mb-4">
                     <div className="absolute inset-0 flex items-center">
-                      <div className="w-full border-t border-gray-200" />
+                      <div className="w-full border-t border-border" />
                     </div>
                     <div className="relative flex justify-center">
-                      <span className="bg-white px-3 text-xs text-gray-400 uppercase tracking-wider font-['Open_Sans']">Acesso rápido</span>
+                      <span className="bg-background px-3 text-xs text-muted-foreground uppercase tracking-wider font-['Open_Sans']">Acesso rápido</span>
                     </div>
                   </div>
 
@@ -342,12 +342,12 @@ const Login = () => {
                       name="fullName"
                       render={({ field }) => (
                         <FormItem>
-                          <FormLabel className="text-gray-700 font-['Open_Sans']">Nome Completo</FormLabel>
+                          <FormLabel className="text-foreground font-['Open_Sans']">Nome Completo</FormLabel>
                           <FormControl>
                             <Input
                               {...field}
                               placeholder="Seu nome completo"
-                              className="h-12 border-[#1F4FA3]/20 focus:border-[#1F4FA3] focus:ring-[#1F4FA3]/20 bg-white rounded-xl"
+                              className="h-12 border-[#1F4FA3]/20 focus:border-[#1F4FA3] focus:ring-[#1F4FA3]/20 bg-card rounded-xl"
                             />
                           </FormControl>
                           <FormMessage />
@@ -360,14 +360,14 @@ const Login = () => {
                       name="email"
                       render={({ field }) => (
                         <FormItem>
-                          <FormLabel className="text-gray-700 font-['Open_Sans']">E-mail</FormLabel>
+                          <FormLabel className="text-foreground font-['Open_Sans']">E-mail</FormLabel>
                           <FormControl>
                             <div className="relative">
-                              <Mail className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400" />
+                              <Mail className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
                               <Input
                                 {...field}
                                 placeholder="seu@email.com"
-                                className="pl-10 h-12 border-[#1F4FA3]/20 focus:border-[#1F4FA3] focus:ring-[#1F4FA3]/20 bg-white rounded-xl"
+                                className="pl-10 h-12 border-[#1F4FA3]/20 focus:border-[#1F4FA3] focus:ring-[#1F4FA3]/20 bg-card rounded-xl"
                               />
                             </div>
                           </FormControl>
@@ -381,15 +381,15 @@ const Login = () => {
                       name="password"
                       render={({ field }) => (
                         <FormItem>
-                          <FormLabel className="text-gray-700 font-['Open_Sans']">Senha</FormLabel>
+                          <FormLabel className="text-foreground font-['Open_Sans']">Senha</FormLabel>
                           <FormControl>
                             <div className="relative">
-                              <Lock className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400" />
+                              <Lock className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
                               <Input
                                 {...field}
                                 type="password"
                                 placeholder="Crie uma senha forte"
-                                className="pl-10 h-12 border-[#1F4FA3]/20 focus:border-[#1F4FA3] focus:ring-[#1F4FA3]/20 bg-white rounded-xl"
+                                className="pl-10 h-12 border-[#1F4FA3]/20 focus:border-[#1F4FA3] focus:ring-[#1F4FA3]/20 bg-card rounded-xl"
                               />
                             </div>
                           </FormControl>
@@ -430,7 +430,7 @@ const Login = () => {
             >
               Conheça nossos planos →
             </button>
-            <p className="text-gray-400 text-xs font-['Open_Sans']">© 2025 VIZZU - Todos os direitos reservados</p>
+            <p className="text-muted-foreground text-xs font-['Open_Sans']">© 2025 VIZZU - Todos os direitos reservados</p>
           </div>
         </motion.div>
       </div>

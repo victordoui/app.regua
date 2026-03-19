@@ -141,11 +141,11 @@ const Users = () => {
 
   const getRoleColor = (role: string) => {
     switch (role) {
-      case "admin": return "bg-red-100 text-red-800";
-      case "barbeiro": return "bg-blue-100 text-blue-800";
-      case "recepcionista": return "bg-green-100 text-green-800";
-      case "cliente": return "bg-gray-100 text-gray-800";
-      default: return "bg-gray-100 text-gray-800";
+      case "admin": return "bg-[hsl(var(--rose-bg))] text-[hsl(var(--rose))]";
+      case "barbeiro": return "bg-[hsl(var(--primary-50))] text-primary";
+      case "recepcionista": return "bg-[hsl(var(--success-bg))] text-[hsl(var(--success))]";
+      case "cliente": return "bg-secondary text-foreground";
+      default: return "bg-secondary text-foreground";
     }
   };
 
@@ -161,8 +161,8 @@ const Users = () => {
 
   const getStatusColor = (active: boolean) => {
     return active 
-      ? "bg-green-100 text-green-800" 
-      : "bg-red-100 text-red-800";
+      ? "bg-[hsl(var(--success-bg))] text-[hsl(var(--success))]" 
+      : "bg-[hsl(var(--rose-bg))] text-[hsl(var(--rose))]";
   };
 
   const getStatusLabel = (active: boolean) => {
@@ -300,8 +300,8 @@ const Users = () => {
                 {filteredUsers.map((user) => (
                   <div key={user.id} className="flex items-center justify-between p-4 border border-border rounded-lg hover:bg-muted/50 transition-colors">
                     <div className="flex items-center gap-4">
-                      <div className="w-12 h-12 bg-gray-200 rounded-full flex items-center justify-center">
-                        <span className="text-gray-500 font-medium">
+                      <div className="w-12 h-12 bg-muted rounded-full flex items-center justify-center">
+                        <span className="text-muted-foreground font-medium">
                           {getInitials(user.display_name)}
                         </span>
                       </div>

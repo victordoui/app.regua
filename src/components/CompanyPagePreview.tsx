@@ -37,7 +37,7 @@ const CompanyPagePreview: React.FC<CompanyPagePreviewProps> = ({ data }) => {
         </CardTitle>
       </CardHeader>
       <CardContent className="p-0">
-        <div style={dynamicStyles} className="w-full bg-gray-50 dark:bg-gray-900">
+        <div style={dynamicStyles} className="w-full bg-secondary">
           {/* Header Dinâmico */}
           <header 
             className="relative h-32 bg-cover bg-center flex items-end p-3"

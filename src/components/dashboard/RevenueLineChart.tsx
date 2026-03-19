@@ -6,7 +6,7 @@ interface RevenueLineChartProps {
 
 const RevenueLineChart: React.FC<RevenueLineChartProps> = ({ data }) => {
   return (
-    <div className="bg-white border border-[hsl(var(--border))] rounded-[14px] overflow-hidden min-h-[300px]">
+    <div className="bg-card border border-[hsl(var(--border))] rounded-[14px] overflow-hidden min-h-[300px]">
       <div className="flex items-center justify-between px-5 pt-4 pb-3">
         <span className="font-heading text-[13px] font-bold text-foreground">Faturamento Mensal</span>
         <button className="flex items-center gap-[5px] border border-[hsl(var(--border))] rounded-[7px] px-[10px] py-1 text-[11px] text-muted-foreground bg-transparent cursor-pointer hover:bg-[hsl(var(--card-2))]">
@@ -35,13 +35,13 @@ const RevenueLineChart: React.FC<RevenueLineChartProps> = ({ data }) => {
           </defs>
           {/* Grid */}
           {[16, 46, 76, 106].map(y => (
-            <line key={y} x1="28" y1={y} x2="340" y2={y} stroke="#F1F5F9" strokeWidth="1" />
+            <line key={y} x1="28" y1={y} x2="340" y2={y} stroke="hsl(var(--muted))" strokeWidth="1" />
           ))}
           {/* Y labels */}
-          <text x="0" y="19" fontSize="8" fill="#94A3B8" fontFamily="Montserrat,sans-serif">8k</text>
-          <text x="0" y="49" fontSize="8" fill="#94A3B8" fontFamily="Montserrat,sans-serif">6k</text>
-          <text x="0" y="79" fontSize="8" fill="#94A3B8" fontFamily="Montserrat,sans-serif">4k</text>
-          <text x="0" y="109" fontSize="8" fill="#94A3B8" fontFamily="Montserrat,sans-serif">2k</text>
+          <text x="0" y="19" fontSize="8" fill="hsl(var(--muted-foreground))" fontFamily="Montserrat,sans-serif">8k</text>
+          <text x="0" y="49" fontSize="8" fill="hsl(var(--muted-foreground))" fontFamily="Montserrat,sans-serif">6k</text>
+          <text x="0" y="79" fontSize="8" fill="hsl(var(--muted-foreground))" fontFamily="Montserrat,sans-serif">4k</text>
+          <text x="0" y="109" fontSize="8" fill="hsl(var(--muted-foreground))" fontFamily="Montserrat,sans-serif">2k</text>
           {/* Meta dashed */}
           <line x1="28" y1="56" x2="340" y2="56" stroke="hsl(142, 71%, 45%)" strokeWidth="1.5" strokeDasharray="5,4" opacity="0.5" />
           {/* Revenue area */}
@@ -57,7 +57,7 @@ const RevenueLineChart: React.FC<RevenueLineChartProps> = ({ data }) => {
           {/* X labels */}
           {['Out', 'Nov', 'Dez', 'Jan', 'Fev', 'Mar'].map((label, i) => {
             const x = 36 + i * (304 / 5);
-            return <text key={label} x={x} y="148" fontSize="8" fill="#94A3B8" textAnchor="middle" fontFamily="Montserrat,sans-serif">{label}</text>;
+            return <text key={label} x={x} y="148" fontSize="8" fill="hsl(var(--muted-foreground))" textAnchor="middle" fontFamily="Montserrat,sans-serif">{label}</text>;
           })}
         </svg>
       </div>

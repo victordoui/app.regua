@@ -19,13 +19,13 @@ const StepBarberSelection: React.FC<StepBarberSelectionProps> = ({ barbers, book
             className={`p-4 border rounded-lg cursor-pointer transition-colors ${
               bookingForm.selectedBarber === barber.id
                 ? 'border-primary bg-primary/5 shadow-md'
-                : 'border-gray-200 hover:border-gray-300'
+                : 'border-border hover:border-border/80'
             }`}
             onClick={() => setBookingForm(prev => ({ ...prev, selectedBarber: barber.id, selectedTime: "" }))}
           >
             <div className="flex items-center gap-3">
-              <div className="w-12 h-12 bg-gray-200 rounded-full flex items-center justify-center">
-                <User className="h-6 w-6 text-gray-500" />
+              <div className="w-12 h-12 bg-muted rounded-full flex items-center justify-center">
+                <User className="h-6 w-6 text-muted-foreground" />
               </div>
               <div>
                 <h3 className="font-semibold">{barber.name}</h3>
