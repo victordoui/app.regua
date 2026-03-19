@@ -136,13 +136,13 @@ const Sidebar = () => {
                     <button
                       key={item.path}
                       onClick={() => handleNavigation(item.path)}
-                      className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-[13px] font-medium cursor-pointer transition-all duration-150 relative
+                      className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-[13px] font-semibold cursor-pointer transition-all duration-150 relative
                         ${isActive
-                          ? 'bg-primary text-primary-foreground font-semibold'
+                          ? 'bg-primary text-primary-foreground'
                           : 'text-muted-foreground hover:bg-muted hover:text-foreground'
                         }`}
                     >
-                      <Icon className={`h-4 w-4 flex-shrink-0 ${isActive ? 'opacity-100' : 'opacity-60'}`} />
+                      <Icon className={`h-4 w-4 flex-shrink-0 ${isActive ? 'opacity-100' : 'opacity-80'}`} />
                       <span className="truncate">{item.label}</span>
                       {item.badge && (
                         <span className={`ml-auto w-5 h-5 rounded-full flex items-center justify-center text-[10px] font-bold
