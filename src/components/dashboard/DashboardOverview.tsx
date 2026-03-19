@@ -46,6 +46,9 @@ const DashboardOverview = () => {
       <Tabs value={currentTab} onValueChange={handleTabChange}>
         <TabsList>
           <TabsTrigger value="overview">Visão Geral</TabsTrigger>
+          <TabsTrigger value="desempenho">
+            <Users className="h-4 w-4 mr-1.5" /> Desempenho dos Profissionais
+          </TabsTrigger>
           <TabsTrigger value="sucesso-cliente">
             <HeartHandshake className="h-4 w-4 mr-1.5" /> Sucesso do Cliente
           </TabsTrigger>
