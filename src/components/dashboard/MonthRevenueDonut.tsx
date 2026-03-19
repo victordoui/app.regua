@@ -10,7 +10,7 @@ const MonthRevenueDonut: React.FC<MonthRevenueDonutProps> = ({ monthRevenue }) =
   const remaining = Math.max(goal - monthRevenue, 0);
 
   return (
-    <div className="bg-white border border-[hsl(var(--border))] rounded-[14px] overflow-hidden min-h-[260px]">
+    <div className="bg-card border border-[hsl(var(--border))] rounded-[14px] overflow-hidden min-h-[260px]">
       <div className="flex items-center justify-between px-5 pt-4 pb-3">
         <span className="font-heading text-[13px] font-bold text-foreground">Receita do Mês</span>
         <button className="text-[11px] font-semibold text-primary cursor-pointer hover:text-[hsl(var(--brand))]">
