@@ -252,7 +252,7 @@ const Login = () => {
                                 {...field}
                                 type={showPassword ? "text" : "password"}
                                 placeholder="Sua senha"
-                                className="pl-10 pr-12 h-12 border-[#1F4FA3]/20 focus:border-[#1F4FA3] focus:ring-[#1F4FA3]/20 bg-white rounded-xl"
+                                className="pl-10 pr-12 h-12 border-[#1F4FA3]/20 focus:border-[#1F4FA3] focus:ring-[#1F4FA3]/20 bg-card rounded-xl"
                               />
                               <button
                                 type="button"
