@@ -23,7 +23,7 @@ const BarberRankingTable: React.FC<BarberRankingTableProps> = ({ barbers }) => {
 
   const getRankBadge = (index: number) => {
     if (index === 0) return <Trophy className="h-5 w-5 text-yellow-500" />;
-    if (index === 1) return <Trophy className="h-5 w-5 text-gray-400" />;
+    if (index === 1) return <Trophy className="h-5 w-5 text-muted-foreground" />;
     if (index === 2) return <Trophy className="h-5 w-5 text-amber-700" />;
     return <span className="text-muted-foreground font-medium">{index + 1}º</span>;
   };
