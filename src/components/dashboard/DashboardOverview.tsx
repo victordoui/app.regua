@@ -78,12 +78,6 @@ const DashboardOverview = () => {
               <MonthRevenueDonut monthRevenue={metrics.monthRevenue} />
             </div>
 
-            <div className="space-y-6 pt-4">
-              <h2 className="text-lg font-bold text-foreground flex items-center gap-2">
-                <Users className="h-5 w-5 text-primary" /> Desempenho dos Profissionais
-              </h2>
-              <BarberPerformanceContent />
-            </div>
 
             <div className="space-y-6 pt-4">
               <h2 className="text-lg font-bold text-foreground flex items-center gap-2">
