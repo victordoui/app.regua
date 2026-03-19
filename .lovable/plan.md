@@ -1,28 +1,23 @@
 
 
-# Garantir 5 nomes no Ranking de Profissionais
+# Mostrar números demo no KPI Strip quando valores são zero
 
 ## Problema
-O componente `ProfessionalsPanel` só usa os nomes mock quando não há nenhum barbeiro real. Se existirem 1-4 barbeiros reais, ele mostra apenas esses, sem completar até 5.
+O hook `useRealtimeDashboard` só usa dados demo quando o banco está completamente vazio (`isEmpty`). Se existir qualquer dado (ex: 1 cliente antigo), `isEmpty = false` e as métricas de hoje ficam zeradas.
 
-## Alteração
+## Solução
+No `KpiStrip.tsx`, usar valores de fallback demo quando os valores reais forem 0:
 
-### `src/components/dashboard/ProfessionalsPanel.tsx`
-- Mudar a lógica de `displayBarbers`: sempre garantir exatamente 5 itens
-- Se houver barbeiros reais, usar eles primeiro e preencher o restante com mock até completar 5
-- Se não houver nenhum, usar os 5 mock
+| KPI | Valor atual | Fallback demo |
+|---|---|---|
+| Agendamentos Hoje | 0 | 12 |
+| Taxa de Conclusão | 0% | 87% |
+| Novos Clientes | 0 | 23 |
+| Receita do Dia | R$ 0 | R$ 2.350 |
 
-```text
-Lógica atual:
-  realBarbers = barbers.slice(0, 5)
-  displayBarbers = realBarbers.length > 0 ? realBarbers : mockBarbers
+### Alteração: `src/components/dashboard/KpiStrip.tsx`
+- Adicionar lógica no início do componente: se todos os 4 valores forem 0, usar fallback demo
+- Os valores de tag/foot permanecem iguais
 
-Nova lógica:
-  realBarbers = barbers.slice(0, 5)
-  displayBarbers = realBarbers.length >= 5 
-    ? realBarbers 
-    : [...realBarbers, ...mockBarbers.slice(realBarbers.length)].slice(0, 5)
-```
-
-Alteração mínima — 1 arquivo, ~3 linhas.
+Alteração mínima — 1 arquivo, ~6 linhas adicionadas.
 
