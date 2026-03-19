@@ -1,27 +1,18 @@
 
 
-# Adicionar Filtros e Botões de Exportação ao Dashboard Analítico
+# Adicionar aba "Desempenho dos Profissionais"
 
 ## O que será feito
 
-Redesenhar o cabeçalho do `AnalyticsDashboard` para incluir:
+Mover a seção "Desempenho dos Profissionais" (que hoje está inline na aba Visão Geral) para uma **aba própria** no `TabsList`, junto com "Visão Geral" e "Sucesso do Cliente".
 
-1. **Título + subtítulo** — "Dashboard Analítico" com descrição "Visão geral de performance e métricas do sistema"
-2. **Filtros de período** — Botões pill/segmentados: Hoje, Semana, **Mês** (ativo por padrão), Ano
-3. **Botões de exportação** — PDF e Excel com ícones, estilo outline
+## Alteração: `src/components/dashboard/DashboardOverview.tsx`
 
-Layout: título à esquerda, filtros + exportação à direita, tudo numa linha horizontal (responsivo em mobile com wrap).
+1. Adicionar nova `TabsTrigger` com valor `"desempenho"` e ícone `Users` + texto "Desempenho dos Profissionais"
+2. Adicionar novo `TabsContent` com valor `"desempenho"` contendo o `<BarberPerformanceContent />`
+3. Remover a seção inline de "Desempenho dos Profissionais" (linhas 78-83) da aba overview
 
-## Alteração
+A seção de "Avaliações" permanece na aba Visão Geral.
 
-### `src/components/dashboard/AnalyticsDashboard.tsx`
-- Adicionar estado `selectedPeriod` com `useState` (default: `'month'`)
-- Substituir o header atual por um layout flex com:
-  - Lado esquerdo: ícone + título + subtítulo abaixo
-  - Lado direito: grupo de botões de período (Hoje/Semana/Mês/Ano) + botões PDF e Excel
-- Os botões de período usam estilo pill (bg-primary quando ativo, outline quando inativo)
-- Botões PDF/Excel com ícones `FileText` e `FileSpreadsheet` do lucide-react, estilo outline
-- Os botões de exportação e filtros são visuais por enquanto (funcionalidade futura)
-
-1 arquivo editado, ~40 linhas adicionadas.
+1 arquivo, ~8 linhas alteradas.
 
