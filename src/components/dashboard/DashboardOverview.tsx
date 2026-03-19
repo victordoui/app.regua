@@ -94,6 +94,10 @@ const DashboardOverview = () => {
         <TabsContent value="sucesso-cliente">
           <CustomerSuccessContent />
         </TabsContent>
+
+        <TabsContent value="desempenho">
+          <BarberPerformanceContent />
+        </TabsContent>
       </Tabs>
     </div>
   );
