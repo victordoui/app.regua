@@ -38,7 +38,9 @@ const ProfessionalsPanel = () => {
   const navigate = useNavigate();
   const { barbers } = useBarbers();
   const realBarbers = barbers.slice(0, 5);
-  const displayBarbers = realBarbers.length > 0 ? realBarbers : mockBarbers;
+  const displayBarbers = realBarbers.length >= 5
+    ? realBarbers
+    : [...realBarbers, ...mockBarbers.slice(realBarbers.length)].slice(0, 5);
 
   return (
     <div className="bg-card border border-border rounded-[14px] overflow-hidden h-fit">
