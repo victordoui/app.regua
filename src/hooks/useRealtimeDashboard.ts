@@ -39,14 +39,15 @@ export const useRealtimeDashboard = () => {
   const { user } = useAuth();
   const queryClient = useQueryClient();
   const [metrics, setMetrics] = useState<DashboardMetrics>({
-    todayAppointments: 0,
-    monthAppointments: 0,
-    monthRevenue: 0,
-    totalClients: 0,
-    newClientsThisMonth: 0,
-    completedRate: 0,
-    occupancyRate: 0,
-    activeSubscriptions: 0,
+    todayAppointments: 12,
+    monthAppointments: 187,
+    monthRevenue: 18450,
+    todayRevenue: 2350,
+    totalClients: 342,
+    newClientsThisMonth: 23,
+    completedRate: 87,
+    occupancyRate: 72,
+    activeSubscriptions: 3,
   });
   const [monthlyRevenue, setMonthlyRevenue] = useState<MonthlyRevenue[]>([]);
   const [weeklyAppointments, setWeeklyAppointments] = useState<WeeklyAppointments[]>([]);
