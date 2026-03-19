@@ -230,7 +230,7 @@ const Login = () => {
                               <Input
                                 {...field}
                                 placeholder="seu@email.com"
-                                className="pl-10 h-12 border-[#1F4FA3]/20 focus:border-[#1F4FA3] focus:ring-[#1F4FA3]/20 bg-white rounded-xl"
+                                className="pl-10 h-12 border-[#1F4FA3]/20 focus:border-[#1F4FA3] focus:ring-[#1F4FA3]/20 bg-card rounded-xl"
                               />
                             </div>
                           </FormControl>
