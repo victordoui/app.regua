@@ -9,6 +9,7 @@ interface DashboardMetrics {
   todayAppointments: number;
   monthAppointments: number;
   monthRevenue: number;
+  todayRevenue: number;
   totalClients: number;
   newClientsThisMonth: number;
   completedRate: number;
@@ -38,14 +39,15 @@ export const useRealtimeDashboard = () => {
   const { user } = useAuth();
   const queryClient = useQueryClient();
   const [metrics, setMetrics] = useState<DashboardMetrics>({
-    todayAppointments: 0,
-    monthAppointments: 0,
-    monthRevenue: 0,
-    totalClients: 0,
-    newClientsThisMonth: 0,
-    completedRate: 0,
-    occupancyRate: 0,
-    activeSubscriptions: 0,
+    todayAppointments: 12,
+    monthAppointments: 187,
+    monthRevenue: 18450,
+    todayRevenue: 2350,
+    totalClients: 342,
+    newClientsThisMonth: 23,
+    completedRate: 87,
+    occupancyRate: 72,
+    activeSubscriptions: 3,
   });
   const [monthlyRevenue, setMonthlyRevenue] = useState<MonthlyRevenue[]>([]);
   const [weeklyAppointments, setWeeklyAppointments] = useState<WeeklyAppointments[]>([]);
@@ -142,11 +144,17 @@ export const useRealtimeDashboard = () => {
 
       const isEmpty = todayAppts.length === 0 && monthAppts.length === 0 && clients.length === 0;
 
+      // Calculate today's revenue
+      const todayRevenue = todayAppts
+        .filter(a => a.status === 'completed')
+        .reduce((sum, a) => sum + ((a as any).total_price || 0), 0);
+
       if (isEmpty) {
         setMetrics({
           todayAppointments: 12,
           monthAppointments: 187,
           monthRevenue: 18450,
+          todayRevenue: 2350,
           totalClients: 342,
           newClientsThisMonth: 23,
           completedRate: 87,
@@ -158,6 +166,7 @@ export const useRealtimeDashboard = () => {
           todayAppointments: todayAppts.length,
           monthAppointments: monthAppts.length,
           monthRevenue,
+          todayRevenue,
           totalClients: clients.length,
           newClientsThisMonth: newClients,
           completedRate,
