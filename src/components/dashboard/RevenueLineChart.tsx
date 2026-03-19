@@ -21,7 +21,7 @@ const RevenueLineChart: React.FC<RevenueLineChartProps> = ({ data }) => {
   const metaValue = maxRevenue > 0 ? maxRevenue * 0.75 : 5000;
 
   return (
-    <div className="bg-card border border-border rounded-[14px] overflow-hidden h-full">
+    <div className="bg-card border border-border rounded-[14px] overflow-hidden h-fit">
       <div className="flex items-center justify-between px-5 pt-4 pb-3">
         <span className="font-heading text-[15px] font-bold text-foreground">
           Faturamento Mensal

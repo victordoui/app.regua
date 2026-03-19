@@ -166,6 +166,7 @@ export const useRealtimeDashboard = () => {
           todayAppointments: todayAppts.length,
           monthAppointments: monthAppts.length,
           monthRevenue,
+          todayRevenue,
           totalClients: clients.length,
           newClientsThisMonth: newClients,
           completedRate,

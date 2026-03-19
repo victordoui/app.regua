@@ -56,7 +56,7 @@ const DashboardOverview = () => {
               todayAppointments={metrics.todayAppointments}
               completedRate={metrics.completedRate}
               newClients={metrics.newClientsThisMonth}
-              dayRevenue={metrics.monthRevenue}
+              dayRevenue={metrics.todayRevenue}
             />
 
             <div className="grid grid-cols-1 lg:grid-cols-[1fr_1fr_280px] gap-4">
