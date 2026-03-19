@@ -1,93 +1,28 @@
 
 
-# Analise de Paginas Repetitivas e Consolidacao
+# Plano: Adicionar dados de teste/demo ao Dashboard
 
-Apos analisar todas as paginas e a sidebar, identifiquei os seguintes problemas:
+## Resumo
+Quando não há dados reais do Supabase (tudo zerado), o hook `useRealtimeDashboard` retornará dados mock realistas para que o painel pareça funcional e preenchido.
 
----
+## Alterações
 
-## 1. Paginas sem funcionalidade real (apenas placeholder "Em Desenvolvimento")
+### 1. `src/hooks/useRealtimeDashboard.ts`
+Após o fetch dos dados reais, se todos os valores forem zero (sem dados no banco), substituir pelos dados mock:
 
-| Pagina | Rota | Situacao |
-|---|---|---|
-| **Criar / Editar Plano** (`SubscriptionCreation`) | `/subscriptions/new` | Placeholder vazio. A pagina `Subscriptions` ja tem botao "Novo Plano" com dialog funcional |
-| **Integracoes** (`Integrations`) | `/integrations` | Placeholder vazio, sem funcionalidade |
+- **Métricas KPI**: todayAppointments=12, monthAppointments=187, monthRevenue=18450, totalClients=342, newClientsThisMonth=23, completedRate=87, occupancyRate=72, activeSubscriptions=3
+- **monthlyRevenue** (6 meses): Out=12400, Nov=15800, Dez=14200, Jan=18900, Fev=16500, Mar=18450
+- **weeklyAppointments** (7 dias): Dom=2, Seg=8, Ter=12, Qua=10, Qui=14, Sex=16, Sáb=18
+- **recentActivities**: 5 atividades fictícias com nomes, horários e tipos variados
 
-**Recomendacao**: Remover ambas da sidebar. `SubscriptionCreation` e redundante com o dialog que ja existe em `Subscriptions`.
+### 2. `src/components/dashboard/TodayAppointmentsPanel.tsx`
+Quando `todayAppointments` do hook retornar vazio, exibir lista mock com 4 agendamentos fictícios (nomes, serviços, horários, valores) em vez de "Nenhum agendamento hoje".
 
----
+### 3. `src/components/dashboard/RecentTransactionsPanel.tsx`
+Quando `transactions` estiver vazio, exibir 5 transações mock com nomes de clientes, serviços, status variados (completed, confirmed, pending) e valores.
 
-## 2. Paginas que podem ser consolidadas como abas
+### 4. `src/components/dashboard/ProfessionalsPanel.tsx`
+Quando `barbers` estiver vazio, exibir 5 profissionais mock com nomes, scores de performance variados (95, 88, 76, 62, 50) e ratings.
 
-### 2a. **Comissoes + Regras de Comissao** → Uma unica pagina com abas
-- `Commissions` (`/commissions`) - Calcula comissoes por periodo
-- `CommissionRules` (`/commission-rules`) - Configura regras de comissao
-- Ja existe um botao "Gerenciar Regras" em Comissoes que navega para CommissionRules
-
-**Proposta**: Unificar em `/commissions` com 2 abas: "Comissoes" e "Regras"
-
-### 2b. **Relatorios + Relatorios de Vendas** → Uma unica pagina com abas
-- `Reports` (`/reports`) - Visao financeira geral (receita, agendamentos, clientes)
-- `SalesReports` (`/sales-reports`) - Analise de vendas e ticket medio
-- Ambas mostram dados financeiros com sobreposicao (receita, servicos populares, ticket medio)
-
-**Proposta**: Unificar em `/reports` com abas: "Visao Geral", "Vendas", "Servicos", "Clientes"
-
-### 2c. **Notificacoes Avancadas + Campanhas** → Sobreposicao significativa
-- `AdvancedNotifications` (`/advanced-notifications`) - Tem abas internas: Templates, **Campanhas**, Historico, Configuracoes
-- `Campaigns` (`/campaigns`) - Gerencia campanhas de email
-
-A aba "Campanhas" dentro de Notificacoes Avancadas e a pagina Campanhas fazem a mesma coisa.
-
-**Proposta**: Manter `Campanhas` como pagina independente (mais completa) e remover a aba de campanhas de dentro de AdvancedNotifications, ou vice-versa. A opcao mais limpa e manter so `AdvancedNotifications` que ja tem tudo integrado e remover `Campaigns` da sidebar.
-
-### 2d. **Fidelidade + Indicacoes** → Programa de engajamento
-- `Loyalty` (`/loyalty`) - Pontos e recompensas
-- `Referrals` (`/referrals`) - Indicacoes e recompensas
-
-Ambas tratam de recompensar clientes. Podem ser abas de uma unica pagina "Engajamento" ou "Fidelidade & Indicacoes".
-
-**Proposta**: Unificar em `/loyalty` com abas: "Pontos e Recompensas" e "Indicacoes"
-
----
-
-## 3. Paginas com funcionalidade duplicada
-
-### 3a. **Configuracoes Gerais vs Empresa**
-- `Settings` (`/settings`) - Formulario basico com dados da barbearia + perfil do usuario
-- `CompanySettings` (`/settings/company`) - Formulario completo com dados da empresa, identidade visual, link de agendamento
-
-`Settings` e uma versao pobre de `CompanySettings` + `Profile`. Tudo que tem em Settings ja existe melhor em CompanySettings e Profile.
-
-**Proposta**: Remover `Settings` da sidebar. Manter apenas `CompanySettings` (Empresa) e `Profile` (Meu Perfil).
-
-### 3b. **Conversas vs Chat da Equipe**
-- `Conversations` (`/conversations`) - Chat com clientes (mock data)
-- `TeamChat` (`/team-chat`) - Chat interno da equipe
-
-Sao funcionalidades diferentes mas ambas sao chat. Podem coexistir, porem `Conversations` usa apenas dados mock e nao tem funcionalidade real.
-
-**Proposta**: Se Conversations nao tem integracao real, considerar remove-la ou marca-la como "em breve".
-
-### 3c. **Agendamento Online (admin)** duplica funcionalidade
-- `OnlineBooking` (`/booking`) - Formulario de agendamento interno com dados mock
-- A pagina `Appointments` ja permite criar agendamentos
-
-**Proposta**: Remover `OnlineBooking` da sidebar. O agendamento ja e feito pela pagina de Appointments.
-
----
-
-## Resumo das acoes propostas
-
-| Acao | Detalhes |
-|---|---|
-| **Remover da sidebar** | `SubscriptionCreation`, `Integracoes`, `Settings`, `OnlineBooking` |
-| **Consolidar Comissoes + Regras** | Uma pagina com 2 abas |
-| **Consolidar Relatorios + Rel. Vendas** | Uma pagina com abas expandidas |
-| **Consolidar Fidelidade + Indicacoes** | Uma pagina com 2 abas |
-| **Resolver duplicata Campanhas** | Manter apenas em AdvancedNotifications ou apenas Campaigns (nao ambas) |
-
-Isso reduziria a sidebar de ~30 itens para ~24, tornando a navegacao mais limpa e eliminando confusao.
-
-Deseja que eu implemente alguma dessas consolidacoes? Posso comecar por qualquer grupo.
+Todos os dados mock serão claramente realistas para um salão/barbearia brasileiro.
 
