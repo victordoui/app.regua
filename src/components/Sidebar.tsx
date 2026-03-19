@@ -122,7 +122,7 @@ const Sidebar = () => {
             <div key={category.category} className="mb-4">
               {/* Section label — clean, no divider */}
               <div className="px-3 mb-2">
-                <span className="text-[10px] font-semibold uppercase tracking-[1.2px] text-primary/60">
+                <span className="text-[11px] font-semibold uppercase tracking-[1.2px] text-primary/60">
                   {category.label}
                 </span>
               </div>
