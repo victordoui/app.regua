@@ -136,7 +136,7 @@ const Sidebar = () => {
                     <button
                       key={item.path}
                       onClick={() => handleNavigation(item.path)}
-                      className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-[13px] font-semibold cursor-pointer transition-all duration-150 relative
+                      className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-[14px] font-semibold cursor-pointer transition-all duration-150 relative
                         ${isActive
                           ? 'bg-primary text-primary-foreground'
                           : 'text-muted-foreground hover:bg-muted hover:text-foreground'

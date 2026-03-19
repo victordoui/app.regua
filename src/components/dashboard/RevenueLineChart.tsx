@@ -6,9 +6,9 @@ interface RevenueLineChartProps {
 
 const RevenueLineChart: React.FC<RevenueLineChartProps> = ({ data }) => {
   return (
-    <div className="bg-card border border-[hsl(var(--border))] rounded-[14px] overflow-hidden min-h-[300px]">
+    <div className="bg-card border border-[hsl(var(--border))] rounded-[14px] overflow-hidden">
       <div className="flex items-center justify-between px-5 pt-4 pb-3">
-        <span className="font-heading text-[13px] font-bold text-foreground">Faturamento Mensal</span>
+        <span className="font-heading text-[15px] font-bold text-foreground">Faturamento Mensal</span>
         <button className="flex items-center gap-[5px] border border-[hsl(var(--border))] rounded-[7px] px-[10px] py-1 text-[11px] text-muted-foreground bg-transparent cursor-pointer hover:bg-[hsl(var(--card-2))]">
           Últimos 6 meses
         </button>

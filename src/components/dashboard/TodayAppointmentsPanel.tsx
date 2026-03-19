@@ -13,7 +13,7 @@ const TodayAppointmentsPanel = () => {
   return (
     <div className="bg-card border border-[hsl(var(--border))] rounded-[14px] overflow-hidden flex-1">
       <div className="flex items-center justify-between px-[18px] pt-[14px] pb-[10px]">
-        <span className="font-heading text-[13px] font-bold text-foreground">Hoje</span>
+        <span className="font-heading text-[15px] font-bold text-foreground">Hoje</span>
         <button
           onClick={() => navigate('/appointments')}
           className="text-[11px] font-semibold text-primary cursor-pointer hover:text-[hsl(var(--brand))]"

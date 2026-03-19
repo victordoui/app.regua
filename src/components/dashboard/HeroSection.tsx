@@ -38,7 +38,7 @@ const HeroSection = () => {
           </button>
         </div>
       </div>
-      <p className="text-xs text-muted-foreground font-normal">
+      <p className="text-sm text-muted-foreground font-normal">
         Aqui está o resumo do seu negócio hoje. Você tem {metrics.todayAppointments} agendamentos pendentes.
       </p>
     </div>

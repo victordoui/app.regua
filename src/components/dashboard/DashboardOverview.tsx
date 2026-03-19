@@ -62,7 +62,7 @@ const DashboardOverview = () => {
             <div className="grid grid-cols-1 lg:grid-cols-[1fr_1fr_280px] gap-4">
               <OccupationHeatmap />
               <RevenueLineChart data={monthlyRevenue} />
-              <div className="flex flex-col gap-6">
+              <div className="flex flex-col gap-4">
                 <MiniCalendarPanel />
                 <TodayAppointmentsPanel />
               </div>
