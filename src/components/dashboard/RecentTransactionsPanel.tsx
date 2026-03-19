@@ -9,10 +9,19 @@ const statusConfig: Record<string, { label: string; className: string }> = {
   cancelled: { label: "● Cancelado", className: "bg-[hsl(var(--rose-bg))] text-[hsl(var(--rose))] border border-[hsl(var(--rose-border))]" },
 };
 
+const mockTransactions = [
+  { id: "mock-t1", clients: { name: "Carlos Silva" }, services: { name: "Corte Degradê", price: 45 }, status: "completed", total_price: 45 },
+  { id: "mock-t2", clients: { name: "Rafael Mendes" }, services: { name: "Barba Completa", price: 35 }, status: "completed", total_price: 35 },
+  { id: "mock-t3", clients: { name: "Lucas Oliveira" }, services: { name: "Corte + Barba", price: 70 }, status: "confirmed", total_price: 70 },
+  { id: "mock-t4", clients: { name: "João Pedro" }, services: { name: "Pigmentação", price: 120 }, status: "pending", total_price: 120 },
+  { id: "mock-t5", clients: { name: "André Costa" }, services: { name: "Corte Navalhado", price: 55 }, status: "cancelled", total_price: 55 },
+];
+
 const RecentTransactionsPanel = () => {
   const navigate = useNavigate();
   const { todayAppointments } = useRealtimeAppointments();
-  const transactions = todayAppointments.slice(0, 5);
+  const realTx = todayAppointments.slice(0, 5);
+  const transactions = realTx.length > 0 ? realTx : mockTransactions;
 
   return (
     <div className="bg-card border border-border rounded-[14px] overflow-hidden h-fit">
@@ -36,35 +45,27 @@ const RecentTransactionsPanel = () => {
           </tr>
         </thead>
         <tbody>
-          {transactions.length === 0 ? (
-            <tr>
-              <td colSpan={4} className="text-center text-xs text-muted-foreground py-8 px-5">
-                Nenhuma transação recente.
-              </td>
-            </tr>
-          ) : (
-            transactions.map((tx) => {
-              const status = statusConfig[tx.status] || statusConfig.pending;
-              const isCancelled = tx.status === "cancelled";
-              return (
-                <tr key={tx.id} className="border-b border-border last:border-b-0 hover:bg-accent/50 cursor-pointer transition-colors">
-                  <td className="px-5 py-3">
-                    <div className="text-sm font-semibold text-foreground">{tx.clients?.name || "Cliente"}</div>
-                    <div className="text-[10px] text-muted-foreground mt-0.5">#{tx.id.slice(0, 4)}</div>
-                  </td>
-                  <td className="text-xs text-muted-foreground py-3">{tx.services?.name || "Serviço"}</td>
-                  <td className="py-3">
-                    <span className={`inline-flex items-center gap-1 text-[11px] font-semibold px-2.5 py-1 rounded-full ${status.className}`}>
-                      {status.label}
-                    </span>
-                  </td>
-                  <td className={`text-right px-5 py-3 font-heading text-sm font-bold ${isCancelled ? "text-[hsl(var(--rose))]" : "text-foreground"}`}>
-                    {isCancelled ? "–" : ""} R$ {tx.total_price || tx.services?.price || 0}
-                  </td>
-                </tr>
-              );
-            })
-          )}
+          {transactions.map((tx) => {
+            const status = statusConfig[tx.status] || statusConfig.pending;
+            const isCancelled = tx.status === "cancelled";
+            return (
+              <tr key={tx.id} className="border-b border-border last:border-b-0 hover:bg-accent/50 cursor-pointer transition-colors">
+                <td className="px-5 py-3">
+                  <div className="text-sm font-semibold text-foreground">{tx.clients?.name || "Cliente"}</div>
+                  <div className="text-[10px] text-muted-foreground mt-0.5">#{tx.id.slice(0, 4)}</div>
+                </td>
+                <td className="text-xs text-muted-foreground py-3">{tx.services?.name || "Serviço"}</td>
+                <td className="py-3">
+                  <span className={`inline-flex items-center gap-1 text-[11px] font-semibold px-2.5 py-1 rounded-full ${status.className}`}>
+                    {status.label}
+                  </span>
+                </td>
+                <td className={`text-right px-5 py-3 font-heading text-sm font-bold ${isCancelled ? "text-[hsl(var(--rose))]" : "text-foreground"}`}>
+                  {isCancelled ? "–" : ""} R$ {tx.total_price || tx.services?.price || 0}
+                </td>
+              </tr>
+            );
+          })}
         </tbody>
       </table>
     </div>
