@@ -17,9 +17,6 @@ const HeroSection = () => {
           <h1 className="font-heading text-[26px] font-extrabold text-foreground tracking-tight flex items-center gap-2">
             Olá, {companyName} 👋
           </h1>
-          <p className="text-sm text-muted-foreground font-medium mt-0.5">
-            Dashboard Analítico — Visão geral de performance e métricas do sistema
-          </p>
         </div>
         <div className="flex items-center gap-2.5">
           <button
