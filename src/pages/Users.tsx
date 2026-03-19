@@ -161,8 +161,8 @@ const Users = () => {
 
   const getStatusColor = (active: boolean) => {
     return active 
-      ? "bg-green-100 text-green-800" 
-      : "bg-red-100 text-red-800";
+      ? "bg-[hsl(var(--success-bg))] text-[hsl(var(--success))]" 
+      : "bg-[hsl(var(--rose-bg))] text-[hsl(var(--rose))]";
   };
 
   const getStatusLabel = (active: boolean) => {
