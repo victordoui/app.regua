@@ -74,36 +74,7 @@ const DashboardOverview = () => {
               dayRevenue={metrics.todayRevenue}
             />
 
-            {/* Linha 1: Ocupação + Faturamento + Calendário/Agenda */}
-            <div className="grid grid-cols-1 lg:grid-cols-[1fr_1fr_280px] gap-4">
-              <OccupationHeatmap />
-              <RevenueLineChart data={monthlyRevenue} />
-              <div className="flex flex-col gap-4">
-                <MiniCalendarPanel />
-                <TodayAppointmentsPanel />
-              </div>
-            </div>
-
-            {/* Linha 2: Comparativo Mensal + Funil de Conversão */}
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
-              <ComparativeMonthChart />
-              <ConversionFunnel />
-            </div>
-
-            {/* Linha 3: Análise por Serviço + Previsão de Receita */}
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
-              <ServiceAnalysisChart />
-              <RevenueForecastChart />
-            </div>
-
-            {/* Linha 4: Transações + Profissionais + Receita do Mês */}
-            <div className="grid grid-cols-1 lg:grid-cols-[1fr_1fr_1fr] gap-4 items-start">
-              <RecentTransactionsPanel />
-              <ProfessionalsPanel />
-              <MonthRevenueDonut monthRevenue={metrics.monthRevenue} />
-            </div>
-
-            {/* Painel Analítico — filtros e exportação */}
+            {/* Filtros de período e exportação */}
             <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
               <div className="flex items-center gap-3">
                 <div className="flex items-center justify-center h-10 w-10 rounded-lg bg-card text-primary shrink-0">
@@ -137,6 +108,35 @@ const DashboardOverview = () => {
                   <FileSpreadsheet className="h-4 w-4" /> Excel
                 </Button>
               </div>
+            </div>
+
+            {/* Linha 1: Ocupação + Faturamento + Calendário/Agenda */}
+            <div className="grid grid-cols-1 lg:grid-cols-[1fr_1fr_280px] gap-4">
+              <OccupationHeatmap />
+              <RevenueLineChart data={monthlyRevenue} />
+              <div className="flex flex-col gap-4">
+                <MiniCalendarPanel />
+                <TodayAppointmentsPanel />
+              </div>
+            </div>
+
+            {/* Linha 2: Comparativo Mensal + Funil de Conversão */}
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+              <ComparativeMonthChart />
+              <ConversionFunnel />
+            </div>
+
+            {/* Linha 3: Análise por Serviço + Previsão de Receita */}
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+              <ServiceAnalysisChart />
+              <RevenueForecastChart />
+            </div>
+
+            {/* Linha 4: Transações + Profissionais + Receita do Mês */}
+            <div className="grid grid-cols-1 lg:grid-cols-[1fr_1fr_1fr] gap-4 items-start">
+              <RecentTransactionsPanel />
+              <ProfessionalsPanel />
+              <MonthRevenueDonut monthRevenue={metrics.monthRevenue} />
             </div>
           </div>
         </TabsContent>
