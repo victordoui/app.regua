@@ -1,5 +1,6 @@
 import React from "react";
 import { useSearchParams } from "react-router-dom";
+import TodayScheduleCard from "./TodayScheduleCard";
 import { useRealtimeDashboard } from "@/hooks/useRealtimeDashboard";
 import { Users, HeartHandshake, BarChart3, FileText, FileSpreadsheet } from "lucide-react";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
@@ -138,6 +139,9 @@ const DashboardOverview = () => {
               <ProfessionalsPanel />
               <MonthRevenueDonut monthRevenue={metrics.monthRevenue} />
             </div>
+
+            {/* Linha 5: Agenda de Hoje */}
+            <TodayScheduleCard />
           </div>
         </TabsContent>
 
