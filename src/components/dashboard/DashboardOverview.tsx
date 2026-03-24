@@ -111,14 +111,10 @@ const DashboardOverview = () => {
               </div>
             </div>
 
-            {/* Linha 1: Ocupação + Faturamento + Calendário/Agenda */}
-            <div className="grid grid-cols-1 lg:grid-cols-[1fr_1fr_280px] gap-4">
+            {/* Linha 1: Ocupação + Faturamento */}
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
               <OccupationHeatmap />
               <RevenueLineChart data={monthlyRevenue} />
-              <div className="flex flex-col gap-4">
-                <MiniCalendarPanel />
-                <TodayAppointmentsPanel />
-              </div>
             </div>
 
             {/* Linha 2: Comparativo Mensal + Funil de Conversão */}
@@ -140,7 +136,13 @@ const DashboardOverview = () => {
               <MonthRevenueDonut monthRevenue={metrics.monthRevenue} />
             </div>
 
-            {/* Linha 5: Agenda de Hoje */}
+            {/* Linha 5: Calendário + Agendamentos de Hoje */}
+            <div className="grid grid-cols-1 lg:grid-cols-[1fr_1fr] gap-4">
+              <MiniCalendarPanel />
+              <TodayAppointmentsPanel />
+            </div>
+
+            {/* Linha 6: Agenda de Hoje */}
             <TodayScheduleCard />
           </div>
         </TabsContent>
