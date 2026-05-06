@@ -12,14 +12,14 @@ import {
 import { TrendingUp } from "lucide-react";
 
 const data = [
-  { metric: "Receita", atual: 18450, anterior: 16500 },
-  { metric: "Agendamentos", atual: 187, anterior: 162 },
-  { metric: "Novos Clientes", atual: 23, anterior: 18 },
-  { metric: "Ticket Médio", atual: 98, anterior: 92 },
+  { metric: "Receita", atual: 24780, anterior: 21350 },
+  { metric: "Agendamentos", atual: 214, anterior: 187 },
+  { metric: "Novos Clientes", atual: 38, anterior: 29 },
+  { metric: "Ticket Médio", atual: 115, anterior: 102 },
 ];
 
 const ComparativeMonthChart: React.FC = () => {
-  const overallGrowth = "+15.4%";
+  const overallGrowth = "+16.1%";
 
   return (
     <div className="bg-card border border-border rounded-[14px] overflow-hidden">

@@ -2,12 +2,12 @@ import React from "react";
 import { Filter } from "lucide-react";
 
 const funnelData = [
-  { label: "Agendados", value: 187, pct: 100, color: "bg-primary" },
-  { label: "Confirmados", value: 168, pct: 89.8, color: "bg-[hsl(217,91%,60%)]" },
-  { label: "Atendidos", value: 154, pct: 82.4, color: "bg-[hsl(var(--success))]" },
-  { label: "Concluídos", value: 148, pct: 79.1, color: "bg-[hsl(142,71%,45%)]" },
-  { label: "Cancelados", value: 19, pct: 10.2, color: "bg-[hsl(var(--rose))]" },
-  { label: "No-show", value: 12, pct: 6.4, color: "bg-[hsl(var(--warning))]" },
+  { label: "Agendados", value: 214, pct: 100, color: "bg-primary" },
+  { label: "Confirmados", value: 196, pct: 91.6, color: "bg-[hsl(217,91%,60%)]" },
+  { label: "Atendidos", value: 182, pct: 85.0, color: "bg-[hsl(var(--success))]" },
+  { label: "Concluídos", value: 174, pct: 81.3, color: "bg-[hsl(142,71%,45%)]" },
+  { label: "Cancelados", value: 22, pct: 10.3, color: "bg-[hsl(var(--rose))]" },
+  { label: "No-show", value: 10, pct: 4.7, color: "bg-[hsl(var(--warning))]" },
 ];
 
 const ConversionFunnel: React.FC = () => {
@@ -30,7 +30,7 @@ const ConversionFunnel: React.FC = () => {
         <div className="flex items-center justify-between bg-muted/40 rounded-lg p-3 mb-1">
           <div>
             <div className="text-[10px] text-muted-foreground">Taxa de Conversão Geral</div>
-            <div className="font-heading text-2xl font-extrabold text-foreground">79.1%</div>
+            <div className="font-heading text-2xl font-extrabold text-foreground">81.3%</div>
           </div>
           <div className="text-right">
             <span className="inline-flex items-center gap-1 text-[10px] font-semibold px-[7px] py-0.5 rounded-full bg-[hsl(var(--success-bg))] text-[hsl(var(--success))]">
