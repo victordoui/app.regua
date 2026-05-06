@@ -174,6 +174,24 @@ export type Database = {
           },
         ]
       }
+      atualizar: {
+        Row: {
+          created_at: string
+          id: number
+          numero: number | null
+        }
+        Insert: {
+          created_at?: string
+          id?: number
+          numero?: number | null
+        }
+        Update: {
+          created_at?: string
+          id?: number
+          numero?: number | null
+        }
+        Relationships: []
+      }
       barber_absences: {
         Row: {
           barber_id: string
@@ -333,24 +351,6 @@ export type Database = {
           updated_at?: string | null
           user_id?: string
           whatsapp_number?: string | null
-        }
-        Relationships: []
-      }
-      bd_ativo: {
-        Row: {
-          created_at: string
-          id: number
-          num: number | null
-        }
-        Insert: {
-          created_at?: string
-          id?: number
-          num?: number | null
-        }
-        Update: {
-          created_at?: string
-          id?: number
-          num?: number | null
         }
         Relationships: []
       }

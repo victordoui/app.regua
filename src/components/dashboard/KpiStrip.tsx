@@ -10,10 +10,10 @@ interface KpiStripProps {
 
 const KpiStrip: React.FC<KpiStripProps> = ({ todayAppointments, completedRate, newClients, dayRevenue }) => {
   const allZero = todayAppointments === 0 && completedRate === 0 && newClients === 0 && dayRevenue === 0;
-  const displayAppointments = allZero ? 12 : todayAppointments;
-  const displayRate = allZero ? 87 : completedRate;
-  const displayClients = allZero ? 23 : newClients;
-  const displayRevenue = allZero ? 2350 : dayRevenue;
+  const displayAppointments = allZero ? 18 : todayAppointments;
+  const displayRate = allZero ? 91 : completedRate;
+  const displayClients = allZero ? 38 : newClients;
+  const displayRevenue = allZero ? 3480 : dayRevenue;
 
   const kpis = [
     {
@@ -22,7 +22,7 @@ const KpiStrip: React.FC<KpiStripProps> = ({ todayAppointments, completedRate, n
       color: "blue" as const,
       iconBg: "bg-[hsl(var(--primary-50))]",
       icon: <Calendar className="h-[22px] w-[22px] text-primary" strokeWidth={1.8} />,
-      tag: { type: "up" as const, text: "+12%" },
+      tag: { type: "up" as const, text: "+16%" },
       foot: "vs ontem",
     },
     {
@@ -32,7 +32,7 @@ const KpiStrip: React.FC<KpiStripProps> = ({ todayAppointments, completedRate, n
       color: "green" as const,
       iconBg: "bg-[hsl(var(--success-bg))]",
       icon: <CheckCircle className="h-[22px] w-[22px] text-[hsl(var(--success))]" strokeWidth={1.8} />,
-      tag: { type: "up" as const, text: "+5%" },
+      tag: { type: "up" as const, text: "+4%" },
       foot: "esta semana",
     },
     {
@@ -42,7 +42,7 @@ const KpiStrip: React.FC<KpiStripProps> = ({ todayAppointments, completedRate, n
       color: "amber" as const,
       iconBg: "bg-[hsl(var(--warning-bg))]",
       icon: <Users className="h-[22px] w-[22px] text-[hsl(var(--warning))]" strokeWidth={1.8} />,
-      tag: { type: "down" as const, text: `${displayClients}` },
+      tag: { type: "up" as const, text: "+31%" },
       foot: "este mês",
     },
     {

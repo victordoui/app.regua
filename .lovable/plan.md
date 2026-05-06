@@ -1,27 +1,42 @@
 
+# Ajustes no Painel Principal
 
-# Banner de Capa no Hero do Dashboard
+## 1. Indicador visual da aba ativa
 
-## O que será feito
+Adicionar um header contextual abaixo das tabs que mostra claramente em qual aba o usuario esta navegando, com icone, titulo e descricao:
 
-Transformar o `HeroSection` em um card com banner visual de fundo, similar à referência enviada. O banner usará a imagem de capa (`banner_url`) e as cores (`primary_color_hex`) que o usuário configurou em "Minha Empresa".
+- **Visao Geral**: icone BarChart3, "Visao Geral", "Metricas de performance e operacao do seu negocio"
+- **Desempenho**: icone Users, "Desempenho dos Profissionais", "Acompanhe a performance da sua equipe"
+- **Sucesso do Cliente**: icone HeartHandshake, "Sucesso do Cliente", "Satisfacao e fidelizacao dos seus clientes"
 
-## Alteração: `src/components/dashboard/HeroSection.tsx`
+Arquivo: `src/components/dashboard/DashboardOverview.tsx`
 
-### Visual final
-- Container com `rounded-xl`, altura ~180px, `overflow-hidden`
-- **Fundo**: se `settings.banner_url` existir, usa como `background-image` com `bg-cover bg-center`; senão, usa gradiente com `primary_color_hex`
-- **Overlay** escuro semitransparente (`bg-black/40`) para legibilidade do texto
-- **Logo** do estabelecimento (`settings.logo_url`) à esquerda, circular, ~80px
-- **Texto** branco sobre o overlay: saudação "Olá, {companyName}" + subtítulo
-- **Botões** (Filtros e Novo Agendamento) reposicionados no canto superior direito sobre o banner
-- Decoração sutil: ícone de barbearia/serviço no canto direito com opacidade baixa (como na referência)
+## 2. Ajustar layout dos cards e espacamento
 
-### Dados utilizados (já disponíveis no hook)
-- `settings.banner_url` — imagem de capa
-- `settings.logo_url` — logo circular
-- `settings.primary_color_hex` — cor de fallback do gradiente
-- `settings.company_name` — nome do negócio
+- Melhorar o gap e alinhamento entre KPI Strip, filtros de periodo e graficos
+- Garantir que os cards do painel analitico (Ocupacao, Faturamento, Comparativo, Funil, etc.) tenham alturas consistentes
+- Ajustar as TabsTrigger para ficarem mais visiveis com estilo pill/highlight mais pronunciado
 
-1 arquivo alterado, ~40 linhas reescritas.
+Arquivo: `src/components/dashboard/DashboardOverview.tsx`
 
+## 3. Enriquecer dados fake para demonstracao
+
+Atualizar os dados mock nos componentes analiticos para valores mais realistas e coerentes entre si:
+
+- **KpiStrip**: manter valores demo mas ajustar tags de variacao para serem coerentes
+- **ComparativeMonthChart**: valores mais detalhados e realistas
+- **ConversionFunnel**: numeros coerentes com os KPIs
+- **BarberPerformanceContent**: garantir que summary exiba dados demo quando vazio
+- **CustomerSuccessContent**: metricas e feedbacks com datas atualizadas (2025/2026)
+
+Arquivos: `KpiStrip.tsx`, `ComparativeMonthChart.tsx`, `ConversionFunnel.tsx`, `BarberPerformanceContent.tsx`, `CustomerSuccessContent.tsx`
+
+## 4. Melhorar estilo das abas de navegacao
+
+Dar mais destaque visual a aba ativa com background, borda inferior colorida ou shadow mais forte para ficar claro onde o usuario esta.
+
+Arquivo: `src/components/dashboard/DashboardOverview.tsx` (inline styles ou classes nas TabsTrigger)
+
+---
+
+**Total: ~6 arquivos editados**
