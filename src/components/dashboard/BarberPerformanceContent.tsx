@@ -6,8 +6,18 @@ import BarberRankingTable from '@/components/reports/BarberRankingTable';
 import CancellationAnalysis from '@/components/reports/CancellationAnalysis';
 import ReviewsContent from '@/components/dashboard/ReviewsContent';
 
+const demoSummary = {
+  totalBarbers: 5,
+  totalRevenue: 24780,
+  avgCompletionRate: 88,
+  topPerformer: 'Carlos Silva',
+};
+
 const BarberPerformanceContent = () => {
-  const { performanceData, cancellationAnalysis, summary, isLoading } = useBarberPerformance();
+  const { performanceData, cancellationAnalysis, summary: realSummary, isLoading } = useBarberPerformance();
+  
+  const isEmpty = realSummary.totalBarbers === 0 && realSummary.totalRevenue === 0;
+  const summary = isEmpty ? demoSummary : realSummary;
 
   return (
     <div className="space-y-6">
