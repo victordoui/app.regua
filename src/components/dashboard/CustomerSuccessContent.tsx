@@ -24,13 +24,15 @@ interface SatisfactionMetrics {
 }
 
 const mockFeedbacks: Feedback[] = [
-  { id: '1', client_id: '1', client_name: 'João Silva', rating: 5, comment: 'Excelente atendimento! O barbeiro foi muito profissional e o resultado ficou perfeito.', service_type: 'Corte + Barba', barber_name: 'Carlos', created_at: '2024-12-20', status: 'reviewed' },
-  { id: '2', client_id: '2', client_name: 'Maria Santos', rating: 4, comment: 'Muito bom, mas a espera foi um pouco longa.', service_type: 'Corte Feminino', barber_name: 'Ana', created_at: '2024-12-18', status: 'pending' },
-  { id: '3', client_id: '3', client_name: 'Pedro Costa', rating: 5, comment: 'Sempre saio satisfeito! Equipe nota 10.', service_type: 'Corte Masculino', barber_name: 'Roberto', created_at: '2024-12-15', status: 'responded' },
+  { id: '1', client_id: '1', client_name: 'João Silva', rating: 5, comment: 'Excelente atendimento! O barbeiro foi muito profissional e o resultado ficou perfeito.', service_type: 'Corte + Barba', barber_name: 'Carlos', created_at: '2026-05-04', status: 'reviewed' },
+  { id: '2', client_id: '2', client_name: 'Maria Santos', rating: 4, comment: 'Muito bom, mas a espera foi um pouco longa.', service_type: 'Corte Feminino', barber_name: 'Ana', created_at: '2026-05-02', status: 'pending' },
+  { id: '3', client_id: '3', client_name: 'Pedro Costa', rating: 5, comment: 'Sempre saio satisfeito! Equipe nota 10.', service_type: 'Corte Masculino', barber_name: 'Roberto', created_at: '2026-04-28', status: 'responded' },
+  { id: '4', client_id: '4', client_name: 'Lucas Oliveira', rating: 3, comment: 'O corte ficou bom mas o horário atrasou bastante. Precisa melhorar a pontualidade.', service_type: 'Corte + Sobrancelha', barber_name: 'Carlos', created_at: '2026-04-25', status: 'pending' },
+  { id: '5', client_id: '5', client_name: 'Ana Beatriz', rating: 5, comment: 'Ambiente incrível, atendimento impecável. Super recomendo!', service_type: 'Hidratação', barber_name: 'Ana', created_at: '2026-04-22', status: 'responded' },
 ];
 
 const initialMetrics: SatisfactionMetrics = {
-  overall_rating: 4.7, total_feedbacks: 156, response_rate: 89, nps_score: 72, retention_rate: 85
+  overall_rating: 4.8, total_feedbacks: 214, response_rate: 92, nps_score: 78, retention_rate: 88
 };
 
 const CustomerSuccessContent = () => {
@@ -179,7 +181,7 @@ const CustomerSuccessContent = () => {
         <TabsContent value="analytics" className="space-y-4">
           <div className="grid gap-4 md:grid-cols-2">
             <Card><CardHeader><CardTitle>Distribuição de Avaliações</CardTitle></CardHeader><CardContent><div className="space-y-3">{[5,4,3,2,1].map(rating => (<div key={rating} className="flex items-center gap-2"><div className="flex items-center gap-1 w-16">{renderStars(rating)}</div><div className="flex-1 bg-muted rounded-full h-2"><div className="bg-primary h-2 rounded-full" style={{ width: `${rating === 5 ? 60 : rating === 4 ? 25 : rating === 3 ? 10 : rating === 2 ? 3 : 2}%` }} /></div><span className="text-sm text-muted-foreground w-8">{rating === 5 ? '60%' : rating === 4 ? '25%' : rating === 3 ? '10%' : rating === 2 ? '3%' : '2%'}</span></div>))}</div></CardContent></Card>
-            <Card><CardHeader><CardTitle>Tendências Mensais</CardTitle></CardHeader><CardContent><div className="space-y-4"><div className="flex justify-between items-center"><span className="text-sm">Dezembro 2024</span><span className="font-semibold">4.7 ⭐</span></div><div className="flex justify-between items-center"><span className="text-sm">Novembro 2024</span><span className="font-semibold">4.5 ⭐</span></div><div className="flex justify-between items-center"><span className="text-sm">Outubro 2024</span><span className="font-semibold">4.6 ⭐</span></div><div className="flex justify-between items-center"><span className="text-sm">Setembro 2024</span><span className="font-semibold">4.4 ⭐</span></div></div></CardContent></Card>
+            <Card><CardHeader><CardTitle>Tendências Mensais</CardTitle></CardHeader><CardContent><div className="space-y-4"><div className="flex justify-between items-center"><span className="text-sm">Maio 2026</span><span className="font-semibold">4.8 ⭐</span></div><div className="flex justify-between items-center"><span className="text-sm">Abril 2026</span><span className="font-semibold">4.7 ⭐</span></div><div className="flex justify-between items-center"><span className="text-sm">Março 2026</span><span className="font-semibold">4.6 ⭐</span></div><div className="flex justify-between items-center"><span className="text-sm">Fevereiro 2026</span><span className="font-semibold">4.5 ⭐</span></div></div></CardContent></Card>
           </div>
         </TabsContent>
 
