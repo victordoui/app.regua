@@ -258,9 +258,9 @@
     scroll-behavior: smooth;
   }
 
-  /* Typography — Montserrat for all text */
-  html, body {
-    font-family: "Montserrat", sans-serif;
+  /* Typography — Nunito Sans for all text */
+  html, body, #root {
+    font-family: "Nunito Sans", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Arial, sans-serif;
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
     text-rendering: optimizeLegibility;
@@ -268,7 +268,7 @@
   }
 
   h1, h2, h3, h4, h5, h6 {
-    font-family: "Montserrat", sans-serif;
+    font-family: "Nunito Sans", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Arial, sans-serif;
     letter-spacing: -0.02em;
   }
 
