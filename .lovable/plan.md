@@ -1,42 +1,44 @@
+# Trocar tipografia global para Nunito Sans
 
-# Ajustes no Painel Principal
+Substituir a fonte global Montserrat por **Nunito Sans** em todo o ERP, com aparência arredondada e amigável (estilo Conta Azul / Ping Pong). Apenas mudança visual — nenhuma lógica, rota ou regra de negócio será alterada.
 
-## 1. Indicador visual da aba ativa
+## Arquivos alterados
 
-Adicionar um header contextual abaixo das tabs que mostra claramente em qual aba o usuario esta navegando, com icone, titulo e descricao:
+### 1. `index.html`
+- Trocar o `<link>` do Google Fonts de `Montserrat` para `Nunito Sans` (pesos 300–900).
 
-- **Visao Geral**: icone BarChart3, "Visao Geral", "Metricas de performance e operacao do seu negocio"
-- **Desempenho**: icone Users, "Desempenho dos Profissionais", "Acompanhe a performance da sua equipe"
-- **Sucesso do Cliente**: icone HeartHandshake, "Sucesso do Cliente", "Satisfacao e fidelizacao dos seus clientes"
+```html
+<link href="https://fonts.googleapis.com/css2?family=Nunito+Sans:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+```
 
-Arquivo: `src/components/dashboard/DashboardOverview.tsx`
+### 2. `src/index.css`
+- Atualizar a variável/base font-family global para:
+```css
+font-family: "Nunito Sans", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Arial, sans-serif;
+```
+- Aplicar em `html, body, #root` e em qualquer regra que hoje force `Montserrat` (sidebar, topbar, headings, inputs, etc.).
 
-## 2. Ajustar layout dos cards e espacamento
+### 3. `tailwind.config.ts`
+- Definir `fontFamily.sans` e `fontFamily.display` apontando para `"Nunito Sans"` para que todas as classes Tailwind (`font-sans`, default) usem a nova fonte automaticamente em cards, tabelas, botões, modais, etc.
 
-- Melhorar o gap e alinhamento entre KPI Strip, filtros de periodo e graficos
-- Garantir que os cards do painel analitico (Ocupacao, Faturamento, Comparativo, Funil, etc.) tenham alturas consistentes
-- Ajustar as TabsTrigger para ficarem mais visiveis com estilo pill/highlight mais pronunciado
+### 4. Varredura por `Montserrat` no `src/`
+- Substituir ocorrências hardcoded de `font-family: 'Montserrat'` ou `font-['Montserrat']` por Nunito Sans, garantindo cobertura em componentes que não usam tokens.
 
-Arquivo: `src/components/dashboard/DashboardOverview.tsx`
+## Pesos aplicados (via Tailwind / CSS existente)
 
-## 3. Enriquecer dados fake para demonstracao
+A fonte suporta os pesos pedidos. Os utilitários Tailwind já existentes mapeiam diretamente:
 
-Atualizar os dados mock nos componentes analiticos para valores mais realistas e coerentes entre si:
+| Uso | Peso | Classe |
+|---|---|---|
+| Títulos principais (h1) | 800 | `font-extrabold` |
+| Títulos de seção / cards (h2/h3) | 700 | `font-bold` |
+| Menus / labels pequenas | 600 | `font-semibold` |
+| Botões | 700 | `font-bold` |
+| Texto normal | 400/500 | `font-normal` / `font-medium` |
+| Números de KPI nos cards | 800/900 | `font-extrabold` / `font-black` |
 
-- **KpiStrip**: manter valores demo mas ajustar tags de variacao para serem coerentes
-- **ComparativeMonthChart**: valores mais detalhados e realistas
-- **ConversionFunnel**: numeros coerentes com os KPIs
-- **BarberPerformanceContent**: garantir que summary exiba dados demo quando vazio
-- **CustomerSuccessContent**: metricas e feedbacks com datas atualizadas (2025/2026)
+Os componentes já usam essas classes — apenas a família de fonte muda, então o peso pedido é respeitado sem refactor de componentes.
 
-Arquivos: `KpiStrip.tsx`, `ComparativeMonthChart.tsx`, `ConversionFunnel.tsx`, `BarberPerformanceContent.tsx`, `CustomerSuccessContent.tsx`
-
-## 4. Melhorar estilo das abas de navegacao
-
-Dar mais destaque visual a aba ativa com background, borda inferior colorida ou shadow mais forte para ficar claro onde o usuario esta.
-
-Arquivo: `src/components/dashboard/DashboardOverview.tsx` (inline styles ou classes nas TabsTrigger)
-
----
-
-**Total: ~6 arquivos editados**
+## Fora de escopo
+- Nenhuma alteração em lógica, hooks, rotas, RLS, dados ou componentes funcionais.
+- Memória de projeto (`mem://index.md` / `mem://style/typography`) será atualizada depois da aprovação para refletir Nunito Sans como nova fonte oficial.
