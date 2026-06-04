@@ -147,13 +147,13 @@ const Sidebar = () => {
   return (
     <aside className="fixed left-0 top-0 bottom-0 z-40 w-[234px] flex flex-col bg-sidebar text-sidebar-foreground border-r border-sidebar-border max-md:hidden">
       {/* Brand */}
-      <div className="px-5 pt-6 pb-5 flex items-center justify-center border-b border-sidebar-border">
+      <div className="px-5 pt-6 pb-5 flex items-center justify-center">
         <img src={vizzuLogo} alt="VIZZU" className="h-28 w-28 object-contain" />
       </div>
 
       {/* Navigation */}
-      <nav className="flex-1 overflow-y-auto px-2 py-3 scrollbar-hidden-hover">
-        {menuStructure.map((category, idx) => {
+      <nav className="flex-1 overflow-y-auto px-2 py-3 space-y-0.5 scrollbar-hidden-hover">
+        {menuStructure.map((category) => {
           const CatIcon = category.icon;
           const isOpen = openCategories.includes(category.category);
           const hasActive = isCategoryActive(category.items);
@@ -165,13 +165,13 @@ const Sidebar = () => {
             const Icon = item.icon;
             const active = isActivePath(item.path);
             return (
-              <div key={category.category} className={idx > 0 ? "mt-1 pt-1 border-t border-sidebar-border/60" : ""}>
+              <div key={category.category}>
                 <button
                   onClick={() => navigate(item.path)}
                   className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-md text-sm font-semibold transition-colors
                     ${active
-                      ? 'bg-sidebar-accent text-white'
-                      : 'text-sidebar-foreground/85 hover:bg-sidebar-accent/60 hover:text-white'}`}
+                      ? 'bg-white text-[hsl(var(--sidebar-background))] shadow-sm'
+                      : 'text-white/85 hover:bg-white/10 hover:text-white'}`}
                 >
                   <Icon className="h-[18px] w-[18px] flex-shrink-0" />
                   <span className="truncate">{item.label}</span>
@@ -181,18 +181,18 @@ const Sidebar = () => {
           }
 
           return (
-            <div key={category.category} className={idx > 0 ? "mt-1 pt-1 border-t border-sidebar-border/60" : ""}>
+            <div key={category.category}>
               <Collapsible open={isOpen} onOpenChange={() => toggleCategory(category.category)}>
                 <CollapsibleTrigger asChild>
                   <button
                     className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-md text-sm font-semibold transition-colors
-                      ${hasActive
-                        ? 'text-white'
-                        : 'text-sidebar-foreground/90 hover:bg-sidebar-accent/60 hover:text-white'}`}
+                      ${hasActive && isOpen
+                        ? 'bg-white/10 text-white'
+                        : 'text-white/90 hover:bg-white/10 hover:text-white'}`}
                   >
                     <CatIcon className="h-[18px] w-[18px] flex-shrink-0" />
                     <span className="truncate flex-1 text-left">{category.label}</span>
-                    <ChevronDown className={`h-4 w-4 transition-transform duration-200 opacity-70 ${isOpen ? 'rotate-180' : ''}`} />
+                    <ChevronDown className={`h-4 w-4 transition-transform duration-200 opacity-80 ${isOpen ? 'rotate-180' : ''}`} />
                   </button>
                 </CollapsibleTrigger>
                 <CollapsibleContent className="mt-0.5 space-y-0.5">
@@ -205,13 +205,17 @@ const Sidebar = () => {
                         onClick={() => navigate(item.path)}
                         className={`w-full flex items-center gap-3 pl-9 pr-3 py-2.5 rounded-md text-[13px] font-medium transition-colors relative
                           ${active
-                            ? 'bg-sidebar-accent text-white'
-                            : 'text-sidebar-foreground/75 hover:bg-sidebar-accent/50 hover:text-white'}`}
+                            ? 'bg-white text-[hsl(var(--sidebar-background))] shadow-sm font-semibold'
+                            : 'text-white/75 hover:bg-white/10 hover:text-white'}`}
                       >
                         <Icon className="h-4 w-4 flex-shrink-0 opacity-90" />
                         <span className="truncate">{item.label}</span>
                         {item.badge && (
-                          <span className="ml-auto min-w-[20px] h-5 px-1.5 rounded-full flex items-center justify-center text-[10px] font-bold bg-red-500 text-white">
+                          <span className={`ml-auto min-w-[20px] h-5 px-1.5 rounded-full flex items-center justify-center text-[10px] font-bold ${
+                            active
+                              ? 'bg-[hsl(var(--sidebar-background))] text-white'
+                              : 'bg-red-500 text-white'
+                          }`}>
                             {item.badge}
                           </span>
                         )}
@@ -223,6 +227,7 @@ const Sidebar = () => {
             </div>
           );
         })}
+
 
         {/* Super Admin */}
         {isSuperAdmin && (
