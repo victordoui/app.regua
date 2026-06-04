@@ -110,15 +110,17 @@
     --radius-lg: 0.875rem; /* 14px */
     --radius-xl: 1.125rem; /* 18px */
 
-    /* ── Sidebar ── */
-    --sidebar-background: 0 0% 100%;
-    --sidebar-foreground: 215 16% 47%;
+    /* ── Sidebar (navy dark, sempre) ── */
+    --sidebar-background: 222 47% 14%;
+    --sidebar-foreground: 0 0% 100%;
     --sidebar-primary: 217 91% 60%;
     --sidebar-primary-foreground: 0 0% 100%;
-    --sidebar-accent: 214 100% 97%;
-    --sidebar-accent-foreground: 222 47% 11%;
-    --sidebar-border: 214 32% 91%;
+    --sidebar-accent: 222 40% 20%;
+    --sidebar-accent-foreground: 0 0% 100%;
+    --sidebar-border: 222 30% 24%;
     --sidebar-ring: 217 91% 60%;
+    --sidebar-muted: 215 20% 70%;
+
 
     /* ── System grays (light-mode friendly) ── */
     --clean-black: 0 0% 0%;
