@@ -140,7 +140,9 @@ const Sidebar = () => {
     <aside className="fixed left-0 top-0 bottom-0 z-40 w-[234px] flex flex-col bg-sidebar text-sidebar-foreground border-r border-sidebar-border max-md:hidden">
       {/* Brand */}
       <div className="px-5 pt-5 pb-4 flex items-center justify-center border-b border-sidebar-border">
-        <img src={vizzuLogo} alt="VIZZU" className="h-20 w-20 object-contain brightness-0 invert" />
+        <div className="h-20 w-20 rounded-full border-2 border-white bg-white/5 p-2 flex items-center justify-center">
+          <img src={vizzuLogo} alt="VIZZU" className="h-full w-full object-contain" />
+        </div>
       </div>
 
       {/* Navigation */}
@@ -203,7 +205,7 @@ const Sidebar = () => {
                         <Icon className="h-3.5 w-3.5 flex-shrink-0 opacity-90" />
                         <span className="truncate">{item.label}</span>
                         {item.badge && (
-                          <span className="ml-auto min-w-[20px] h-5 px-1.5 rounded-full flex items-center justify-center text-[10px] font-bold bg-orange-500 text-white">
+                          <span className="ml-auto min-w-[20px] h-5 px-1.5 rounded-full flex items-center justify-center text-[10px] font-bold bg-red-500 text-white">
                             {item.badge}
                           </span>
                         )}
