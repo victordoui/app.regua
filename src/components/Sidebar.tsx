@@ -235,27 +235,27 @@ const Sidebar = () => {
       </nav>
 
       {/* Footer */}
-      <div className="p-3 border-t border-sidebar-border space-y-2">
+      <div className="p-3 border-t border-sidebar-border space-y-2.5">
         <button
           onClick={() => navigate('/upgrade')}
-          className="w-full h-8 flex items-center justify-center gap-1.5 rounded-md border border-white/20 text-white text-xs font-semibold hover:bg-white/10 transition-all"
+          className="w-full h-9 flex items-center justify-center gap-1.5 rounded-md border border-white/20 text-white text-[13px] font-semibold hover:bg-white/10 transition-all"
         >
-          <Sparkles className="h-3.5 w-3.5" />
+          <Sparkles className="h-4 w-4" />
           Fazer Upgrade
         </button>
 
         {/* Profile dropdown */}
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
-            <button className="w-full flex items-center gap-2 p-1.5 rounded-md hover:bg-sidebar-accent/60 transition-colors group">
-              <div className="w-8 h-8 rounded-full bg-gradient-to-br from-primary to-primary/70 flex items-center justify-center text-[11px] font-bold text-primary-foreground flex-shrink-0">
+            <button className="w-full flex items-center gap-2.5 p-2 rounded-md hover:bg-sidebar-accent/60 transition-colors group">
+              <div className="w-9 h-9 rounded-full bg-gradient-to-br from-primary to-primary/70 flex items-center justify-center text-[12px] font-bold text-primary-foreground flex-shrink-0">
                 {getUserInitials()}
               </div>
               <div className="min-w-0 flex-1 text-left">
-                <div className="text-xs font-semibold text-white truncate">{getUserName()}</div>
-                <div className="text-[10px] text-sidebar-foreground/60 truncate">{getRoleLabel()}</div>
+                <div className="text-sm font-semibold text-white truncate">{getUserName()}</div>
+                <div className="text-[11px] text-sidebar-foreground/70 truncate">{getRoleLabel()}</div>
               </div>
-              <ChevronDown className="h-3.5 w-3.5 text-sidebar-foreground/60 group-hover:text-white" />
+              <ChevronDown className="h-4 w-4 text-sidebar-foreground/70 group-hover:text-white" />
             </button>
           </DropdownMenuTrigger>
           <DropdownMenuContent side="top" align="start" className="w-56">
