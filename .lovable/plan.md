@@ -1,47 +1,57 @@
-## Objetivo
-Corrigir o comportamento de clique/expansão da sidebar, remover as linhas divisórias claras entre categorias e replicar o estilo da imagem de referência para o item ativo (pílula branca com texto azul escuro).
+# Plano: Refino visual da Sidebar
 
-## Mudanças em `src/components/Sidebar.tsx`
+Foco exclusivo no componente `src/components/Sidebar.tsx` e nas variáveis de cor `--sidebar-*` em `src/index.css`. Nada de mudanças em rotas, lógica ou outras páginas.
 
-### 1. Remover linhas separadoras
-- Remover `border-t border-sidebar-border/60` e `mt-1 pt-1` das categorias.
-- Substituir por um espaçamento simples (`mt-0.5`) sem borda.
-- Remover também o `border-b border-sidebar-border` do bloco da logo (manter só padding).
+## 1. Cor da sidebar (azul mais claro)
+Em `src/index.css`, ajustar os tokens da sidebar para um azul mais claro e moderno:
 
-### 2. Corrigir cliques / expansão
-- Hoje o `useEffect` que abre a categoria ativa depende de `menuStructure.length`, o que faz com que ao clicar para fechar manualmente, ele reabra quando a rota corresponde. Ajustar para:
-  - Inicializar `openCategories` no `useState` com a categoria ativa (uma vez).
-  - Remover o `useEffect` que reabre automaticamente, OU torná-lo apenas reativo à mudança de `location.pathname` (abrir nova categoria ativa sem fechar outras nem reabrir as fechadas manualmente).
-- Garantir que o `CollapsibleTrigger asChild` envolve apenas um `<button>` (já está) e que o toggle não conflite com `navigate`.
+- `--sidebar-background`: de `224 72% 22%` (azul muito escuro) → `221 70% 38%` (azul médio, parecido com o `#2D4DBA` / tom intermediário entre primary e o atual).
+- `--sidebar-border`: de `224 60% 30%` → `221 55% 48%` (acompanha o novo fundo).
+- `--sidebar-accent`: manter `217 91% 45%` (continua funcionando como hover/realce).
 
-### 3. Estilo "ativo" igual à imagem
-Imagem de referência mostra:
-- **Categoria aberta com filho ativo**: fundo azul levemente mais claro que o sidebar, texto branco, ícone branco, chevron branco.
-- **Sub-item ativo**: fundo **branco** sólido, cantos arredondados (`rounded-md`), texto azul escuro (sidebar background color), ícone azul escuro, sem badge override.
-- **Sub-item inativo**: texto branco com 70-80% opacidade, hover sutil com fundo `white/5`.
+Resultado: sidebar com presença mais leve, ainda azul VIZZU, sem virar pastel.
 
-Atualizar classes:
-```tsx
-// Categoria (parent) com filho ativo
-hasActive ? 'bg-sidebar-accent/40 text-white' : 'text-white/85 hover:bg-white/5'
+## 2. Logo maior e mais para cima
+No bloco `Brand` da sidebar:
 
-// Sub-item ativo (pílula branca)
-active
-  ? 'bg-white text-sidebar shadow-sm font-semibold'
-  : 'text-white/75 hover:bg-white/10 hover:text-white'
-```
-- Para garantir o texto azul no item ativo, usar `text-[hsl(var(--sidebar-background))]` ou criar um token `--sidebar-active-foreground`.
-- Badge no item ativo: trocar para `bg-sidebar text-white` para contrastar com o fundo branco.
+- Reduzir padding superior/inferior: `pt-6 pb-5` → `pt-3 pb-2` (sobe a logo).
+- Aumentar a logo: `h-28 w-28` → `h-36 w-36` (≈ 144px), mantendo `object-contain`.
+- Continuar sem borda inferior, sem contorno.
 
-### 4. Item único (Conversas) e Super Admin
-- Aplicar o mesmo estilo de pílula branca quando ativo.
-- Manter Super Admin com tom âmbar (sem alteração).
+## 3. Botão de colapsar a sidebar (novo)
+Adicionar um botão dedicado que permite recolher a sidebar para uma faixa estreita só com ícones (estilo "mini"), e expandir de volta.
+
+- Estado controlado por `useState<boolean>` (`collapsed`), persistido em `localStorage` (`vizzu:sidebar-collapsed`).
+- Largura da `<aside>`:
+  - Expandida: `w-[248px]` (um pouco maior que os 234px atuais para acomodar fontes maiores).
+  - Colapsada: `w-[68px]` (somente ícones centralizados).
+- Botão de toggle: pequeno botão circular fixo na borda direita da sidebar (top ~72px), com ícone `PanelLeftClose` / `PanelLeftOpen` (lucide). Sempre visível, inclusive quando colapsada.
+- Quando `collapsed = true`:
+  - Esconder labels, chevrons e badges textuais; manter apenas os ícones, centralizados.
+  - Categorias com múltiplos itens viram um botão simples que, ao clicar, navega para o primeiro item da categoria (sem abrir submenu) — ou, opcionalmente, abre um popover lateral. Para manter simples nesta iteração: navega para o primeiro item.
+  - O footer mostra só o avatar (sem nome/cargo) e o botão "Upgrade" vira só o ícone `Sparkles`.
+- Conteúdo principal: o layout que envolve a sidebar (App shell) usa `margin-left` baseado na largura. Verificar onde está aplicado o offset (`ml-[234px]` provavelmente em `App.tsx` ou um layout wrapper) e trocar por uma variável CSS `--sidebar-w` setada pela própria sidebar via `document.documentElement.style.setProperty`, para manter o offset sincronizado sem prop-drilling.
+
+## 4. Tipografia da sidebar (maior e mais legível)
+Aumentar levemente todos os tamanhos dentro da sidebar:
+
+- Categoria (parent) e item único: `text-sm` (14px) → `text-[15px]`, `font-semibold` mantido.
+- Subitem: `text-[13px]` → `text-[14px]`.
+- Ícones de categoria: `h-[18px] w-[18px]` → `h-5 w-5`.
+- Ícones de subitem: `h-4 w-4` → `h-[18px] w-[18px]`.
+- Padding vertical dos botões: `py-2.5` → `py-3` (mais respiração).
+- Footer: nome do usuário `text-sm` → `text-[15px]`; cargo `text-[11px]` → `text-xs`.
+- Botão "Fazer Upgrade": `text-[13px]` → `text-sm`, altura `h-9` → `h-10`.
+
+## 5. Detalhes finais
+- Garantir que, ao colapsar, o item "Super Admin" mostre só o `Shield` centralizado.
+- Tooltip nativo (atributo `title`) em cada botão quando `collapsed`, para acessibilidade.
+- Nenhum separador/linha clara adicional — mantém o visual limpo já definido.
+
+## Arquivos afetados
+- `src/index.css` — 3 tokens `--sidebar-*`.
+- `src/components/Sidebar.tsx` — logo, fontes, novo estado `collapsed`, botão de toggle, variantes condicionais.
+- Wrapper de layout (provavelmente `src/App.tsx` ou similar) — ajustar offset para usar `--sidebar-w` em vez de largura fixa.
 
 ## Fora de escopo
-- Não alterar paleta global, tipografia, rotas ou comportamento de outras páginas.
-- Sem alterações em `index.css` além de, se necessário, adicionar a variável `--sidebar-active-foreground` (opcional — pode-se usar a cor existente do sidebar via HSL).
-
-## Resultado esperado
-- Sidebar sem linhas divisórias claras.
-- Categorias expandem/colapsam de forma estável ao clicar.
-- Item ativo aparece como pílula branca com texto azul escuro, idêntico à referência.
+- Outras páginas, tipografia global do app, mobile bottom-nav, paletas semânticas, comportamento de rotas.
