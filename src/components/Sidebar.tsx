@@ -142,10 +142,8 @@ const Sidebar = () => {
   return (
     <aside className="fixed left-0 top-0 bottom-0 z-40 w-[234px] flex flex-col bg-sidebar text-sidebar-foreground border-r border-sidebar-border max-md:hidden">
       {/* Brand */}
-      <div className="px-5 pt-5 pb-4 flex items-center justify-center border-b border-sidebar-border">
-        <div className="h-20 w-20 rounded-full border-2 border-white bg-white/5 p-2 flex items-center justify-center">
-          <img src={vizzuLogo} alt="VIZZU" className="h-full w-full object-contain" />
-        </div>
+      <div className="px-5 pt-6 pb-5 flex items-center justify-center border-b border-sidebar-border">
+        <img src={vizzuLogo} alt="VIZZU" className="h-28 w-28 object-contain" />
       </div>
 
       {/* Navigation */}
@@ -165,12 +163,12 @@ const Sidebar = () => {
               <div key={category.category} className={idx > 0 ? "mt-1 pt-1 border-t border-sidebar-border/60" : ""}>
                 <button
                   onClick={() => navigate(item.path)}
-                  className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-md text-[13.5px] font-semibold transition-colors
+                  className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-md text-sm font-semibold transition-colors
                     ${active
                       ? 'bg-sidebar-accent text-white'
-                      : 'text-sidebar-foreground/80 hover:bg-sidebar-accent/60 hover:text-white'}`}
+                      : 'text-sidebar-foreground/85 hover:bg-sidebar-accent/60 hover:text-white'}`}
                 >
-                  <Icon className="h-4 w-4 flex-shrink-0" />
+                  <Icon className="h-[18px] w-[18px] flex-shrink-0" />
                   <span className="truncate">{item.label}</span>
                 </button>
               </div>
@@ -182,12 +180,12 @@ const Sidebar = () => {
               <Collapsible open={isOpen} onOpenChange={() => toggleCategory(category.category)}>
                 <CollapsibleTrigger asChild>
                   <button
-                    className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-md text-[13.5px] font-semibold transition-colors
+                    className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-md text-sm font-semibold transition-colors
                       ${hasActive
                         ? 'text-white'
-                        : 'text-sidebar-foreground/85 hover:bg-sidebar-accent/60 hover:text-white'}`}
+                        : 'text-sidebar-foreground/90 hover:bg-sidebar-accent/60 hover:text-white'}`}
                   >
-                    <CatIcon className="h-4 w-4 flex-shrink-0" />
+                    <CatIcon className="h-[18px] w-[18px] flex-shrink-0" />
                     <span className="truncate flex-1 text-left">{category.label}</span>
                     <ChevronDown className={`h-4 w-4 transition-transform duration-200 opacity-70 ${isOpen ? 'rotate-180' : ''}`} />
                   </button>
@@ -200,12 +198,12 @@ const Sidebar = () => {
                       <button
                         key={item.path}
                         onClick={() => navigate(item.path)}
-                        className={`w-full flex items-center gap-3 pl-9 pr-3 py-2 rounded-md text-[13px] font-medium transition-colors relative
+                        className={`w-full flex items-center gap-3 pl-9 pr-3 py-2.5 rounded-md text-[13px] font-medium transition-colors relative
                           ${active
                             ? 'bg-sidebar-accent text-white'
-                            : 'text-sidebar-foreground/70 hover:bg-sidebar-accent/50 hover:text-white'}`}
+                            : 'text-sidebar-foreground/75 hover:bg-sidebar-accent/50 hover:text-white'}`}
                       >
-                        <Icon className="h-3.5 w-3.5 flex-shrink-0 opacity-90" />
+                        <Icon className="h-4 w-4 flex-shrink-0 opacity-90" />
                         <span className="truncate">{item.label}</span>
                         {item.badge && (
                           <span className="ml-auto min-w-[20px] h-5 px-1.5 rounded-full flex items-center justify-center text-[10px] font-bold bg-red-500 text-white">
