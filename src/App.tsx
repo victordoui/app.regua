@@ -32,6 +32,8 @@ import ClientHistory from "./pages/client/ClientHistory";
 import ClientLoyalty from "./pages/client/ClientLoyalty";
 import Onboarding from "./pages/Onboarding";
 import Profile from "./pages/Profile";
+import DashboardPerformance from "./pages/DashboardPerformance";
+import DashboardCustomerSuccess from "./pages/DashboardCustomerSuccess";
 
 // Super Admin Pages
 import SuperAdminDashboard from "./pages/superadmin/SuperAdminDashboard";
@@ -105,6 +107,8 @@ function AppContent() {
 
         {/* Dashboard - Admin vê completo, Barbeiro vê simplificado */}
         <Route path="/" element={<ProtectedRoute allowedRoles={['admin', 'barbeiro']}><Dashboard /></ProtectedRoute>} />
+        <Route path="/dashboard/desempenho" element={<ProtectedRoute allowedRoles={['admin']}><DashboardPerformance /></ProtectedRoute>} />
+        <Route path="/dashboard/sucesso-cliente" element={<ProtectedRoute allowedRoles={['admin']}><DashboardCustomerSuccess /></ProtectedRoute>} />
         <Route path="/barber-dashboard" element={<ProtectedRoute allowedRoles={['barbeiro']}><BarberDashboard /></ProtectedRoute>} />
 
         {/* Rotas compartilhadas: Admin + Barbeiro */}

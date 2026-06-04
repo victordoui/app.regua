@@ -15,6 +15,7 @@ import {
   Shield, LogOut, Sparkles,
   ChevronDown, Settings, Moon, Sun,
   LayoutDashboard, Wallet, Megaphone,
+  HeartHandshake, TrendingUp,
 } from "lucide-react";
 import {
   Collapsible, CollapsibleContent, CollapsibleTrigger,
@@ -27,7 +28,7 @@ import {
 const BARBER_PATHS = new Set([
   '/', '/appointments', '/clients', '/conversations', '/profile'
 ]);
-const BARBER_CATEGORIES = new Set(['operacoes', 'comunicacao', 'administracao']);
+const BARBER_CATEGORIES = new Set(['dashboard', 'operacoes', 'comunicacao', 'administracao']);
 
 const Sidebar = () => {
   const navigate = useNavigate();
@@ -40,7 +41,9 @@ const Sidebar = () => {
     {
       category: "dashboard", label: "Dashboard", icon: LayoutDashboard,
       items: [
-        { icon: Home, label: "Painel", path: "/" },
+        { icon: Home, label: "Visão Geral", path: "/" },
+        { icon: TrendingUp, label: "Desempenho", path: "/dashboard/desempenho" },
+        { icon: HeartHandshake, label: "Sucesso do Cliente", path: "/dashboard/sucesso-cliente" },
       ]
     },
     {
@@ -139,10 +142,8 @@ const Sidebar = () => {
   return (
     <aside className="fixed left-0 top-0 bottom-0 z-40 w-[234px] flex flex-col bg-sidebar text-sidebar-foreground border-r border-sidebar-border max-md:hidden">
       {/* Brand */}
-      <div className="px-5 pt-5 pb-4 flex items-center justify-center border-b border-sidebar-border">
-        <div className="h-20 w-20 rounded-full border-2 border-white bg-white/5 p-2 flex items-center justify-center">
-          <img src={vizzuLogo} alt="VIZZU" className="h-full w-full object-contain" />
-        </div>
+      <div className="px-5 pt-6 pb-5 flex items-center justify-center border-b border-sidebar-border">
+        <img src={vizzuLogo} alt="VIZZU" className="h-28 w-28 object-contain" />
       </div>
 
       {/* Navigation */}
@@ -162,12 +163,12 @@ const Sidebar = () => {
               <div key={category.category} className={idx > 0 ? "mt-1 pt-1 border-t border-sidebar-border/60" : ""}>
                 <button
                   onClick={() => navigate(item.path)}
-                  className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-md text-[13.5px] font-semibold transition-colors
+                  className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-md text-sm font-semibold transition-colors
                     ${active
                       ? 'bg-sidebar-accent text-white'
-                      : 'text-sidebar-foreground/80 hover:bg-sidebar-accent/60 hover:text-white'}`}
+                      : 'text-sidebar-foreground/85 hover:bg-sidebar-accent/60 hover:text-white'}`}
                 >
-                  <Icon className="h-4 w-4 flex-shrink-0" />
+                  <Icon className="h-[18px] w-[18px] flex-shrink-0" />
                   <span className="truncate">{item.label}</span>
                 </button>
               </div>
@@ -179,12 +180,12 @@ const Sidebar = () => {
               <Collapsible open={isOpen} onOpenChange={() => toggleCategory(category.category)}>
                 <CollapsibleTrigger asChild>
                   <button
-                    className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-md text-[13.5px] font-semibold transition-colors
+                    className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-md text-sm font-semibold transition-colors
                       ${hasActive
                         ? 'text-white'
-                        : 'text-sidebar-foreground/85 hover:bg-sidebar-accent/60 hover:text-white'}`}
+                        : 'text-sidebar-foreground/90 hover:bg-sidebar-accent/60 hover:text-white'}`}
                   >
-                    <CatIcon className="h-4 w-4 flex-shrink-0" />
+                    <CatIcon className="h-[18px] w-[18px] flex-shrink-0" />
                     <span className="truncate flex-1 text-left">{category.label}</span>
                     <ChevronDown className={`h-4 w-4 transition-transform duration-200 opacity-70 ${isOpen ? 'rotate-180' : ''}`} />
                   </button>
@@ -197,12 +198,12 @@ const Sidebar = () => {
                       <button
                         key={item.path}
                         onClick={() => navigate(item.path)}
-                        className={`w-full flex items-center gap-3 pl-9 pr-3 py-2 rounded-md text-[13px] font-medium transition-colors relative
+                        className={`w-full flex items-center gap-3 pl-9 pr-3 py-2.5 rounded-md text-[13px] font-medium transition-colors relative
                           ${active
                             ? 'bg-sidebar-accent text-white'
-                            : 'text-sidebar-foreground/70 hover:bg-sidebar-accent/50 hover:text-white'}`}
+                            : 'text-sidebar-foreground/75 hover:bg-sidebar-accent/50 hover:text-white'}`}
                       >
-                        <Icon className="h-3.5 w-3.5 flex-shrink-0 opacity-90" />
+                        <Icon className="h-4 w-4 flex-shrink-0 opacity-90" />
                         <span className="truncate">{item.label}</span>
                         {item.badge && (
                           <span className="ml-auto min-w-[20px] h-5 px-1.5 rounded-full flex items-center justify-center text-[10px] font-bold bg-red-500 text-white">
@@ -234,27 +235,27 @@ const Sidebar = () => {
       </nav>
 
       {/* Footer */}
-      <div className="p-3 border-t border-sidebar-border space-y-2">
+      <div className="p-3 border-t border-sidebar-border space-y-2.5">
         <button
           onClick={() => navigate('/upgrade')}
-          className="w-full h-8 flex items-center justify-center gap-1.5 rounded-md border border-white/20 text-white text-xs font-semibold hover:bg-white/10 transition-all"
+          className="w-full h-9 flex items-center justify-center gap-1.5 rounded-md border border-white/20 text-white text-[13px] font-semibold hover:bg-white/10 transition-all"
         >
-          <Sparkles className="h-3.5 w-3.5" />
+          <Sparkles className="h-4 w-4" />
           Fazer Upgrade
         </button>
 
         {/* Profile dropdown */}
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
-            <button className="w-full flex items-center gap-2 p-1.5 rounded-md hover:bg-sidebar-accent/60 transition-colors group">
-              <div className="w-8 h-8 rounded-full bg-gradient-to-br from-primary to-primary/70 flex items-center justify-center text-[11px] font-bold text-primary-foreground flex-shrink-0">
+            <button className="w-full flex items-center gap-2.5 p-2 rounded-md hover:bg-sidebar-accent/60 transition-colors group">
+              <div className="w-9 h-9 rounded-full bg-gradient-to-br from-primary to-primary/70 flex items-center justify-center text-[12px] font-bold text-primary-foreground flex-shrink-0">
                 {getUserInitials()}
               </div>
               <div className="min-w-0 flex-1 text-left">
-                <div className="text-xs font-semibold text-white truncate">{getUserName()}</div>
-                <div className="text-[10px] text-sidebar-foreground/60 truncate">{getRoleLabel()}</div>
+                <div className="text-sm font-semibold text-white truncate">{getUserName()}</div>
+                <div className="text-[11px] text-sidebar-foreground/70 truncate">{getRoleLabel()}</div>
               </div>
-              <ChevronDown className="h-3.5 w-3.5 text-sidebar-foreground/60 group-hover:text-white" />
+              <ChevronDown className="h-4 w-4 text-sidebar-foreground/70 group-hover:text-white" />
             </button>
           </DropdownMenuTrigger>
           <DropdownMenuContent side="top" align="start" className="w-56">
