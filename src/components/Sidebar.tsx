@@ -16,6 +16,7 @@ import {
   ChevronDown, Settings, Moon, Sun,
   LayoutDashboard, Wallet, Megaphone,
   HeartHandshake, TrendingUp,
+  PanelLeftClose, PanelLeftOpen,
 } from "lucide-react";
 import {
   Collapsible, CollapsibleContent, CollapsibleTrigger,
@@ -30,12 +31,28 @@ const BARBER_PATHS = new Set([
 ]);
 const BARBER_CATEGORIES = new Set(['dashboard', 'operacoes', 'comunicacao', 'administracao']);
 
+const SIDEBAR_W_EXPANDED = 248;
+const SIDEBAR_W_COLLAPSED = 72;
+const STORAGE_KEY = 'vizzu:sidebar-collapsed';
+
 const Sidebar = () => {
   const navigate = useNavigate();
   const location = useLocation();
   const { isSuperAdmin, isAdmin, isBarbeiro } = useRole();
   const { user, signOut } = useAuth();
   const { resolvedTheme, setTheme } = useTheme();
+
+  const [collapsed, setCollapsed] = useState<boolean>(() => {
+    if (typeof window === 'undefined') return false;
+    return window.localStorage.getItem(STORAGE_KEY) === '1';
+  });
+
+  // Sincroniza largura via CSS var para o layout principal
+  useEffect(() => {
+    const w = collapsed ? SIDEBAR_W_COLLAPSED : SIDEBAR_W_EXPANDED;
+    document.documentElement.style.setProperty('--sidebar-w', `${w}px`);
+    try { window.localStorage.setItem(STORAGE_KEY, collapsed ? '1' : '0'); } catch {}
+  }, [collapsed]);
 
   const fullMenuStructure = [
     {
@@ -103,13 +120,11 @@ const Sidebar = () => {
   const isCategoryActive = (items: { path: string }[]) =>
     items.some(i => isActivePath(i.path));
 
-  // Categorias abertas — inicializa com a categoria que contém a rota ativa
   const [openCategories, setOpenCategories] = useState<string[]>(() => {
     const active = menuStructure.find(cat => cat.items.some(i => location.pathname === i.path));
     return active ? [active.category] : [];
   });
 
-  // Quando a rota mudar, garante que a nova categoria ativa esteja aberta
   useEffect(() => {
     const active = menuStructure.find(cat => cat.items.some(i => i.path === location.pathname));
     if (active) {
@@ -145,21 +160,41 @@ const Sidebar = () => {
   };
 
   return (
-    <aside className="fixed left-0 top-0 bottom-0 z-40 w-[234px] flex flex-col bg-sidebar text-sidebar-foreground border-r border-sidebar-border max-md:hidden">
+    <aside
+      className="fixed left-0 top-0 bottom-0 z-40 flex flex-col bg-sidebar text-sidebar-foreground border-r border-sidebar-border max-md:hidden transition-[width] duration-200"
+      style={{ width: collapsed ? SIDEBAR_W_COLLAPSED : SIDEBAR_W_EXPANDED }}
+    >
+      {/* Toggle button — sempre visível, na borda direita */}
+      <button
+        type="button"
+        onClick={() => setCollapsed(c => !c)}
+        title={collapsed ? 'Expandir menu' : 'Recolher menu'}
+        aria-label={collapsed ? 'Expandir menu' : 'Recolher menu'}
+        className="absolute -right-3 top-16 z-50 h-6 w-6 rounded-full bg-white text-[hsl(var(--sidebar-background))] border border-sidebar-border shadow-md flex items-center justify-center hover:scale-110 transition-transform"
+      >
+        {collapsed
+          ? <PanelLeftOpen className="h-3.5 w-3.5" />
+          : <PanelLeftClose className="h-3.5 w-3.5" />}
+      </button>
+
       {/* Brand */}
-      <div className="px-5 pt-6 pb-5 flex items-center justify-center">
-        <img src={vizzuLogo} alt="VIZZU" className="h-28 w-28 object-contain" />
+      <div className={`flex items-center justify-center ${collapsed ? 'pt-3 pb-2 px-2' : 'pt-3 pb-2 px-4'}`}>
+        <img
+          src={vizzuLogo}
+          alt="VIZZU"
+          className={`object-contain transition-all duration-200 ${collapsed ? 'h-10 w-10' : 'h-36 w-36'}`}
+        />
       </div>
 
       {/* Navigation */}
-      <nav className="flex-1 overflow-y-auto px-2 py-3 space-y-0.5 scrollbar-hidden-hover">
+      <nav className={`flex-1 overflow-y-auto py-3 space-y-0.5 scrollbar-hidden-hover ${collapsed ? 'px-2' : 'px-2'}`}>
         {menuStructure.map((category) => {
           const CatIcon = category.icon;
           const isOpen = openCategories.includes(category.category);
           const hasActive = isCategoryActive(category.items);
           const isSingle = category.items.length === 1;
 
-          // Categorias com 1 único item viram link direto
+          // Categoria com 1 item → link direto
           if (isSingle) {
             const item = category.items[0];
             const Icon = item.icon;
@@ -168,15 +203,37 @@ const Sidebar = () => {
               <div key={category.category}>
                 <button
                   onClick={() => navigate(item.path)}
-                  className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-md text-sm font-semibold transition-colors
-                    ${active
+                  title={collapsed ? item.label : undefined}
+                  className={`w-full flex items-center gap-3 rounded-md text-[15px] font-semibold transition-colors ${
+                    collapsed ? 'justify-center px-2 py-3' : 'px-3 py-3'
+                  } ${
+                    active
                       ? 'bg-white text-[hsl(var(--sidebar-background))] shadow-sm'
-                      : 'text-white/85 hover:bg-white/10 hover:text-white'}`}
+                      : 'text-white/85 hover:bg-white/10 hover:text-white'
+                  }`}
                 >
-                  <Icon className="h-[18px] w-[18px] flex-shrink-0" />
-                  <span className="truncate">{item.label}</span>
+                  <Icon className="h-5 w-5 flex-shrink-0" />
+                  {!collapsed && <span className="truncate">{category.label}</span>}
                 </button>
               </div>
+            );
+          }
+
+          // Modo colapsado: categoria vira botão único → primeiro item
+          if (collapsed) {
+            return (
+              <button
+                key={category.category}
+                onClick={() => navigate(category.items[0].path)}
+                title={category.label}
+                className={`w-full flex items-center justify-center px-2 py-3 rounded-md transition-colors ${
+                  hasActive
+                    ? 'bg-white text-[hsl(var(--sidebar-background))] shadow-sm'
+                    : 'text-white/85 hover:bg-white/10 hover:text-white'
+                }`}
+              >
+                <CatIcon className="h-5 w-5 flex-shrink-0" />
+              </button>
             );
           }
 
@@ -185,12 +242,13 @@ const Sidebar = () => {
               <Collapsible open={isOpen} onOpenChange={() => toggleCategory(category.category)}>
                 <CollapsibleTrigger asChild>
                   <button
-                    className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-md text-sm font-semibold transition-colors
-                      ${hasActive && isOpen
+                    className={`w-full flex items-center gap-3 px-3 py-3 rounded-md text-[15px] font-semibold transition-colors ${
+                      hasActive && isOpen
                         ? 'bg-white/10 text-white'
-                        : 'text-white/90 hover:bg-white/10 hover:text-white'}`}
+                        : 'text-white/90 hover:bg-white/10 hover:text-white'
+                    }`}
                   >
-                    <CatIcon className="h-[18px] w-[18px] flex-shrink-0" />
+                    <CatIcon className="h-5 w-5 flex-shrink-0" />
                     <span className="truncate flex-1 text-left">{category.label}</span>
                     <ChevronDown className={`h-4 w-4 transition-transform duration-200 opacity-80 ${isOpen ? 'rotate-180' : ''}`} />
                   </button>
@@ -203,12 +261,13 @@ const Sidebar = () => {
                       <button
                         key={item.path}
                         onClick={() => navigate(item.path)}
-                        className={`w-full flex items-center gap-3 pl-9 pr-3 py-2.5 rounded-md text-[13px] font-medium transition-colors relative
-                          ${active
+                        className={`w-full flex items-center gap-3 pl-10 pr-3 py-2.5 rounded-md text-[14px] font-medium transition-colors relative ${
+                          active
                             ? 'bg-white text-[hsl(var(--sidebar-background))] shadow-sm font-semibold'
-                            : 'text-white/75 hover:bg-white/10 hover:text-white'}`}
+                            : 'text-white/75 hover:bg-white/10 hover:text-white'
+                        }`}
                       >
-                        <Icon className="h-4 w-4 flex-shrink-0 opacity-90" />
+                        <Icon className="h-[18px] w-[18px] flex-shrink-0 opacity-90" />
                         <span className="truncate">{item.label}</span>
                         {item.badge && (
                           <span className={`ml-auto min-w-[20px] h-5 px-1.5 rounded-full flex items-center justify-center text-[10px] font-bold ${
@@ -228,44 +287,57 @@ const Sidebar = () => {
           );
         })}
 
-
         {/* Super Admin */}
         {isSuperAdmin && (
-          <div className="mt-2 pt-2 border-t border-amber-500/20">
+          <div className="mt-2 pt-2">
             <button
               onClick={() => navigate('/superadmin')}
-              className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-md text-[13px] font-semibold text-amber-400 hover:bg-amber-500/10 transition-all
-                ${isActivePath('/superadmin') ? 'bg-amber-500/10' : ''}`}
+              title={collapsed ? 'Super Admin' : undefined}
+              className={`w-full flex items-center gap-3 rounded-md text-[14px] font-semibold text-amber-400 hover:bg-amber-500/10 transition-all ${
+                collapsed ? 'justify-center px-2 py-3' : 'px-3 py-2.5'
+              } ${isActivePath('/superadmin') ? 'bg-amber-500/10' : ''}`}
             >
-              <Shield className="h-4 w-4 flex-shrink-0" />
-              <span>Super Admin</span>
+              <Shield className="h-5 w-5 flex-shrink-0" />
+              {!collapsed && <span>Super Admin</span>}
             </button>
           </div>
         )}
       </nav>
 
       {/* Footer */}
-      <div className="p-3 border-t border-sidebar-border space-y-2.5">
+      <div className={`p-3 border-t border-sidebar-border space-y-2.5 ${collapsed ? 'px-2' : ''}`}>
         <button
           onClick={() => navigate('/upgrade')}
-          className="w-full h-9 flex items-center justify-center gap-1.5 rounded-md border border-white/20 text-white text-[13px] font-semibold hover:bg-white/10 transition-all"
+          title={collapsed ? 'Fazer Upgrade' : undefined}
+          className={`w-full h-10 flex items-center justify-center gap-1.5 rounded-md border border-white/20 text-white text-sm font-semibold hover:bg-white/10 transition-all ${
+            collapsed ? 'px-0' : ''
+          }`}
         >
           <Sparkles className="h-4 w-4" />
-          Fazer Upgrade
+          {!collapsed && 'Fazer Upgrade'}
         </button>
 
         {/* Profile dropdown */}
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
-            <button className="w-full flex items-center gap-2.5 p-2 rounded-md hover:bg-sidebar-accent/60 transition-colors group">
+            <button
+              title={collapsed ? getUserName() : undefined}
+              className={`w-full flex items-center gap-2.5 p-2 rounded-md hover:bg-white/10 transition-colors group ${
+                collapsed ? 'justify-center' : ''
+              }`}
+            >
               <div className="w-9 h-9 rounded-full bg-gradient-to-br from-primary to-primary/70 flex items-center justify-center text-[12px] font-bold text-primary-foreground flex-shrink-0">
                 {getUserInitials()}
               </div>
-              <div className="min-w-0 flex-1 text-left">
-                <div className="text-sm font-semibold text-white truncate">{getUserName()}</div>
-                <div className="text-[11px] text-sidebar-foreground/70 truncate">{getRoleLabel()}</div>
-              </div>
-              <ChevronDown className="h-4 w-4 text-sidebar-foreground/70 group-hover:text-white" />
+              {!collapsed && (
+                <>
+                  <div className="min-w-0 flex-1 text-left">
+                    <div className="text-[15px] font-semibold text-white truncate">{getUserName()}</div>
+                    <div className="text-xs text-sidebar-foreground/70 truncate">{getRoleLabel()}</div>
+                  </div>
+                  <ChevronDown className="h-4 w-4 text-sidebar-foreground/70 group-hover:text-white" />
+                </>
+              )}
             </button>
           </DropdownMenuTrigger>
           <DropdownMenuContent side="top" align="start" className="w-56">

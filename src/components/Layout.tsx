@@ -46,7 +46,7 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
     <div className="flex h-screen bg-background">
       <Sidebar />
       <Topbar />
-      <main className="flex-1 md:ml-[234px] overflow-auto px-8 pb-12 pt-[5rem]">
+      <main className="flex-1 overflow-auto px-8 pb-12 pt-[5rem] md:ml-[var(--sidebar-w)] transition-[margin] duration-200">
         {children}
       </main>
     </div>

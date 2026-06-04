@@ -36,7 +36,7 @@ const Topbar = () => {
   };
 
   return (
-    <header className="fixed top-0 right-0 left-[234px] z-30 h-14 bg-card border-b border-border flex items-center justify-between px-7 max-md:left-0">
+    <header className="fixed top-0 right-0 z-30 h-14 bg-card border-b border-border flex items-center justify-between px-7 max-md:left-0 left-[var(--sidebar-w)] transition-[left] duration-200">
       {/* Search */}
       <div className="flex items-center gap-2 bg-secondary border border-border rounded-[10px] px-3 py-2 w-full max-w-md focus-within:border-primary transition-colors">
         <Search className="h-4 w-4 text-muted-foreground flex-shrink-0" />
