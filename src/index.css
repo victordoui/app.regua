@@ -110,16 +110,16 @@
     --radius-lg: 0.875rem; /* 14px */
     --radius-xl: 1.125rem; /* 18px */
 
-    /* ── Sidebar (navy dark, sempre) ── */
-    --sidebar-background: 222 47% 14%;
+    /* ── Sidebar (VIZZU blue) ── */
+    --sidebar-background: 224 72% 22%;
     --sidebar-foreground: 0 0% 100%;
     --sidebar-primary: 217 91% 60%;
     --sidebar-primary-foreground: 0 0% 100%;
-    --sidebar-accent: 222 40% 20%;
+    --sidebar-accent: 217 91% 45%;
     --sidebar-accent-foreground: 0 0% 100%;
-    --sidebar-border: 222 30% 24%;
+    --sidebar-border: 224 60% 30%;
     --sidebar-ring: 217 91% 60%;
-    --sidebar-muted: 215 20% 70%;
+    --sidebar-muted: 214 60% 80%;
 
 
     /* ── System grays (light-mode friendly) ── */
