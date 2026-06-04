@@ -140,7 +140,9 @@ const Sidebar = () => {
     <aside className="fixed left-0 top-0 bottom-0 z-40 w-[234px] flex flex-col bg-sidebar text-sidebar-foreground border-r border-sidebar-border max-md:hidden">
       {/* Brand */}
       <div className="px-5 pt-5 pb-4 flex items-center justify-center border-b border-sidebar-border">
-        <img src={vizzuLogo} alt="VIZZU" className="h-20 w-20 object-contain brightness-0 invert" />
+        <div className="h-20 w-20 rounded-full border-2 border-white bg-white/5 p-2 flex items-center justify-center">
+          <img src={vizzuLogo} alt="VIZZU" className="h-full w-full object-contain" />
+        </div>
       </div>
 
       {/* Navigation */}
