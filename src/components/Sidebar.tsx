@@ -15,6 +15,7 @@ import {
   Shield, LogOut, Sparkles,
   ChevronDown, Settings, Moon, Sun,
   LayoutDashboard, Wallet, Megaphone,
+  HeartHandshake, TrendingUp,
 } from "lucide-react";
 import {
   Collapsible, CollapsibleContent, CollapsibleTrigger,
@@ -27,7 +28,7 @@ import {
 const BARBER_PATHS = new Set([
   '/', '/appointments', '/clients', '/conversations', '/profile'
 ]);
-const BARBER_CATEGORIES = new Set(['operacoes', 'comunicacao', 'administracao']);
+const BARBER_CATEGORIES = new Set(['dashboard', 'operacoes', 'comunicacao', 'administracao']);
 
 const Sidebar = () => {
   const navigate = useNavigate();
@@ -40,7 +41,9 @@ const Sidebar = () => {
     {
       category: "dashboard", label: "Dashboard", icon: LayoutDashboard,
       items: [
-        { icon: Home, label: "Painel", path: "/" },
+        { icon: Home, label: "Visão Geral", path: "/" },
+        { icon: TrendingUp, label: "Desempenho", path: "/dashboard/desempenho" },
+        { icon: HeartHandshake, label: "Sucesso do Cliente", path: "/dashboard/sucesso-cliente" },
       ]
     },
     {
