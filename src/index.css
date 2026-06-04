@@ -111,13 +111,16 @@
     --radius-xl: 1.125rem; /* 18px */
 
     /* ── Sidebar (VIZZU blue) ── */
-    --sidebar-background: 224 72% 22%;
+    --sidebar-background: 221 70% 38%;
     --sidebar-foreground: 0 0% 100%;
     --sidebar-primary: 217 91% 60%;
     --sidebar-primary-foreground: 0 0% 100%;
     --sidebar-accent: 217 91% 45%;
     --sidebar-accent-foreground: 0 0% 100%;
-    --sidebar-border: 224 60% 30%;
+    --sidebar-border: 221 55% 48%;
+
+    /* Sidebar dynamic width */
+    --sidebar-w: 248px;
     --sidebar-ring: 217 91% 60%;
     --sidebar-muted: 214 60% 80%;
 
