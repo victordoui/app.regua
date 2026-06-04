@@ -205,7 +205,7 @@ const Sidebar = () => {
                         <Icon className="h-3.5 w-3.5 flex-shrink-0 opacity-90" />
                         <span className="truncate">{item.label}</span>
                         {item.badge && (
-                          <span className="ml-auto min-w-[20px] h-5 px-1.5 rounded-full flex items-center justify-center text-[10px] font-bold bg-orange-500 text-white">
+                          <span className="ml-auto min-w-[20px] h-5 px-1.5 rounded-full flex items-center justify-center text-[10px] font-bold bg-red-500 text-white">
                             {item.badge}
                           </span>
                         )}
