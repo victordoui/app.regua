@@ -103,15 +103,20 @@ const Sidebar = () => {
   const isCategoryActive = (items: { path: string }[]) =>
     items.some(i => isActivePath(i.path));
 
-  // Categorias abertas — começa abrindo a que contém a rota ativa
-  const [openCategories, setOpenCategories] = useState<string[]>([]);
+  // Categorias abertas — inicializa com a categoria que contém a rota ativa
+  const [openCategories, setOpenCategories] = useState<string[]>(() => {
+    const active = menuStructure.find(cat => cat.items.some(i => location.pathname === i.path));
+    return active ? [active.category] : [];
+  });
+
+  // Quando a rota mudar, garante que a nova categoria ativa esteja aberta
   useEffect(() => {
-    const active = menuStructure.find(cat => isCategoryActive(cat.items));
-    if (active && !openCategories.includes(active.category)) {
-      setOpenCategories(prev => [...prev, active.category]);
+    const active = menuStructure.find(cat => cat.items.some(i => i.path === location.pathname));
+    if (active) {
+      setOpenCategories(prev => prev.includes(active.category) ? prev : [...prev, active.category]);
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [location.pathname, menuStructure.length]);
+  }, [location.pathname]);
 
   const toggleCategory = (cat: string) => {
     setOpenCategories(prev =>
