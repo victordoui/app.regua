@@ -224,16 +224,16 @@
     --glass-border: rgba(37, 99, 235, 0.12);
     --glass-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.4);
 
-    /* ── Sidebar (navy, mantém no dark) ── */
-    --sidebar-background: 222 47% 11%;
+    /* ── Sidebar (VIZZU blue, dark) ── */
+    --sidebar-background: 224 72% 18%;
     --sidebar-foreground: 0 0% 100%;
     --sidebar-primary: 217 91% 60%;
     --sidebar-primary-foreground: 0 0% 100%;
-    --sidebar-accent: 222 40% 18%;
+    --sidebar-accent: 217 91% 42%;
     --sidebar-accent-foreground: 0 0% 100%;
-    --sidebar-border: 222 30% 22%;
+    --sidebar-border: 224 60% 28%;
     --sidebar-ring: 217 91% 60%;
-    --sidebar-muted: 215 20% 70%;
+    --sidebar-muted: 214 60% 80%;
 
 
     /* ── System grays (dark) ── */
