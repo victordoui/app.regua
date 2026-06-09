@@ -39,19 +39,33 @@ const Topbar = () => {
 
   return (
     <header className="fixed top-0 right-0 z-30 h-14 bg-card border-b border-border flex items-center justify-between px-7 max-md:left-0 left-[var(--sidebar-w)] transition-[left] duration-200">
-      {/* Search */}
-      <div className="flex items-center gap-2 bg-secondary border border-border rounded-[10px] px-3 py-2 w-full max-w-md focus-within:border-primary transition-colors">
-        <Search className="h-4 w-4 text-muted-foreground flex-shrink-0" />
-        <input
-          id="topbar-search-input"
-          type="text"
-          placeholder="Buscar..."
-          className="border-none bg-transparent outline-none text-sm text-foreground w-full placeholder:text-muted-foreground"
-        />
-        <kbd className="text-[10px] text-muted-foreground border border-border rounded px-1.5 py-0.5 whitespace-nowrap flex-shrink-0">
-          ⌘K
-        </kbd>
+      <div className="flex items-center gap-3 w-full max-w-md">
+        {/* Toggle sidebar */}
+        <button
+          type="button"
+          onClick={toggle}
+          aria-label={collapsed ? 'Expandir menu' : 'Recolher menu'}
+          title={collapsed ? 'Expandir menu' : 'Recolher menu'}
+          className="h-9 w-9 rounded-lg flex items-center justify-center text-muted-foreground hover:text-foreground hover:bg-muted transition-colors flex-shrink-0"
+        >
+          {collapsed ? <PanelLeftOpen className="h-5 w-5" /> : <PanelLeftClose className="h-5 w-5" />}
+        </button>
+
+        {/* Search */}
+        <div className="flex items-center gap-2 bg-secondary border border-border rounded-[10px] px-3 py-2 w-full focus-within:border-primary transition-colors">
+          <Search className="h-4 w-4 text-muted-foreground flex-shrink-0" />
+          <input
+            id="topbar-search-input"
+            type="text"
+            placeholder="Buscar..."
+            className="border-none bg-transparent outline-none text-sm text-foreground w-full placeholder:text-muted-foreground"
+          />
+          <kbd className="text-[10px] text-muted-foreground border border-border rounded px-1.5 py-0.5 whitespace-nowrap flex-shrink-0">
+            ⌘K
+          </kbd>
+        </div>
       </div>
+
 
       {/* Date + Right actions */}
       <div className="flex items-center gap-3 ml-4">
