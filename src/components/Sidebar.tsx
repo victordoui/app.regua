@@ -4,6 +4,7 @@ import { useNavigate, useLocation } from "react-router-dom";
 import { useRole } from "@/contexts/RoleContext";
 import { useAuth } from "@/contexts/AuthContext";
 import { useTheme } from "next-themes";
+import { useSidebarCollapsed, SIDEBAR_W_EXPANDED, SIDEBAR_W_COLLAPSED } from "@/hooks/useSidebarCollapsed";
 import {
   Home, BarChart3,
   Calendar, Users, Briefcase, Package,
@@ -16,7 +17,6 @@ import {
   ChevronDown, Settings, Moon, Sun,
   LayoutDashboard, Wallet, Megaphone,
   HeartHandshake, TrendingUp,
-  PanelLeftClose, PanelLeftOpen,
 } from "lucide-react";
 import {
   Collapsible, CollapsibleContent, CollapsibleTrigger,
@@ -31,10 +31,6 @@ const BARBER_PATHS = new Set([
 ]);
 const BARBER_CATEGORIES = new Set(['dashboard', 'operacoes', 'comunicacao', 'administracao']);
 
-const SIDEBAR_W_EXPANDED = 248;
-const SIDEBAR_W_COLLAPSED = 72;
-const STORAGE_KEY = 'vizzu:sidebar-collapsed';
-
 const Sidebar = () => {
   const navigate = useNavigate();
   const location = useLocation();
@@ -42,17 +38,7 @@ const Sidebar = () => {
   const { user, signOut } = useAuth();
   const { resolvedTheme, setTheme } = useTheme();
 
-  const [collapsed, setCollapsed] = useState<boolean>(() => {
-    if (typeof window === 'undefined') return false;
-    return window.localStorage.getItem(STORAGE_KEY) === '1';
-  });
-
-  // Sincroniza largura via CSS var para o layout principal
-  useEffect(() => {
-    const w = collapsed ? SIDEBAR_W_COLLAPSED : SIDEBAR_W_EXPANDED;
-    document.documentElement.style.setProperty('--sidebar-w', `${w}px`);
-    try { window.localStorage.setItem(STORAGE_KEY, collapsed ? '1' : '0'); } catch {}
-  }, [collapsed]);
+  const { collapsed } = useSidebarCollapsed();
 
   const fullMenuStructure = [
     {
