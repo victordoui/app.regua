@@ -1,57 +1,58 @@
-# Plano: Refino visual da Sidebar
+## Objetivo
 
-Foco exclusivo no componente `src/components/Sidebar.tsx` e nas variáveis de cor `--sidebar-*` em `src/index.css`. Nada de mudanças em rotas, lógica ou outras páginas.
+Três ajustes focados em UX da shell do app (sidebar + topbar + hero do dashboard).
 
-## 1. Cor da sidebar (azul mais claro)
-Em `src/index.css`, ajustar os tokens da sidebar para um azul mais claro e moderno:
+---
 
-- `--sidebar-background`: de `224 72% 22%` (azul muito escuro) → `221 70% 38%` (azul médio, parecido com o `#2D4DBA` / tom intermediário entre primary e o atual).
-- `--sidebar-border`: de `224 60% 30%` → `221 55% 48%` (acompanha o novo fundo).
-- `--sidebar-accent`: manter `217 91% 45%` (continua funcionando como hover/realce).
+## 1) Botão de colapsar a sidebar fixo na Topbar
 
-Resultado: sidebar com presença mais leve, ainda azul VIZZU, sem virar pastel.
+**Hoje:** o botão flutua na borda direita da `Sidebar` (`-right-3 top-16`).
 
-## 2. Logo maior e mais para cima
-No bloco `Brand` da sidebar:
+**Mudança:**
+- Remover o botão flutuante do `src/components/Sidebar.tsx`.
+- Mover o estado `collapsed` (com persistência em `localStorage` na chave `vizzu:sidebar-collapsed`) e a CSS var `--sidebar-w` para um hook compartilhado `src/hooks/useSidebarCollapsed.ts` (ou um pequeno Context em `Layout.tsx`) para que `Sidebar` e `Topbar` leiam/atualizem o mesmo valor.
+- Em `src/components/Topbar.tsx`, adicionar à esquerda da barra de busca um botão discreto (ícone `PanelLeftClose` / `PanelLeftOpen`, `h-9 w-9`, estilo ghost com hover `bg-muted`) que dispara o toggle.
+- Manter a transição suave (`transition-[width|margin|left]`) já existente.
 
-- Reduzir padding superior/inferior: `pt-6 pb-5` → `pt-3 pb-2` (sobe a logo).
-- Aumentar a logo: `h-28 w-28` → `h-36 w-36` (≈ 144px), mantendo `object-contain`.
-- Continuar sem borda inferior, sem contorno.
+## 2) Corrigir o "flash branco" ao navegar pela sidebar
 
-## 3. Botão de colapsar a sidebar (novo)
-Adicionar um botão dedicado que permite recolher a sidebar para uma faixa estreita só com ícones (estilo "mini"), e expandir de volta.
+**Causa provável:** cada página renderiza seu próprio fundo/skeleton inicial sem fundo base, então durante o trecho entre desmontagem da rota antiga e o primeiro paint da nova rota aparece o `body` branco — enquanto a `Sidebar` (fixed) permanece visível, dando exatamente o efeito descrito ("sidebar fica, conteúdo pisca branco").
 
-- Estado controlado por `useState<boolean>` (`collapsed`), persistido em `localStorage` (`vizzu:sidebar-collapsed`).
-- Largura da `<aside>`:
-  - Expandida: `w-[248px]` (um pouco maior que os 234px atuais para acomodar fontes maiores).
-  - Colapsada: `w-[68px]` (somente ícones centralizados).
-- Botão de toggle: pequeno botão circular fixo na borda direita da sidebar (top ~72px), com ícone `PanelLeftClose` / `PanelLeftOpen` (lucide). Sempre visível, inclusive quando colapsada.
-- Quando `collapsed = true`:
-  - Esconder labels, chevrons e badges textuais; manter apenas os ícones, centralizados.
-  - Categorias com múltiplos itens viram um botão simples que, ao clicar, navega para o primeiro item da categoria (sem abrir submenu) — ou, opcionalmente, abre um popover lateral. Para manter simples nesta iteração: navega para o primeiro item.
-  - O footer mostra só o avatar (sem nome/cargo) e o botão "Upgrade" vira só o ícone `Sparkles`.
-- Conteúdo principal: o layout que envolve a sidebar (App shell) usa `margin-left` baseado na largura. Verificar onde está aplicado o offset (`ml-[234px]` provavelmente em `App.tsx` ou um layout wrapper) e trocar por uma variável CSS `--sidebar-w` setada pela própria sidebar via `document.documentElement.style.setProperty`, para manter o offset sincronizado sem prop-drilling.
+**Mudanças (somente apresentação, sem mexer em data fetching):**
+- Em `src/components/Layout.tsx`, garantir que o `<main>` tenha sempre `bg-background` (cor base do tema) para que, mesmo enquanto a rota nova ainda não pintou, o fundo seja o do tema e não branco puro.
+- Em `src/App.tsx`, envolver as `Routes` em um wrapper com `min-h-full bg-background` e adicionar um fallback de `Suspense`/loading neutro (um `div` com `bg-background`) caso alguma página seja lazy — evita o gap de render.
+- Confirmar `html, body, #root { background: hsl(var(--background)); }` em `src/index.css` (ajustar se estiver `white`).
+- Não alterar lógica de queries; apenas garantir cor de fundo contínua entre as transições.
 
-## 4. Tipografia da sidebar (maior e mais legível)
-Aumentar levemente todos os tamanhos dentro da sidebar:
+## 3) Botão de edição da saudação no Hero do Dashboard
 
-- Categoria (parent) e item único: `text-sm` (14px) → `text-[15px]`, `font-semibold` mantido.
-- Subitem: `text-[13px]` → `text-[14px]`.
-- Ícones de categoria: `h-[18px] w-[18px]` → `h-5 w-5`.
-- Ícones de subitem: `h-4 w-4` → `h-[18px] w-[18px]`.
-- Padding vertical dos botões: `py-2.5` → `py-3` (mais respiração).
-- Footer: nome do usuário `text-sm` → `text-[15px]`; cargo `text-[11px]` → `text-xs`.
-- Botão "Fazer Upgrade": `text-[13px]` → `text-sm`, altura `h-9` → `h-10`.
+**Onde:** `src/components/dashboard/HeroSection.tsx`, no card "Olá, {companyName} 👋".
 
-## 5. Detalhes finais
-- Garantir que, ao colapsar, o item "Super Admin" mostre só o `Shield` centralizado.
-- Tooltip nativo (atributo `title`) em cada botão quando `collapsed`, para acessibilidade.
-- Nenhum separador/linha clara adicional — mantém o visual limpo já definido.
+**Mudanças:**
+- Adicionar, no canto superior direito do hero (acima dos botões "Filtros"/"Novo Agendamento", ou ao lado do nome), um botão transparente pequeno com ícone `Pencil` (`bg-white/10 hover:bg-white/20 border border-white/20 rounded-md p-2`), tooltip "Editar saudação".
+- Ao clicar, abrir um novo componente `src/components/dashboard/EditGreetingDialog.tsx` (usa `Dialog` do shadcn) com os campos:
+  - **Nome de saudação** → `company_name`
+  - **Subtítulo** → `slogan` (reaproveitar campo existente; o Hero passará a exibir `slogan` em vez do texto fixo "Você tem X agendamentos pendentes hoje" quando preenchido; senão mantém o fallback atual).
+  - **Logo** → `logo_url` via `ImageUploadField` já existente.
+  - **Imagem de capa (banner)** → `banner_url` via `ImageUploadField`.
+- Salvar usando `useCompanySettings().saveSettings` (já implementado), sem migração de schema.
+- Atualizar `HeroSection` para renderizar `settings?.slogan` como subtítulo quando existir.
+
+---
 
 ## Arquivos afetados
-- `src/index.css` — 3 tokens `--sidebar-*`.
-- `src/components/Sidebar.tsx` — logo, fontes, novo estado `collapsed`, botão de toggle, variantes condicionais.
-- Wrapper de layout (provavelmente `src/App.tsx` ou similar) — ajustar offset para usar `--sidebar-w` em vez de largura fixa.
+
+- `src/components/Sidebar.tsx` — remover botão flutuante; consumir estado compartilhado.
+- `src/components/Topbar.tsx` — adicionar botão de colapso à esquerda da busca.
+- `src/hooks/useSidebarCollapsed.ts` *(novo)* — estado + localStorage + CSS var.
+- `src/components/Layout.tsx` — `bg-background` no main; usar o hook.
+- `src/App.tsx` — wrapper `bg-background` + Suspense fallback neutro.
+- `src/index.css` — garantir `html/body/#root` com `hsl(var(--background))`.
+- `src/components/dashboard/HeroSection.tsx` — botão "editar"; usar `slogan` como subtítulo.
+- `src/components/dashboard/EditGreetingDialog.tsx` *(novo)* — modal de edição.
 
 ## Fora de escopo
-- Outras páginas, tipografia global do app, mobile bottom-nav, paletas semânticas, comportamento de rotas.
+
+- Adicionar coluna nova no banco (reaproveitando `slogan`).
+- Mudanças de cores/tema da sidebar.
+- Mexer em rotas/lógica de carregamento de dados.
