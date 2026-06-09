@@ -94,6 +94,7 @@ const HeroSection = () => {
           </div>
         </div>
       </div>
+      <EditGreetingDialog open={editOpen} onOpenChange={setEditOpen} />
     </div>
   );
 };
