@@ -1,17 +1,22 @@
-import React from "react";
+import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useCompanySettings } from "@/hooks/useCompanySettings";
 import { useRealtimeDashboard } from "@/hooks/useRealtimeDashboard";
-import { Plus, SlidersHorizontal, Scissors } from "lucide-react";
+import { Plus, SlidersHorizontal, Scissors, Pencil } from "lucide-react";
+import EditGreetingDialog from "./EditGreetingDialog";
 
 const HeroSection = () => {
   const navigate = useNavigate();
   const { settings } = useCompanySettings();
   const { metrics } = useRealtimeDashboard();
+  const [editOpen, setEditOpen] = useState(false);
   const companyName = settings?.company_name || "Usuário";
   const bannerUrl = settings?.banner_url;
   const logoUrl = settings?.logo_url;
   const primaryColor = settings?.primary_color_hex || "#2563EB";
+  const subtitle = settings?.slogan?.trim()
+    ? settings.slogan
+    : `Você tem ${metrics.todayAppointments} agendamentos pendentes hoje`;
 
   return (
     <div className="mb-4">
@@ -26,6 +31,18 @@ const HeroSection = () => {
       >
         {/* Overlay */}
         <div className="absolute inset-0 bg-black/40" />
+
+        {/* Edit greeting */}
+        <button
+          type="button"
+          onClick={() => setEditOpen(true)}
+          aria-label="Editar saudação"
+          title="Editar saudação"
+          className="absolute top-3 right-3 z-20 inline-flex items-center gap-1.5 rounded-md bg-white/10 hover:bg-white/20 border border-white/20 backdrop-blur-sm px-2.5 py-1.5 text-xs font-medium text-white transition-colors"
+        >
+          <Pencil className="h-3.5 w-3.5" />
+          Editar
+        </button>
 
         {/* Decorative icon */}
         <Scissors className="absolute right-8 bottom-4 h-28 w-28 text-white/10 rotate-[-20deg]" strokeWidth={1} />
@@ -53,7 +70,7 @@ const HeroSection = () => {
                 Olá, {companyName} 👋
               </h1>
               <p className="text-sm text-white/80 font-normal mt-0.5 drop-shadow-sm">
-                Você tem {metrics.todayAppointments} agendamentos pendentes hoje
+                {subtitle}
               </p>
             </div>
           </div>
