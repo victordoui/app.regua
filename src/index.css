@@ -272,6 +272,7 @@
     -moz-osx-font-smoothing: grayscale;
     text-rendering: optimizeLegibility;
     line-height: 1.6;
+    background-color: hsl(var(--background));
   }
 
   h1, h2, h3, h4, h5, h6 {
