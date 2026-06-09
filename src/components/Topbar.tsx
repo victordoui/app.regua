@@ -1,16 +1,18 @@
 import { useEffect } from "react";
-import { Bell, Calendar, Search } from "lucide-react";
+import { Bell, Calendar, Search, PanelLeftClose, PanelLeftOpen } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
 import { useRole } from "@/contexts/RoleContext";
 import { useNavigate } from "react-router-dom";
 import { format } from "date-fns";
 import { ptBR } from "date-fns/locale";
 import { ThemeToggle } from "@/components/ui/theme-toggle";
+import { useSidebarCollapsed } from "@/hooks/useSidebarCollapsed";
 
 const Topbar = () => {
   const { user } = useAuth();
   const { isSuperAdmin, isAdmin, isBarbeiro } = useRole();
   const navigate = useNavigate();
+  const { collapsed, toggle } = useSidebarCollapsed();
 
   useEffect(() => {
     const handler = (e: KeyboardEvent) => {

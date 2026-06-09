@@ -150,18 +150,7 @@ const Sidebar = () => {
       className="fixed left-0 top-0 bottom-0 z-40 flex flex-col bg-sidebar text-sidebar-foreground border-r border-sidebar-border max-md:hidden transition-[width] duration-200"
       style={{ width: collapsed ? SIDEBAR_W_COLLAPSED : SIDEBAR_W_EXPANDED }}
     >
-      {/* Toggle button — sempre visível, na borda direita */}
-      <button
-        type="button"
-        onClick={() => setCollapsed(c => !c)}
-        title={collapsed ? 'Expandir menu' : 'Recolher menu'}
-        aria-label={collapsed ? 'Expandir menu' : 'Recolher menu'}
-        className="absolute -right-3 top-16 z-50 h-6 w-6 rounded-full bg-white text-[hsl(var(--sidebar-background))] border border-sidebar-border shadow-md flex items-center justify-center hover:scale-110 transition-transform"
-      >
-        {collapsed
-          ? <PanelLeftOpen className="h-3.5 w-3.5" />
-          : <PanelLeftClose className="h-3.5 w-3.5" />}
-      </button>
+      {/* Toggle agora vive na Topbar */}
 
       {/* Brand */}
       <div className={`flex items-center justify-center ${collapsed ? 'pt-3 pb-2 px-2' : 'pt-3 pb-2 px-4'}`}>
