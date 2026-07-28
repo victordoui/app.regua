@@ -14,6 +14,7 @@ import CancelAppointmentDialog from '@/components/appointments/CancelAppointment
 import { useToast } from '@/hooks/use-toast';
 import { Dialog, DialogContent } from '@/components/ui/dialog';
 import { parseGroupBookingNotes } from '@/lib/groupBooking';
+import { translateBookingError } from '@/lib/bookingErrors';
 
 interface BarbershopSettings {
   company_name: string;
@@ -50,6 +51,7 @@ const ClientAppointments = () => {
   // Cancel dialog state
   const [cancelDialogOpen, setCancelDialogOpen] = useState(false);
   const [cancelingAppointment, setCancelingAppointment] = useState<Appointment | null>(null);
+  const [canceling, setCanceling] = useState(false);
   
   // Photo viewer state
   const [viewingPhoto, setViewingPhoto] = useState<string | null>(null);
