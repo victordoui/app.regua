@@ -31,7 +31,7 @@ interface RoleProviderProps {
 }
 
 export const RoleProvider: React.FC<RoleProviderProps> = ({ children }) => {
-  const { user } = useAuth();
+  const { user, loading: authLoading } = useAuth();
   const [roles, setRoles] = useState<AppRole[]>([]);
   const [loading, setLoading] = useState(true);
 
@@ -41,6 +41,9 @@ export const RoleProvider: React.FC<RoleProviderProps> = ({ children }) => {
       setLoading(false);
       return;
     }
+
+    // Evita janela em que loading=false com roles vazias (causava redirect indevido).
+    setLoading(true);
 
     try {
       const { data, error } = await supabase
@@ -64,8 +67,15 @@ export const RoleProvider: React.FC<RoleProviderProps> = ({ children }) => {
   };
 
   useEffect(() => {
+    // Enquanto a sessão não resolveu, mantém o estado como "carregando".
+    if (authLoading) {
+      setLoading(true);
+      return;
+    }
     fetchRoles();
-  }, [user]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [user?.id, authLoading]);
+
 
   const hasRole = (role: AppRole): boolean => roles.includes(role);
 
