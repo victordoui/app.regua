@@ -10,6 +10,8 @@ import { ptBR } from 'date-fns/locale';
 import MobileLayout from '@/components/mobile/MobileLayout';
 import { DigitalWallet } from '@/components/client/DigitalWallet';
 import { WhatsAppButton } from '@/components/client/WhatsAppButton';
+import { ensureClientProfile } from '@/lib/clientProfile';
+
 
 interface BarbershopSettings {
   company_name: string;
@@ -69,6 +71,9 @@ const ClientHome = () => {
         return;
       }
 
+      // Garante o perfil do cliente (cadastro com confirmação de email ou login social).
+      await ensureClientProfile(userId);
+
       // Get client profile name
       const { data: clientProfile } = await supabase
         .from('client_profiles')
@@ -76,6 +81,7 @@ const ClientHome = () => {
         .eq('user_id', user.id)
         .eq('barbershop_user_id', userId)
         .maybeSingle();
+
 
       if (clientProfile) {
         setUserName(clientProfile.full_name.split(' ')[0]);
