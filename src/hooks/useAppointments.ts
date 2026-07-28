@@ -5,6 +5,7 @@ import { useAuth } from "@/contexts/AuthContext";
 import { useToast } from "@/hooks/use-toast";
 import { Appointment, AppointmentFormData, Barber, Client, Service, RecurrenceType } from "@/types/appointments";
 import { translateBookingError } from "@/lib/bookingErrors";
+import { appointmentsConflict, minutesFromTime } from "@/lib/bookingAvailability";
 import { format, addWeeks, addMonths, isBefore, parseISO } from "date-fns";
 
 // Helper function to calculate recurrence dates
