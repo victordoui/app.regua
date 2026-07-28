@@ -33,6 +33,8 @@ interface Appointment {
   service_name: string;
   service_price: number;
   barber_name: string;
+  barbeiro_id: string | null;
+  duration_minutes: number;
   result_photo_url: string | null;
   attendee_name: string;
   relationship: string | null;
