@@ -19,6 +19,7 @@ import {
 import { supabase } from '@/integrations/supabase/client';
 import { buildGroupBookingNotes } from '@/lib/groupBooking';
 import { appointmentsConflict, blockedPeriodConflict } from '@/lib/bookingAvailability';
+import { translateBookingError } from '@/lib/bookingErrors';
 import { cn } from '@/lib/utils';
 import { useToast } from '@/hooks/use-toast';
 import { Button } from '@/components/ui/button';

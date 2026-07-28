@@ -226,34 +226,30 @@ const ClientAppointments = () => {
   };
 
   const handleConfirmCancel = async (reason?: string) => {
-    if (!cancelingAppointment) return;
+    if (!cancelingAppointment || canceling) return;
 
+    setCanceling(true);
     try {
-      const cancellationNote = reason ? `Cancelado pelo cliente: ${reason}` : 'Cancelado pelo cliente';
-      const updatedNotes = [cancelingAppointment.notes, cancellationNote].filter(Boolean).join('\n');
-      const { error } = await supabase
-        .from('appointments')
-        .update({ 
-          status: 'cancelled',
-          notes: updatedNotes,
-        })
-        .eq('id', cancelingAppointment.id)
-        .eq('user_id', userId);
+      // O cancelamento é feito por função segura no banco: ela revalida o
+      // vínculo do cliente, a permissão de cancelamento online e a antecedência.
+      const { error } = await supabase.rpc('cancel_client_appointment', {
+        _appointment_id: cancelingAppointment.id,
+        _reason: reason?.trim() || null,
+      });
 
-      if (error) throw error;
+      if (error) throw new Error(translateBookingError(error.message).message);
 
-      // Update local state
-      setAppointments(prev => 
-        prev.map(apt => 
-          apt.id === cancelingAppointment.id 
-            ? { ...apt, status: 'cancelled', notes: updatedNotes }
+      setAppointments(prev =>
+        prev.map(apt =>
+          apt.id === cancelingAppointment.id
+            ? { ...apt, status: 'cancelled' }
             : apt
         )
       );
 
       toast({
         title: "Agendamento cancelado",
-        description: "Seu agendamento foi cancelado com sucesso.",
+        description: "Seu agendamento foi cancelado e o horário foi liberado.",
       });
 
       setCancelDialogOpen(false);
@@ -265,8 +261,11 @@ const ClientAppointments = () => {
         description: message,
         variant: "destructive",
       });
+    } finally {
+      setCanceling(false);
     }
   };
+
 
   const getStatusBadge = (status: string) => {
     switch (status) {
