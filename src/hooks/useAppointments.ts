@@ -4,6 +4,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
 import { useToast } from "@/hooks/use-toast";
 import { Appointment, AppointmentFormData, Barber, Client, Service, RecurrenceType } from "@/types/appointments";
+import { translateBookingError } from "@/lib/bookingErrors";
 import { format, addWeeks, addMonths, isBefore, parseISO } from "date-fns";
 
 // Helper function to calculate recurrence dates
@@ -49,6 +50,7 @@ export const useAppointments = () => {
     // A agenda usa chaves como ["appointments", "calendar", status].
     // Invalidar pelo prefixo mantém todas as visões sincronizadas.
     queryClient.invalidateQueries({ queryKey: ["appointments"] });
+    queryClient.invalidateQueries({ queryKey: ["dashboard"] });
   }, [queryClient]);
 
   useEffect(() => {
@@ -343,7 +345,7 @@ export const useAppointments = () => {
     onError: (err) => {
       toast({
         title: "Erro ao criar agendamento",
-        description: err.message,
+        description: translateBookingError(err.message).message,
         variant: "destructive",
       });
     },
@@ -378,7 +380,7 @@ export const useAppointments = () => {
     onError: (err) => {
       toast({
         title: "Erro ao atualizar agendamento",
-        description: err.message,
+        description: translateBookingError(err.message).message,
         variant: "destructive",
       });
     },
