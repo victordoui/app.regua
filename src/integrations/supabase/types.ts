@@ -2474,6 +2474,10 @@ export type Database = {
         }
         Returns: Json
       }
+      cancel_client_appointment: {
+        Args: { _appointment_id: string; _reason?: string }
+        Returns: Json
+      }
       create_dev_profile_if_not_exists: { Args: never; Returns: undefined }
       create_dev_user_and_profile: { Args: never; Returns: undefined }
       create_subscriber_with_subscription: {
@@ -2508,6 +2512,10 @@ export type Database = {
       }
       is_current_user_admin: { Args: never; Returns: boolean }
       is_super_admin: { Args: { _user_id: string }; Returns: boolean }
+      reschedule_client_appointment: {
+        Args: { _appointment_id: string; _date: string; _time: string }
+        Returns: Json
+      }
     }
     Enums: {
       app_role: "admin" | "barbeiro" | "cliente" | "super_admin"
