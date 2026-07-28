@@ -52,7 +52,10 @@ const CalendarEventCard: React.FC<CalendarEventCardProps> = ({
         e.dataTransfer.effectAllowed = 'move';
     };
 
-    const bgColor = barberColor || 'hsl(var(--primary))';
+    const isCancelled = appointment.status === 'cancelled';
+    // Cancelados perdem a cor do profissional para não competirem com horários ativos.
+    const bgColor = isCancelled ? 'hsl(var(--muted-foreground))' : (barberColor || 'hsl(var(--primary))');
+
     const attendeeName = getAppointmentAttendeeName(appointment);
     const groupMetadata = parseGroupBookingNotes(appointment.notes);
     
