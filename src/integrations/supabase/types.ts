@@ -424,6 +424,7 @@ export type Database = {
           avatar_url: string | null
           barbershop_user_id: string
           birth_date: string | null
+          client_id: string | null
           cpf: string | null
           created_at: string | null
           full_name: string
@@ -441,6 +442,7 @@ export type Database = {
           avatar_url?: string | null
           barbershop_user_id: string
           birth_date?: string | null
+          client_id?: string | null
           cpf?: string | null
           created_at?: string | null
           full_name: string
@@ -458,6 +460,7 @@ export type Database = {
           avatar_url?: string | null
           barbershop_user_id?: string
           birth_date?: string | null
+          client_id?: string | null
           cpf?: string | null
           created_at?: string | null
           full_name?: string
@@ -466,7 +469,15 @@ export type Database = {
           updated_at?: string | null
           user_id?: string
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "client_profiles_client_id_fkey"
+            columns: ["client_id"]
+            isOneToOne: false
+            referencedRelation: "clients"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       clients: {
         Row: {
@@ -2295,6 +2306,7 @@ export type Database = {
           barbershop_user_id: string | null
           created_at: string | null
           id: string
+          profile_id: string | null
           role: Database["public"]["Enums"]["app_role"]
           user_id: string
         }
@@ -2302,6 +2314,7 @@ export type Database = {
           barbershop_user_id?: string | null
           created_at?: string | null
           id?: string
+          profile_id?: string | null
           role: Database["public"]["Enums"]["app_role"]
           user_id: string
         }
@@ -2309,10 +2322,19 @@ export type Database = {
           barbershop_user_id?: string | null
           created_at?: string | null
           id?: string
+          profile_id?: string | null
           role?: Database["public"]["Enums"]["app_role"]
           user_id?: string
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "user_roles_profile_id_fkey"
+            columns: ["profile_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       user_subscriptions: {
         Row: {
@@ -2443,6 +2465,15 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      book_group_appointments: {
+        Args: {
+          _barbershop_user_id: string
+          _notes?: string
+          _participants: Json
+          _responsible: Json
+        }
+        Returns: Json
+      }
       create_dev_profile_if_not_exists: { Args: never; Returns: undefined }
       create_dev_user_and_profile: { Args: never; Returns: undefined }
       create_subscriber_with_subscription: {
@@ -2454,6 +2485,14 @@ export type Database = {
           _user_id: string
         }
         Returns: undefined
+      }
+      get_booking_availability: {
+        Args: {
+          _barbershop_user_id: string
+          _date: string
+          _professional_id: string
+        }
+        Returns: Json
       }
       has_role: {
         Args: {
@@ -2467,6 +2506,7 @@ export type Database = {
         Args: { _barbershop_user_id: string; _user_id: string }
         Returns: boolean
       }
+      is_current_user_admin: { Args: never; Returns: boolean }
       is_super_admin: { Args: { _user_id: string }; Returns: boolean }
     }
     Enums: {
