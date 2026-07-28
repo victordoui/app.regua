@@ -15,6 +15,7 @@ import { useToast } from '@/hooks/use-toast';
 import { Dialog, DialogContent } from '@/components/ui/dialog';
 import { parseGroupBookingNotes } from '@/lib/groupBooking';
 import { translateBookingError } from '@/lib/bookingErrors';
+import ClientRescheduleDialog from '@/components/client/ClientRescheduleDialog';
 
 interface BarbershopSettings {
   company_name: string;
@@ -57,6 +58,10 @@ const ClientAppointments = () => {
   
   // Photo viewer state
   const [viewingPhoto, setViewingPhoto] = useState<string | null>(null);
+
+  // Reschedule dialog state
+  const [reschedulingAppointment, setReschedulingAppointment] = useState<Appointment | null>(null);
+
 
   const fetchData = useCallback(async () => {
     {
@@ -361,7 +366,7 @@ const ClientAppointments = () => {
               )}
               
               {showActions && (apt.status === 'pending' || apt.status === 'confirmed') && (
-                <div className="mt-4 grid grid-cols-2 gap-2">
+                <div className="mt-4 grid grid-cols-3 gap-2">
                   <Button 
                     variant="outline" 
                     size="sm" 
@@ -369,6 +374,14 @@ const ClientAppointments = () => {
                     onClick={() => navigate(`/b/${userId}/agendar`)}
                   >
                     Agendar outro
+                  </Button>
+                  <Button 
+                    variant="secondary" 
+                    size="sm" 
+                    className="min-h-11 font-bold"
+                    onClick={() => setReschedulingAppointment(apt)}
+                  >
+                    Remarcar
                   </Button>
                   <Button 
                     variant="destructive" 
