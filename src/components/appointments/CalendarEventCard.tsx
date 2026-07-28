@@ -52,7 +52,10 @@ const CalendarEventCard: React.FC<CalendarEventCardProps> = ({
         e.dataTransfer.effectAllowed = 'move';
     };
 
-    const bgColor = barberColor || 'hsl(var(--primary))';
+    const isCancelled = appointment.status === 'cancelled';
+    // Cancelados perdem a cor do profissional para não competirem com horários ativos.
+    const bgColor = isCancelled ? 'hsl(var(--muted-foreground))' : (barberColor || 'hsl(var(--primary))');
+
     const attendeeName = getAppointmentAttendeeName(appointment);
     const groupMetadata = parseGroupBookingNotes(appointment.notes);
     
@@ -97,12 +100,17 @@ const CalendarEventCard: React.FC<CalendarEventCardProps> = ({
                         className={cn(
                             "absolute rounded-md cursor-pointer transition-all text-[11px] leading-tight overflow-hidden px-1.5 py-1 text-white",
                             draggable && "hover:shadow-lg active:opacity-70 active:cursor-grabbing",
-                            appointment.status === 'cancelled' && "opacity-60"
+                            isCancelled && "opacity-70 line-through"
                         )}
                     >
                         <div className="flex items-center gap-1">
                             <div className={cn("w-1.5 h-1.5 rounded-full flex-shrink-0", getStatusIndicator(appointment.status))} />
-                            {isNew && (
+                            {isCancelled && (
+                                <span className="inline-flex items-center px-1 py-0.5 rounded text-[9px] font-bold bg-red-500 text-white no-underline">
+                                    CANCELADO
+                                </span>
+                            )}
+                            {!isCancelled && isNew && (
                                 <span className="inline-flex items-center gap-0.5 px-1 py-0.5 rounded text-[9px] font-bold bg-amber-400 text-amber-900 animate-pulse">
                                     <Sparkles className="w-2 h-2" />
                                     NOVO
@@ -113,6 +121,7 @@ const CalendarEventCard: React.FC<CalendarEventCardProps> = ({
                             )}
                             <span className="font-semibold truncate">
                                 {attendeeName}
+
                             </span>
                         </div>
                         <div className="truncate opacity-90">
