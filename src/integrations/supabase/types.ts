@@ -2474,6 +2474,10 @@ export type Database = {
         }
         Returns: Json
       }
+      get_booking_availability: {
+        Args: { _barbershop_user_id: string; _date: string; _professional_id: string }
+        Returns: Json
+      }
       create_dev_profile_if_not_exists: { Args: never; Returns: undefined }
       create_dev_user_and_profile: { Args: never; Returns: undefined }
       create_subscriber_with_subscription: {

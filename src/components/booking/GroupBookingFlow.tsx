@@ -99,6 +99,7 @@ const minutesFromTime = (time: string) => {
 
 const existingAppointmentDuration = (appointment: unknown) => {
   const slot = appointment as {
+    duration_minutes?: number;
     services?: { duration_minutes?: number } | null;
     appointment_services?: Array<{ services?: { duration_minutes?: number } | null }>;
   };
@@ -107,7 +108,7 @@ const existingAppointmentDuration = (appointment: unknown) => {
     .filter(Boolean);
   return serviceDurations.length > 0
     ? serviceDurations.reduce((total, duration) => total + duration, 0)
-    : slot.services?.duration_minutes || 30;
+    : slot.duration_minutes || slot.services?.duration_minutes || 30;
 };
 
 const GroupBookingFlow: React.FC<GroupBookingFlowProps> = ({ userId }) => {
@@ -261,24 +262,18 @@ const GroupBookingFlow: React.FC<GroupBookingFlowProps> = ({ userId }) => {
       const date = format(participant.date, 'yyyy-MM-dd');
       const dayStart = `${date}T00:00:00`;
       const dayEnd = `${date}T23:59:59`;
-      const [appointmentsResult, blockedResult] = await Promise.all([
-        supabase
-          .from('appointments')
-          .select('appointment_time, services(duration_minutes), appointment_services(services(duration_minutes))')
-          .eq('user_id', userId)
-          .eq('barbeiro_id', participant.professionalId)
-          .eq('appointment_date', date)
-          .neq('status', 'cancelled'),
-        supabase
-          .from('blocked_slots')
-          .select('start_datetime, end_datetime')
-          .eq('user_id', userId)
-          .eq('barber_id', participant.professionalId)
-          .lte('start_datetime', dayEnd)
-          .gte('end_datetime', dayStart),
-      ]);
-
-      if (appointmentsResult.error) throw appointmentsResult.error;
+      const { data: availabilityData, error: availabilityError } = await supabase.rpc('get_booking_availability', {
+        _barbershop_user_id: userId,
+        _professional_id: participant.professionalId,
+        _date: date,
+      });
+      if (availabilityError) throw availabilityError;
+      const availability = availabilityData as {
+        appointments?: Array<{ appointment_time: string; duration_minutes: number }>;
+        blockedSlots?: Array<{ start_datetime: string; end_datetime: string }>;
+      } | null;
+      const existingAppointments = availability?.appointments || [];
+      const blockedSlots = availability?.blockedSlots || [];
       const duration = participantDuration(participant);
       const start = minutesFromTime(dayWindow.start);
       const end = minutesFromTime(dayWindow.end);
@@ -288,10 +283,10 @@ const GroupBookingFlow: React.FC<GroupBookingFlowProps> = ({ userId }) => {
         const time = `${Math.floor(minute / 60).toString().padStart(2, '0')}:${(minute % 60).toString().padStart(2, '0')}`;
         const slotDate = new Date(`${date}T${time}:00`);
         const isPast = slotDate.getTime() <= Date.now();
-        const isBlocked = (blockedResult.data || []).some(block =>
+        const isBlocked = blockedSlots.some(block =>
           blockedPeriodConflict(slotDate, duration, block.start_datetime, block.end_datetime)
         );
-        const isDatabaseConflict = (appointmentsResult.data || []).some(appointment =>
+        const isDatabaseConflict = existingAppointments.some(appointment =>
           appointmentsConflict(minute, duration, minutesFromTime(appointment.appointment_time), existingAppointmentDuration(appointment), bufferMinutes)
         );
         const isGroupConflict = participants.some(other => {
@@ -353,35 +348,48 @@ const GroupBookingFlow: React.FC<GroupBookingFlowProps> = ({ userId }) => {
     if (!validatePeople() || !validateSchedules()) return;
 
     setSubmitting(true);
-    const createdAppointmentIds: string[] = [];
+    const createdAppointmentIds: string[] = []; // Legacy rollback guard; the RPC below is atomic.
+    let clientId = ''; // Legacy path remains unreachable after a successful atomic booking.
     try {
       const { data: { user } } = await supabase.auth.getUser();
-      if (!user) throw new Error('Sua sessão expirou. Entre novamente para agendar.');
+      if (!user) throw new Error('Session expired. Please sign in again.');
 
-      const normalizedEmail = contact.email.trim().toLowerCase();
-      const { data: existingClient, error: existingClientError } = await supabase
-        .from('clients')
-        .select('id')
-        .eq('user_id', userId)
-        .eq('email', normalizedEmail)
-        .maybeSingle();
-      if (existingClientError) throw existingClientError;
-
-      let clientId = existingClient?.id;
-      if (!clientId) {
-        const { data: newClient, error: clientError } = await supabase
-          .from('clients')
-          .insert({
-            user_id: userId,
-            name: contact.name.trim(),
-            phone: contact.phone.replace(/\D/g, ''),
-            email: normalizedEmail,
-          })
-          .select('id')
-          .single();
-        if (clientError) throw clientError;
-        clientId = newClient.id;
+      const bookingGroupId = crypto.randomUUID();
+      const { error: bookingError } = await supabase.rpc('book_group_appointments', {
+        _barbershop_user_id: userId,
+        _responsible: {
+          name: contact.name.trim(),
+          phone: contact.phone,
+          email: contact.email.trim().toLowerCase(),
+        },
+        _participants: participants.map(participant => ({
+          name: participant.name.trim(),
+          relationship: participant.relationship,
+          professionalId: participant.professionalId,
+          date: format(participant.date!, 'yyyy-MM-dd'),
+          time: participant.time,
+          serviceIds: participant.serviceIds,
+          notes: buildGroupBookingNotes({
+            groupId: bookingGroupId,
+            attendeeName: participant.name,
+            relationship: participant.relationship,
+            responsibleName: contact.name,
+            notes,
+          }),
+        })),
+        _notes: notes || null,
+      });
+      if (bookingError) {
+        if (bookingError.message.includes('SLOT_UNAVAILABLE')) {
+          throw new Error('Um dos horarios acabou de ser ocupado. Escolha outro horario para continuar.');
+        }
+        throw bookingError;
       }
+      setCompleted(true);
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+      return;
+
+      if (!user) throw new Error('Sua sessão expirou. Entre novamente para agendar.');
 
       // Reconsulta cada combinação imediatamente antes de gravar para reduzir disputas de vaga.
       for (const participant of participants) {
