@@ -101,12 +101,14 @@ const ClientRegister = () => {
       return;
     }
 
-    // 2. Create client profile
-    if (authData.user) {
+    // 2. Cria o perfil do cliente somente quando o cadastro já gerou sessão.
+    //    Com confirmação de email ativa não há sessão aqui — o perfil é criado
+    //    no primeiro login pelo helper ensureClientProfile.
+    if (authData.session?.user) {
       const { error: profileError } = await supabase
         .from('client_profiles')
         .insert({
-          user_id: authData.user.id,
+          user_id: authData.session.user.id,
           barbershop_user_id: userId,
           full_name: data.fullName,
           phone: data.phone || null,
@@ -115,12 +117,18 @@ const ClientRegister = () => {
       if (profileError) {
         console.error('Error creating client profile:', profileError);
       }
+
+      toast({ title: 'Conta criada com sucesso!', description: 'Bem-vindo!' });
+      navigate(`/b/${userId}/home`);
+      setIsSubmitting(false);
+      return;
     }
 
     toast({
       title: 'Conta criada com sucesso!',
-      description: 'Verifique seu email para confirmar o cadastro.',
+      description: 'Enviamos um link de confirmação para o seu email. Confirme para acessar sua conta.',
     });
+
 
     // Navigate to login
     navigate(`/b/${userId}/login`);
