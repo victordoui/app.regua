@@ -3,7 +3,7 @@ import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { useToast } from "@/hooks/use-toast";
-import { Eye, EyeOff, Mail, Lock, User, ArrowRight, Crown, Shield, Calendar, CheckCircle, BarChart3 } from "lucide-react";
+import { Eye, EyeOff, Mail, Lock, ArrowRight, Calendar, CheckCircle, BarChart3 } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
 import { motion, AnimatePresence } from "framer-motion";
 import { useForm } from "react-hook-form";
@@ -69,7 +69,7 @@ const Login = () => {
           navigate("/");
         }
       }
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error("Erro no login:", error);
       toast({ title: "Erro no login", description: "Ocorreu um erro inesperado", variant: "destructive" });
     } finally {
@@ -88,24 +88,12 @@ const Login = () => {
         registerForm.reset();
         setActiveTab("login");
       }
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error("Erro no cadastro:", error);
       toast({ title: "Erro no cadastro", description: "Ocorreu um erro inesperado", variant: "destructive" });
     } finally {
       setLoading(false);
     }
-  };
-
-  const handleQuickLogin = (role: 'barber' | 'admin' | 'superadmin') => {
-    const credentials = {
-      barber: { email: "barbeiro@naregua.com", password: "barbeiro123456" },
-      admin: { email: "admin@naregua.com", password: "admin123456" },
-      superadmin: { email: "superadmin@naregua.com", password: "superadmin123456" },
-    };
-    const { email, password } = credentials[role];
-    loginForm.setValue("email", email);
-    loginForm.setValue("password", password);
-    setTimeout(() => loginForm.handleSubmit(onLoginSubmit)(), 50);
   };
 
   const features = [
@@ -115,11 +103,11 @@ const Login = () => {
   ];
 
   return (
-    <div className="min-h-screen flex flex-col lg:flex-row">
+    <div className="min-h-screen flex flex-col bg-[hsl(var(--page))] lg:flex-row">
       {/* Left Panel - Branding */}
       <div
-        className="hidden lg:flex lg:w-1/2 relative flex-col items-center justify-center p-12 overflow-hidden"
-        style={{ background: "linear-gradient(135deg, #4FA3FF, #1F4FA3, #0F2F6B)" }}
+        className="relative hidden overflow-hidden lg:flex lg:w-[46%] lg:flex-col lg:items-center lg:justify-center lg:p-12"
+        style={{ background: "linear-gradient(145deg, #2563EB 0%, #173F92 48%, #081D46 100%)" }}
       >
         {/* Geometric decorations */}
         <div className="absolute top-20 left-20 w-32 h-32 border border-white/10 rounded-2xl rotate-12" />
@@ -131,7 +119,7 @@ const Login = () => {
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.6 }}
-          className="relative z-10 text-center max-w-md"
+          className="relative z-10 max-w-md text-left"
         >
           <img src={vizzuIcon} alt="VIZZU" className="w-28 h-28 mx-auto mb-6 object-contain drop-shadow-2xl" />
           <h1 className="text-4xl font-extrabold text-white mb-3 tracking-tight ">VIZZU</h1>
@@ -144,9 +132,9 @@ const Login = () => {
                 initial={{ opacity: 0, x: -20 }}
                 animate={{ opacity: 1, x: 0 }}
                 transition={{ delay: 0.3 + i * 0.15 }}
-                className="flex items-center gap-3 text-white/90"
+                className="flex items-center gap-3 text-white/85"
               >
-                <div className="w-10 h-10 rounded-lg bg-white/10 flex items-center justify-center flex-shrink-0">
+                <div className="flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-xl border border-white/10 bg-white/10">
                   <f.icon className="w-5 h-5" />
                 </div>
                 <span className="text-sm font-medium ">{f.text}</span>
@@ -158,7 +146,7 @@ const Login = () => {
 
       {/* Mobile Header */}
       <div
-        className="lg:hidden p-6 text-center"
+        className="p-5 text-center lg:hidden"
         style={{ background: "linear-gradient(135deg, #4FA3FF, #1F4FA3, #0F2F6B)" }}
       >
         <img src={vizzuIcon} alt="VIZZU" className="w-16 h-16 mx-auto mb-2 object-contain" />
@@ -167,15 +155,15 @@ const Login = () => {
       </div>
 
       {/* Right Panel - Form */}
-      <div className="flex-1 flex items-center justify-center p-6 lg:p-12 bg-background">
+      <div className="flex flex-1 items-center justify-center p-4 sm:p-6 lg:p-12">
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.5, delay: 0.2 }}
-          className="w-full max-w-md"
+          className="w-full max-w-[460px] rounded-[28px] border border-border/70 bg-card p-6 shadow-[0_28px_70px_-35px_rgba(15,47,107,0.38)] sm:p-8"
         >
           <div className="mb-8">
-            <h2 className="text-2xl font-bold text-[#0F2F6B] ">
+            <h2 className="text-2xl font-black tracking-tight text-foreground">
               {activeTab === "login" ? "Bem-vindo de volta" : "Crie sua conta"}
             </h2>
             <p className="text-muted-foreground mt-1 ">
@@ -184,12 +172,12 @@ const Login = () => {
           </div>
 
           {/* Pill Tabs */}
-          <div className="flex bg-secondary rounded-xl p-1 mb-8">
+          <div className="mb-8 flex rounded-xl bg-muted/80 p-1">
             <button
               onClick={() => setActiveTab("login")}
               className={`flex-1 py-2.5 text-sm font-semibold rounded-lg transition-all duration-300  ${
                 activeTab === "login"
-                  ? "bg-card text-[#1F4FA3] shadow-sm"
+                  ? "bg-card text-primary shadow-sm"
                   : "text-muted-foreground hover:text-foreground"
               }`}
             >
@@ -199,7 +187,7 @@ const Login = () => {
               onClick={() => setActiveTab("register")}
               className={`flex-1 py-2.5 text-sm font-semibold rounded-lg transition-all duration-300  ${
                 activeTab === "register"
-                  ? "bg-card text-[#1F4FA3] shadow-sm"
+                  ? "bg-card text-primary shadow-sm"
                   : "text-muted-foreground hover:text-foreground"
               }`}
             >
@@ -270,8 +258,7 @@ const Login = () => {
 
                     <Button
                       type="submit"
-                      className="w-full h-12 text-base font-semibold rounded-xl text-white shadow-lg hover:shadow-xl transition-all duration-300 group "
-                      style={{ background: "linear-gradient(135deg, #4FA3FF, #1F4FA3)" }}
+                      className="group h-12 w-full rounded-xl bg-primary text-base font-bold text-white shadow-[0_10px_24px_rgba(37,99,235,0.22)] transition-all duration-300 hover:-translate-y-0.5 hover:bg-primary/90"
                       disabled={loading}
                     >
                       {loading ? (
@@ -289,41 +276,6 @@ const Login = () => {
                   </form>
                 </Form>
 
-                {/* Quick Login */}
-                <div className="mt-8">
-                  <div className="relative mb-4">
-                    <div className="absolute inset-0 flex items-center">
-                      <div className="w-full border-t border-border" />
-                    </div>
-                    <div className="relative flex justify-center">
-                      <span className="bg-background px-3 text-xs text-muted-foreground uppercase tracking-wider ">Acesso rápido</span>
-                    </div>
-                  </div>
-
-                  <div className="grid grid-cols-3 gap-2">
-                    <button
-                      onClick={() => handleQuickLogin('barber')}
-                      className="flex flex-col items-center gap-1 py-3 px-2 rounded-xl border border-[#2E6FD3]/30 text-[#1F4FA3] hover:bg-[#1F4FA3] hover:text-white transition-all duration-300 text-xs font-medium "
-                    >
-                      <User className="h-4 w-4" />
-                      Profissional
-                    </button>
-                    <button
-                      onClick={() => handleQuickLogin('admin')}
-                      className="flex flex-col items-center gap-1 py-3 px-2 rounded-xl border border-[#2E6FD3]/30 text-[#1F4FA3] hover:bg-[#1F4FA3] hover:text-white transition-all duration-300 text-xs font-medium "
-                    >
-                      <Crown className="h-4 w-4" />
-                      Admin
-                    </button>
-                    <button
-                      onClick={() => handleQuickLogin('superadmin')}
-                      className="flex flex-col items-center gap-1 py-3 px-2 rounded-xl border border-amber-400/40 text-amber-600 hover:bg-gradient-to-r hover:from-amber-500 hover:to-orange-500 hover:text-white transition-all duration-300 text-xs font-medium "
-                    >
-                      <Shield className="h-4 w-4" />
-                      Super
-                    </button>
-                  </div>
-                </div>
               </motion.div>
             )}
 
@@ -400,8 +352,7 @@ const Login = () => {
 
                     <Button
                       type="submit"
-                      className="w-full h-12 text-base font-semibold rounded-xl text-white shadow-lg hover:shadow-xl transition-all duration-300 group "
-                      style={{ background: "linear-gradient(135deg, #4FA3FF, #1F4FA3)" }}
+                      className="group h-12 w-full rounded-xl bg-primary text-base font-bold text-white shadow-[0_10px_24px_rgba(37,99,235,0.22)] transition-all duration-300 hover:-translate-y-0.5 hover:bg-primary/90"
                       disabled={loading}
                     >
                       {loading ? (

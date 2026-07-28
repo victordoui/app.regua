@@ -10,7 +10,7 @@ import { Separator } from '@/components/ui/separator';
 import { Plus, Minus, Trash2, DollarSign, ShoppingCart, Search, CheckCircle } from 'lucide-react';
 import { useCashRegister } from '@/hooks/useCashRegister';
 import { CurrentSaleItem } from '@/types/cash';
-import { PageHeader } from '@/components/ui/page-header';
+import { PageContainer, PageHeader } from '@/components/ui/page-header';
 
 const Cash = () => {
   const { products, services, clients, isLoadingProducts, isLoadingServices, isLoadingClients, currentSaleItems, addItemToSale, updateItemQuantity, removeItemFromSale, totalAmount, selectedClient, setSelectedClient, paymentMethod, setPaymentMethod, saleNotes, setSaleNotes, processSale, isProcessingSale } = useCashRegister();
@@ -25,7 +25,7 @@ const Cash = () => {
 
   return (
     <Layout>
-      <div className="flex-1 space-y-6 p-6">
+      <PageContainer>
         <PageHeader icon={<ShoppingCart className="h-5 w-5" />} title="Caixa e PDV" subtitle="Registre vendas e serviços" />
 
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 h-[calc(100vh-200px)]">
@@ -83,7 +83,7 @@ const Cash = () => {
             </div>
           </div>
         </div>
-      </div>
+      </PageContainer>
     </Layout>
   );
 };

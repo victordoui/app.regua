@@ -15,7 +15,7 @@ import BlockedSlotsManager from '@/components/barbers/BlockedSlotsManager';
 import BarberAbsencesManager from '@/components/barbers/BarberAbsencesManager';
 import { format } from 'date-fns';
 import { formatPhoneBR } from '@/lib/utils';
-import { PageHeader } from '@/components/ui/page-header';
+import { PageContainer, PageHeader } from '@/components/ui/page-header';
 import { StatusCards } from '@/components/ui/status-cards';
 
 interface BarberFormData {
@@ -49,7 +49,7 @@ const BarberManagement = () => {
     e.preventDefault();
     if (!formData.full_name || !formData.email) return;
     setSubmitting(true);
-    try { if (editingBarber) await updateBarber({ id: editingBarber.id, formData }); else await addBarber(formData); setDialogOpen(false); setEditingBarber(null); } catch {} finally { setSubmitting(false); }
+    try { if (editingBarber) await updateBarber({ id: editingBarber.id, formData }); else await addBarber(formData); setDialogOpen(false); setEditingBarber(null); } catch (error) { console.error("Erro ao salvar profissional:", error); } finally { setSubmitting(false); }
   };
 
   const activeCount = barbers.filter(b => b.active).length;
@@ -59,8 +59,8 @@ const BarberManagement = () => {
 
   return (
     <Layout>
-      <div className="flex-1 space-y-6 p-6">
-        <PageHeader icon={<Users className="h-5 w-5" />} title="Profissionais" subtitle="Gerencie sua equipe">
+      <PageContainer>
+        <PageHeader eyebrow="Operações" icon={<Users className="h-5 w-5" />} title="Profissionais" subtitle="Gerencie sua equipe">
           <Button onClick={() => setDialogOpen(true)}><Plus className="h-4 w-4 mr-2" />Novo Profissional</Button>
         </PageHeader>
 
@@ -123,7 +123,7 @@ const BarberManagement = () => {
         </Dialog>
         {selectedBarberForManager && <BlockedSlotsManager isOpen={blockedSlotsDialogOpen} onClose={() => { setBlockedSlotsDialogOpen(false); setSelectedBarberForManager(null); }} barberId={selectedBarberForManager.id} barberName={selectedBarberForManager.full_name} />}
         {selectedBarberForManager && <BarberAbsencesManager isOpen={absencesDialogOpen} onClose={() => { setAbsencesDialogOpen(false); setSelectedBarberForManager(null); }} barberId={selectedBarberForManager.id} barberName={selectedBarberForManager.full_name} />}
-      </div>
+      </PageContainer>
     </Layout>
   );
 };

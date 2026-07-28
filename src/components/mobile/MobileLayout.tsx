@@ -38,11 +38,11 @@ const MobileLayout: React.FC<MobileLayoutProps> = ({ children, settings }) => {
   return (
     <div 
       style={dynamicStyles}
-      className="min-h-screen bg-background flex flex-col"
+      className="min-h-[100dvh] bg-muted/30 flex flex-col"
     >
       {/* Header */}
-      <header className="sticky top-0 z-40 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 border-b border-border px-4 py-3">
-        <div className="flex items-center justify-center gap-3">
+      <header className="sticky top-0 z-40 border-b border-border/80 bg-background/95 px-4 py-3 shadow-sm backdrop-blur supports-[backdrop-filter]:bg-background/85">
+        <div className="mx-auto flex w-full max-w-lg items-center gap-3">
           {settings?.logo_url ? (
             <img 
               src={settings.logo_url} 
@@ -57,44 +57,47 @@ const MobileLayout: React.FC<MobileLayoutProps> = ({ children, settings }) => {
               {settings?.company_name?.charAt(0) || 'B'}
             </div>
           )}
-          <h1 className="text-lg font-semibold text-foreground">
+          <h1 className="min-w-0 truncate text-base font-bold text-foreground">
             {settings?.company_name || 'Barbearia'}
           </h1>
         </div>
       </header>
 
       {/* Main Content - with padding for bottom nav */}
-      <main className="flex-1 pb-20 overflow-y-auto">
+      <main className="flex-1 overflow-y-auto pb-24">
         {children}
       </main>
 
       {/* Bottom Navigation */}
-      <nav className="fixed bottom-0 left-0 right-0 z-50 bg-background border-t border-border safe-area-pb">
-        <div className="flex items-center justify-around py-2">
+      <nav className="fixed inset-x-0 bottom-0 z-50 border-t border-border/80 bg-background/95 shadow-[0_-8px_24px_rgba(15,23,42,0.08)] backdrop-blur safe-area-pb" aria-label="Navegação principal">
+        <div className="mx-auto grid w-full max-w-lg grid-cols-4 px-2 py-1.5">
           {navItems.map((item) => {
             const Icon = item.icon;
             const active = isActive(item.path);
             
             return (
               <button
+                type="button"
                 key={item.path}
                 onClick={() => navigate(item.path)}
+                aria-current={active ? 'page' : undefined}
+                aria-label={item.label}
                 className={cn(
-                  "flex flex-col items-center justify-center gap-1 px-4 py-2 min-w-[64px] rounded-lg transition-all duration-200",
+                  "relative flex min-h-[58px] flex-col items-center justify-center gap-1 rounded-xl px-1 transition-colors duration-200",
                   active 
-                    ? "text-primary" 
-                    : "text-muted-foreground hover:text-foreground"
+                    ? "bg-primary/10 text-primary"
+                    : "text-muted-foreground hover:bg-muted hover:text-foreground"
                 )}
               >
                 <Icon 
                   className={cn(
-                    "h-6 w-6 transition-transform duration-200",
-                    active && "scale-110"
+                    "h-5 w-5 transition-transform duration-200",
+                    active && "scale-105"
                   )} 
                   style={active && settings?.primary_color_hex ? { color: settings.primary_color_hex } : undefined}
                 />
                 <span className={cn(
-                  "text-xs font-medium",
+                  "text-[11px] font-semibold leading-none",
                   active && "font-semibold"
                 )}>
                   {item.label}

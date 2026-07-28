@@ -4,10 +4,10 @@ import Topbar from './Topbar';
 import MobileBottomNav from './MobileBottomNav';
 import MobileSplashScreen from './MobileSplashScreen';
 import { useIsMobile } from '@/hooks/use-mobile';
-import vizzuLogo from '@/assets/vizzu-logo.png';
-import { Bell } from 'lucide-react';
+import vizzuLogo from '@/assets/vizzu-icon.png';
+import { Bell, ChevronDown } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
-import { useNavigate } from 'react-router-dom';
+import { useLocation, useNavigate } from 'react-router-dom';
 
 interface LayoutProps {
   children?: React.ReactNode;
@@ -32,9 +32,9 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
 
   if (isMobile) {
     return (
-      <div className="flex flex-col min-h-screen bg-background">
+      <div className="readable-ui flex min-h-screen flex-col bg-[hsl(var(--page))]">
         <MobileTopbar />
-        <main className="flex-1 overflow-auto px-4 pb-20 pt-14">
+        <main className="flex-1 overflow-auto px-4 pb-24 pt-[4.75rem]">
           {children}
         </main>
         <MobileBottomNav />
@@ -43,10 +43,10 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
   }
 
   return (
-    <div className="flex h-screen bg-background">
+    <div className="readable-ui flex h-screen bg-[hsl(var(--page))]">
       <Sidebar />
       <Topbar />
-      <main className="flex-1 overflow-auto bg-background px-8 pb-12 pt-[5rem] md:ml-[var(--sidebar-w)] transition-[margin] duration-200">
+      <main className="flex-1 overflow-auto px-6 pb-12 pt-[5.25rem] transition-[margin] duration-200 md:ml-[var(--sidebar-w)] xl:px-8">
         {children}
       </main>
     </div>
@@ -56,6 +56,17 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
 const MobileTopbar = () => {
   const { user } = useAuth();
   const navigate = useNavigate();
+  const location = useLocation();
+
+  const routeTitles: Record<string, string> = {
+    '/': 'Visão Geral',
+    '/appointments': 'Agenda',
+    '/clients': 'Clientes',
+    '/barbers': 'Profissionais',
+    '/services': 'Serviços',
+    '/settings/company': 'Minha Empresa',
+    '/profile': 'Meu Perfil',
+  };
 
   const getUserInitials = () => {
     const name = user?.user_metadata?.full_name || user?.email || 'VZ';
@@ -63,8 +74,14 @@ const MobileTopbar = () => {
   };
 
   return (
-    <header className="fixed top-0 left-0 right-0 z-40 h-14 bg-background border-b border-border flex items-center justify-between px-4">
-      <img src={vizzuLogo} alt="VIZZU" className="h-8 w-8 object-contain" />
+    <header className="fixed left-0 right-0 top-0 z-40 flex h-16 items-center justify-between border-b border-border/70 bg-background/90 px-4 shadow-sm backdrop-blur-xl">
+      <button onClick={() => navigate('/')} className="flex min-w-0 items-center gap-2.5 rounded-lg text-left">
+        <img src={vizzuLogo} alt="VIZZU" className="h-9 w-9 object-contain" />
+        <div className="min-w-0">
+          <span className="block text-[10px] font-extrabold uppercase tracking-[0.18em] text-primary">VIZZU</span>
+          <span className="block truncate text-sm font-bold text-foreground">{routeTitles[location.pathname] || 'Painel'}</span>
+        </div>
+      </button>
       <div className="flex items-center gap-2">
         <button
           onClick={() => navigate('/notifications')}
@@ -74,9 +91,12 @@ const MobileTopbar = () => {
           <Bell className="h-5 w-5" />
           <span className="absolute top-1.5 right-1.5 w-2 h-2 rounded-full bg-primary" />
         </button>
-        <div className="w-8 h-8 rounded-full bg-gradient-to-br from-primary to-primary/70 flex items-center justify-center text-[11px] font-bold text-primary-foreground flex-shrink-0">
+        <button onClick={() => navigate('/profile')} className="flex h-9 items-center gap-1 rounded-full border border-border bg-card pl-1 pr-2 shadow-sm">
+          <div className="flex h-7 w-7 flex-shrink-0 items-center justify-center rounded-full bg-gradient-to-br from-primary to-primary/70 text-[10px] font-bold text-primary-foreground">
           {getUserInitials()}
-        </div>
+          </div>
+          <ChevronDown className="h-3.5 w-3.5 text-muted-foreground" />
+        </button>
       </div>
     </header>
   );

@@ -7,6 +7,7 @@ import { useAuth } from '@/contexts/AuthContext';
 import { useMySubscription } from '@/hooks/useMySubscription';
 import SubscriptionInfoCard from '@/components/subscriptions/SubscriptionInfoCard';
 import { useNavigate } from 'react-router-dom';
+import { PageContainer, PageHeader } from '@/components/ui/page-header';
 
 const Profile = () => {
   const { user } = useAuth();
@@ -31,10 +32,8 @@ const Profile = () => {
 
   return (
     <Layout>
-      <div className="space-y-6 max-w-2xl">
-        <div>
-          <h1 className="text-xl md:text-2xl font-bold text-foreground">Meu Perfil</h1>
-        </div>
+      <PageContainer className="max-w-4xl">
+        <PageHeader eyebrow="Meu negócio" icon={<UserCircle className="h-5 w-5" />} title="Meu Perfil" subtitle="Gerencie seus dados pessoais e sua assinatura" />
 
         {/* Personal Data */}
         <Card>
@@ -86,7 +85,7 @@ const Profile = () => {
             <SubscriptionInfoCard data={subscriptionData} />
           )}
         </div>
-      </div>
+      </PageContainer>
     </Layout>
   );
 };

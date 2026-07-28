@@ -3,7 +3,7 @@ import Layout from '@/components/Layout';
 import { Badge } from '@/components/ui/badge';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { Tabs, TabsContent } from '@/components/ui/tabs';
 import { Button } from '@/components/ui/button';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Calendar as CalendarIcon, DollarSign, Users, Percent, Scissors, Info } from 'lucide-react';
@@ -15,8 +15,14 @@ import { ptBR } from 'date-fns/locale';
 import { Calendar } from '@/components/ui/calendar';
 import { cn } from '@/lib/utils';
 import CommissionRulesManager from '@/components/commissions/CommissionRulesManager';
-import { PageHeader } from '@/components/ui/page-header';
+import { PageContainer, PageHeader } from '@/components/ui/page-header';
 import { StatusCards } from '@/components/ui/status-cards';
+import { SectionTabsLayout } from '@/components/ui/section-tabs';
+
+const commissionSections = [
+  { value: 'commissions', label: 'Comissões', description: 'Valores da equipe', icon: DollarSign },
+  { value: 'rules', label: 'Regras de cálculo', description: 'Percentuais e exceções', icon: Percent },
+] as const;
 
 const Commissions = () => {
   const { barbers, startDate, setStartDate, endDate, setEndDate, selectedBarberId, setSelectedBarberId, calculatedCommissions, isLoading } = useCommissions();
@@ -28,16 +34,12 @@ const Commissions = () => {
 
   return (
     <Layout>
-      <div className="flex-1 space-y-6 p-6">
-        <PageHeader icon={<Percent className="h-5 w-5" />} title="Comissões" subtitle="Controle de comissões da equipe" />
+      <PageContainer>
+        <PageHeader eyebrow="Financeiro" icon={<Percent className="h-5 w-5" />} title="Comissões" subtitle="Acompanhe os valores da equipe e configure como cada comissão é calculada." />
 
         <Tabs defaultValue="commissions" className="space-y-6">
-          <TabsList>
-            <TabsTrigger value="commissions">Comissões</TabsTrigger>
-            <TabsTrigger value="rules">Regras</TabsTrigger>
-          </TabsList>
-
-          <TabsContent value="commissions" className="space-y-6">
+          <SectionTabsLayout items={commissionSections} navigationTitle="O que você quer gerenciar?">
+          <TabsContent value="commissions" className="mt-0 space-y-6">
             <StatusCards
               className="grid-cols-1 sm:grid-cols-3"
               items={[
@@ -71,7 +73,7 @@ const Commissions = () => {
             </div>
           </TabsContent>
 
-          <TabsContent value="rules" className="space-y-6">
+          <TabsContent value="rules" className="mt-0 space-y-6">
             <Alert><Info className="h-4 w-4" /><AlertDescription><strong>Prioridade:</strong> 1) Barbeiro + Serviço → 2) Barbeiro → 3) Serviço → 4) Padrão</AlertDescription></Alert>
             <StatusCards
               className="grid-cols-1 sm:grid-cols-3"
@@ -83,8 +85,9 @@ const Commissions = () => {
             />
             {isLoadingRules || isLoadingBarbers || isLoadingServices ? <div className="flex justify-center py-12"><div className="animate-spin rounded-full h-8 w-8 border-2 border-primary border-t-transparent" /></div> : <CommissionRulesManager barbers={allBarbers} services={services} />}
           </TabsContent>
+          </SectionTabsLayout>
         </Tabs>
-      </div>
+      </PageContainer>
     </Layout>
   );
 };

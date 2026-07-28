@@ -28,6 +28,7 @@ import { useAuth } from "@/contexts/AuthContext";
 import { useToast } from "@/hooks/use-toast";
 
 import Layout from "@/components/Layout";
+import { PageContainer, PageHeader } from "@/components/ui/page-header";
 
 interface UserProfile {
   id: string;
@@ -85,7 +86,7 @@ const Users = () => {
         description: "Status atualizado com sucesso."
       });
     },
-    onError: (error: any) => {
+    onError: (error: Error) => {
       toast({
         title: "Erro ao atualizar status",
         description: error.message,
@@ -111,7 +112,7 @@ const Users = () => {
         description: "O perfil foi removido com sucesso."
       });
     },
-    onError: (error: any) => {
+    onError: (error: Error) => {
       toast({
         title: "Erro ao excluir usuário",
         description: error.message,
@@ -227,17 +228,14 @@ const Users = () => {
 
   return (
     <Layout>
-      <div className="flex-1 space-y-6 p-6">
+      <PageContainer>
         {/* Header */}
-        <div className="flex items-center justify-between">
-          <div>
-            <h1 className="text-xl md:text-2xl font-bold text-foreground">Usuários</h1>
-          </div>
+        <PageHeader eyebrow="Meu negócio" icon={<UsersIcon className="h-5 w-5" />} title="Usuários" subtitle="Gerencie acessos, papéis e disponibilidade da equipe">
           <Button>
             <Plus className="h-4 w-4 mr-2" />
             Novo Usuário
           </Button>
-        </div>
+        </PageHeader>
 
         {/* Stats Cards */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
@@ -364,7 +362,7 @@ const Users = () => {
             )}
           </CardContent>
         </Card>
-      </div>
+      </PageContainer>
     </Layout>
   );
 };

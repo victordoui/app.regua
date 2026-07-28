@@ -21,6 +21,8 @@ export interface BusinessHourFormData {
   is_closed: boolean;
 }
 
+const EMPTY_BUSINESS_HOURS: BusinessHour[] = [];
+
 const DAY_NAMES = ['Domingo', 'Segunda', 'Terça', 'Quarta', 'Quinta', 'Sexta', 'Sábado'];
 
 export const useBusinessHours = () => {
@@ -41,7 +43,7 @@ export const useBusinessHours = () => {
     return data || [];
   }, [user]);
 
-  const { data: businessHours = [], isLoading, error } = useQuery({
+  const { data: businessHours = EMPTY_BUSINESS_HOURS, isLoading, error } = useQuery({
     queryKey: ['business_hours', user?.id],
     queryFn: fetchBusinessHours,
     enabled: !!user

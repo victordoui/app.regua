@@ -27,14 +27,14 @@ const colorMap: Record<StatusColor, { border: string; text: string; iconBg: stri
 
 const StatusCards = ({ items, className }: StatusCardsProps) => {
   return (
-    <div className={cn("grid gap-4", className)} style={{ gridTemplateColumns: `repeat(${Math.min(items.length, 4)}, minmax(0, 1fr))` }}>
+    <div className={cn("grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-4", className)}>
       {items.map((item, index) => {
         const colors = colorMap[item.color || "primary"];
         return (
           <div
             key={index}
             className={cn(
-              "relative flex items-center gap-4 rounded-xl border border-border/60 bg-card p-4 shadow-[var(--shadow-subtle)] transition-all hover:shadow-md",
+              "relative flex min-h-[104px] items-center gap-4 rounded-xl border border-border bg-card p-4 shadow-[var(--shadow-subtle)] transition-all hover:shadow-md",
               "border-l-4",
               colors.border
             )}
@@ -45,7 +45,7 @@ const StatusCards = ({ items, className }: StatusCardsProps) => {
               </div>
             )}
             <div className="min-w-0">
-              <p className="text-xs font-medium text-muted-foreground uppercase tracking-wide truncate">{item.label}</p>
+              <p className="truncate text-sm font-semibold text-muted-foreground">{item.label}</p>
               <p className={cn("text-2xl font-bold leading-tight", colors.text)}>
                 {item.value}
                 {item.suffix && <span className="text-sm font-normal ml-1">{item.suffix}</span>}

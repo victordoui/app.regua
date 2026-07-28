@@ -1,158 +1,388 @@
-import React, { useState, useEffect } from 'react';
-import { useSearchParams } from 'react-router-dom';
-import Layout from '@/components/Layout';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
-import { Switch } from '@/components/ui/switch';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Building, Settings, Palette, Link, Save, Image, Share2, Instagram, Facebook, MessageCircle, Smartphone, Copy, ExternalLink, CheckCircle, QrCode, Clock, AlertTriangle, Warehouse, Image as ImageIcon } from 'lucide-react';
-import QRCodeGenerator from '@/components/QRCodeGenerator';
-import { useCompanySettings, CompanySettingsFormData } from '@/hooks/useCompanySettings';
-import { toast } from 'sonner';
-import { formatPhoneBR } from '@/lib/utils';
-import ImageUploadField from '@/components/ImageUploadField';
-import { uploadFileToStorage } from '@/lib/supabaseStorage';
-import { BusinessHoursEditor } from '@/components/settings/BusinessHoursEditor';
-import { ColorPaletteSelector } from '@/components/settings/ColorPaletteSelector';
-import { SeoMetaFields } from '@/components/settings/SeoMetaFields';
-import InventoryContent from '@/components/business/InventoryContent';
-import GalleryContent from '@/components/business/GalleryContent';
-import { PageHeader } from '@/components/ui/page-header';
+import { useEffect, useState, type FormEvent } from "react";
+import { useSearchParams } from "react-router-dom";
+import {
+  AlertTriangle,
+  Building,
+  CheckCircle2,
+  Clock,
+  Copy,
+  ExternalLink,
+  Facebook,
+  Image as ImageIcon,
+  Instagram,
+  Link,
+  MessageCircle,
+  Palette,
+  Save,
+  Share2,
+  Smartphone,
+  Warehouse,
+} from "lucide-react";
+import Layout from "@/components/Layout";
+import QRCodeGenerator from "@/components/QRCodeGenerator";
+import ImageUploadField from "@/components/ImageUploadField";
+import InventoryContent from "@/components/business/InventoryContent";
+import GalleryContent from "@/components/business/GalleryContent";
+import { BusinessHoursEditor } from "@/components/settings/BusinessHoursEditor";
+import { ColorPaletteSelector } from "@/components/settings/ColorPaletteSelector";
+import { SeoMetaFields } from "@/components/settings/SeoMetaFields";
+import { Button } from "@/components/ui/button";
+import { FieldHelp, FormSection } from "@/components/ui/form-section";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { PageContainer, PageHeader } from "@/components/ui/page-header";
+import { SectionTabsLayout } from "@/components/ui/section-tabs";
+import { Switch } from "@/components/ui/switch";
+import { Tabs, TabsContent } from "@/components/ui/tabs";
+import { useCompanySettings, type CompanySettingsFormData } from "@/hooks/useCompanySettings";
+import { uploadFileToStorage } from "@/lib/supabaseStorage";
+import { formatPhoneBR } from "@/lib/utils";
+import { toast } from "sonner";
+
+const tabAliases: Record<string, string> = {
+  dados: "informacoes",
+  identidade: "aparencia",
+  link: "agendamento",
+};
+
+const navigationItems = [
+  { value: "informacoes", label: "Informações", description: "Dados e contato", icon: Building },
+  { value: "aparencia", label: "Aparência", description: "Logo, capa e cores", icon: Palette },
+  { value: "agendamento", label: "Página de agendamento", description: "Link para seus clientes", icon: Smartphone },
+  { value: "funcionamento", label: "Funcionamento", description: "Horários e regras", icon: Clock },
+  { value: "estoque", label: "Estoque", description: "Produtos e quantidades", icon: Warehouse },
+  { value: "galeria", label: "Galeria", description: "Fotos do negócio", icon: ImageIcon },
+] as const;
+
+const initialFormData: CompanySettingsFormData = {
+  company_name: "",
+  slogan: "",
+  primary_color_hex: "#0ea5e9",
+  secondary_color_hex: "#1f2937",
+  address: "",
+  phone: "",
+  email: "",
+  is_public_page_enabled: true,
+  logo_url: "",
+  banner_url: "",
+  instagram_url: "",
+  facebook_url: "",
+  whatsapp_number: "",
+  cancellation_hours_before: 24,
+  allow_online_cancellation: true,
+  buffer_minutes: 0,
+  noshow_fee_enabled: false,
+  noshow_fee_amount: 0,
+};
 
 const CompanySettings = () => {
   const [searchParams, setSearchParams] = useSearchParams();
-  const currentTab = searchParams.get("tab") || "dados";
+  const rawTab = searchParams.get("tab") || "informacoes";
+  const currentTab = tabAliases[rawTab] || rawTab;
   const { settings, isLoading, saveSettings, isSaving } = useCompanySettings();
-
-  const [formData, setFormData] = useState<CompanySettingsFormData>({
-    company_name: '', slogan: '', primary_color_hex: '#0ea5e9', secondary_color_hex: '#1f2937',
-    address: '', phone: '', email: '', is_public_page_enabled: true, logo_url: '', banner_url: '',
-    instagram_url: '', facebook_url: '', whatsapp_number: '',
-    cancellation_hours_before: 24, allow_online_cancellation: true, buffer_minutes: 0,
-    noshow_fee_enabled: false, noshow_fee_amount: 0,
-  });
-
-  const [metaTitle, setMetaTitle] = useState('');
-  const [metaDescription, setMetaDescription] = useState('');
+  const [formData, setFormData] = useState<CompanySettingsFormData>(initialFormData);
+  const [metaTitle, setMetaTitle] = useState("");
+  const [metaDescription, setMetaDescription] = useState("");
 
   useEffect(() => {
-    if (settings) {
-      setFormData({
-        company_name: settings.company_name || '', slogan: settings.slogan || '',
-        primary_color_hex: settings.primary_color_hex || '#0ea5e9', secondary_color_hex: settings.secondary_color_hex || '#1f2937',
-        address: settings.address || '', phone: settings.phone || '', email: settings.email || '',
-        is_public_page_enabled: settings.is_public_page_enabled, logo_url: settings.logo_url || '', banner_url: settings.banner_url || '',
-        instagram_url: settings.instagram_url || '', facebook_url: settings.facebook_url || '', whatsapp_number: settings.whatsapp_number || '',
-        cancellation_hours_before: settings.cancellation_hours_before ?? 24, allow_online_cancellation: settings.allow_online_cancellation ?? true,
-        buffer_minutes: settings.buffer_minutes ?? 0, noshow_fee_enabled: settings.noshow_fee_enabled ?? false, noshow_fee_amount: settings.noshow_fee_amount ?? 0,
-      });
-    }
+    if (!settings) return;
+    setFormData({
+      company_name: settings.company_name || "",
+      slogan: settings.slogan || "",
+      primary_color_hex: settings.primary_color_hex || "#0ea5e9",
+      secondary_color_hex: settings.secondary_color_hex || "#1f2937",
+      address: settings.address || "",
+      phone: settings.phone || "",
+      email: settings.email || "",
+      is_public_page_enabled: settings.is_public_page_enabled,
+      logo_url: settings.logo_url || "",
+      banner_url: settings.banner_url || "",
+      instagram_url: settings.instagram_url || "",
+      facebook_url: settings.facebook_url || "",
+      whatsapp_number: settings.whatsapp_number || "",
+      cancellation_hours_before: settings.cancellation_hours_before ?? 24,
+      allow_online_cancellation: settings.allow_online_cancellation ?? true,
+      buffer_minutes: settings.buffer_minutes ?? 0,
+      noshow_fee_enabled: settings.noshow_fee_enabled ?? false,
+      noshow_fee_amount: settings.noshow_fee_amount ?? 0,
+    });
   }, [settings]);
 
-  const handleSubmit = async (e: React.FormEvent) => { e.preventDefault(); if (!formData.company_name) { toast.error("Nome obrigatório."); return; } await saveSettings(formData); };
-  const clientBookingLink = settings?.user_id ? `${window.location.origin}/b/${settings.user_id}/login` : null;
-  const handleCopyClientLink = () => { if (clientBookingLink) { navigator.clipboard.writeText(clientBookingLink); toast.success("Link copiado!"); } };
-  const handleOpenClientLink = () => { if (clientBookingLink) window.open(clientBookingLink, '_blank'); };
-  const handleShareWhatsApp = () => { if (clientBookingLink) { const msg = encodeURIComponent(`Agende seu horário em ${formData.company_name || 'nossa barbearia'}: ${clientBookingLink}`); window.open(`https://wa.me/?text=${msg}`, '_blank'); } };
+  const handleSubmit = async (event: FormEvent) => {
+    event.preventDefault();
+    if (!formData.company_name.trim()) {
+      toast.error("Informe o nome da empresa antes de salvar.");
+      return;
+    }
+    await saveSettings(formData);
+  };
 
-  const isFormTab = currentTab === 'dados' || currentTab === 'identidade' || currentTab === 'link';
+  const clientBookingLink = settings?.user_id
+    ? `${window.location.origin}/b/${settings.user_id}/login`
+    : null;
 
-  if (isLoading) return <Layout><div className="flex items-center justify-center h-64 text-muted-foreground">Carregando...</div></Layout>;
+  const handleCopyClientLink = async () => {
+    if (!clientBookingLink) return;
+    await navigator.clipboard.writeText(clientBookingLink);
+    toast.success("Link copiado. Agora você já pode enviar aos clientes.");
+  };
+
+  const handleOpenClientLink = () => {
+    if (clientBookingLink) window.open(clientBookingLink, "_blank");
+  };
+
+  const handleShareWhatsApp = () => {
+    if (!clientBookingLink) return;
+    const message = encodeURIComponent(`Agende seu horário em ${formData.company_name || "nossa barbearia"}: ${clientBookingLink}`);
+    window.open(`https://wa.me/?text=${message}`, "_blank");
+  };
+
+  const showsSaveAction = ["informacoes", "aparencia", "agendamento", "funcionamento"].includes(currentTab);
+
+  if (isLoading) {
+    return (
+      <Layout>
+        <div className="flex min-h-[360px] items-center justify-center text-base font-medium text-muted-foreground">
+          Carregando informações da empresa...
+        </div>
+      </Layout>
+    );
+  }
 
   return (
     <Layout>
-      <div className="flex-1 space-y-6 p-6">
-        <PageHeader icon={<Building className="h-5 w-5" />} title="Minha Empresa" subtitle="Gerencie os dados da sua empresa" />
+      <PageContainer className="max-w-[1380px]">
+        <PageHeader
+          eyebrow="Meu negócio"
+          icon={<Building className="h-5 w-5" />}
+          title="Minha Empresa"
+          subtitle="Configure como sua empresa funciona e como ela aparece para seus clientes."
+        >
+          {clientBookingLink && (
+            <Button type="button" variant="outline" onClick={handleOpenClientLink} className="min-h-11">
+              <ExternalLink className="mr-2 h-4 w-4" />
+              Ver página do cliente
+            </Button>
+          )}
+        </PageHeader>
 
-        <form id="company-settings-form" onSubmit={handleSubmit}>
-          <Tabs value={currentTab} onValueChange={(v) => setSearchParams({ tab: v })}>
-            <div className="flex items-center justify-between gap-4 flex-wrap mb-4">
-              <TabsList>
-                <TabsTrigger value="dados" className="flex items-center gap-2"><Building className="h-4 w-4" />Dados</TabsTrigger>
-                <TabsTrigger value="identidade" className="flex items-center gap-2"><Palette className="h-4 w-4" />Visual</TabsTrigger>
-                <TabsTrigger value="link" className="flex items-center gap-2"><Smartphone className="h-4 w-4" />Link</TabsTrigger>
-                <TabsTrigger value="estoque" className="flex items-center gap-2"><Warehouse className="h-4 w-4" />Estoque</TabsTrigger>
-                <TabsTrigger value="galeria" className="flex items-center gap-2"><ImageIcon className="h-4 w-4" />Galeria</TabsTrigger>
-              </TabsList>
-
-              {isFormTab && (
-                <Button type="submit" form="company-settings-form" disabled={isSaving} variant="secondary">
-                  <Save className="h-4 w-4 mr-2" />{isSaving ? "Salvando..." : "Salvar"}
-                </Button>
+        <div className="surface-panel flex flex-col gap-4 p-5 sm:flex-row sm:items-center sm:justify-between">
+          <div className="flex items-center gap-4">
+            <div className="flex h-12 w-12 shrink-0 items-center justify-center overflow-hidden rounded-xl border border-border bg-muted">
+              {formData.logo_url ? (
+                <img src={formData.logo_url} alt="Logo da empresa" className="h-full w-full object-cover" />
+              ) : (
+                <Building className="h-6 w-6 text-primary" />
               )}
             </div>
+            <div>
+              <p className="text-lg font-bold text-foreground">{formData.company_name || "Sua empresa"}</p>
+              <p className="text-sm font-medium text-muted-foreground">
+                Use o menu abaixo para alterar cada parte do seu negócio.
+              </p>
+            </div>
+          </div>
+          <div className={`inline-flex w-fit items-center gap-2 rounded-full px-3 py-2 text-sm font-bold ${formData.is_public_page_enabled ? "bg-emerald-50 text-emerald-700 dark:bg-emerald-950/40 dark:text-emerald-300" : "bg-muted text-muted-foreground"}`}>
+            <CheckCircle2 className="h-4 w-4" />
+            Página {formData.is_public_page_enabled ? "ativa" : "desativada"}
+          </div>
+        </div>
 
-            <TabsContent value="dados" className="space-y-6 mt-0">
-              <div className="rounded-xl border border-border/40 bg-card shadow-sm">
-                <div className="p-5 border-b border-border/40"><h3 className="font-semibold flex items-center gap-2"><Building className="h-5 w-5" />Informações Básicas</h3></div>
-                <div className="p-5 space-y-4">
-                  <div><Label htmlFor="company_name">Nome *</Label><Input id="company_name" value={formData.company_name} onChange={(e) => setFormData(prev => ({ ...prev, company_name: e.target.value }))} required /></div>
-                  <div><Label htmlFor="slogan">Slogan</Label><Input id="slogan" value={formData.slogan} onChange={(e) => setFormData(prev => ({ ...prev, slogan: e.target.value }))} /></div>
-                  <div><Label htmlFor="address">Endereço</Label><Input id="address" value={formData.address} onChange={(e) => setFormData(prev => ({ ...prev, address: e.target.value }))} /></div>
-                  <div className="grid grid-cols-2 gap-4">
-                    <div><Label htmlFor="phone">Telefone</Label><Input id="phone" value={formData.phone} onChange={(e) => setFormData(prev => ({ ...prev, phone: formatPhoneBR(e.target.value) }))} inputMode="tel" maxLength={14} /></div>
-                    <div><Label htmlFor="email">Email</Label><Input id="email" type="email" value={formData.email} onChange={(e) => setFormData(prev => ({ ...prev, email: e.target.value }))} /></div>
-                  </div>
-                </div>
-              </div>
-              <div className="rounded-xl border border-border/40 bg-card shadow-sm">
-                <div className="p-5 border-b border-border/40"><h3 className="font-semibold flex items-center gap-2"><Settings className="h-5 w-5" />Status</h3></div>
-                <div className="p-5"><div className="flex items-center justify-between"><Label>Página Ativa</Label><Switch checked={formData.is_public_page_enabled} onCheckedChange={(c) => setFormData(p => ({ ...p, is_public_page_enabled: c }))} /></div></div>
-              </div>
-              <div className="rounded-xl border border-border/40 bg-card shadow-sm">
-                <div className="p-5 border-b border-border/40"><h3 className="font-semibold flex items-center gap-2"><Clock className="h-5 w-5" />Regras de Cancelamento</h3></div>
-                <div className="p-5 space-y-4">
-                  <div className="flex items-center justify-between"><div><Label>Cancelamento Online</Label><p className="text-sm text-muted-foreground">Clientes podem cancelar</p></div><Switch checked={formData.allow_online_cancellation} onCheckedChange={(c) => setFormData(p => ({ ...p, allow_online_cancellation: c }))} /></div>
-                  {formData.allow_online_cancellation && <div className="grid grid-cols-2 gap-4 pt-2"><div><Label>Antecedência (h)</Label><Input type="number" min="0" value={formData.cancellation_hours_before} onChange={(e) => setFormData(p => ({ ...p, cancellation_hours_before: parseInt(e.target.value) || 0 }))} /></div><div><Label>Buffer (min)</Label><Input type="number" min="0" value={formData.buffer_minutes} onChange={(e) => setFormData(p => ({ ...p, buffer_minutes: parseInt(e.target.value) || 0 }))} /></div></div>}
-                  <div className="border-t border-border/40 pt-4"><div className="flex items-center justify-between"><Label className="flex items-center gap-2"><AlertTriangle className="h-4 w-4 text-amber-500" />Taxa No-Show</Label><Switch checked={formData.noshow_fee_enabled} onCheckedChange={(c) => setFormData(p => ({ ...p, noshow_fee_enabled: c }))} /></div>{formData.noshow_fee_enabled && <div className="mt-3"><Label>Valor (R$)</Label><Input type="number" min="0" step="0.01" value={formData.noshow_fee_amount} onChange={(e) => setFormData(p => ({ ...p, noshow_fee_amount: parseFloat(e.target.value) || 0 }))} className="max-w-[200px]" /></div>}</div>
-                </div>
-              </div>
-              <BusinessHoursEditor />
-            </TabsContent>
+        <form id="company-settings-form" onSubmit={handleSubmit}>
+          <Tabs value={currentTab} onValueChange={(value) => setSearchParams({ tab: value })}>
+            <SectionTabsLayout items={navigationItems} navigationTitle="O que você quer configurar?">
+                <TabsContent value="informacoes" className="mt-0 space-y-6">
+                  <FormSection
+                    icon={<Building className="h-5 w-5" />}
+                    title="Informações da empresa"
+                    description="Dados básicos usados nos agendamentos e no contato com seus clientes."
+                  >
+                    <div className="grid gap-5 sm:grid-cols-2">
+                      <div className="sm:col-span-2">
+                        <Label htmlFor="company_name" className="text-sm font-bold">Nome da empresa *</Label>
+                        <Input id="company_name" className="mt-2 min-h-11 bg-background" value={formData.company_name} onChange={(event) => setFormData((previous) => ({ ...previous, company_name: event.target.value }))} required />
+                        <FieldHelp>Este nome será mostrado para seus clientes.</FieldHelp>
+                      </div>
+                      <div className="sm:col-span-2">
+                        <Label htmlFor="slogan" className="text-sm font-bold">Frase da empresa</Label>
+                        <Input id="slogan" className="mt-2 min-h-11 bg-background" value={formData.slogan} onChange={(event) => setFormData((previous) => ({ ...previous, slogan: event.target.value }))} placeholder="Ex.: Aqui cuidamos da sua imagem" />
+                      </div>
+                      <div className="sm:col-span-2">
+                        <Label htmlFor="address" className="text-sm font-bold">Endereço</Label>
+                        <Input id="address" className="mt-2 min-h-11 bg-background" value={formData.address} onChange={(event) => setFormData((previous) => ({ ...previous, address: event.target.value }))} placeholder="Rua, número, bairro e cidade" />
+                      </div>
+                      <div>
+                        <Label htmlFor="phone" className="text-sm font-bold">Telefone</Label>
+                        <Input id="phone" className="mt-2 min-h-11 bg-background" value={formData.phone} onChange={(event) => setFormData((previous) => ({ ...previous, phone: formatPhoneBR(event.target.value) }))} inputMode="tel" maxLength={14} placeholder="(00) 00000-0000" />
+                      </div>
+                      <div>
+                        <Label htmlFor="email" className="text-sm font-bold">E-mail</Label>
+                        <Input id="email" type="email" className="mt-2 min-h-11 bg-background" value={formData.email} onChange={(event) => setFormData((previous) => ({ ...previous, email: event.target.value }))} placeholder="contato@suaempresa.com" />
+                      </div>
+                    </div>
+                  </FormSection>
 
-            <TabsContent value="identidade" className="space-y-6 mt-0">
-              <div className="rounded-xl border border-border/40 bg-card shadow-sm">
-                <div className="p-5 border-b border-border/40"><h3 className="font-semibold flex items-center gap-2"><Image className="h-5 w-5" />Imagens</h3></div>
-                <div className="p-5 grid grid-cols-1 md:grid-cols-2 gap-4">
-                  <ImageUploadField label="Logo" currentUrl={formData.logo_url} folder="logos" aspectRatio="square" onUploadSuccess={(url) => setFormData(p => ({ ...p, logo_url: url }))} uploadFile={uploadFileToStorage} />
-                  <ImageUploadField label="Banner" currentUrl={formData.banner_url} folder="banners" aspectRatio="wide" onUploadSuccess={(url) => setFormData(p => ({ ...p, banner_url: url }))} uploadFile={uploadFileToStorage} />
-                </div>
-              </div>
-              <ColorPaletteSelector currentPrimary={formData.primary_color_hex} currentSecondary={formData.secondary_color_hex} onSelect={(p, s) => setFormData(prev => ({ ...prev, primary_color_hex: p, secondary_color_hex: s }))} />
-              <div className="rounded-xl border border-border/40 bg-card shadow-sm">
-                <div className="p-5 border-b border-border/40"><h3 className="font-semibold flex items-center gap-2"><Palette className="h-5 w-5" />Cores</h3></div>
-                <div className="p-5 grid grid-cols-2 gap-4">
-                  <div><Label>Primária</Label><div className="flex items-center gap-2"><Input type="color" value={formData.primary_color_hex} onChange={(e) => setFormData(p => ({ ...p, primary_color_hex: e.target.value }))} className="w-12 h-10 p-0" /><Input value={formData.primary_color_hex} onChange={(e) => setFormData(p => ({ ...p, primary_color_hex: e.target.value }))} /></div></div>
-                  <div><Label>Secundária</Label><div className="flex items-center gap-2"><Input type="color" value={formData.secondary_color_hex} onChange={(e) => setFormData(p => ({ ...p, secondary_color_hex: e.target.value }))} className="w-12 h-10 p-0" /><Input value={formData.secondary_color_hex} onChange={(e) => setFormData(p => ({ ...p, secondary_color_hex: e.target.value }))} /></div></div>
-                </div>
-              </div>
-              <div className="rounded-xl border border-border/40 bg-card shadow-sm">
-                <div className="p-5 border-b border-border/40"><h3 className="font-semibold flex items-center gap-2"><Share2 className="h-5 w-5" />Redes Sociais</h3></div>
-                <div className="p-5 space-y-4">
-                  <div className="flex items-center gap-3"><div className="flex items-center justify-center w-10 h-10 rounded-lg bg-primary/10"><Instagram className="h-5 w-5 text-primary" /></div><div className="flex-1"><Label>Instagram</Label><Input value={formData.instagram_url} onChange={(e) => setFormData(p => ({ ...p, instagram_url: e.target.value }))} placeholder="@seuperfil" /></div></div>
-                  <div className="flex items-center gap-3"><div className="flex items-center justify-center w-10 h-10 rounded-lg bg-primary/10"><Facebook className="h-5 w-5 text-primary" /></div><div className="flex-1"><Label>Facebook</Label><Input value={formData.facebook_url} onChange={(e) => setFormData(p => ({ ...p, facebook_url: e.target.value }))} /></div></div>
-                  <div className="flex items-center gap-3"><div className="flex items-center justify-center w-10 h-10 rounded-lg bg-primary/10"><MessageCircle className="h-5 w-5 text-primary" /></div><div className="flex-1"><Label>WhatsApp</Label><Input value={formData.whatsapp_number} onChange={(e) => setFormData(p => ({ ...p, whatsapp_number: e.target.value }))} /></div></div>
-                </div>
-              </div>
-              <SeoMetaFields metaTitle={metaTitle} metaDescription={metaDescription} companyName={formData.company_name} onMetaTitleChange={setMetaTitle} onMetaDescriptionChange={setMetaDescription} />
-            </TabsContent>
+                  <FormSection
+                    icon={<Share2 className="h-5 w-5" />}
+                    title="Redes sociais"
+                    description="Facilite para que os clientes encontrem e falem com sua empresa."
+                  >
+                    <div className="grid gap-5 md:grid-cols-3">
+                      <div>
+                        <Label className="flex items-center gap-2 text-sm font-bold"><Instagram className="h-4 w-4 text-primary" />Instagram</Label>
+                        <Input className="mt-2 min-h-11 bg-background" value={formData.instagram_url} onChange={(event) => setFormData((previous) => ({ ...previous, instagram_url: event.target.value }))} placeholder="@seuperfil" />
+                      </div>
+                      <div>
+                        <Label className="flex items-center gap-2 text-sm font-bold"><Facebook className="h-4 w-4 text-primary" />Facebook</Label>
+                        <Input className="mt-2 min-h-11 bg-background" value={formData.facebook_url} onChange={(event) => setFormData((previous) => ({ ...previous, facebook_url: event.target.value }))} placeholder="facebook.com/seuperfil" />
+                      </div>
+                      <div>
+                        <Label className="flex items-center gap-2 text-sm font-bold"><MessageCircle className="h-4 w-4 text-primary" />WhatsApp</Label>
+                        <Input className="mt-2 min-h-11 bg-background" value={formData.whatsapp_number} onChange={(event) => setFormData((previous) => ({ ...previous, whatsapp_number: event.target.value }))} placeholder="(00) 00000-0000" />
+                      </div>
+                    </div>
+                  </FormSection>
+                </TabsContent>
 
-            <TabsContent value="link" className="space-y-6 mt-0">
-              <div className="rounded-xl border border-border/40 bg-card shadow-sm">
-                <div className="p-5 border-b border-border/40"><h3 className="font-semibold flex items-center gap-2"><Link className="h-5 w-5" />Link para Clientes</h3></div>
-                <div className="p-5 space-y-4">
-                  {clientBookingLink ? <><div className="p-3 bg-muted rounded-lg font-mono text-sm break-all">{clientBookingLink}</div><div className="flex flex-wrap gap-2"><Button type="button" variant="outline" onClick={handleCopyClientLink}><Copy className="h-4 w-4 mr-2" />Copiar</Button><Button type="button" variant="outline" onClick={handleOpenClientLink}><ExternalLink className="h-4 w-4 mr-2" />Abrir</Button><Button type="button" variant="outline" onClick={handleShareWhatsApp}><MessageCircle className="h-4 w-4 mr-2" />WhatsApp</Button></div></> : <p className="text-muted-foreground">Salve primeiro para gerar o link.</p>}
+                <TabsContent value="aparencia" className="mt-0 space-y-6">
+                  <FormSection
+                    icon={<ImageIcon className="h-5 w-5" />}
+                    title="Logo e imagem de capa"
+                    description="Estas imagens aparecem no painel e na página vista pelos clientes."
+                  >
+                    <div className="grid gap-5 md:grid-cols-2">
+                      <ImageUploadField label="Logo da empresa" currentUrl={formData.logo_url} folder="logos" aspectRatio="square" onUploadSuccess={(url) => setFormData((previous) => ({ ...previous, logo_url: url }))} uploadFile={uploadFileToStorage} />
+                      <ImageUploadField label="Imagem de capa" currentUrl={formData.banner_url} folder="banners" aspectRatio="wide" onUploadSuccess={(url) => setFormData((previous) => ({ ...previous, banner_url: url }))} uploadFile={uploadFileToStorage} />
+                    </div>
+                  </FormSection>
+
+                  <ColorPaletteSelector currentPrimary={formData.primary_color_hex} currentSecondary={formData.secondary_color_hex} onSelect={(primary, secondary) => setFormData((previous) => ({ ...previous, primary_color_hex: primary, secondary_color_hex: secondary }))} />
+
+                  <FormSection
+                    icon={<Palette className="h-5 w-5" />}
+                    title="Cores personalizadas"
+                    description="Use somente se quiser ajustar manualmente as cores da página do cliente."
+                  >
+                    <div className="grid gap-5 sm:grid-cols-2">
+                      <div>
+                        <Label className="text-sm font-bold">Cor principal</Label>
+                        <div className="mt-2 flex gap-2">
+                          <Input type="color" value={formData.primary_color_hex} onChange={(event) => setFormData((previous) => ({ ...previous, primary_color_hex: event.target.value }))} className="h-11 w-14 shrink-0 bg-background p-1" />
+                          <Input value={formData.primary_color_hex} onChange={(event) => setFormData((previous) => ({ ...previous, primary_color_hex: event.target.value }))} className="min-h-11 bg-background" />
+                        </div>
+                      </div>
+                      <div>
+                        <Label className="text-sm font-bold">Cor secundária</Label>
+                        <div className="mt-2 flex gap-2">
+                          <Input type="color" value={formData.secondary_color_hex} onChange={(event) => setFormData((previous) => ({ ...previous, secondary_color_hex: event.target.value }))} className="h-11 w-14 shrink-0 bg-background p-1" />
+                          <Input value={formData.secondary_color_hex} onChange={(event) => setFormData((previous) => ({ ...previous, secondary_color_hex: event.target.value }))} className="min-h-11 bg-background" />
+                        </div>
+                      </div>
+                    </div>
+                  </FormSection>
+
+                  <SeoMetaFields metaTitle={metaTitle} metaDescription={metaDescription} companyName={formData.company_name} onMetaTitleChange={setMetaTitle} onMetaDescriptionChange={setMetaDescription} />
+                </TabsContent>
+
+                <TabsContent value="agendamento" className="mt-0 space-y-6">
+                  <FormSection
+                    icon={<Smartphone className="h-5 w-5" />}
+                    title="Página de agendamento"
+                    description="Ative ou pause a página usada pelos seus clientes para marcar horários."
+                  >
+                    <div className="flex flex-col gap-4 rounded-xl border border-border bg-background p-4 sm:flex-row sm:items-center sm:justify-between">
+                      <div>
+                        <Label className="text-base font-bold">Aceitar agendamentos pela internet</Label>
+                        <p className="mt-1 text-sm font-medium text-muted-foreground">Quando estiver ativa, clientes poderão acessar o link e escolher um horário.</p>
+                      </div>
+                      <Switch checked={formData.is_public_page_enabled} onCheckedChange={(checked) => setFormData((previous) => ({ ...previous, is_public_page_enabled: checked }))} />
+                    </div>
+                  </FormSection>
+
+                  <FormSection
+                    icon={<Link className="h-5 w-5" />}
+                    title="Link para seus clientes"
+                    description="Copie, abra ou envie este endereço pelo WhatsApp."
+                  >
+                    {clientBookingLink ? (
+                      <>
+                        <div className="break-all rounded-xl border border-border bg-muted/70 p-4 font-mono text-sm font-semibold text-foreground">{clientBookingLink}</div>
+                        <div className="flex flex-wrap gap-3">
+                          <Button type="button" onClick={handleCopyClientLink} className="min-h-11"><Copy className="mr-2 h-4 w-4" />Copiar link</Button>
+                          <Button type="button" variant="outline" onClick={handleOpenClientLink} className="min-h-11"><ExternalLink className="mr-2 h-4 w-4" />Abrir página</Button>
+                          <Button type="button" variant="outline" onClick={handleShareWhatsApp} className="min-h-11"><MessageCircle className="mr-2 h-4 w-4" />Enviar no WhatsApp</Button>
+                        </div>
+                      </>
+                    ) : (
+                      <div className="rounded-xl border border-amber-300 bg-amber-50 p-4 text-sm font-semibold text-amber-900 dark:border-amber-900 dark:bg-amber-950/40 dark:text-amber-200">
+                        Salve as informações da empresa para gerar o link de agendamento.
+                      </div>
+                    )}
+                  </FormSection>
+                  {clientBookingLink && <QRCodeGenerator url={clientBookingLink} companyName={formData.company_name || "Sua empresa"} />}
+                </TabsContent>
+
+                <TabsContent value="funcionamento" className="mt-0 space-y-6">
+                  <BusinessHoursEditor />
+                  <FormSection
+                    icon={<Clock className="h-5 w-5" />}
+                    title="Regras de cancelamento"
+                    description="Defina com quanto tempo o cliente pode cancelar e o intervalo entre atendimentos."
+                  >
+                    <div className="flex flex-col gap-4 rounded-xl border border-border bg-background p-4 sm:flex-row sm:items-center sm:justify-between">
+                      <div>
+                        <Label className="text-base font-bold">Permitir cancelamento pela internet</Label>
+                        <p className="mt-1 text-sm font-medium text-muted-foreground">O cliente poderá cancelar sem precisar entrar em contato.</p>
+                      </div>
+                      <Switch checked={formData.allow_online_cancellation} onCheckedChange={(checked) => setFormData((previous) => ({ ...previous, allow_online_cancellation: checked }))} />
+                    </div>
+                    {formData.allow_online_cancellation && (
+                      <div className="grid gap-5 sm:grid-cols-2">
+                        <div>
+                          <Label className="text-sm font-bold">Antecedência para cancelar</Label>
+                          <div className="mt-2 flex items-center gap-2"><Input type="number" min="0" value={formData.cancellation_hours_before} onChange={(event) => setFormData((previous) => ({ ...previous, cancellation_hours_before: Number.parseInt(event.target.value) || 0 }))} className="min-h-11 bg-background" /><span className="font-medium text-muted-foreground">horas</span></div>
+                        </div>
+                        <div>
+                          <Label className="text-sm font-bold">Intervalo entre atendimentos</Label>
+                          <div className="mt-2 flex items-center gap-2"><Input type="number" min="0" value={formData.buffer_minutes} onChange={(event) => setFormData((previous) => ({ ...previous, buffer_minutes: Number.parseInt(event.target.value) || 0 }))} className="min-h-11 bg-background" /><span className="font-medium text-muted-foreground">minutos</span></div>
+                        </div>
+                      </div>
+                    )}
+                    <div className="border-t border-border pt-5">
+                      <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+                        <div>
+                          <Label className="flex items-center gap-2 text-base font-bold"><AlertTriangle className="h-5 w-5 text-amber-500" />Cobrar taxa por ausência</Label>
+                          <p className="mt-1 text-sm font-medium text-muted-foreground">Use esta opção quando o cliente não comparecer ao horário marcado.</p>
+                        </div>
+                        <Switch checked={formData.noshow_fee_enabled} onCheckedChange={(checked) => setFormData((previous) => ({ ...previous, noshow_fee_enabled: checked }))} />
+                      </div>
+                      {formData.noshow_fee_enabled && (
+                        <div className="mt-4 max-w-xs">
+                          <Label className="text-sm font-bold">Valor da taxa</Label>
+                          <Input type="number" min="0" step="0.01" value={formData.noshow_fee_amount} onChange={(event) => setFormData((previous) => ({ ...previous, noshow_fee_amount: Number.parseFloat(event.target.value) || 0 }))} className="mt-2 min-h-11 bg-background" />
+                        </div>
+                      )}
+                    </div>
+                  </FormSection>
+                </TabsContent>
+
+                <TabsContent value="estoque" className="mt-0"><InventoryContent /></TabsContent>
+                <TabsContent value="galeria" className="mt-0"><GalleryContent /></TabsContent>
+            </SectionTabsLayout>
+
+            {showsSaveAction && (
+              <div className="sticky bottom-4 z-20 mt-6 flex justify-end">
+                <div className="rounded-2xl border border-border bg-card/95 p-2 shadow-xl backdrop-blur">
+                  <Button type="submit" form="company-settings-form" disabled={isSaving} className="min-h-11 px-5 text-sm font-bold">
+                    <Save className="mr-2 h-4 w-4" />
+                    {isSaving ? "Salvando alterações..." : "Salvar alterações"}
+                  </Button>
                 </div>
               </div>
-              {clientBookingLink && <QRCodeGenerator url={clientBookingLink} companyName={formData.company_name || 'Sua Barbearia'} />}
-            </TabsContent>
-
-            <TabsContent value="estoque"><InventoryContent /></TabsContent>
-            <TabsContent value="galeria"><GalleryContent /></TabsContent>
+            )}
           </Tabs>
         </form>
-      </div>
+      </PageContainer>
     </Layout>
   );
 };

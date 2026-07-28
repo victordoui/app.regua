@@ -23,6 +23,7 @@ import {
   ChevronRight
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
+import { getAppointmentAttendeeName } from '@/lib/groupBooking';
 
 interface AppointmentTableViewProps {
   appointments: Appointment[];
@@ -60,7 +61,7 @@ const AppointmentTableView: React.FC<AppointmentTableViewProps> = ({
     if (searchTerm) {
       const term = searchTerm.toLowerCase();
       result = result.filter(apt => 
-        apt.clients?.name?.toLowerCase().includes(term) ||
+        getAppointmentAttendeeName(apt).toLowerCase().includes(term) ||
         apt.services?.name?.toLowerCase().includes(term) ||
         apt.barbers?.full_name?.toLowerCase().includes(term)
       );
@@ -72,7 +73,7 @@ const AppointmentTableView: React.FC<AppointmentTableViewProps> = ({
       
       switch (sortField) {
         case 'client':
-          comparison = (a.clients?.name || '').localeCompare(b.clients?.name || '');
+          comparison = getAppointmentAttendeeName(a).localeCompare(getAppointmentAttendeeName(b));
           break;
         case 'service':
           comparison = (a.services?.name || '').localeCompare(b.services?.name || '');
@@ -125,7 +126,7 @@ const AppointmentTableView: React.FC<AppointmentTableViewProps> = ({
   const exportToCSV = () => {
     const headers = ['Cliente', 'Serviço', 'Data', 'Horário', 'Profissional', 'Status', 'Criado em'];
     const rows = processedAppointments.map(apt => [
-      apt.clients?.name || 'N/A',
+      getAppointmentAttendeeName(apt),
       apt.services?.name || 'N/A',
       format(parseISO(apt.appointment_date), 'dd/MM/yyyy'),
       apt.appointment_time,
@@ -213,7 +214,7 @@ const AppointmentTableView: React.FC<AppointmentTableViewProps> = ({
                           <Sparkles className="w-2 h-2" />
                         </Badge>
                       )}
-                      <span className="font-medium">{apt.clients?.name || 'N/A'}</span>
+                      <span className="font-medium">{getAppointmentAttendeeName(apt)}</span>
                     </div>
                   </TableCell>
                   <TableCell>{apt.services?.name || 'N/A'}</TableCell>

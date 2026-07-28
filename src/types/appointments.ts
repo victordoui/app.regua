@@ -60,6 +60,7 @@ export interface Appointment {
   clients?: Client; // Populated via join
   services?: Service; // Populated via join
   barbers?: Barber; // Populated via join (assuming 'barbers' is the alias for the joined profile)
+  appointment_services?: AppointmentService[];
 }
 
 export interface AppointmentFormData {
@@ -80,4 +81,5 @@ export interface AppointmentService {
   service_id: string;
   price: number;
   created_at?: string;
+  services?: Service;
 }

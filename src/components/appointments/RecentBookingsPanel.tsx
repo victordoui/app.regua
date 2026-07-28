@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { Appointment } from '@/types/appointments';
+import { getAppointmentAttendeeName } from '@/lib/groupBooking';
 import { format, parseISO, formatDistanceToNow, isToday, isThisWeek, subDays, differenceInHours } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
 import { CalendarPlus, Clock, User, Scissors, X, Sparkles, Filter } from 'lucide-react';
@@ -133,7 +134,7 @@ const RecentBookingsPanel: React.FC<RecentBookingsPanelProps> = ({
                         NOVO
                       </Badge>
                     )}
-                    <span className="font-medium">{apt.clients?.name || 'Cliente'}</span>
+                    <span className="font-medium">{getAppointmentAttendeeName(apt)}</span>
                   </div>
                   <div className="flex items-center gap-1">
                     <div className={cn("w-2 h-2 rounded-full", getStatusColor(apt.status))} />

@@ -1,8 +1,9 @@
 import React from 'react';
-import { format, startOfMonth, endOfMonth, startOfWeek, endOfWeek, eachDayOfInterval, isSameMonth, isSameDay, isToday } from 'date-fns';
+import { format, startOfMonth, endOfMonth, startOfWeek, endOfWeek, eachDayOfInterval, isSameMonth, isToday } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
 import { Appointment, Barber } from '@/types/appointments';
 import { cn } from '@/lib/utils';
+import { getAppointmentAttendeeName } from '@/lib/groupBooking';
 
 interface MonthViewProps {
     appointments: Appointment[];
@@ -28,7 +29,7 @@ const MonthView: React.FC<MonthViewProps> = ({
     const weekDays = ['Dom', 'Seg', 'Ter', 'Qua', 'Qui', 'Sex', 'Sáb'];
 
     const getAppointmentsForDay = (day: Date) => {
-        return appointments.filter(apt => isSameDay(new Date(apt.appointment_date), day));
+        return appointments.filter(apt => apt.appointment_date.slice(0, 10) === format(day, 'yyyy-MM-dd'));
     };
 
     const getBarberColor = (barberId: string | null) => {
@@ -87,7 +88,7 @@ const MonthView: React.FC<MonthViewProps> = ({
                                             onEventClick(apt);
                                         }}
                                     >
-                                        {apt.appointment_time.slice(0, 5)} {apt.clients?.name?.split(' ')[0] || 'Cliente'}
+                                        {apt.appointment_time.slice(0, 5)} {getAppointmentAttendeeName(apt).split(' ')[0]}
                                     </div>
                                 ))}
                                 {hasMore && (

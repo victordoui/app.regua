@@ -47,7 +47,7 @@ export const DigitalWallet = ({
   ];
 
   return (
-    <Card className="overflow-hidden">
+    <Card className="overflow-hidden rounded-2xl shadow-sm">
       <CardHeader className="pb-2">
         <CardTitle className="flex items-center justify-between text-base">
           <span className="flex items-center gap-2">
@@ -70,7 +70,7 @@ export const DigitalWallet = ({
               initial={{ opacity: 0, y: 10 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: index * 0.1 }}
-              className={`p-3 rounded-lg ${item.bgColor} text-center`}
+              className={`rounded-xl p-3 ${item.bgColor} text-center`}
             >
               <item.icon className={`h-5 w-5 mx-auto mb-1 ${item.color}`} />
               <p className="text-lg font-bold">{item.value}</p>

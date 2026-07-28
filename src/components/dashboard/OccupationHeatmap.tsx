@@ -1,5 +1,3 @@
-import React from "react";
-
 const heatColors = [
   "bg-[hsl(var(--primary-50))]",           // h0 - empty
   "bg-[#BFDBFE]",                           // h1
@@ -55,7 +53,7 @@ const OccupationHeatmap = () => {
 
           {/* Rows */}
           {data.map((row, ri) => (
-            <React.Fragment key={ri}>
+            <div key={ri} className="contents">
               <div className="flex items-center justify-end pr-1.5 text-[10px] text-muted-foreground font-medium">
                 {timeLabels[ri]}
               </div>
@@ -67,7 +65,7 @@ const OccupationHeatmap = () => {
                   {val > 0 ? val : ''}
                 </div>
               ))}
-            </React.Fragment>
+            </div>
           ))}
         </div>
       </div>

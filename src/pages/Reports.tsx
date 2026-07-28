@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Progress } from '@/components/ui/progress';
 import { Badge } from '@/components/ui/badge';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { Tabs, TabsContent } from '@/components/ui/tabs';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { TrendingUp, TrendingDown, BarChart3, Download, Calendar, DollarSign, Users, ShoppingCart } from 'lucide-react';
 import Layout from '@/components/Layout';
@@ -16,10 +16,17 @@ import OccupancyChart from '@/components/charts/OccupancyChart';
 import SalesChart from '@/components/reports/SalesChart';
 import { useSalesReports, DateRangeType } from '@/hooks/useSalesReports';
 import { PieChart, Pie, Cell, ResponsiveContainer, Tooltip } from 'recharts';
-import { PageHeader } from '@/components/ui/page-header';
+import { PageContainer, PageHeader } from '@/components/ui/page-header';
 import { StatusCards } from '@/components/ui/status-cards';
+import { SectionTabsLayout } from '@/components/ui/section-tabs';
 
 const COLORS = ['hsl(var(--primary))', 'hsl(var(--primary) / 0.8)', 'hsl(var(--primary) / 0.6)', 'hsl(var(--primary) / 0.4)', 'hsl(var(--primary) / 0.2)'];
+const reportSections = [
+  { value: 'overview', label: 'Visão Geral', description: 'Resumo do negócio', icon: BarChart3 },
+  { value: 'sales', label: 'Vendas', description: 'Receita e atendimentos', icon: DollarSign },
+  { value: 'services', label: 'Serviços', description: 'Desempenho dos serviços', icon: ShoppingCart },
+  { value: 'clients', label: 'Clientes', description: 'Retenção e novos clientes', icon: Users },
+] as const;
 
 interface ReportData { monthlyRevenue: number; totalAppointments: number; completedAppointments: number; newClients: number; clientRetention: number; topServices: { name: string; count: number }[]; }
 
@@ -38,7 +45,7 @@ const Reports = () => {
     const total = (appointmentsData || []).length;
     const revenue = completed.reduce((sum, a) => sum + (a.total_price || 0), 0);
     const sc: { [k: string]: number } = {};
-    completed.forEach((a: any) => { const n = a.services?.name || 'Desconhecido'; sc[n] = (sc[n] || 0) + 1; });
+    completed.forEach((appointment) => { const service = appointment.services as { name?: string } | null; const name = service?.name || 'Desconhecido'; sc[name] = (sc[name] || 0) + 1; });
     const topServices = Object.entries(sc).map(([name, count]) => ({ name, count })).sort((a, b) => b.count - a.count).slice(0, 5);
     const { data: clientsData } = await supabase.from("profiles").select("id, created_at").eq("user_id", user.id).gte("created_at", startOfMonth).lte("created_at", endOfMonth);
     return { monthlyRevenue: revenue, totalAppointments: total, completedAppointments: completed.length, newClients: (clientsData || []).length, clientRetention: 85, topServices };
@@ -50,8 +57,8 @@ const Reports = () => {
 
   return (
     <Layout>
-      <div className="flex-1 space-y-6 p-6">
-        <PageHeader icon={<BarChart3 className="h-5 w-5" />} title="Relatórios" subtitle="Análise de desempenho do negócio">
+      <PageContainer>
+        <PageHeader eyebrow="Financeiro" icon={<BarChart3 className="h-5 w-5" />} title="Insights" subtitle="Entenda os resultados do negócio sem precisar interpretar relatórios complicados.">
           <Button><Download className="h-4 w-4 mr-2" />Exportar</Button>
         </PageHeader>
 
@@ -66,14 +73,8 @@ const Reports = () => {
         />
 
         <Tabs defaultValue="overview" className="space-y-4">
-          <TabsList>
-            <TabsTrigger value="overview">Visão Geral</TabsTrigger>
-            <TabsTrigger value="sales">Vendas</TabsTrigger>
-            <TabsTrigger value="services">Serviços</TabsTrigger>
-            <TabsTrigger value="clients">Clientes</TabsTrigger>
-          </TabsList>
-
-          <TabsContent value="overview" className="space-y-4">
+          <SectionTabsLayout items={reportSections} navigationTitle="O que você quer analisar?">
+          <TabsContent value="overview" className="mt-0 space-y-4">
             <div className="grid gap-4 md:grid-cols-2"><RevenueChart /><OccupancyChart /></div>
             <div className="rounded-xl border border-border/40 bg-card shadow-sm">
               <div className="p-5 border-b border-border/40"><h3 className="font-semibold">Serviços Mais Populares</h3></div>
@@ -84,7 +85,7 @@ const Reports = () => {
             </div>
           </TabsContent>
 
-          <TabsContent value="sales" className="space-y-4">
+          <TabsContent value="sales" className="mt-0 space-y-4">
             <div className="flex justify-end"><Select value={dateRange} onValueChange={(v) => setDateRange(v as DateRangeType)}><SelectTrigger className="w-[150px]"><SelectValue /></SelectTrigger><SelectContent><SelectItem value="today">Hoje</SelectItem><SelectItem value="week">Semana</SelectItem><SelectItem value="month">Mês</SelectItem><SelectItem value="year">Ano</SelectItem></SelectContent></Select></div>
             <StatusCards
               className="grid-cols-1 sm:grid-cols-2 lg:grid-cols-4"
@@ -108,9 +109,9 @@ const Reports = () => {
             </div>
           </TabsContent>
 
-          <TabsContent value="services"><ServicesChart /></TabsContent>
+          <TabsContent value="services" className="mt-0"><ServicesChart /></TabsContent>
 
-          <TabsContent value="clients" className="space-y-4">
+          <TabsContent value="clients" className="mt-0 space-y-4">
             <div className="grid gap-4 md:grid-cols-2">
               <div className="rounded-xl border border-border/40 bg-card p-5 shadow-sm">
                 <h3 className="font-semibold mb-4">Métricas de Clientes</h3>
@@ -127,8 +128,9 @@ const Reports = () => {
               </div>
             </div>
           </TabsContent>
+          </SectionTabsLayout>
         </Tabs>
-      </div>
+      </PageContainer>
     </Layout>
   );
 };

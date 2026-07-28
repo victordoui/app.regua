@@ -10,7 +10,7 @@ import { useClients } from "@/hooks/useClients";
 import Layout from "@/components/Layout";
 import { Client } from "@/types/appointments";
 import { formatPhoneBR, formatNameOnly } from "@/lib/utils";
-import { PageHeader } from "@/components/ui/page-header";
+import { PageContainer, PageHeader } from "@/components/ui/page-header";
 import { StatusCards } from "@/components/ui/status-cards";
 import { SearchFilters } from "@/components/ui/search-filters";
 
@@ -46,7 +46,9 @@ const Clients = () => {
       else await addClient(formData);
       setIsDialogOpen(false);
       setEditingClient(null);
-    } catch {} finally { setSubmitting(false); }
+    } catch (error) {
+      console.error("Erro ao salvar cliente:", error);
+    } finally { setSubmitting(false); }
   };
 
   const handleEdit = (client: Client) => { setEditingClient(client); setIsDialogOpen(true); };
@@ -62,8 +64,8 @@ const Clients = () => {
 
   return (
     <Layout>
-      <div className="flex-1 space-y-6 p-6">
-        <PageHeader icon={<Users className="h-5 w-5" />} title="Clientes" subtitle="Gerencie sua base de clientes">
+      <PageContainer>
+        <PageHeader eyebrow="Operações" icon={<Users className="h-5 w-5" />} title="Clientes" subtitle="Gerencie sua base de clientes">
           <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
             <DialogTrigger asChild>
               <Button onClick={() => setEditingClient(null)}><Plus className="h-4 w-4 mr-2" />Novo Cliente</Button>
@@ -140,7 +142,7 @@ const Clients = () => {
             ))
           )}
         </div>
-      </div>
+      </PageContainer>
     </Layout>
   );
 };

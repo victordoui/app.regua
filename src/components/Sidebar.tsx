@@ -40,7 +40,7 @@ const Sidebar = () => {
 
   const { collapsed } = useSidebarCollapsed();
 
-  const fullMenuStructure = [
+  const fullMenuStructure = useMemo(() => [
     {
       category: "dashboard", label: "Dashboard", icon: LayoutDashboard,
       items: [
@@ -89,7 +89,7 @@ const Sidebar = () => {
         { icon: Heart, label: "Rewards", path: "/loyalty" },
       ]
     },
-  ];
+  ], []);
 
   const menuStructure = useMemo(() => {
     if (isSuperAdmin || isAdmin) return fullMenuStructure;
@@ -100,7 +100,7 @@ const Sidebar = () => {
         .filter(cat => cat.items.length > 0);
     }
     return [];
-  }, [isSuperAdmin, isAdmin, isBarbeiro]);
+  }, [fullMenuStructure, isSuperAdmin, isAdmin, isBarbeiro]);
 
   const isActivePath = (path: string) => location.pathname === path;
   const isCategoryActive = (items: { path: string }[]) =>
@@ -141,19 +141,23 @@ const Sidebar = () => {
     user?.user_metadata?.full_name || user?.email?.split('@')[0] || 'Usuário';
 
   const handleSignOut = async () => {
-    try { await signOut?.(); } catch {}
+    try {
+      await signOut?.();
+    } catch (error) {
+      console.error("Erro ao encerrar a sessão:", error);
+    }
     navigate('/login');
   };
 
   return (
     <aside
-      className="fixed left-0 top-0 bottom-0 z-40 flex flex-col bg-sidebar text-sidebar-foreground border-r border-sidebar-border max-md:hidden transition-[width] duration-200"
+      className="fixed bottom-0 left-0 top-0 z-40 hidden flex-col border-r border-sidebar-border bg-sidebar text-sidebar-foreground transition-[width] duration-200 md:flex"
       style={{ width: collapsed ? SIDEBAR_W_COLLAPSED : SIDEBAR_W_EXPANDED }}
     >
       {/* Toggle agora vive na Topbar */}
 
       {/* Brand */}
-      <div className={`flex items-center justify-center ${collapsed ? 'pt-3 pb-2 px-2' : 'pt-3 pb-2 px-4'}`}>
+      <div className={`flex items-center justify-center ${collapsed ? 'px-2 pb-2 pt-3' : 'px-4 pb-2 pt-3'}`}>
         <img
           src={vizzuLogo}
           alt="VIZZU"
@@ -162,7 +166,7 @@ const Sidebar = () => {
       </div>
 
       {/* Navigation */}
-      <nav className={`flex-1 overflow-y-auto py-3 space-y-0.5 scrollbar-hidden-hover ${collapsed ? 'px-2' : 'px-2'}`}>
+      <nav className={`flex-1 space-y-0.5 overflow-y-auto px-2 py-3 scrollbar-hidden-hover`}>
         {menuStructure.map((category) => {
           const CatIcon = category.icon;
           const isOpen = openCategories.includes(category.category);
@@ -217,7 +221,7 @@ const Sidebar = () => {
               <Collapsible open={isOpen} onOpenChange={() => toggleCategory(category.category)}>
                 <CollapsibleTrigger asChild>
                   <button
-                    className={`w-full flex items-center gap-3 px-3 py-3 rounded-md text-[15px] font-semibold transition-colors ${
+                    className={`w-full flex items-center gap-3 rounded-md px-3 py-3 text-[15px] font-semibold transition-colors ${
                       hasActive && isOpen
                         ? 'bg-white/10 text-white'
                         : 'text-white/90 hover:bg-white/10 hover:text-white'
@@ -236,9 +240,9 @@ const Sidebar = () => {
                       <button
                         key={item.path}
                         onClick={() => navigate(item.path)}
-                        className={`w-full flex items-center gap-3 pl-10 pr-3 py-2.5 rounded-md text-[14px] font-medium transition-colors relative ${
+                        className={`relative flex w-full items-center gap-3 rounded-md py-2.5 pl-10 pr-3 text-[14px] font-medium transition-colors ${
                           active
-                            ? 'bg-white text-[hsl(var(--sidebar-background))] shadow-sm font-semibold'
+                            ? 'bg-white font-semibold text-[hsl(var(--sidebar-background))] shadow-sm'
                             : 'text-white/75 hover:bg-white/10 hover:text-white'
                         }`}
                       >
@@ -280,11 +284,11 @@ const Sidebar = () => {
       </nav>
 
       {/* Footer */}
-      <div className={`p-3 border-t border-sidebar-border space-y-2.5 ${collapsed ? 'px-2' : ''}`}>
+      <div className={`space-y-2.5 border-t border-sidebar-border p-3 ${collapsed ? 'px-2' : ''}`}>
         <button
           onClick={() => navigate('/upgrade')}
           title={collapsed ? 'Fazer Upgrade' : undefined}
-          className={`w-full h-10 flex items-center justify-center gap-1.5 rounded-md border border-white/20 text-white text-sm font-semibold hover:bg-white/10 transition-all ${
+          className={`flex h-10 w-full items-center justify-center gap-1.5 rounded-md border border-white/20 text-sm font-semibold text-white transition-all hover:bg-white/10 ${
             collapsed ? 'px-0' : ''
           }`}
         >
@@ -297,7 +301,7 @@ const Sidebar = () => {
           <DropdownMenuTrigger asChild>
             <button
               title={collapsed ? getUserName() : undefined}
-              className={`w-full flex items-center gap-2.5 p-2 rounded-md hover:bg-white/10 transition-colors group ${
+              className={`group flex w-full items-center gap-2.5 rounded-md p-2 transition-colors hover:bg-white/10 ${
                 collapsed ? 'justify-center' : ''
               }`}
             >

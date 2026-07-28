@@ -31,7 +31,7 @@ const SearchFilters = ({
             placeholder={searchPlaceholder}
             value={searchValue}
             onChange={(e) => onSearchChange(e.target.value)}
-            className="pl-10 bg-card border-border/40"
+            className="min-h-11 border-border bg-card pl-10 text-base"
           />
         </div>
         {children}

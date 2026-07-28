@@ -10,6 +10,7 @@ import {
 } from '@/components/ui/tooltip';
 import { format, parseISO, differenceInHours } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
+import { getAppointmentAttendeeName, parseGroupBookingNotes } from '@/lib/groupBooking';
 
 interface CalendarEventCardProps {
     appointment: Appointment;
@@ -52,6 +53,8 @@ const CalendarEventCard: React.FC<CalendarEventCardProps> = ({
     };
 
     const bgColor = barberColor || 'hsl(var(--primary))';
+    const attendeeName = getAppointmentAttendeeName(appointment);
+    const groupMetadata = parseGroupBookingNotes(appointment.notes);
     
     const isRecurring = appointment.recurrence_type || appointment.parent_appointment_id;
     
@@ -109,7 +112,7 @@ const CalendarEventCard: React.FC<CalendarEventCardProps> = ({
                                 <Repeat className="w-3 h-3 flex-shrink-0 opacity-80" />
                             )}
                             <span className="font-semibold truncate">
-                                {appointment.clients?.name || 'Cliente'}
+                                {attendeeName}
                             </span>
                         </div>
                         <div className="truncate opacity-90">
@@ -119,7 +122,10 @@ const CalendarEventCard: React.FC<CalendarEventCardProps> = ({
                 </TooltipTrigger>
                 <TooltipContent side="right" className="max-w-xs">
                     <div className="space-y-1 text-sm">
-                        <p className="font-semibold">{appointment.clients?.name || 'Cliente'}</p>
+                        <p className="font-semibold">{attendeeName}</p>
+                        {groupMetadata.groupId && groupMetadata.responsibleName && (
+                            <p className="text-xs text-muted-foreground">Responsável: {groupMetadata.responsibleName}</p>
+                        )}
                         <p className="text-muted-foreground">{appointment.services?.name || 'Serviço'}</p>
                         <p className="text-muted-foreground">
                             {format(parseISO(appointment.appointment_date), 'dd/MM/yyyy', { locale: ptBR })} às {appointment.appointment_time}

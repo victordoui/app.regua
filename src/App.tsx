@@ -1,4 +1,4 @@
-import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
+import { BrowserRouter, Routes, Route, Navigate, useParams } from "react-router-dom";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { ThemeProvider } from "next-themes";
 import { Toaster } from "@/components/ui/toaster";
@@ -25,7 +25,6 @@ import Billing from "./pages/Billing";
 import Commissions from "./pages/Commissions";
 import CompanySettings from "./pages/CompanySettings";
 import Cash from "./pages/Cash";
-import PublicBookingPage from "./pages/PublicBookingPage";
 import Loyalty from "./pages/Loyalty";
 import Coupons from "./pages/Coupons";
 import ClientHistory from "./pages/client/ClientHistory";
@@ -64,6 +63,11 @@ import ClientProfile from "./pages/client/ClientProfile";
 
 const queryClient = new QueryClient();
 
+function LegacyPublicBookingRedirect() {
+  const { userId } = useParams<{ userId: string }>();
+  return <Navigate to={userId ? `/b/${userId}/login` : "/login"} replace />;
+}
+
 function AppContent() {
   return (
     <BrowserRouter>
@@ -98,8 +102,8 @@ function AppContent() {
         <Route path="/b/:userId/pagamentos" element={<ClientPayments />} />
         <Route path="/b/:userId" element={<Navigate to="login" replace />} />
 
-        {/* Rota Pública Legacy */}
-        <Route path="/public-booking/:userId/*" element={<PublicBookingPage />} />
+        {/* Rota pública antiga: encaminha para o fluxo multiempresa atual. */}
+        <Route path="/public-booking/:userId/*" element={<LegacyPublicBookingRedirect />} />
 
         {/* Páginas públicas */}
         <Route path="/cadastro" element={<SignupPage />} />

@@ -1,91 +1,83 @@
 import { useEffect } from "react";
-import { Bell, Calendar, Search, PanelLeftClose, PanelLeftOpen } from "lucide-react";
-import { useAuth } from "@/contexts/AuthContext";
-import { useRole } from "@/contexts/RoleContext";
-import { useNavigate } from "react-router-dom";
+import { Bell, Calendar, Command, PanelLeftClose, PanelLeftOpen, Search } from "lucide-react";
 import { format } from "date-fns";
 import { ptBR } from "date-fns/locale";
+import { useNavigate } from "react-router-dom";
+import { useAuth } from "@/contexts/AuthContext";
 import { ThemeToggle } from "@/components/ui/theme-toggle";
 import { useSidebarCollapsed } from "@/hooks/useSidebarCollapsed";
 
 const Topbar = () => {
   const { user } = useAuth();
-  const { isSuperAdmin, isAdmin, isBarbeiro } = useRole();
   const navigate = useNavigate();
   const { collapsed, toggle } = useSidebarCollapsed();
 
   useEffect(() => {
-    const handler = (e: KeyboardEvent) => {
-      if ((e.metaKey || e.ctrlKey) && e.key === 'k') {
-        e.preventDefault();
-        document.getElementById('topbar-search-input')?.focus();
+    const handler = (event: KeyboardEvent) => {
+      if ((event.metaKey || event.ctrlKey) && event.key.toLowerCase() === "k") {
+        event.preventDefault();
+        document.getElementById("topbar-search-input")?.focus();
       }
     };
-    window.addEventListener('keydown', handler);
-    return () => window.removeEventListener('keydown', handler);
+    window.addEventListener("keydown", handler);
+    return () => window.removeEventListener("keydown", handler);
   }, []);
 
-  const getUserInitials = () => {
-    const name = user?.user_metadata?.full_name || user?.email || 'VZ';
-    return name.split(' ').map((n: string) => n[0]).join('').slice(0, 2).toUpperCase();
-  };
-
-  const getRoleLabel = () => {
-    if (isSuperAdmin) return 'Super Admin';
-    if (isAdmin) return 'Administrador';
-    if (isBarbeiro) return 'Profissional';
-    return 'Usuário';
-  };
+  const initials = (user?.user_metadata?.full_name || user?.email || "VZ")
+    .split(" ")
+    .map((part: string) => part[0])
+    .join("")
+    .slice(0, 2)
+    .toUpperCase();
 
   return (
-    <header className="fixed top-0 right-0 z-30 h-14 bg-card border-b border-border flex items-center justify-between px-7 max-md:left-0 left-[var(--sidebar-w)] transition-[left] duration-200">
-      <div className="flex items-center gap-3 w-full max-w-md">
-        {/* Toggle sidebar */}
+    <header className="fixed right-0 top-0 z-30 hidden h-16 items-center justify-between border-b border-border/70 bg-background/85 px-6 shadow-[0_1px_0_rgba(15,23,42,0.02)] backdrop-blur-xl transition-[left] duration-200 md:flex md:left-[var(--sidebar-w)]">
+      <div className="flex w-full max-w-xl items-center gap-3">
         <button
           type="button"
           onClick={toggle}
-          aria-label={collapsed ? 'Expandir menu' : 'Recolher menu'}
-          title={collapsed ? 'Expandir menu' : 'Recolher menu'}
-          className="h-9 w-9 rounded-lg flex items-center justify-center text-muted-foreground hover:text-foreground hover:bg-muted transition-colors flex-shrink-0"
+          aria-label={collapsed ? "Expandir menu" : "Recolher menu"}
+          title={collapsed ? "Expandir menu" : "Recolher menu"}
+          className="flex h-9 w-9 flex-shrink-0 items-center justify-center rounded-xl border border-transparent text-muted-foreground transition-colors hover:border-border hover:bg-card hover:text-foreground"
         >
           {collapsed ? <PanelLeftOpen className="h-5 w-5" /> : <PanelLeftClose className="h-5 w-5" />}
         </button>
 
-        {/* Search */}
-        <div className="flex items-center gap-2 bg-secondary border border-border rounded-[10px] px-3 py-2 w-full focus-within:border-primary transition-colors">
-          <Search className="h-4 w-4 text-muted-foreground flex-shrink-0" />
+        <div className="flex h-10 w-full items-center gap-2 rounded-xl border border-border/80 bg-card px-3 shadow-sm transition-all focus-within:border-primary/40 focus-within:ring-4 focus-within:ring-primary/[0.06]">
+          <Search className="h-4 w-4 flex-shrink-0 text-muted-foreground" />
           <input
             id="topbar-search-input"
-            type="text"
-            placeholder="Buscar..."
-            className="border-none bg-transparent outline-none text-sm text-foreground w-full placeholder:text-muted-foreground"
+            type="search"
+            placeholder="Buscar clientes, agendamentos ou serviços..."
+            className="w-full border-none bg-transparent text-sm text-foreground outline-none placeholder:text-muted-foreground"
           />
-          <kbd className="text-[10px] text-muted-foreground border border-border rounded px-1.5 py-0.5 whitespace-nowrap flex-shrink-0">
-            ⌘K
+          <kbd className="flex flex-shrink-0 items-center gap-1 rounded-md border border-border bg-muted/70 px-1.5 py-0.5 text-[10px] text-muted-foreground">
+            <Command className="h-2.5 w-2.5" />K
           </kbd>
         </div>
       </div>
 
-
-      {/* Date + Right actions */}
-      <div className="flex items-center gap-3 ml-4">
-        <div className="inline-flex items-center gap-1.5 bg-secondary border border-border rounded-lg px-3 py-1.5 text-xs font-medium text-muted-foreground">
-          <Calendar className="h-3 w-3" />
-          {format(new Date(), "dd MMM, yyyy", { locale: ptBR })}
+      <div className="ml-4 flex items-center gap-2">
+        <div className="hidden items-center gap-1.5 rounded-xl border border-border/70 bg-card px-3 py-2 text-xs font-semibold text-muted-foreground shadow-sm xl:inline-flex">
+          <Calendar className="h-3.5 w-3.5" />
+          {format(new Date(), "dd 'de' MMMM", { locale: ptBR })}
         </div>
         <ThemeToggle />
         <button
-          className="relative p-2 rounded-lg text-muted-foreground hover:text-foreground hover:bg-muted transition-colors"
+          className="relative flex h-9 w-9 items-center justify-center rounded-xl border border-border/70 bg-card text-muted-foreground shadow-sm transition-colors hover:text-foreground"
           aria-label="Notificações"
-          onClick={() => navigate('/notifications')}
+          onClick={() => navigate("/conversations?tab=notificacoes")}
         >
-          <Bell className="h-5 w-5" />
-          <span className="absolute top-1.5 right-1.5 w-2 h-2 rounded-full bg-primary" />
+          <Bell className="h-4.5 w-4.5" />
+          <span className="absolute right-2 top-1.5 h-2 w-2 rounded-full border-2 border-card bg-primary" />
         </button>
-
-        <div className="w-8 h-8 rounded-full bg-gradient-to-br from-primary to-primary/70 flex items-center justify-center text-[11px] font-bold text-primary-foreground flex-shrink-0 shadow-[0_2px_8px_rgba(37,99,235,0.16)]">
-          {getUserInitials()}
-        </div>
+        <button
+          onClick={() => navigate("/profile")}
+          className="flex h-9 w-9 flex-shrink-0 items-center justify-center rounded-full bg-gradient-to-br from-primary to-primary/70 text-[11px] font-bold text-primary-foreground shadow-[0_3px_10px_rgba(37,99,235,0.2)] ring-2 ring-background"
+          aria-label="Abrir perfil"
+        >
+          {initials}
+        </button>
       </div>
     </header>
   );

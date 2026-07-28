@@ -1,13 +1,12 @@
-import React, { useState, useMemo } from 'react';
+import { useState, useMemo } from 'react';
 import Layout from '@/components/Layout';
 import { Button } from '@/components/ui/button';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Plus, ArrowUpCircle, ArrowDownCircle, Wallet } from 'lucide-react';
 import { useBilling } from '@/hooks/useBilling';
 import BillingFormDialog from '@/components/billing/BillingFormDialog';
 import BillingTransactionCard from '@/components/billing/BillingTransactionCard';
 import { AccountTransaction, AccountTransactionFormData, TransactionStatus, TransactionType } from '@/types/billing';
-import { PageHeader } from '@/components/ui/page-header';
+import { PageContainer, PageHeader } from '@/components/ui/page-header';
 import { StatusCards } from '@/components/ui/status-cards';
 
 const Billing = () => {
@@ -41,8 +40,8 @@ const Billing = () => {
 
   return (
     <Layout>
-      <div className="flex-1 space-y-6 p-6">
-        <PageHeader icon={<Wallet className="h-5 w-5" />} title="Contas a Pagar / Receber" subtitle="Controle financeiro do negócio">
+      <PageContainer>
+        <PageHeader eyebrow="Financeiro" icon={<Wallet className="h-5 w-5" />} title="Contas a pagar e receber" subtitle="Veja o que precisa ser pago, o que ainda vai entrar e o saldo realizado.">
           <Button onClick={() => handleNewTransaction('payable')}><Plus className="h-4 w-4 mr-2" />Novo Lançamento</Button>
         </PageHeader>
 
@@ -55,19 +54,35 @@ const Billing = () => {
           ]}
         />
 
-        <Tabs value={currentTab} onValueChange={(v) => setCurrentTab(v as TransactionType | 'all')} className="space-y-4">
-          <TabsList>
-            <TabsTrigger value="all">Todos</TabsTrigger>
-            <TabsTrigger value="payable">A Pagar</TabsTrigger>
-            <TabsTrigger value="receivable">A Receber</TabsTrigger>
-          </TabsList>
-          <TabsContent value="all">{renderList()}</TabsContent>
-          <TabsContent value="payable">{renderList()}</TabsContent>
-          <TabsContent value="receivable">{renderList()}</TabsContent>
-        </Tabs>
+        <div className="surface-toolbar">
+          <div>
+            <h2 className="text-lg font-bold text-foreground">Lançamentos</h2>
+            <p className="text-sm font-medium text-muted-foreground">Filtre a lista sem sair desta página.</p>
+          </div>
+          <div className="flex w-full gap-1 overflow-x-auto rounded-xl border border-border bg-muted/70 p-1 sm:w-auto">
+            {([
+              { value: 'all', label: 'Todos' },
+              { value: 'payable', label: 'A pagar' },
+              { value: 'receivable', label: 'A receber' },
+            ] as const).map((filter) => (
+              <Button
+                key={filter.value}
+                type="button"
+                variant={currentTab === filter.value ? 'default' : 'ghost'}
+                size="sm"
+                onClick={() => setCurrentTab(filter.value)}
+                className="shrink-0"
+              >
+                {filter.label}
+              </Button>
+            ))}
+          </div>
+        </div>
+
+        {renderList()}
 
         <BillingFormDialog isOpen={isDialogOpen} setIsOpen={setIsDialogOpen} editingTransaction={editingTransaction} saveTransaction={handleSaveTransaction} initialType={currentTab === 'payable' || currentTab === 'receivable' ? currentTab : 'payable'} />
-      </div>
+      </PageContainer>
     </Layout>
   );
 };

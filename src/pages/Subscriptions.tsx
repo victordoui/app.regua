@@ -1,20 +1,22 @@
 import { useState } from 'react';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Badge } from '@/components/ui/badge';
-import { Progress } from '@/components/ui/progress';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import {
-  CreditCard, Users, TrendingUp, DollarSign, Calendar, Plus, Crown, Star,
-  CheckCircle, XCircle, AlertTriangle
-} from 'lucide-react';
+import { Tabs, TabsContent } from '@/components/ui/tabs';
+import { CreditCard, Users, TrendingUp, DollarSign, Plus, Crown } from 'lucide-react';
 import { useSubscriptions } from '@/hooks/useSubscriptions';
-import { SubscriptionPlan } from '@/types/subscriptions';
+import { PlanFormData, SubscriptionPlan } from '@/types/subscriptions';
 import Layout from '@/components/Layout';
 import SubscriptionPlanCard from '@/components/subscriptions/SubscriptionPlanCard';
 import UserSubscriptionCard from '@/components/subscriptions/UserSubscriptionCard';
 import SubscriptionFormDialog from '@/components/subscriptions/SubscriptionFormDialog';
 import SubscriptionCreationDialog from '@/components/subscriptions/SubscriptionCreationDialog';
+import { PageContainer, PageHeader } from '@/components/ui/page-header';
+import { SectionTabsLayout } from '@/components/ui/section-tabs';
+import { StatusCards } from '@/components/ui/status-cards';
+
+const subscriptionSections = [
+  { value: 'plans', label: 'Planos', description: 'Opções oferecidas', icon: Crown },
+  { value: 'subscriptions', label: 'Clientes assinantes', description: 'Assinaturas em andamento', icon: CreditCard },
+] as const;
 
 const Subscriptions = () => {
   const {
@@ -34,7 +36,7 @@ const Subscriptions = () => {
   const [isSubscriptionDialogOpen, setIsSubscriptionDialogOpen] = useState(false);
   const [editingPlan, setEditingPlan] = useState<SubscriptionPlan | null>(null);
 
-  const handleSavePlan = async (formData: any, id: string | null) => {
+  const handleSavePlan = async (formData: PlanFormData, id: string | null) => {
     if (id) {
       await updatePlan({ id, formData });
     } else {
@@ -43,41 +45,6 @@ const Subscriptions = () => {
   };
 
   const stats = getStats();
-
-  const summaryCards = [
-    {
-      title: "Assinantes Ativos",
-      value: stats.activeCount.toString(),
-      change: `MRR: R$ ${stats.mrr.toLocaleString('pt-br', { minimumFractionDigits: 2 })}`,
-      icon: Crown,
-      color: "purple",
-      progress: stats.retention
-    },
-    {
-      title: "Receita Mensal",
-      value: `R$ ${stats.mrr.toLocaleString('pt-br', { minimumFractionDigits: 2 })}`,
-      change: "+12% vs mês anterior", // Placeholder, could be calculated
-      icon: DollarSign,
-      color: "green",
-      progress: Math.min((stats.mrr / 10000) * 100, 100) // Example progress based on a target
-    },
-    {
-      title: "Taxa de Retenção",
-      value: `${stats.retention}%`,
-      change: "+5% vs mês anterior", // Placeholder
-      icon: TrendingUp,
-      color: "blue",
-      progress: stats.retention
-    },
-    {
-      title: "Total de Clientes",
-      value: clients.length.toString(),
-      change: "Novos este mês: 0", // Placeholder
-      icon: Users,
-      color: "orange",
-      progress: 0 // Placeholder
-    }
-  ];
 
   if (isLoading) {
     return (
@@ -91,12 +58,9 @@ const Subscriptions = () => {
 
   return (
     <Layout>
-      <div className="flex-1 space-y-6 p-6">
-        <div className="flex items-center justify-between">
-          <div>
-            <h1 className="text-xl md:text-2xl font-bold text-foreground">Assinaturas</h1>
-          </div>
-          <div className="flex gap-2">
+      <PageContainer>
+        <PageHeader eyebrow="Engajamento" icon={<Crown className="h-5 w-5" />} title="Planos e Assinaturas" subtitle="Crie planos recorrentes e acompanhe os clientes assinantes.">
+          <div className="flex flex-wrap gap-2">
             <Button onClick={() => { setEditingPlan(null); setIsPlanDialogOpen(true); }}>
               <Plus className="h-4 w-4 mr-2" />
               Novo Plano
@@ -106,34 +70,20 @@ const Subscriptions = () => {
               Nova Assinatura
             </Button>
           </div>
-        </div>
+        </PageHeader>
 
-        <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
-          {summaryCards.map((stat, index) => {
-            const Icon = stat.icon;
-            return (
-              <Card key={index}>
-                <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                  <CardTitle className="text-sm font-medium">{stat.title}</CardTitle>
-                  <Icon className="h-4 w-4 text-muted-foreground" />
-                </CardHeader>
-                <CardContent>
-                  <div className="text-2xl font-bold">{stat.value}</div>
-                  <p className="text-xs text-muted-foreground">{stat.change}</p>
-                  <Progress value={stat.progress} className="mt-2" />
-                </CardContent>
-              </Card>
-            );
-          })}
-        </div>
+        <StatusCards
+          items={[
+            { label: 'Assinantes ativos', value: stats.activeCount, icon: <Crown className="h-5 w-5" />, color: 'purple' },
+            { label: 'Receita mensal', value: `R$ ${stats.mrr.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}`, icon: <DollarSign className="h-5 w-5" />, color: 'green' },
+            { label: 'Taxa de retenção', value: `${stats.retention}%`, icon: <TrendingUp className="h-5 w-5" />, color: 'blue' },
+            { label: 'Clientes disponíveis', value: clients.length, icon: <Users className="h-5 w-5" />, color: 'amber' },
+          ]}
+        />
 
-        <Tabs defaultValue="plans" className="space-y-4">
-          <TabsList>
-            <TabsTrigger value="plans">Planos</TabsTrigger>
-            <TabsTrigger value="subscriptions">Assinaturas</TabsTrigger>
-          </TabsList>
-
-          <TabsContent value="plans" className="space-y-4">
+        <Tabs defaultValue="plans">
+          <SectionTabsLayout items={subscriptionSections} navigationTitle="O que você quer gerenciar?">
+          <TabsContent value="plans" className="mt-0 space-y-4">
             <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
               {plans.length === 0 ? (
                 <div className="col-span-full text-center py-8 text-muted-foreground">Nenhum plano de assinatura encontrado.</div>
@@ -150,7 +100,7 @@ const Subscriptions = () => {
             </div>
           </TabsContent>
 
-          <TabsContent value="subscriptions" className="space-y-4">
+          <TabsContent value="subscriptions" className="mt-0 space-y-4">
             <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
               {subscriptions.length === 0 ? (
                 <div className="col-span-full text-center py-8 text-muted-foreground">Nenhuma assinatura de cliente encontrada.</div>
@@ -165,6 +115,7 @@ const Subscriptions = () => {
               )}
             </div>
           </TabsContent>
+          </SectionTabsLayout>
         </Tabs>
 
         <SubscriptionFormDialog
@@ -181,7 +132,7 @@ const Subscriptions = () => {
           clients={clients}
           plans={plans}
         />
-      </div>
+      </PageContainer>
     </Layout>
   );
 };

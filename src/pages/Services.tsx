@@ -8,16 +8,22 @@ import { Textarea } from "@/components/ui/textarea";
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Switch } from "@/components/ui/switch";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Tabs, TabsContent } from "@/components/ui/tabs";
 import { useServices } from "@/hooks/useServices";
 import { Scissors, Plus, Edit, Trash2, Clock, DollarSign, Search, Filter, Power, PowerOff, ImageIcon, Upload, X, Loader2, Package } from "lucide-react";
-import { PageHeader } from "@/components/ui/page-header";
+import { PageContainer, PageHeader } from "@/components/ui/page-header";
 import { StatusCards } from "@/components/ui/status-cards";
 import Layout from "@/components/Layout";
 import { Service } from "@/types/appointments";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import CombosManager from "@/components/services/CombosManager";
+import { SectionTabsLayout } from "@/components/ui/section-tabs";
+
+const serviceSections = [
+  { value: "services", label: "Serviços", description: "Atendimentos individuais", icon: Scissors },
+  { value: "combos", label: "Combos", description: "Pacotes de serviços", icon: Package },
+] as const;
 
 interface ServiceFormData {
   name: string;
@@ -141,7 +147,7 @@ const Services = () => {
 
       setFormData(prev => ({ ...prev, image_url: publicUrl }));
       toast.success("Imagem carregada com sucesso!");
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error("Upload error:", error);
       toast.error("Erro ao fazer upload da imagem.");
     } finally {
@@ -183,8 +189,8 @@ const Services = () => {
 
   return (
     <Layout>
-      <div className="flex-1 space-y-6 p-6">
-        <PageHeader icon={<Scissors className="h-5 w-5" />} title="Serviços e Combos" subtitle="Gerencie seus serviços e combos">
+      <PageContainer>
+        <PageHeader eyebrow="Operações" icon={<Scissors className="h-5 w-5" />} title="Serviços e Combos" subtitle="Gerencie seus serviços e combos">
 
           <Dialog open={dialogOpen} onOpenChange={(open) => {
             setDialogOpen(open);
@@ -342,20 +348,9 @@ const Services = () => {
           </Dialog>
         </PageHeader>
 
-        {/* Tabs for Services and Combos */}
         <Tabs defaultValue="services" className="w-full">
-          <TabsList className="grid w-full max-w-md grid-cols-2">
-            <TabsTrigger value="services" className="flex items-center gap-2">
-              <Scissors className="h-4 w-4" />
-              Serviços
-            </TabsTrigger>
-            <TabsTrigger value="combos" className="flex items-center gap-2">
-              <Package className="h-4 w-4" />
-              Combos
-            </TabsTrigger>
-          </TabsList>
-
-          <TabsContent value="services" className="mt-6 space-y-6">
+          <SectionTabsLayout items={serviceSections} navigationTitle="O que você quer organizar?">
+          <TabsContent value="services" className="mt-0 space-y-6">
             {/* Filters */}
             <div className="flex flex-col sm:flex-row gap-4">
               <div className="relative flex-1">
@@ -485,11 +480,12 @@ const Services = () => {
             )}
           </TabsContent>
 
-          <TabsContent value="combos" className="mt-6">
+          <TabsContent value="combos" className="mt-0">
             <CombosManager />
           </TabsContent>
+          </SectionTabsLayout>
         </Tabs>
-      </div>
+      </PageContainer>
     </Layout>
   );
 };

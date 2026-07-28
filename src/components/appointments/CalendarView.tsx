@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useLayoutEffect, useRef } from 'react';
 import { format, addDays, startOfWeek, endOfWeek, eachDayOfInterval, isSameDay, addWeeks, subWeeks, addMonths, subMonths, isToday } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
 import { Appointment } from '@/types/appointments';
@@ -8,6 +8,7 @@ import DragPreview from './DragPreview';
 import { Button } from '@/components/ui/button';
 import { ChevronLeft, ChevronRight } from 'lucide-react';
 import { cn } from '@/lib/utils';
+import { useIsMobile } from '@/hooks/use-mobile';
 
 interface CalendarViewProps {
     appointments: Appointment[];
@@ -20,6 +21,15 @@ interface CalendarViewProps {
     barberColorMap: Map<string, string>;
     onAppointmentMove?: (appointmentId: string, newDate: string, newTime: string) => void;
 }
+
+/**
+ * Datas de agendamento são armazenadas no banco como `YYYY-MM-DD`, sem fuso.
+ * Comparar `new Date('YYYY-MM-DD')` desloca a data para o dia anterior em
+ * fusos negativos (como America/Sao_Paulo), então a comparação deve ser feita
+ * pela chave civil da data, sem convertê-la para UTC.
+ */
+const isAppointmentOnCalendarDay = (appointmentDate: string, day: Date) =>
+    appointmentDate.slice(0, 10) === format(day, 'yyyy-MM-dd');
 
 const CalendarView: React.FC<CalendarViewProps> = ({
     appointments,
@@ -37,6 +47,7 @@ const CalendarView: React.FC<CalendarViewProps> = ({
     const [draggingAppointment, setDraggingAppointment] = useState<Appointment | null>(null);
     const [previewPosition, setPreviewPosition] = useState<{ date: Date; hour: number } | null>(null);
     const scrollRef = useRef<HTMLDivElement>(null);
+    const isMobile = useIsMobile();
 
     useEffect(() => {
         if (onViewModeChange) {
@@ -45,12 +56,24 @@ const CalendarView: React.FC<CalendarViewProps> = ({
     }, [viewMode, onViewModeChange]);
 
     useEffect(() => {
+        if (isMobile && currentViewMode === 'week') {
+            setCurrentViewMode('day');
+            onViewModeChange?.('day');
+        }
+    }, [isMobile, currentViewMode, onViewModeChange]);
+
+    useLayoutEffect(() => {
         if (scrollRef.current && currentViewMode !== 'month') {
             const hourHeight = 48;
-            const scrollTo = 8 * hourHeight;
-            scrollRef.current.scrollTop = scrollTo;
+            const scrollTo = 7 * hourHeight;
+            const frame = requestAnimationFrame(() => {
+                requestAnimationFrame(() => {
+                    if (scrollRef.current) scrollRef.current.scrollTop = scrollTo;
+                });
+            });
+            return () => cancelAnimationFrame(frame);
         }
-    }, [currentViewMode]);
+    }, [currentViewMode, selectedDate]);
 
     const handlePrevious = () => {
         if (currentViewMode === 'month') {
@@ -91,7 +114,7 @@ const CalendarView: React.FC<CalendarViewProps> = ({
     const hours = Array.from({ length: 24 }, (_, i) => i);
 
     const getAppointmentsForDay = (day: Date) => {
-        return appointments.filter(apt => isSameDay(new Date(apt.appointment_date), day));
+        return appointments.filter(apt => isAppointmentOnCalendarDay(apt.appointment_date, day));
     };
 
     const getEventStyle = (appointment: Appointment) => {
@@ -172,35 +195,35 @@ const CalendarView: React.FC<CalendarViewProps> = ({
     };
 
     return (
-        <div className="flex flex-col h-full bg-card rounded-lg border overflow-hidden">
+        <div className="flex h-full min-h-0 flex-col overflow-hidden rounded-xl border bg-card shadow-sm">
             {/* Header - Estilo Google Calendar */}
-            <div className="flex items-center justify-between px-4 py-3 border-b bg-card">
-                <div className="flex items-center gap-2">
+            <div className="flex flex-col gap-2 border-b bg-card px-2.5 py-2.5 sm:flex-row sm:items-center sm:justify-between sm:px-4 sm:py-3">
+                <div className="flex min-w-0 items-center gap-1.5 sm:gap-2">
                     <Button 
                         variant="outline" 
                         size="sm" 
                         onClick={handleToday}
-                        className="h-8 px-4 text-sm font-medium"
+                        className="min-h-10 rounded-lg px-3 text-sm font-bold"
                     >
                         Hoje
                     </Button>
                     <div className="flex items-center">
-                        <Button variant="ghost" size="icon" onClick={handlePrevious} className="h-8 w-8">
+                        <Button variant="ghost" size="icon" onClick={handlePrevious} className="h-10 w-10" aria-label="Período anterior">
                             <ChevronLeft className="h-4 w-4" />
                         </Button>
-                        <Button variant="ghost" size="icon" onClick={handleNext} className="h-8 w-8">
+                        <Button variant="ghost" size="icon" onClick={handleNext} className="h-10 w-10" aria-label="Próximo período">
                             <ChevronRight className="h-4 w-4" />
                         </Button>
                     </div>
-                    <h2 className="text-lg font-medium capitalize ml-2">
-                        {format(selectedDate, 'MMMM yyyy', { locale: ptBR })}
+                    <h2 className="ml-1 min-w-0 truncate text-base font-bold capitalize sm:ml-2 sm:text-lg">
+                        {format(selectedDate, isMobile && currentViewMode === 'day' ? "EEE, d 'de' MMM" : 'MMMM yyyy', { locale: ptBR })}
                     </h2>
                 </div>
 
-                <div className="flex bg-muted rounded-lg p-0.5">
+                <div className="grid grid-cols-3 rounded-xl bg-muted p-1">
                     <button
                         className={cn(
-                            "px-3 py-1.5 text-sm rounded-md transition-all font-medium",
+                            "min-h-9 px-3 py-1.5 text-sm rounded-lg transition-all font-bold",
                             currentViewMode === 'day' 
                                 ? "bg-background shadow-sm text-foreground" 
                                 : "text-muted-foreground hover:text-foreground"
@@ -211,7 +234,7 @@ const CalendarView: React.FC<CalendarViewProps> = ({
                     </button>
                     <button
                         className={cn(
-                            "px-3 py-1.5 text-sm rounded-md transition-all font-medium",
+                            "min-h-9 px-3 py-1.5 text-sm rounded-lg transition-all font-bold",
                             currentViewMode === 'week' 
                                 ? "bg-background shadow-sm text-foreground" 
                                 : "text-muted-foreground hover:text-foreground"
@@ -222,7 +245,7 @@ const CalendarView: React.FC<CalendarViewProps> = ({
                     </button>
                     <button
                         className={cn(
-                            "px-3 py-1.5 text-sm rounded-md transition-all font-medium",
+                            "min-h-9 px-3 py-1.5 text-sm rounded-lg transition-all font-bold",
                             currentViewMode === 'month' 
                                 ? "bg-background shadow-sm text-foreground" 
                                 : "text-muted-foreground hover:text-foreground"
@@ -247,74 +270,68 @@ const CalendarView: React.FC<CalendarViewProps> = ({
                 </div>
             ) : (
                 /* Day/Week View */
-                <div className="flex flex-1 overflow-hidden">
-                    {/* Time Labels Column */}
-                    <div className="w-14 flex-shrink-0 border-r">
-                        <div className="h-10 border-b"></div>
-                        <div className="overflow-hidden" style={{ height: 'calc(100% - 40px)' }}>
-                            <div className="relative" style={{ height: '1152px' }}>
-                                {hours.map(hour => (
-                                    <div 
-                                        key={hour} 
-                                        className="absolute w-full text-right pr-2 text-[10px] text-muted-foreground -translate-y-1/2" 
-                                        style={{ top: `${hour * 48}px` }}
-                                    >
-                                        {hour.toString().padStart(2, '0')}:00
-                                    </div>
-                                ))}
-                            </div>
-                        </div>
-                    </div>
-
+                <div className="flex flex-1 flex-col overflow-hidden">
                     {/* Days Columns */}
-                    <div className="flex-1 flex flex-col overflow-hidden">
+                    <div className="flex flex-1 flex-col overflow-hidden">
                         {/* Days Header */}
-                        <div className="flex border-b h-10">
+                        <div className="flex h-11 flex-shrink-0 border-b bg-muted/20">
+                            <div className="w-12 flex-shrink-0 border-r sm:w-14" />
                             {days.map(day => (
-                                <div
+                                <button
                                     key={day.toString()}
-                                    className={cn(
-                                        "flex-1 flex flex-col items-center justify-center border-r last:border-r-0 cursor-pointer hover:bg-muted/30 transition-colors"
-                                    )}
+                                    type="button"
+                                    className="flex min-w-0 flex-1 flex-col items-center justify-center border-r px-1 transition-colors last:border-r-0 hover:bg-muted/60"
                                     onClick={() => {
                                         onDateChange(day);
                                         handleViewModeChange('day');
                                     }}
+                                    aria-label={`Abrir agenda de ${format(day, "d 'de' MMMM", { locale: ptBR })}`}
                                 >
                                     <span className={cn(
-                                        "text-[10px] uppercase font-medium",
+                                        "text-[10px] font-bold uppercase tracking-wide",
                                         isToday(day) ? "text-primary" : "text-muted-foreground"
                                     )}>
                                         {format(day, 'EEE', { locale: ptBR })}
                                     </span>
                                     <span className={cn(
-                                        "text-lg font-medium leading-none",
-                                        isToday(day) 
-                                            ? "bg-primary text-primary-foreground w-7 h-7 rounded-full flex items-center justify-center" 
-                                            : "text-foreground"
+                                        "mt-0.5 flex h-6 min-w-6 items-center justify-center rounded-full px-1 text-sm font-bold leading-none",
+                                        isToday(day) ? "bg-primary text-primary-foreground" : "text-foreground"
                                     )}>
                                         {format(day, 'd')}
                                     </span>
-                                </div>
+                                </button>
                             ))}
                         </div>
 
                         {/* Days Grid Scrollable Area */}
-                        <div className="flex-1 overflow-auto" ref={scrollRef}>
-                            <div className="flex relative" style={{ height: '1152px' }}>
-                                {/* Hour Lines */}
-                                <div className="absolute inset-0 w-full pointer-events-none">
+                        <div className="flex-1 overflow-auto overscroll-contain" ref={scrollRef}>
+                            <div className="relative flex" style={{ height: '1152px' }}>
+                                <div className="sticky left-0 z-30 w-12 flex-shrink-0 border-r bg-card sm:w-14">
                                     {hours.map(hour => (
-                                        <div 
-                                            key={hour} 
-                                            className="border-b border-border/40 w-full absolute" 
+                                        <div
+                                            key={hour}
+                                            className="absolute w-full -translate-y-1/2 pr-2 text-right text-[10px] font-medium text-muted-foreground"
+                                            style={{ top: `${hour * 48}px` }}
+                                        >
+                                            {hour.toString().padStart(2, '0')}:00
+                                        </div>
+                                    ))}
+                                </div>
+
+                                <div className="relative flex min-w-0 flex-1">
+                                {/* Hour Lines */}
+                                <div className="pointer-events-none absolute inset-0 w-full">
+                                    {hours.map(hour => (
+                                        <div
+                                            key={hour}
+                                            className="absolute w-full border-b border-border/55"
                                             style={{ top: `${hour * 48}px`, height: '48px' }}
                                         />
                                     ))}
                                 </div>
 
                                 {days.map(day => (
-                                    <div key={day.toString()} className="flex-1 border-r last:border-r-0 relative">
+                                    <div key={day.toString()} className="relative min-w-0 flex-1 border-r last:border-r-0">
                                         {/* Clickable/Droppable Slots */}
                                         {hours.map(hour => {
                                             const slotKey = `${format(day, 'yyyy-MM-dd')}-${hour}`;
@@ -375,6 +392,7 @@ const CalendarView: React.FC<CalendarViewProps> = ({
                                         )}
                                     </div>
                                 ))}
+                                </div>
                             </div>
                         </div>
                     </div>

@@ -3,6 +3,7 @@ import { Appointment } from '@/types/appointments';
 import { format } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
 import { cn } from '@/lib/utils';
+import { getAppointmentAttendeeName } from '@/lib/groupBooking';
 
 interface DragPreviewProps {
   appointment: Appointment;
@@ -38,7 +39,7 @@ const DragPreview: React.FC<DragPreviewProps> = ({
     >
       <div className="flex flex-col h-full">
         <span className="font-semibold truncate" style={{ color: barberColor }}>
-          {appointment.clients?.name || 'Cliente'}
+          {getAppointmentAttendeeName(appointment)}
         </span>
         <span className="text-muted-foreground truncate text-[10px]">
           {format(targetDate, 'dd/MM', { locale: ptBR })} às {targetHour.toString().padStart(2, '0')}:00

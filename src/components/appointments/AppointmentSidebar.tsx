@@ -36,6 +36,7 @@ interface AppointmentSidebarProps {
   setCreatedFilter?: (filter: CreatedFilter) => void;
   newAppointmentsCount?: number;
   onShowRecentBookings?: () => void;
+  showPrimaryAction?: boolean;
 }
 
 const AppointmentSidebar: React.FC<AppointmentSidebarProps> = ({
@@ -52,7 +53,8 @@ const AppointmentSidebar: React.FC<AppointmentSidebarProps> = ({
   createdFilter = 'all',
   setCreatedFilter,
   newAppointmentsCount = 0,
-  onShowRecentBookings
+  onShowRecentBookings,
+  showPrimaryAction = true
 }) => {
   const toggleBarber = (barberId: string) => {
     if (selectedBarbers.includes(barberId)) {
@@ -71,18 +73,22 @@ const AppointmentSidebar: React.FC<AppointmentSidebarProps> = ({
   };
 
   return (
-    <div className="space-y-4">
-      {/* Botão Criar - Estilo Google */}
-      <Button
+    <div className="space-y-5">
+      {/* Ação principal */}
+      {showPrimaryAction && <Button
         onClick={() => onManualSchedule()}
-        className="w-full h-12 rounded-full shadow-lg hover:shadow-xl transition-all bg-primary hover:bg-primary/90 text-primary-foreground font-medium"
+        className="h-11 w-full rounded-xl bg-primary font-bold text-primary-foreground shadow-sm transition-all hover:bg-primary/90"
       >
         <Plus className="h-5 w-5 mr-2" />
-        Criar
-      </Button>
+        Novo agendamento
+      </Button>}
 
       {/* Mini Calendário */}
-      <div className="bg-card rounded-lg border p-2">
+      <section className="rounded-xl border bg-card p-3 shadow-sm">
+        <div className="mb-2">
+          <p className="text-sm font-bold text-foreground">Ir para uma data</p>
+          <p className="text-xs text-muted-foreground">Os dias sublinhados possuem agendamentos.</p>
+        </div>
         <ShadcnCalendar
           mode="single"
           selected={calendarDate}
@@ -122,14 +128,14 @@ const AppointmentSidebar: React.FC<AppointmentSidebarProps> = ({
           }}
           locale={ptBR}
         />
-      </div>
+      </section>
 
       {/* Filtro por Barbeiro */}
       {barbers.length > 0 && (
-        <div className="bg-card rounded-lg border p-3 space-y-2">
+        <section className="space-y-3 rounded-xl border bg-card p-4 shadow-sm">
           <div className="flex items-center justify-between">
             <Label className="text-xs font-medium text-muted-foreground uppercase tracking-wide">
-              Minhas Agendas
+              Profissionais visíveis
             </Label>
             <button
               onClick={toggleAllBarbers}
@@ -183,7 +189,7 @@ const AppointmentSidebar: React.FC<AppointmentSidebarProps> = ({
               );
             })}
           </div>
-        </div>
+        </section>
       )}
 
       {/* Button for Recent Bookings */}
@@ -191,7 +197,7 @@ const AppointmentSidebar: React.FC<AppointmentSidebarProps> = ({
         <Button
           variant="outline"
           onClick={onShowRecentBookings}
-          className="w-full justify-start gap-2 relative"
+          className="relative min-h-11 w-full justify-start gap-2 rounded-xl"
         >
           <CalendarPlus className="h-4 w-4" />
           <span>Novos Agendamentos</span>
@@ -205,12 +211,12 @@ const AppointmentSidebar: React.FC<AppointmentSidebarProps> = ({
 
       {/* Filtro por Data de Criação */}
       {setCreatedFilter && (
-        <div className="bg-card rounded-lg border p-3 space-y-2">
+        <section className="space-y-2 rounded-xl border bg-card p-4 shadow-sm">
           <Label className="text-xs font-medium text-muted-foreground uppercase tracking-wide">
             Criados em
           </Label>
           <Select value={createdFilter} onValueChange={(v) => setCreatedFilter(v as CreatedFilter)}>
-            <SelectTrigger className="h-9 text-sm">
+            <SelectTrigger className="h-11 rounded-lg text-sm">
               <SelectValue placeholder="Todos" />
             </SelectTrigger>
             <SelectContent>
@@ -235,16 +241,16 @@ const AppointmentSidebar: React.FC<AppointmentSidebarProps> = ({
               </SelectItem>
             </SelectContent>
           </Select>
-        </div>
+        </section>
       )}
 
       {/* Filtro de Status */}
-      <div className="bg-card rounded-lg border p-3 space-y-2">
+      <section className="space-y-2 rounded-xl border bg-card p-4 shadow-sm">
         <Label className="text-xs font-medium text-muted-foreground uppercase tracking-wide">
           Filtrar por Status
         </Label>
         <Select value={statusFilter} onValueChange={setStatusFilter}>
-          <SelectTrigger className="h-9 text-sm">
+          <SelectTrigger className="h-11 rounded-lg text-sm">
             <SelectValue placeholder="Todos" />
           </SelectTrigger>
           <SelectContent>
@@ -275,7 +281,7 @@ const AppointmentSidebar: React.FC<AppointmentSidebarProps> = ({
             </SelectItem>
           </SelectContent>
         </Select>
-      </div>
+      </section>
     </div>
   );
 };

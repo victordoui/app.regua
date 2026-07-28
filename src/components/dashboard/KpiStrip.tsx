@@ -1,5 +1,6 @@
-import React from "react";
-import { Calendar, CheckCircle, Users, DollarSign, TrendingUp, TrendingDown } from "lucide-react";
+import type { ElementType } from "react";
+import { Calendar, CheckCircle2, DollarSign, Users } from "lucide-react";
+import { cn } from "@/lib/utils";
 
 interface KpiStripProps {
   todayAppointments: number;
@@ -8,91 +9,41 @@ interface KpiStripProps {
   dayRevenue: number;
 }
 
-const KpiStrip: React.FC<KpiStripProps> = ({ todayAppointments, completedRate, newClients, dayRevenue }) => {
-  const allZero = todayAppointments === 0 && completedRate === 0 && newClients === 0 && dayRevenue === 0;
-  const displayAppointments = allZero ? 18 : todayAppointments;
-  const displayRate = allZero ? 91 : completedRate;
-  const displayClients = allZero ? 38 : newClients;
-  const displayRevenue = allZero ? 3480 : dayRevenue;
+interface MetricItem {
+  label: string;
+  value: string;
+  context: string;
+  icon: ElementType;
+  tone: string;
+}
 
-  const kpis = [
-    {
-      label: "Agendamentos Hoje",
-      value: displayAppointments.toString(),
-      color: "blue" as const,
-      iconBg: "bg-[hsl(var(--primary-50))]",
-      icon: <Calendar className="h-[22px] w-[22px] text-primary" strokeWidth={1.8} />,
-      tag: { type: "up" as const, text: "+16%" },
-      foot: "vs ontem",
-    },
-    {
-      label: "Taxa de Conclusão",
-      value: `${displayRate}%`,
-      valueColor: "text-[hsl(var(--success))]",
-      color: "green" as const,
-      iconBg: "bg-[hsl(var(--success-bg))]",
-      icon: <CheckCircle className="h-[22px] w-[22px] text-[hsl(var(--success))]" strokeWidth={1.8} />,
-      tag: { type: "up" as const, text: "+4%" },
-      foot: "esta semana",
-    },
-    {
-      label: "Novos Clientes",
-      value: displayClients.toString(),
-      valueColor: "text-[hsl(var(--warning))]",
-      color: "amber" as const,
-      iconBg: "bg-[hsl(var(--warning-bg))]",
-      icon: <Users className="h-[22px] w-[22px] text-[hsl(var(--warning))]" strokeWidth={1.8} />,
-      tag: { type: "up" as const, text: "+31%" },
-      foot: "este mês",
-    },
-    {
-      label: "Receita do Dia",
-      value: `R$ ${displayRevenue.toLocaleString('pt-BR', { minimumFractionDigits: 0 })}`,
-      color: "rose" as const,
-      iconBg: "bg-[hsl(var(--rose-bg))]",
-      icon: <DollarSign className="h-[22px] w-[22px] text-[hsl(var(--rose))]" strokeWidth={1.8} />,
-      tag: { type: "up" as const, text: "+8%" },
-      foot: "vs ontem",
-    },
+const KpiStrip = ({ todayAppointments, completedRate, newClients, dayRevenue }: KpiStripProps) => {
+  const metrics: MetricItem[] = [
+    { label: "Agendamentos hoje", value: String(todayAppointments), context: "programados para hoje", icon: Calendar, tone: "bg-primary/10 text-primary" },
+    { label: "Taxa de conclusão", value: `${completedRate}%`, context: "dos atendimentos", icon: CheckCircle2, tone: "bg-emerald-500/10 text-emerald-600" },
+    { label: "Novos clientes", value: String(newClients), context: "neste mês", icon: Users, tone: "bg-violet-500/10 text-violet-600" },
+    { label: "Receita do dia", value: dayRevenue.toLocaleString("pt-BR", { style: "currency", currency: "BRL", maximumFractionDigits: 0 }), context: "faturamento confirmado", icon: DollarSign, tone: "bg-sky-500/10 text-sky-600" },
   ];
 
-  const borderColors = {
-    blue: "before:bg-primary",
-    green: "before:bg-[hsl(var(--success))]",
-    amber: "before:bg-[hsl(var(--warning))]",
-    rose: "before:bg-[hsl(var(--rose))]",
-  };
-
   return (
-    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 animate-[fadeUp_0.4s_ease_both]">
-      {kpis.map((kpi) => (
-        <div
-          key={kpi.label}
-          className={`relative overflow-hidden bg-card border border-[hsl(var(--border))] rounded-[14px] p-6 min-h-[130px] flex flex-col justify-between cursor-pointer transition-all hover:shadow-[0_4px_20px_rgba(15,23,42,0.07)] hover:-translate-y-px
-            before:content-[''] before:absolute before:top-0 before:left-0 before:right-0 before:h-[3px] before:rounded-t-[14px] ${borderColors[kpi.color]}`}
-        >
-          <div className="flex items-center gap-4">
-          <div className={`w-12 h-12 rounded-xl flex items-center justify-center flex-shrink-0 ${kpi.iconBg}`}>
-            {kpi.icon}
-          </div>
-          <div className="flex-1 min-w-0">
-            <div className="text-[15px] font-medium text-foreground/70 mb-1">
-              {kpi.label}
+    <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 xl:grid-cols-4">
+      {metrics.map((metric) => {
+        const Icon = metric.icon;
+        return (
+          <article key={metric.label} className="interactive-row group rounded-2xl border border-border/70 bg-card p-5 shadow-[var(--shadow-subtle)]">
+            <div className="flex items-start justify-between gap-4">
+              <div className="min-w-0">
+                <p className="text-[12px] font-bold text-muted-foreground">{metric.label}</p>
+                <p className="mt-2 truncate text-[28px] font-black leading-none tracking-[-0.035em] text-foreground">{metric.value}</p>
+                <p className="mt-2 text-[11px] font-semibold text-muted-foreground/80">{metric.context}</p>
+              </div>
+              <div className={cn("flex h-10 w-10 shrink-0 items-center justify-center rounded-xl transition-transform group-hover:scale-105", metric.tone)}>
+                <Icon className="h-[19px] w-[19px]" strokeWidth={2} />
+              </div>
             </div>
-            <div className={`font-heading text-3xl font-bold leading-none tracking-tight ${kpi.valueColor || 'text-foreground'}`}>
-              {kpi.value}
-            </div>
-          </div>
-          </div>
-          <div className="flex items-center gap-1.5 text-xs text-foreground/60 mt-3">
-              <span className={`inline-flex items-center gap-1 text-[10px] font-semibold px-[7px] py-0.5 rounded-full
-                ${kpi.tag.type === 'up' ? 'bg-[hsl(var(--success-bg))] text-[hsl(var(--success))]' : 'bg-[hsl(var(--rose-bg))] text-[hsl(var(--rose))]'}`}>
-                {kpi.tag.type === 'up' ? '▲' : '▼'} {kpi.tag.text}
-              </span>
-              {kpi.foot}
-          </div>
-        </div>
-      ))}
+          </article>
+        );
+      })}
     </div>
   );
 };

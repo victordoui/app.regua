@@ -5,7 +5,7 @@ import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { CalendarPlus, Clock, Scissors, Loader2, Calendar, Camera, X } from 'lucide-react';
+import { CalendarPlus, Clock, Scissors, Loader2, Calendar, Camera, X, UserRound } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { format, isAfter, parseISO, differenceInHours } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
@@ -13,6 +13,7 @@ import MobileLayout from '@/components/mobile/MobileLayout';
 import CancelAppointmentDialog from '@/components/appointments/CancelAppointmentDialog';
 import { useToast } from '@/hooks/use-toast';
 import { Dialog, DialogContent } from '@/components/ui/dialog';
+import { parseGroupBookingNotes } from '@/lib/groupBooking';
 
 interface BarbershopSettings {
   company_name: string;
@@ -32,6 +33,8 @@ interface Appointment {
   service_price: number;
   barber_name: string;
   result_photo_url: string | null;
+  attendee_name: string;
+  relationship: string | null;
 }
 
 const ClientAppointments = () => {
@@ -85,7 +88,7 @@ const ClientAppointments = () => {
       // Fetch client profile
       const { data: clientProfile } = await supabase
         .from('client_profiles')
-        .select('id')
+        .select('id, full_name, phone')
         .eq('user_id', user.id)
         .eq('barbershop_user_id', userId)
         .single();
@@ -94,11 +97,19 @@ const ClientAppointments = () => {
         setClientProfileId(clientProfile.id);
       }
 
-      // Fetch appointments - find client by user_id match or phone
-      const { data: clientsData } = await supabase
+      // Localiza somente o cadastro comercial ligado ao titular autenticado.
+      let clientQuery = supabase
         .from('clients')
         .select('id')
         .eq('user_id', userId);
+
+      if (user.email) {
+        clientQuery = clientQuery.eq('email', user.email.toLowerCase());
+      } else if (clientProfile?.phone) {
+        clientQuery = clientQuery.eq('phone', clientProfile.phone.replace(/\D/g, ''));
+      }
+
+      const { data: clientsData } = await clientQuery;
 
       if (clientsData && clientsData.length > 0) {
         const clientIds = clientsData.map(c => c.id);
@@ -112,7 +123,10 @@ const ClientAppointments = () => {
             status,
             result_photo_url,
             service_id,
-            barbeiro_id
+            barbeiro_id,
+            notes,
+            total_price,
+            appointment_services(service_id, price)
           `)
           .eq('user_id', userId)
           .in('client_id', clientIds)
@@ -120,7 +134,10 @@ const ClientAppointments = () => {
 
         if (appointmentsData && appointmentsData.length > 0) {
           // Fetch services and barbers
-          const serviceIds = [...new Set(appointmentsData.map(a => a.service_id).filter(Boolean))];
+          const serviceIds = [...new Set(appointmentsData.flatMap(a => [
+            a.service_id,
+            ...(a.appointment_services || []).map(item => item.service_id),
+          ]).filter(Boolean))];
           const barberIds = [...new Set(appointmentsData.map(a => a.barbeiro_id).filter(Boolean))];
 
           const [servicesRes, barbersRes] = await Promise.all([
@@ -141,15 +158,21 @@ const ClientAppointments = () => {
           const enrichedAppointments: Appointment[] = appointmentsData.map(apt => {
             const service = servicesMap.get(apt.service_id);
             const barber = apt.barbeiro_id ? barbersMap.get(apt.barbeiro_id) : null;
+            const metadata = parseGroupBookingNotes(apt.notes);
+            const selectedServiceNames = (apt.appointment_services || [])
+              .map(item => servicesMap.get(item.service_id)?.name)
+              .filter(Boolean);
             return {
               id: apt.id,
               appointment_date: apt.appointment_date,
               appointment_time: apt.appointment_time,
               status: apt.status,
-              service_name: service?.name || 'Serviço',
-              service_price: service?.price || 0,
+              service_name: selectedServiceNames.length > 0 ? selectedServiceNames.join(' + ') : service?.name || 'Serviço',
+              service_price: Number(apt.total_price ?? service?.price ?? 0),
               barber_name: barber?.display_name || 'Barbeiro',
               result_photo_url: apt.result_photo_url,
+              attendee_name: metadata.attendeeName || clientProfile?.full_name || 'Você',
+              relationship: metadata.relationship,
             };
           });
 
@@ -163,18 +186,18 @@ const ClientAppointments = () => {
     fetchData();
   }, [userId, navigate]);
 
-  const now = new Date();
+  const now = useMemo(() => new Date(), []);
   
   const { futureAppointments, pastAppointments } = useMemo(() => {
     const future = appointments.filter(apt => {
       const aptDate = parseISO(apt.appointment_date);
       return (isAfter(aptDate, now) || format(aptDate, 'yyyy-MM-dd') === format(now, 'yyyy-MM-dd')) 
         && (apt.status === 'pending' || apt.status === 'confirmed');
-    });
+    }).sort((a, b) => `${a.appointment_date}T${a.appointment_time}`.localeCompare(`${b.appointment_date}T${b.appointment_time}`));
     
     const past = appointments.filter(apt => 
       apt.status === 'completed' || apt.status === 'cancelled'
-    );
+    ).sort((a, b) => `${b.appointment_date}T${b.appointment_time}`.localeCompare(`${a.appointment_date}T${a.appointment_time}`));
     
     return { futureAppointments: future, pastAppointments: past };
   }, [appointments, now]);
@@ -206,13 +229,16 @@ const ClientAppointments = () => {
     if (!cancelingAppointment) return;
 
     try {
+      const cancellationNote = reason ? `Cancelado pelo cliente: ${reason}` : 'Cancelado pelo cliente';
+      const updatedNotes = [cancelingAppointment.notes, cancellationNote].filter(Boolean).join('\n');
       const { error } = await supabase
         .from('appointments')
         .update({ 
           status: 'cancelled',
-          notes: reason ? `Cancelado pelo cliente: ${reason}` : 'Cancelado pelo cliente'
+          notes: updatedNotes,
         })
-        .eq('id', cancelingAppointment.id);
+        .eq('id', cancelingAppointment.id)
+        .eq('user_id', userId);
 
       if (error) throw error;
 
@@ -220,7 +246,7 @@ const ClientAppointments = () => {
       setAppointments(prev => 
         prev.map(apt => 
           apt.id === cancelingAppointment.id 
-            ? { ...apt, status: 'cancelled' } 
+            ? { ...apt, status: 'cancelled', notes: updatedNotes }
             : apt
         )
       );
@@ -232,10 +258,11 @@ const ClientAppointments = () => {
 
       setCancelDialogOpen(false);
       setCancelingAppointment(null);
-    } catch (error: any) {
+    } catch (error: unknown) {
+      const message = error instanceof Error ? error.message : 'Não foi possível cancelar o agendamento.';
       toast({
         title: "Erro ao cancelar",
-        description: error.message,
+        description: message,
         variant: "destructive",
       });
     }
@@ -265,35 +292,28 @@ const ClientAppointments = () => {
         initial={{ opacity: 0, y: 10 }}
         animate={{ opacity: 1, y: 0 }}
       >
-        <Card className="p-4 rounded-xl">
-          <div className="flex items-start gap-4">
-            <div 
-              className="h-12 w-12 rounded-full flex items-center justify-center text-white shrink-0"
-              style={{ backgroundColor: settings?.primary_color_hex || 'hsl(var(--primary))' }}
-            >
-              <Scissors className="h-5 w-5" />
-            </div>
-            <div className="flex-1 min-w-0">
-              <div className="flex items-start justify-between gap-2">
-                <div>
-                  <p className="font-semibold">{apt.service_name}</p>
-                  <p className="text-sm text-muted-foreground">{apt.barber_name}</p>
+        <Card className="overflow-hidden rounded-2xl shadow-sm">
+          <div className="h-1.5" style={{ backgroundColor: settings?.primary_color_hex || 'hsl(var(--primary))' }} />
+          <div className="p-4">
+            <div className="flex items-start gap-3">
+              <div className="flex w-14 shrink-0 flex-col items-center rounded-xl bg-muted px-2 py-2 text-center">
+                <span className="text-[10px] font-bold uppercase text-muted-foreground">{format(parseISO(apt.appointment_date), 'MMM', { locale: ptBR })}</span>
+                <span className="text-xl font-extrabold leading-none">{format(parseISO(apt.appointment_date), 'dd')}</span>
+                <span className="mt-1 text-xs font-bold" style={{ color: settings?.primary_color_hex }}>{apt.appointment_time.slice(0, 5)}</span>
+              </div>
+              <div className="min-w-0 flex-1">
+                <div className="flex items-start justify-between gap-2">
+                  <div className="min-w-0">
+                    <p className="mb-1 flex items-center gap-1 text-xs font-bold uppercase tracking-wide text-primary"><UserRound className="h-3.5 w-3.5" /> {apt.attendee_name}{apt.relationship ? ` · ${apt.relationship}` : ''}</p>
+                    <p className="truncate font-bold">{apt.service_name}</p>
+                    <p className="mt-1 flex items-center gap-1 text-sm text-muted-foreground"><UserRound className="h-3.5 w-3.5" /> com {apt.barber_name}</p>
+                  </div>
+                  {getStatusBadge(apt.status)}
                 </div>
-                {getStatusBadge(apt.status)}
-              </div>
-              <div className="flex items-center gap-4 mt-2 text-sm text-muted-foreground">
-                <span className="flex items-center gap-1">
-                  <Calendar className="h-4 w-4" />
-                  {format(parseISO(apt.appointment_date), 'dd MMM yyyy', { locale: ptBR })}
-                </span>
-                <span className="flex items-center gap-1">
-                  <Clock className="h-4 w-4" />
-                  {apt.appointment_time.slice(0, 5)}
-                </span>
-              </div>
-              <p className="mt-2 font-semibold" style={{ color: settings?.primary_color_hex }}>
-                R$ {apt.service_price.toFixed(2)}
-              </p>
+                <div className="mt-3 flex items-center justify-between border-t border-border/70 pt-3">
+                  <span className="text-xs font-medium capitalize text-muted-foreground">{format(parseISO(apt.appointment_date), "EEEE, dd 'de' MMMM", { locale: ptBR })}</span>
+                  <span className="whitespace-nowrap text-sm font-bold" style={{ color: settings?.primary_color_hex }}>R$ {apt.service_price.toFixed(2)}</span>
+                </div>
               
               {/* Result Photo */}
               {apt.result_photo_url && apt.status === 'completed' && (
@@ -309,25 +329,26 @@ const ClientAppointments = () => {
               )}
               
               {showActions && (apt.status === 'pending' || apt.status === 'confirmed') && (
-                <div className="flex gap-2 mt-3">
+                <div className="mt-4 grid grid-cols-2 gap-2">
                   <Button 
                     variant="outline" 
                     size="sm" 
-                    className="flex-1"
+                    className="min-h-11 font-bold"
                     onClick={() => navigate(`/b/${userId}/agendar`)}
                   >
-                    Reagendar
+                    Agendar outro
                   </Button>
                   <Button 
                     variant="destructive" 
                     size="sm" 
-                    className="flex-1"
+                    className="min-h-11 font-bold"
                     onClick={() => handleCancelClick(apt)}
                   >
                     Cancelar
                   </Button>
                 </div>
               )}
+              </div>
             </div>
           </div>
         </Card>
@@ -355,40 +376,44 @@ const ClientAppointments = () => {
 
   return (
     <MobileLayout settings={settings}>
-      <div className="px-4 py-6 space-y-6">
-        <div className="flex items-center justify-between">
-          <h1 className="text-2xl font-bold">Meus Agendamentos</h1>
+      <div className="mx-auto w-full max-w-lg space-y-5 px-4 py-5">
+        <div className="flex items-end justify-between gap-3">
+          <div>
+            <p className="text-xs font-bold uppercase tracking-wider text-muted-foreground">Sua agenda</p>
+            <h1 className="text-2xl font-extrabold tracking-tight">Meus horários</h1>
+            <p className="mt-1 text-sm text-muted-foreground">Consulte, remarque ou cancele seus agendamentos.</p>
+          </div>
           <Button 
             size="sm"
             onClick={() => navigate(`/b/${userId}/agendar`)}
+            className="min-h-11 shrink-0 rounded-xl px-4 font-bold"
             style={{ backgroundColor: settings.primary_color_hex }}
           >
             <CalendarPlus className="h-4 w-4 mr-2" />
-            Novo
+            Agendar
           </Button>
         </div>
 
         <Tabs defaultValue="upcoming" className="w-full">
-          <TabsList className="w-full grid grid-cols-2">
-            <TabsTrigger value="upcoming">Agendados</TabsTrigger>
-            <TabsTrigger value="past">Anteriores</TabsTrigger>
+          <TabsList className="grid h-12 w-full grid-cols-2 rounded-xl bg-muted p-1">
+            <TabsTrigger value="upcoming" className="min-h-10 rounded-lg font-bold">Próximos ({futureAppointments.length})</TabsTrigger>
+            <TabsTrigger value="past" className="min-h-10 rounded-lg font-bold">Histórico ({pastAppointments.length})</TabsTrigger>
           </TabsList>
 
           <TabsContent value="upcoming" className="mt-4 space-y-3">
             {futureAppointments.length > 0 ? (
               futureAppointments.map(apt => renderAppointmentCard(apt, true))
             ) : (
-              <Card className="p-8 text-center rounded-xl">
-                <Clock className="h-12 w-12 mx-auto text-muted-foreground mb-4" />
-                <h3 className="font-semibold mb-2">Nenhum agendamento</h3>
-                <p className="text-sm text-muted-foreground mb-4">
-                  Você não tem agendamentos futuros
-                </p>
+              <Card className="rounded-2xl border-dashed p-6 text-center">
+                <div className="mx-auto mb-4 flex h-14 w-14 items-center justify-center rounded-full bg-muted"><Clock className="h-7 w-7 text-muted-foreground" /></div>
+                <h3 className="mb-1 font-bold">Sua agenda está livre</h3>
+                <p className="mb-5 text-sm text-muted-foreground">Escolha um serviço e encontre o melhor horário.</p>
                 <Button 
                   onClick={() => navigate(`/b/${userId}/agendar`)}
+                  className="min-h-11 rounded-xl px-5 font-bold"
                   style={{ backgroundColor: settings.primary_color_hex }}
                 >
-                  Agendar Agora
+                  Escolher horário
                 </Button>
               </Card>
             )}
@@ -398,9 +423,9 @@ const ClientAppointments = () => {
             {pastAppointments.length > 0 ? (
               pastAppointments.map(apt => renderAppointmentCard(apt, false))
             ) : (
-              <Card className="p-8 text-center rounded-xl">
-                <Calendar className="h-12 w-12 mx-auto text-muted-foreground mb-4" />
-                <h3 className="font-semibold mb-2">Sem histórico</h3>
+              <Card className="rounded-2xl border-dashed p-6 text-center">
+                <div className="mx-auto mb-4 flex h-14 w-14 items-center justify-center rounded-full bg-muted"><Calendar className="h-7 w-7 text-muted-foreground" /></div>
+                <h3 className="mb-1 font-bold">Sem histórico ainda</h3>
                 <p className="text-sm text-muted-foreground">
                   Você ainda não realizou nenhum agendamento
                 </p>

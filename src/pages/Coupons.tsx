@@ -1,12 +1,19 @@
 import { useState } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import Layout from '@/components/Layout';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { Tabs, TabsContent } from '@/components/ui/tabs';
 import { Tag, Gift, TrendingUp } from 'lucide-react';
 import CouponsContent from '@/components/promotions/CouponsContent';
 import GiftCardsContent from '@/components/promotions/GiftCardsContent';
 import DynamicPricingContent from '@/components/promotions/DynamicPricingContent';
-import { PageHeader } from '@/components/ui/page-header';
+import { PageContainer, PageHeader } from '@/components/ui/page-header';
+import { SectionTabsLayout } from '@/components/ui/section-tabs';
+
+const promotionSections = [
+  { value: 'cupons', label: 'Cupons', description: 'Descontos promocionais', icon: Tag },
+  { value: 'gift-cards', label: 'Vales-presente', description: 'Créditos para presentear', icon: Gift },
+  { value: 'precos', label: 'Preços dinâmicos', description: 'Valores por horário', icon: TrendingUp },
+] as const;
 
 const Coupons = () => {
   const [searchParams, setSearchParams] = useSearchParams();
@@ -14,20 +21,17 @@ const Coupons = () => {
 
   return (
     <Layout>
-      <div className="flex-1 space-y-6 p-6">
-        <PageHeader icon={<Tag className="h-5 w-5" />} title="Promoções" subtitle="Cupons, gift cards e preços dinâmicos" />
+      <PageContainer>
+        <PageHeader eyebrow="Financeiro" icon={<Tag className="h-5 w-5" />} title="Promoções" subtitle="Crie incentivos simples para atrair clientes e aumentar os agendamentos." />
 
         <Tabs value={defaultTab} onValueChange={(v) => setSearchParams({ tab: v })}>
-          <TabsList>
-            <TabsTrigger value="cupons" className="flex items-center gap-2"><Tag className="h-4 w-4" />Cupons</TabsTrigger>
-            <TabsTrigger value="gift-cards" className="flex items-center gap-2"><Gift className="h-4 w-4" />Gift Cards</TabsTrigger>
-            <TabsTrigger value="precos" className="flex items-center gap-2"><TrendingUp className="h-4 w-4" />Preços Dinâmicos</TabsTrigger>
-          </TabsList>
-          <TabsContent value="cupons"><CouponsContent /></TabsContent>
-          <TabsContent value="gift-cards"><GiftCardsContent /></TabsContent>
-          <TabsContent value="precos"><DynamicPricingContent /></TabsContent>
+          <SectionTabsLayout items={promotionSections} navigationTitle="Qual promoção você quer gerenciar?">
+            <TabsContent value="cupons" className="mt-0"><CouponsContent /></TabsContent>
+            <TabsContent value="gift-cards" className="mt-0"><GiftCardsContent /></TabsContent>
+            <TabsContent value="precos" className="mt-0"><DynamicPricingContent /></TabsContent>
+          </SectionTabsLayout>
         </Tabs>
-      </div>
+      </PageContainer>
     </Layout>
   );
 };

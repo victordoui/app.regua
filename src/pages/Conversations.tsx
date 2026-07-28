@@ -1,11 +1,18 @@
 import { useSearchParams } from "react-router-dom";
 import Layout from "@/components/Layout";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Tabs, TabsContent } from "@/components/ui/tabs";
 import { MessageSquare, Bell, MessageCircle } from "lucide-react";
 import ConversationsContent from "@/components/communication/ConversationsContent";
 import NotificationsContent from "@/components/communication/NotificationsContent";
 import TeamChatContent from "@/components/communication/TeamChatContent";
-import { PageHeader } from "@/components/ui/page-header";
+import { PageContainer, PageHeader } from "@/components/ui/page-header";
+import { SectionTabsLayout } from "@/components/ui/section-tabs";
+
+const communicationSections = [
+  { value: "conversas", label: "Conversas", description: "Atendimento aos clientes", icon: MessageSquare },
+  { value: "notificacoes", label: "Notificações", description: "Avisos e lembretes", icon: Bell },
+  { value: "chat-equipe", label: "Chat da equipe", description: "Comunicação interna", icon: MessageCircle },
+] as const;
 
 const Conversations = () => {
   const [searchParams, setSearchParams] = useSearchParams();
@@ -13,20 +20,17 @@ const Conversations = () => {
 
   return (
     <Layout>
-      <div className="flex-1 space-y-6 p-6">
-        <PageHeader icon={<MessageSquare className="h-5 w-5" />} title="Comunicação" subtitle="Conversas, notificações e chat da equipe" />
+      <PageContainer>
+        <PageHeader eyebrow="Comunicação" icon={<MessageSquare className="h-5 w-5" />} title="Central de Comunicação" subtitle="Atenda clientes, acompanhe avisos e converse com sua equipe." />
 
         <Tabs value={defaultTab} onValueChange={(v) => setSearchParams({ tab: v })}>
-          <TabsList>
-            <TabsTrigger value="conversas" className="flex items-center gap-2"><MessageSquare className="h-4 w-4" />Conversas</TabsTrigger>
-            <TabsTrigger value="notificacoes" className="flex items-center gap-2"><Bell className="h-4 w-4" />Notificações</TabsTrigger>
-            <TabsTrigger value="chat-equipe" className="flex items-center gap-2"><MessageCircle className="h-4 w-4" />Chat Equipe</TabsTrigger>
-          </TabsList>
-          <TabsContent value="conversas"><ConversationsContent /></TabsContent>
-          <TabsContent value="notificacoes"><NotificationsContent /></TabsContent>
-          <TabsContent value="chat-equipe"><TeamChatContent /></TabsContent>
+          <SectionTabsLayout items={communicationSections} navigationTitle="Como você quer se comunicar?">
+            <TabsContent value="conversas" className="mt-0"><ConversationsContent /></TabsContent>
+            <TabsContent value="notificacoes" className="mt-0"><NotificationsContent /></TabsContent>
+            <TabsContent value="chat-equipe" className="mt-0"><TeamChatContent /></TabsContent>
+          </SectionTabsLayout>
         </Tabs>
-      </div>
+      </PageContainer>
     </Layout>
   );
 };

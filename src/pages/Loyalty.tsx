@@ -15,8 +15,14 @@ import { useToast } from '@/hooks/use-toast';
 import { Crown, Gift, Plus, Star, Users, Trash2, Loader2, UserPlus, Clock, CheckCircle, Copy } from 'lucide-react';
 import { format } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
-import { PageHeader } from '@/components/ui/page-header';
+import { PageContainer, PageHeader } from '@/components/ui/page-header';
 import { StatusCards } from '@/components/ui/status-cards';
+import { SectionTabsLayout } from '@/components/ui/section-tabs';
+
+const loyaltySections = [
+  { value: 'loyalty', label: 'Pontos e recompensas', description: 'Benefícios para clientes', icon: Star },
+  { value: 'referrals', label: 'Indicações', description: 'Clientes que indicam amigos', icon: UserPlus },
+] as const;
 
 const Loyalty = () => {
   const { loyaltyPoints, rewards, stats, isLoading, createReward, deleteReward, isCreatingReward } = useLoyalty();
@@ -26,7 +32,7 @@ const Loyalty = () => {
 
   const [rewardDialogOpen, setRewardDialogOpen] = useState(false);
   const [referralDialogOpen, setReferralDialogOpen] = useState(false);
-  const [rewardForm, setRewardForm] = useState({ name: '', points_required: '', reward_type: 'discount' as const, reward_value: '' });
+  const [rewardForm, setRewardForm] = useState<{ name: string; points_required: string; reward_type: 'discount' | 'service' | 'product'; reward_value: string }>({ name: '', points_required: '', reward_type: 'discount', reward_value: '' });
   const [referralForm, setReferralForm] = useState<ReferralFormData>({ referrer_client_id: '', referred_client_id: '', referral_code: '', reward_amount: 20 });
   const [referralTab, setReferralTab] = useState('all');
 
@@ -52,16 +58,12 @@ const Loyalty = () => {
 
   return (
     <Layout>
-      <div className="flex-1 space-y-6 p-6">
-        <PageHeader icon={<Crown className="h-5 w-5" />} title="Fidelidade & Indicações" subtitle="Programa de pontos e indicações" />
+      <PageContainer>
+        <PageHeader eyebrow="Engajamento" icon={<Crown className="h-5 w-5" />} title="Fidelidade e Indicações" subtitle="Recompense clientes frequentes e acompanhe quem indica novos clientes." />
 
         <Tabs defaultValue="loyalty" className="space-y-6">
-          <TabsList>
-            <TabsTrigger value="loyalty" className="gap-2"><Star className="h-4 w-4" />Pontos & Recompensas</TabsTrigger>
-            <TabsTrigger value="referrals" className="gap-2"><UserPlus className="h-4 w-4" />Indicações</TabsTrigger>
-          </TabsList>
-
-          <TabsContent value="loyalty" className="space-y-6">
+          <SectionTabsLayout items={loyaltySections} navigationTitle="O que você quer acompanhar?">
+          <TabsContent value="loyalty" className="mt-0 space-y-6">
             <div className="flex justify-end">
               <Dialog open={rewardDialogOpen} onOpenChange={setRewardDialogOpen}>
                 <DialogTrigger asChild><Button><Plus className="h-4 w-4 mr-2" />Nova Recompensa</Button></DialogTrigger>
@@ -70,7 +72,7 @@ const Loyalty = () => {
                   <div className="space-y-4">
                     <div><Label>Nome</Label><Input value={rewardForm.name} onChange={e => setRewardForm(p => ({ ...p, name: e.target.value }))} placeholder="Ex: Corte Grátis" /></div>
                     <div><Label>Pontos Necessários</Label><Input type="number" value={rewardForm.points_required} onChange={e => setRewardForm(p => ({ ...p, points_required: e.target.value }))} /></div>
-                    <div><Label>Tipo</Label><Select value={rewardForm.reward_type} onValueChange={(v: any) => setRewardForm(p => ({ ...p, reward_type: v }))}><SelectTrigger><SelectValue /></SelectTrigger><SelectContent><SelectItem value="discount">Desconto</SelectItem><SelectItem value="service">Serviço Grátis</SelectItem><SelectItem value="product">Produto</SelectItem></SelectContent></Select></div>
+                    <div><Label>Tipo</Label><Select value={rewardForm.reward_type} onValueChange={(value: 'discount' | 'service' | 'product') => setRewardForm(previous => ({ ...previous, reward_type: value }))}><SelectTrigger><SelectValue /></SelectTrigger><SelectContent><SelectItem value="discount">Desconto</SelectItem><SelectItem value="service">Serviço Grátis</SelectItem><SelectItem value="product">Produto</SelectItem></SelectContent></Select></div>
                     {rewardForm.reward_type === 'discount' && <div><Label>Valor (R$)</Label><Input type="number" value={rewardForm.reward_value} onChange={e => setRewardForm(p => ({ ...p, reward_value: e.target.value }))} /></div>}
                     <Button onClick={handleCreateReward} disabled={isCreatingReward} className="w-full">{isCreatingReward && <Loader2 className="h-4 w-4 animate-spin mr-2" />}Criar</Button>
                   </div>
@@ -116,7 +118,7 @@ const Loyalty = () => {
             </div>
           </TabsContent>
 
-          <TabsContent value="referrals" className="space-y-6">
+          <TabsContent value="referrals" className="mt-0 space-y-6">
             <div className="flex justify-end"><Button onClick={() => setReferralDialogOpen(true)}><Plus className="h-4 w-4 mr-2" />Nova Indicação</Button></div>
 
             <StatusCards
@@ -166,8 +168,9 @@ const Loyalty = () => {
               </DialogContent>
             </Dialog>
           </TabsContent>
+          </SectionTabsLayout>
         </Tabs>
-      </div>
+      </PageContainer>
     </Layout>
   );
 };

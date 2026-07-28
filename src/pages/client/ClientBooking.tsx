@@ -4,7 +4,7 @@ import { supabase } from '@/integrations/supabase/client';
 import { Card } from '@/components/ui/card';
 import { Loader2 } from 'lucide-react';
 import MobileLayout from '@/components/mobile/MobileLayout';
-import ClientBookingFlow from '@/components/booking/ClientBookingFlow';
+import GroupBookingFlow from '@/components/booking/GroupBookingFlow';
 
 interface BarbershopSettings {
   company_name: string;
@@ -65,9 +65,8 @@ const ClientBooking = () => {
 
   return (
     <MobileLayout settings={settings}>
-      <div className="px-4 py-6">
-        <h1 className="text-2xl font-bold mb-6">Novo Agendamento</h1>
-        <ClientBookingFlow />
+      <div className="px-4 py-5">
+        <GroupBookingFlow userId={userId!} />
       </div>
     </MobileLayout>
   );

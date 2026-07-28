@@ -16,6 +16,7 @@ import ComparativeMonthChart from "./analytics/ComparativeMonthChart";
 import ConversionFunnel from "./analytics/ConversionFunnel";
 import ServiceAnalysisChart from "./analytics/ServiceAnalysisChart";
 import RevenueForecastChart from "./analytics/RevenueForecastChart";
+import { PageContainer } from "@/components/ui/page-header";
 
 const periods = [
   { key: "today", label: "Hoje" },
@@ -37,7 +38,7 @@ const DashboardOverview = () => {
   }
 
   return (
-    <div className="space-y-6">
+    <PageContainer>
       <HeroSection />
 
       <KpiStrip
@@ -48,9 +49,9 @@ const DashboardOverview = () => {
       />
 
       {/* Filtros de período e exportação */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 bg-card border border-border rounded-xl p-4">
+      <div className="surface-toolbar p-4 sm:p-4">
         <div className="flex items-center gap-3">
-          <div className="flex items-center justify-center h-10 w-10 rounded-lg bg-primary/10 text-primary shrink-0">
+          <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-primary/10 text-primary">
             <BarChart3 className="h-5 w-5" />
           </div>
           <div>
@@ -59,7 +60,7 @@ const DashboardOverview = () => {
           </div>
         </div>
         <div className="flex items-center gap-2 flex-wrap">
-          <div className="flex items-center bg-muted/50 rounded-lg p-1 gap-0.5">
+          <div className="flex items-center gap-0.5 rounded-xl bg-muted/70 p-1">
             {periods.map((p) => (
               <button
                 key={p.key}
@@ -110,7 +111,7 @@ const DashboardOverview = () => {
       </div>
 
       <TodayScheduleCard />
-    </div>
+    </PageContainer>
   );
 };
 

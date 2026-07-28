@@ -45,17 +45,40 @@ export const useAppointments = () => {
   const { toast } = useToast();
   const queryClient = useQueryClient();
 
+  const invalidateAppointments = useCallback(() => {
+    // A agenda usa chaves como ["appointments", "calendar", status].
+    // Invalidar pelo prefixo mantém todas as visões sincronizadas.
+    queryClient.invalidateQueries({ queryKey: ["appointments"] });
+  }, [queryClient]);
+
+  useEffect(() => {
+    if (!user) return;
+
+    const channel = supabase
+      .channel(`appointments-calendar-${user.id}`)
+      .on(
+        "postgres_changes",
+        {
+          event: "*",
+          schema: "public",
+          table: "appointments",
+          filter: `user_id=eq.${user.id}`,
+        },
+        invalidateAppointments,
+      )
+      .subscribe();
+
+    return () => {
+      supabase.removeChannel(channel);
+    };
+  }, [invalidateAppointments, user]);
+
   const fetchAppointments = useCallback(async (date?: Date, statusFilter: string = 'all'): Promise<Appointment[]> => {
     if (!user) return [];
 
     let query = supabase
       .from("appointments")
-      .select(`
-        *,
-        clients:profiles!client_id (id, name:display_name, email, phone),
-        services (id, name, description, price, duration_minutes, active),
-        barbers:profiles!barbeiro_id (id, user_id, full_name:display_name, email, phone, role)
-      `)
+      .select("*")
       .eq("user_id", user.id)
       .order("appointment_time", { ascending: true });
 
@@ -68,19 +91,95 @@ export const useAppointments = () => {
       query = query.eq("status", statusFilter);
     }
 
-    const { data, error } = await query;
+    const { data: appointmentRows, error } = await query;
 
     if (error) throw error;
-    return (data || []) as unknown as Appointment[];
+    if (!appointmentRows?.length) return [];
+
+    // Os FKs atuais relacionam client_id com `clients`; barbeiro_id não tem
+    // relacionamento PostgREST no schema gerado. Carregar as relações em
+    // consultas separadas evita que um embed inválido derrube toda a agenda.
+    const appointmentIds = appointmentRows.map(item => item.id);
+    const clientIds = [...new Set(appointmentRows.map(item => item.client_id).filter(Boolean))];
+    const barberIds = [...new Set(appointmentRows.map(item => item.barbeiro_id).filter(Boolean))] as string[];
+
+    const [clientsResult, appointmentServicesResult, barbersResult] = await Promise.all([
+      clientIds.length
+        ? supabase.from("clients").select("id, name, email, phone").in("id", clientIds)
+        : Promise.resolve({ data: [], error: null }),
+      appointmentIds.length
+        ? supabase.from("appointment_services").select("id, appointment_id, service_id, price, created_at").in("appointment_id", appointmentIds)
+        : Promise.resolve({ data: [], error: null }),
+      barberIds.length
+        ? supabase.from("profiles").select("id, user_id, full_name:display_name, email, phone, role, active").in("id", barberIds)
+        : Promise.resolve({ data: [], error: null }),
+    ]);
+
+    const serviceIds = [...new Set([
+      ...appointmentRows.map(item => item.service_id),
+      ...(appointmentServicesResult.data || []).map(item => item.service_id),
+    ].filter(Boolean))];
+    const servicesResult = serviceIds.length
+      ? await supabase.from("services").select("id, name, description, price, duration_minutes, active").in("id", serviceIds)
+      : { data: [], error: null };
+
+    // Dados complementares não devem esconder o agendamento. Caso uma
+    // política de leitura restrinja cliente/profissional, o cartão continua
+    // visível e usa os fallbacks da interface.
+    if (clientsResult.error) console.warn("Não foi possível carregar clientes da agenda:", clientsResult.error);
+    if (appointmentServicesResult.error) console.warn("Não foi possível carregar os serviços vinculados da agenda:", appointmentServicesResult.error);
+    if (servicesResult.error) console.warn("Não foi possível carregar serviços da agenda:", servicesResult.error);
+    if (barbersResult.error) console.warn("Não foi possível carregar profissionais da agenda:", barbersResult.error);
+
+    const clientsById = new Map((clientsResult.data || []).map(item => [item.id, item]));
+    const servicesById = new Map((servicesResult.data || []).map(item => [item.id, item]));
+    const barbersById = new Map((barbersResult.data || []).map(item => [item.id, item]));
+    const appointmentServicesByAppointment = new Map<string, typeof appointmentServicesResult.data>();
+    for (const item of appointmentServicesResult.data || []) {
+      const current = appointmentServicesByAppointment.get(item.appointment_id) || [];
+      current.push(item);
+      appointmentServicesByAppointment.set(item.appointment_id, current);
+    }
+
+    return appointmentRows.map(appointment => {
+      const serviceLinks = appointmentServicesByAppointment.get(appointment.id) || [];
+      const linkedServices = serviceLinks
+        .map(link => servicesById.get(link.service_id))
+        .filter(Boolean);
+      const primaryService = servicesById.get(appointment.service_id);
+      const visibleServices = linkedServices.length > 0
+        ? linkedServices
+        : primaryService ? [primaryService] : [];
+      const displayService = visibleServices.length > 1
+        ? {
+            ...visibleServices[0],
+            name: visibleServices.map(service => service!.name).join(" + "),
+            description: visibleServices.map(service => service!.description).filter(Boolean).join("; "),
+            price: visibleServices.reduce((total, service) => total + Number(service!.price), 0),
+            duration_minutes: visibleServices.reduce((total, service) => total + service!.duration_minutes, 0),
+          }
+        : visibleServices[0];
+
+      return {
+        ...appointment,
+        clients: clientsById.get(appointment.client_id),
+        services: displayService,
+        appointment_services: serviceLinks.map(link => ({
+          ...link,
+          services: servicesById.get(link.service_id),
+        })),
+        barbers: appointment.barbeiro_id ? barbersById.get(appointment.barbeiro_id) : undefined,
+      };
+    }) as unknown as Appointment[];
   }, [user]);
 
   const fetchClients = useCallback(async (): Promise<Client[]> => {
     if (!user) return [];
     const { data, error } = await supabase
-      .from("profiles")
-      .select("id, name:display_name, email, phone, created_at")
-      .eq("user_id", user.id) // Fetch clients associated with the current user
-      .order("display_name", { ascending: true });
+      .from("clients")
+      .select("id, name, email, phone, notes, created_at")
+      .eq("user_id", user.id)
+      .order("name", { ascending: true });
     if (error) throw error;
     return data || [];
   }, [user]);
@@ -233,7 +332,7 @@ export const useAppointments = () => {
       return createdAppointments;
     },
     onSuccess: (data) => {
-      queryClient.invalidateQueries({ queryKey: ["appointments", user?.id] });
+      invalidateAppointments();
       const count = data.length;
       toast({ 
         title: count > 1 
@@ -273,7 +372,7 @@ export const useAppointments = () => {
       return data as Appointment;
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["appointments", user?.id] });
+      invalidateAppointments();
       toast({ title: "Agendamento atualizado com sucesso!" });
     },
     onError: (err) => {
@@ -300,7 +399,7 @@ export const useAppointments = () => {
       return data as Appointment;
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["appointments", user?.id] });
+      invalidateAppointments();
       toast({ title: "Status do agendamento atualizado!" });
     },
     onError: (err) => {
@@ -343,7 +442,7 @@ export const useAppointments = () => {
       }
     },
     onSuccess: (_, variables) => {
-      queryClient.invalidateQueries({ queryKey: ["appointments", user?.id] });
+      invalidateAppointments();
       toast({ 
         title: variables.deleteAll 
           ? "Todos os agendamentos da série excluídos!" 
@@ -429,7 +528,7 @@ export const useAppointments = () => {
       return (data || []) as Appointment[];
     },
     onSuccess: (data) => {
-      queryClient.invalidateQueries({ queryKey: ["appointments", user?.id] });
+      invalidateAppointments();
       toast({ 
         title: `${data.length} agendamentos da série atualizados!` 
       });
@@ -444,6 +543,7 @@ export const useAppointments = () => {
   });
 
   return {
+    appointmentsScopeId: user?.id ?? null,
     clients: clients || [],
     services: services || [],
     barbers: barbers || [],

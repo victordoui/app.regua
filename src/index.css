@@ -48,8 +48,8 @@
     --secondary-foreground: 217 91% 60%;
     --secondary-rgb: 249, 250, 251;
 
-    --muted: 210 40% 96%;
-    --muted-foreground: 215 16% 47%;   /* #64748B → close to #475569 */
+    --muted: 214 32% 94%;
+    --muted-foreground: 215 22% 38%;
 
     --accent: 214 100% 97%;            /* brand-50 */
     --accent-foreground: 222 47% 11%;
@@ -58,8 +58,8 @@
     --destructive-foreground: 0 0% 100%;
 
     /* ── Bordas ── */
-    --border: 214 32% 91%;             /* #E2E8F0 */
-    --input: 210 20% 98%;              /* #F9FAFB */
+    --border: 214 26% 84%;
+    --input: 214 30% 96%;
     --ring: 217 91% 60%;               /* brand-mid */
 
     /* ── Status semânticos ── */
@@ -97,7 +97,7 @@
 
     /* ── Shadows — always blue-tinted ── */
     --shadow-elegant: 0 20px 40px -5px rgba(37, 99, 235, 0.08), 0 10px 20px -5px rgba(37, 99, 235, 0.04);
-    --shadow-subtle: 0 1px 3px 0 rgba(37, 99, 235, 0.06), 0 1px 2px -1px rgba(37, 99, 235, 0.04);
+    --shadow-subtle: 0 1px 3px 0 rgba(15, 47, 107, 0.10), 0 1px 2px -1px rgba(15, 47, 107, 0.07);
     --shadow-modern: 0 10px 30px -10px rgba(37, 99, 235, 0.12);
 
     /* ── Glass ── */
@@ -109,6 +109,13 @@
     --radius: 0.625rem;    /* 10px */
     --radius-lg: 0.875rem; /* 14px */
     --radius-xl: 1.125rem; /* 18px */
+
+    /* Product surfaces */
+    --page: 214 32% 96%;
+    --surface: 0 0% 100%;
+    --surface-raised: 0 0% 100%;
+    --surface-soft: 214 30% 94%;
+    --hairline: 214 26% 84%;
 
     /* ── Sidebar (VIZZU blue) ── */
     --sidebar-background: 221 70% 38%;
@@ -238,6 +245,12 @@
     --sidebar-ring: 217 91% 60%;
     --sidebar-muted: 214 60% 80%;
 
+    --page: 222 47% 6%;
+    --surface: 222 47% 9%;
+    --surface-raised: 222 47% 11%;
+    --surface-soft: 222 35% 13%;
+    --hairline: 215 25% 18%;
+
 
     /* ── System grays (dark) ── */
     --clean-black: 0 0% 100%;
@@ -257,8 +270,12 @@
   }
 
   body {
-    @apply bg-background text-foreground;
+    @apply text-foreground;
+    background:
+      radial-gradient(circle at 82% -8%, hsl(var(--primary) / 0.07), transparent 30rem),
+      hsl(var(--page));
     font-feature-settings: "rlig" 1, "calt" 1;
+    font-size: 16px;
   }
 
   html {
@@ -309,6 +326,49 @@
 }
 
 @layer components {
+  .page-container {
+    @apply mx-auto w-full max-w-[1600px] space-y-6;
+  }
+
+  .surface-panel {
+    @apply rounded-2xl border border-border bg-card shadow-[var(--shadow-subtle)];
+  }
+
+  .surface-toolbar {
+    @apply flex flex-col gap-3 rounded-2xl border border-border bg-card p-3 shadow-[var(--shadow-subtle)] sm:flex-row sm:items-center sm:justify-between;
+  }
+
+  .eyebrow {
+    @apply text-xs font-bold uppercase tracking-[0.14em] text-primary;
+  }
+
+  .interactive-row {
+    @apply transition-[background-color,border-color,box-shadow,transform] duration-200 hover:border-primary/20 hover:bg-primary/[0.025];
+  }
+
+  .form-section {
+    @apply overflow-hidden rounded-2xl border border-border bg-card shadow-[var(--shadow-subtle)];
+  }
+
+  .form-section-header {
+    @apply flex items-start gap-3 border-b border-border bg-[hsl(var(--surface-soft))] px-5 py-4;
+  }
+
+  .form-section-body {
+    @apply space-y-5 p-5 sm:p-6;
+  }
+
+  .readable-ui .text-xs {
+    font-size: 0.8125rem;
+    line-height: 1.25rem;
+  }
+
+  .readable-ui .text-\[10px\],
+  .readable-ui .text-\[11px\] {
+    font-size: 0.75rem;
+    line-height: 1.125rem;
+  }
+
   /* Glassmorphism */
   .glass {
     background: var(--glass-bg);
@@ -386,6 +446,15 @@
 
   /* Safe area for mobile bottom nav */
   .safe-area-bottom { padding-bottom: env(safe-area-inset-bottom, 0); }
+}
+
+@layer utilities {
+  .readable-ui .border-border\/40,
+  .readable-ui .border-border\/50,
+  .readable-ui .border-border\/60,
+  .readable-ui .border-border\/70 {
+    border-color: hsl(var(--border) / 0.9) !important;
+  }
 }
 
 /* Accessibility */

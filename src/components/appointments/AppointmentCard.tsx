@@ -6,6 +6,7 @@ import { Badge } from '@/components/ui/badge';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
 import { format, parseISO, formatDistanceToNow, differenceInHours } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
+import { getAppointmentAttendeeName, parseGroupBookingNotes } from '@/lib/groupBooking';
 
 interface AppointmentCardProps {
   appointment: Appointment;
@@ -15,6 +16,8 @@ interface AppointmentCardProps {
 }
 
 const AppointmentCard: React.FC<AppointmentCardProps> = ({ appointment, onEdit, onDelete, onUpdateStatus }) => {
+  const attendeeName = getAppointmentAttendeeName(appointment);
+  const groupMetadata = parseGroupBookingNotes(appointment.notes);
   const getStatusBadgeVariant = (status: string) => {
     switch (status) {
       case 'confirmed':
@@ -79,7 +82,10 @@ const AppointmentCard: React.FC<AppointmentCardProps> = ({ appointment, onEdit, 
 
       <div className="flex justify-between items-start">
         <div>
-          <h3 className="font-semibold text-lg">{appointment.clients?.name || 'Cliente Desconhecido'}</h3>
+          <h3 className="font-semibold text-lg">{attendeeName}</h3>
+          {groupMetadata.groupId && (
+            <p className="text-xs text-muted-foreground">Responsável: {groupMetadata.responsibleName}</p>
+          )}
           <p className="text-sm text-muted-foreground">{appointment.services?.name || 'Serviço Desconhecido'}</p>
           <Badge variant={getStatusBadgeVariant(appointment.status)} className="mt-1">
             {getStatusText(appointment.status)}
