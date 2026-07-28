@@ -147,14 +147,14 @@ const ClientAppointments = () => {
 
           const [servicesRes, barbersRes] = await Promise.all([
             serviceIds.length > 0 
-              ? supabase.from('services').select('id, name, price').in('id', serviceIds)
-              : { data: [] as { id: string; name: string; price: number }[] },
+              ? supabase.from('services').select('id, name, price, duration_minutes').in('id', serviceIds)
+              : { data: [] as { id: string; name: string; price: number; duration_minutes: number }[] },
             barberIds.length > 0
               ? supabase.from('profiles').select('id, display_name').in('id', barberIds as string[])
               : { data: [] as { id: string; display_name: string }[] }
           ]);
 
-          const servicesMap = new Map<string, { id: string; name: string; price: number }>();
+          const servicesMap = new Map<string, { id: string; name: string; price: number; duration_minutes: number }>();
           servicesRes.data?.forEach(s => servicesMap.set(s.id, s));
           
           const barbersMap = new Map<string, { id: string; display_name: string | null }>();
@@ -164,9 +164,13 @@ const ClientAppointments = () => {
             const service = servicesMap.get(apt.service_id);
             const barber = apt.barbeiro_id ? barbersMap.get(apt.barbeiro_id) : null;
             const metadata = parseGroupBookingNotes(apt.notes);
-            const selectedServiceNames = (apt.appointment_services || [])
-              .map(item => servicesMap.get(item.service_id)?.name)
-              .filter(Boolean);
+            const selectedServices = (apt.appointment_services || [])
+              .map(item => servicesMap.get(item.service_id))
+              .filter(Boolean) as { name: string; duration_minutes: number }[];
+            const selectedServiceNames = selectedServices.map(item => item.name);
+            const totalDuration = selectedServices.reduce((sum, item) => sum + (item.duration_minutes || 0), 0)
+              || service?.duration_minutes
+              || 30;
             return {
               id: apt.id,
               appointment_date: apt.appointment_date,
@@ -175,6 +179,8 @@ const ClientAppointments = () => {
               service_name: selectedServiceNames.length > 0 ? selectedServiceNames.join(' + ') : service?.name || 'Serviço',
               service_price: Number(apt.total_price ?? service?.price ?? 0),
               barber_name: barber?.display_name || 'Barbeiro',
+              barbeiro_id: apt.barbeiro_id ?? null,
+              duration_minutes: totalDuration,
               result_photo_url: apt.result_photo_url,
               attendee_name: metadata.attendeeName || clientProfile?.full_name || 'Você',
               relationship: metadata.relationship,
