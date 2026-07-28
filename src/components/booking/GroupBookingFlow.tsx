@@ -19,6 +19,7 @@ import {
 import { supabase } from '@/integrations/supabase/client';
 import { buildGroupBookingNotes } from '@/lib/groupBooking';
 import { appointmentsConflict, blockedPeriodConflict } from '@/lib/bookingAvailability';
+import { translateBookingError } from '@/lib/bookingErrors';
 import { cn } from '@/lib/utils';
 import { useToast } from '@/hooks/use-toast';
 import { Button } from '@/components/ui/button';
@@ -341,6 +342,7 @@ const GroupBookingFlow: React.FC<GroupBookingFlowProps> = ({ userId }) => {
   };
 
   const finalizeBooking = async () => {
+    if (submitting) return;
     if (!contact.name.trim() || !contact.phone.trim() || !contact.email.trim()) {
       toast({ title: 'Informe os dados do responsável', description: 'Nome, telefone e email são obrigatórios.', variant: 'destructive' });
       return;
@@ -348,11 +350,9 @@ const GroupBookingFlow: React.FC<GroupBookingFlowProps> = ({ userId }) => {
     if (!validatePeople() || !validateSchedules()) return;
 
     setSubmitting(true);
-    const createdAppointmentIds: string[] = []; // Legacy rollback guard; the RPC below is atomic.
-    let clientId = ''; // Legacy path remains unreachable after a successful atomic booking.
     try {
       const { data: { user } } = await supabase.auth.getUser();
-      if (!user) throw new Error('Session expired. Please sign in again.');
+      if (!user) throw new Error('Sua sessão expirou. Entre novamente para agendar.');
 
       const bookingGroupId = crypto.randomUUID();
       const { error: bookingError } = await supabase.rpc('book_group_appointments', {
@@ -379,82 +379,26 @@ const GroupBookingFlow: React.FC<GroupBookingFlowProps> = ({ userId }) => {
         })),
         _notes: notes || null,
       });
+
       if (bookingError) {
-        if (bookingError.message.includes('SLOT_UNAVAILABLE')) {
-          throw new Error('Um dos horarios acabou de ser ocupado. Escolha outro horario para continuar.');
+        const friendly = translateBookingError(bookingError.message);
+        if (friendly.refreshSlots && scheduledParticipant) {
+          fetchSlotsFor(scheduledParticipant);
+          setStep(2);
         }
-        throw bookingError;
-      }
-      setCompleted(true);
-      window.scrollTo({ top: 0, behavior: 'smooth' });
-      return;
-
-      if (!user) throw new Error('Sua sessão expirou. Entre novamente para agendar.');
-
-      // Reconsulta cada combinação imediatamente antes de gravar para reduzir disputas de vaga.
-      for (const participant of participants) {
-        const date = format(participant.date!, 'yyyy-MM-dd');
-        const { data: conflicts, error: conflictError } = await supabase
-          .from('appointments')
-          .select('appointment_time, services(duration_minutes), appointment_services(services(duration_minutes))')
-          .eq('user_id', userId)
-          .eq('barbeiro_id', participant.professionalId)
-          .eq('appointment_date', date)
-          .neq('status', 'cancelled');
-        if (conflictError) throw conflictError;
-        const start = minutesFromTime(participant.time);
-        const duration = participantDuration(participant);
-        const hasConflict = (conflicts || []).some(appointment =>
-          appointmentsConflict(start, duration, minutesFromTime(appointment.appointment_time), existingAppointmentDuration(appointment), bufferMinutes)
-        );
-        if (hasConflict) throw new Error(`O horário de ${participant.name} acabou de ser ocupado. Escolha outro horário.`);
-      }
-
-      const groupId = crypto.randomUUID();
-      for (const participant of participants) {
-        const selectedServices = participant.serviceIds.map(id => serviceMap.get(id)).filter(Boolean) as BookingService[];
-        const { data: appointment, error: appointmentError } = await supabase
-          .from('appointments')
-          .insert({
-            user_id: userId,
-            client_id: clientId,
-            service_id: selectedServices[0].id,
-            barbeiro_id: participant.professionalId,
-            appointment_date: format(participant.date!, 'yyyy-MM-dd'),
-            appointment_time: participant.time,
-            status: 'pending',
-            total_price: participantTotal(participant),
-            notes: buildGroupBookingNotes({
-              groupId,
-              attendeeName: participant.name,
-              relationship: participant.relationship,
-              responsibleName: contact.name,
-              notes,
-            }),
-          })
-          .select('id')
-          .single();
-        if (appointmentError) throw appointmentError;
-        createdAppointmentIds.push(appointment.id);
-
-        const { error: servicesError } = await supabase.from('appointment_services').insert(
-          selectedServices.map(service => ({ appointment_id: appointment.id, service_id: service.id, price: service.price }))
-        );
-        if (servicesError) throw servicesError;
+        throw new Error(friendly.message);
       }
 
       setCompleted(true);
       window.scrollTo({ top: 0, behavior: 'smooth' });
     } catch (error) {
-      if (createdAppointmentIds.length > 0) {
-        await supabase.from('appointments').delete().in('id', createdAppointmentIds);
-      }
       const message = error instanceof Error ? error.message : 'Não foi possível concluir o agendamento.';
       toast({ title: 'Agendamento não concluído', description: message, variant: 'destructive' });
     } finally {
       setSubmitting(false);
     }
   };
+
 
   if (loading) {
     return <div className="flex min-h-72 items-center justify-center"><Loader2 className="h-8 w-8 animate-spin text-primary" /></div>;

@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useMemo } from 'react';
+import React, { useCallback, useEffect, useState, useMemo } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { supabase } from '@/integrations/supabase/client';
 import { Card } from '@/components/ui/card';
@@ -14,6 +14,8 @@ import CancelAppointmentDialog from '@/components/appointments/CancelAppointment
 import { useToast } from '@/hooks/use-toast';
 import { Dialog, DialogContent } from '@/components/ui/dialog';
 import { parseGroupBookingNotes } from '@/lib/groupBooking';
+import { translateBookingError } from '@/lib/bookingErrors';
+import ClientRescheduleDialog from '@/components/client/ClientRescheduleDialog';
 
 interface BarbershopSettings {
   company_name: string;
@@ -32,6 +34,8 @@ interface Appointment {
   service_name: string;
   service_price: number;
   barber_name: string;
+  barbeiro_id: string | null;
+  duration_minutes: number;
   result_photo_url: string | null;
   attendee_name: string;
   relationship: string | null;
@@ -50,12 +54,18 @@ const ClientAppointments = () => {
   // Cancel dialog state
   const [cancelDialogOpen, setCancelDialogOpen] = useState(false);
   const [cancelingAppointment, setCancelingAppointment] = useState<Appointment | null>(null);
+  const [canceling, setCanceling] = useState(false);
   
   // Photo viewer state
   const [viewingPhoto, setViewingPhoto] = useState<string | null>(null);
 
-  useEffect(() => {
-    const fetchData = async () => {
+  // Reschedule dialog state
+  const [reschedulingAppointment, setReschedulingAppointment] = useState<Appointment | null>(null);
+
+
+  const fetchData = useCallback(async () => {
+    {
+
       if (!userId) return;
 
       const { data: { user } } = await supabase.auth.getUser();
@@ -142,14 +152,14 @@ const ClientAppointments = () => {
 
           const [servicesRes, barbersRes] = await Promise.all([
             serviceIds.length > 0 
-              ? supabase.from('services').select('id, name, price').in('id', serviceIds)
-              : { data: [] as { id: string; name: string; price: number }[] },
+              ? supabase.from('services').select('id, name, price, duration_minutes').in('id', serviceIds)
+              : { data: [] as { id: string; name: string; price: number; duration_minutes: number }[] },
             barberIds.length > 0
               ? supabase.from('profiles').select('id, display_name').in('id', barberIds as string[])
               : { data: [] as { id: string; display_name: string }[] }
           ]);
 
-          const servicesMap = new Map<string, { id: string; name: string; price: number }>();
+          const servicesMap = new Map<string, { id: string; name: string; price: number; duration_minutes: number }>();
           servicesRes.data?.forEach(s => servicesMap.set(s.id, s));
           
           const barbersMap = new Map<string, { id: string; display_name: string | null }>();
@@ -159,9 +169,13 @@ const ClientAppointments = () => {
             const service = servicesMap.get(apt.service_id);
             const barber = apt.barbeiro_id ? barbersMap.get(apt.barbeiro_id) : null;
             const metadata = parseGroupBookingNotes(apt.notes);
-            const selectedServiceNames = (apt.appointment_services || [])
-              .map(item => servicesMap.get(item.service_id)?.name)
-              .filter(Boolean);
+            const selectedServices = (apt.appointment_services || [])
+              .map(item => servicesMap.get(item.service_id))
+              .filter(Boolean) as { name: string; duration_minutes: number }[];
+            const selectedServiceNames = selectedServices.map(item => item.name);
+            const totalDuration = selectedServices.reduce((sum, item) => sum + (item.duration_minutes || 0), 0)
+              || service?.duration_minutes
+              || 30;
             return {
               id: apt.id,
               appointment_date: apt.appointment_date,
@@ -170,6 +184,8 @@ const ClientAppointments = () => {
               service_name: selectedServiceNames.length > 0 ? selectedServiceNames.join(' + ') : service?.name || 'Serviço',
               service_price: Number(apt.total_price ?? service?.price ?? 0),
               barber_name: barber?.display_name || 'Barbeiro',
+              barbeiro_id: apt.barbeiro_id ?? null,
+              duration_minutes: totalDuration,
               result_photo_url: apt.result_photo_url,
               attendee_name: metadata.attendeeName || clientProfile?.full_name || 'Você',
               relationship: metadata.relationship,
@@ -177,14 +193,36 @@ const ClientAppointments = () => {
           });
 
           setAppointments(enrichedAppointments);
+        } else {
+          setAppointments([]);
         }
+      } else {
+        setAppointments([]);
       }
 
       setLoading(false);
-    };
-
-    fetchData();
+    }
   }, [userId, navigate]);
+
+  useEffect(() => {
+    fetchData();
+  }, [fetchData]);
+
+  // Mantém a lista do cliente sincronizada com alterações feitas na agenda administrativa.
+  useEffect(() => {
+    if (!userId) return;
+    const channel = supabase
+      .channel(`client-appointments-${userId}`)
+      .on(
+        'postgres_changes',
+        { event: '*', schema: 'public', table: 'appointments', filter: `user_id=eq.${userId}` },
+        () => { fetchData(); },
+      )
+      .subscribe();
+
+    return () => { supabase.removeChannel(channel); };
+  }, [fetchData, userId]);
+
 
   const now = useMemo(() => new Date(), []);
   
@@ -226,34 +264,30 @@ const ClientAppointments = () => {
   };
 
   const handleConfirmCancel = async (reason?: string) => {
-    if (!cancelingAppointment) return;
+    if (!cancelingAppointment || canceling) return;
 
+    setCanceling(true);
     try {
-      const cancellationNote = reason ? `Cancelado pelo cliente: ${reason}` : 'Cancelado pelo cliente';
-      const updatedNotes = [cancelingAppointment.notes, cancellationNote].filter(Boolean).join('\n');
-      const { error } = await supabase
-        .from('appointments')
-        .update({ 
-          status: 'cancelled',
-          notes: updatedNotes,
-        })
-        .eq('id', cancelingAppointment.id)
-        .eq('user_id', userId);
+      // O cancelamento é feito por função segura no banco: ela revalida o
+      // vínculo do cliente, a permissão de cancelamento online e a antecedência.
+      const { error } = await supabase.rpc('cancel_client_appointment', {
+        _appointment_id: cancelingAppointment.id,
+        _reason: reason?.trim() || null,
+      });
 
-      if (error) throw error;
+      if (error) throw new Error(translateBookingError(error.message).message);
 
-      // Update local state
-      setAppointments(prev => 
-        prev.map(apt => 
-          apt.id === cancelingAppointment.id 
-            ? { ...apt, status: 'cancelled', notes: updatedNotes }
+      setAppointments(prev =>
+        prev.map(apt =>
+          apt.id === cancelingAppointment.id
+            ? { ...apt, status: 'cancelled' }
             : apt
         )
       );
 
       toast({
         title: "Agendamento cancelado",
-        description: "Seu agendamento foi cancelado com sucesso.",
+        description: "Seu agendamento foi cancelado e o horário foi liberado.",
       });
 
       setCancelDialogOpen(false);
@@ -265,8 +299,11 @@ const ClientAppointments = () => {
         description: message,
         variant: "destructive",
       });
+    } finally {
+      setCanceling(false);
     }
   };
+
 
   const getStatusBadge = (status: string) => {
     switch (status) {
@@ -329,7 +366,7 @@ const ClientAppointments = () => {
               )}
               
               {showActions && (apt.status === 'pending' || apt.status === 'confirmed') && (
-                <div className="mt-4 grid grid-cols-2 gap-2">
+                <div className="mt-4 grid grid-cols-3 gap-2">
                   <Button 
                     variant="outline" 
                     size="sm" 
@@ -337,6 +374,14 @@ const ClientAppointments = () => {
                     onClick={() => navigate(`/b/${userId}/agendar`)}
                   >
                     Agendar outro
+                  </Button>
+                  <Button 
+                    variant="secondary" 
+                    size="sm" 
+                    className="min-h-11 font-bold"
+                    onClick={() => setReschedulingAppointment(apt)}
+                  >
+                    Remarcar
                   </Button>
                   <Button 
                     variant="destructive" 
@@ -473,6 +518,19 @@ const ClientAppointments = () => {
           </div>
         </DialogContent>
       </Dialog>
+
+      {/* Reschedule Dialog */}
+      {reschedulingAppointment && userId && (
+        <ClientRescheduleDialog
+          open={!!reschedulingAppointment}
+          onOpenChange={(value) => { if (!value) setReschedulingAppointment(null); }}
+          barbershopUserId={userId}
+          appointmentId={reschedulingAppointment.id}
+          professionalId={reschedulingAppointment.barbeiro_id}
+          durationMinutes={reschedulingAppointment.duration_minutes}
+          onRescheduled={() => { setReschedulingAppointment(null); fetchData(); }}
+        />
+      )}
     </MobileLayout>
   );
 };

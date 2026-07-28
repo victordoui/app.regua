@@ -4,6 +4,8 @@ import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
 import { useToast } from "@/hooks/use-toast";
 import { Appointment, AppointmentFormData, Barber, Client, Service, RecurrenceType } from "@/types/appointments";
+import { translateBookingError } from "@/lib/bookingErrors";
+import { appointmentsConflict, minutesFromTime } from "@/lib/bookingAvailability";
 import { format, addWeeks, addMonths, isBefore, parseISO } from "date-fns";
 
 // Helper function to calculate recurrence dates
@@ -49,6 +51,7 @@ export const useAppointments = () => {
     // A agenda usa chaves como ["appointments", "calendar", status].
     // Invalidar pelo prefixo mantém todas as visões sincronizadas.
     queryClient.invalidateQueries({ queryKey: ["appointments"] });
+    queryClient.invalidateQueries({ queryKey: ["dashboard"] });
   }, [queryClient]);
 
   useEffect(() => {
@@ -251,7 +254,40 @@ export const useAppointments = () => {
         formData.recurrence_end_date || formData.appointment_date,
         formData.recurrence_type || null
       );
-      
+
+      // Bloqueia sobreposição com atendimentos já existentes do mesmo profissional.
+      if (formData.barbeiro_id) {
+        const newDuration = selectedServices.reduce((sum, s) => sum + s.duration_minutes, 0) || 30;
+        const { data: sameDay } = await supabase
+          .from("appointments")
+          .select("appointment_time, service_id, appointment_services(service_id)")
+          .eq("user_id", user.id)
+          .eq("barbeiro_id", formData.barbeiro_id)
+          .in("appointment_date", appointmentDates)
+          .neq("status", "cancelled");
+
+        const durationOf = (row: { service_id: string; appointment_services?: { service_id: string }[] }) => {
+          const ids = row.appointment_services?.length
+            ? row.appointment_services.map(item => item.service_id)
+            : [row.service_id];
+          const total = ids.reduce((sum, id) => sum + (services?.find(s => s.id === id)?.duration_minutes || 0), 0);
+          return total || 30;
+        };
+
+        const hasOverlap = (sameDay || []).some(row =>
+          appointmentsConflict(
+            minutesFromTime(formData.appointment_time),
+            newDuration,
+            minutesFromTime(row.appointment_time),
+            durationOf(row),
+          ),
+        );
+
+        if (hasOverlap) {
+          throw new Error("SLOT_UNAVAILABLE");
+        }
+      }
+
       // Create the first (parent) appointment
       const { data: parentAppointment, error: parentError } = await supabase
         .from("appointments")
@@ -343,7 +379,7 @@ export const useAppointments = () => {
     onError: (err) => {
       toast({
         title: "Erro ao criar agendamento",
-        description: err.message,
+        description: translateBookingError(err.message).message,
         variant: "destructive",
       });
     },
@@ -378,7 +414,7 @@ export const useAppointments = () => {
     onError: (err) => {
       toast({
         title: "Erro ao atualizar agendamento",
-        description: err.message,
+        description: translateBookingError(err.message).message,
         variant: "destructive",
       });
     },
