@@ -518,6 +518,19 @@ const ClientAppointments = () => {
           </div>
         </DialogContent>
       </Dialog>
+
+      {/* Reschedule Dialog */}
+      {reschedulingAppointment && userId && (
+        <ClientRescheduleDialog
+          open={!!reschedulingAppointment}
+          onOpenChange={(value) => { if (!value) setReschedulingAppointment(null); }}
+          barbershopUserId={userId}
+          appointmentId={reschedulingAppointment.id}
+          professionalId={reschedulingAppointment.barbeiro_id}
+          durationMinutes={reschedulingAppointment.duration_minutes}
+          onRescheduled={() => { setReschedulingAppointment(null); fetchData(); }}
+        />
+      )}
     </MobileLayout>
   );
 };
