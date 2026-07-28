@@ -56,8 +56,9 @@ const ClientAppointments = () => {
   // Photo viewer state
   const [viewingPhoto, setViewingPhoto] = useState<string | null>(null);
 
-  useEffect(() => {
-    const fetchData = async () => {
+  const fetchData = useCallback(async () => {
+    {
+
       if (!userId) return;
 
       const { data: { user } } = await supabase.auth.getUser();
