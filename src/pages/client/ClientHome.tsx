@@ -10,6 +10,8 @@ import { ptBR } from 'date-fns/locale';
 import MobileLayout from '@/components/mobile/MobileLayout';
 import { DigitalWallet } from '@/components/client/DigitalWallet';
 import { WhatsAppButton } from '@/components/client/WhatsAppButton';
+import { ensureClientProfile } from '@/lib/clientProfile';
+
 
 interface BarbershopSettings {
   company_name: string;
