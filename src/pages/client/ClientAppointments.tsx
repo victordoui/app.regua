@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useMemo } from 'react';
+import React, { useCallback, useEffect, useState, useMemo } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { supabase } from '@/integrations/supabase/client';
 import { Card } from '@/components/ui/card';
@@ -180,14 +180,36 @@ const ClientAppointments = () => {
           });
 
           setAppointments(enrichedAppointments);
+        } else {
+          setAppointments([]);
         }
+      } else {
+        setAppointments([]);
       }
 
       setLoading(false);
-    };
-
-    fetchData();
+    }
   }, [userId, navigate]);
+
+  useEffect(() => {
+    fetchData();
+  }, [fetchData]);
+
+  // Mantém a lista do cliente sincronizada com alterações feitas na agenda administrativa.
+  useEffect(() => {
+    if (!userId) return;
+    const channel = supabase
+      .channel(`client-appointments-${userId}`)
+      .on(
+        'postgres_changes',
+        { event: '*', schema: 'public', table: 'appointments', filter: `user_id=eq.${userId}` },
+        () => { fetchData(); },
+      )
+      .subscribe();
+
+    return () => { supabase.removeChannel(channel); };
+  }, [fetchData, userId]);
+
 
   const now = useMemo(() => new Date(), []);
   
