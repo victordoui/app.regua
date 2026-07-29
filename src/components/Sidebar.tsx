@@ -5,6 +5,7 @@ import { useRole } from "@/contexts/RoleContext";
 import { useAuth } from "@/contexts/AuthContext";
 import { useTheme } from "next-themes";
 import { useSidebarCollapsed, SIDEBAR_W_EXPANDED, SIDEBAR_W_COLLAPSED } from "@/hooks/useSidebarCollapsed";
+import { useSuperAdminBadges } from "@/hooks/superadmin/useSuperAdminBadges";
 import {
   Home, BarChart3,
   Calendar, Users, Briefcase, Package,
@@ -17,6 +18,8 @@ import {
   ChevronDown, Settings, Moon, Sun,
   LayoutDashboard, Wallet, Megaphone,
   HeartHandshake, TrendingUp,
+  DollarSign, CalendarClock, Ticket, Send, Mail,
+  Headphones, ScrollText, ArrowLeft,
 } from "lucide-react";
 import {
   Collapsible, CollapsibleContent, CollapsibleTrigger,
@@ -30,6 +33,7 @@ const BARBER_PATHS = new Set([
   '/', '/appointments', '/clients', '/conversations', '/profile'
 ]);
 const BARBER_CATEGORIES = new Set(['dashboard', 'operacoes', 'comunicacao', 'administracao']);
+
 
 const Sidebar = () => {
   const navigate = useNavigate();
