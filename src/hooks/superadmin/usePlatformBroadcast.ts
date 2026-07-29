@@ -58,9 +58,10 @@ export const usePlatformBroadcast = () => {
         .from('platform_broadcast_messages')
         .select('*')
         .eq('id', id)
-        .single();
+        .maybeSingle();
 
       if (fetchError) throw fetchError;
+      if (!broadcast) throw new Error('Mensagem não encontrada');
 
       let subscribersQuery = supabase
         .from('platform_subscriptions')

@@ -6,6 +6,7 @@ import { useAuth } from "@/contexts/AuthContext";
 import { useTheme } from "next-themes";
 import { useSidebarCollapsed, SIDEBAR_W_EXPANDED, SIDEBAR_W_COLLAPSED } from "@/hooks/useSidebarCollapsed";
 import { useSuperAdminBadges } from "@/hooks/superadmin/useSuperAdminBadges";
+import { useHasOwnBusiness } from "@/hooks/useHasOwnBusiness";
 import {
   Home, BarChart3,
   Calendar, Users, Briefcase, Package,
@@ -46,6 +47,21 @@ const Sidebar = () => {
 
   const inPlatformContext = isSuperAdmin && location.pathname.startsWith('/superadmin');
   const { openTickets, expiring7Days } = useSuperAdminBadges(inPlatformContext);
+  const { hasOwnBusiness } = useHasOwnBusiness();
+
+  // Super admins sem negócio próprio não devem cair num painel vazio.
+  const contextSwitchLabel = inPlatformContext
+    ? (hasOwnBusiness ? 'Voltar ao meu negócio' : 'Sair da plataforma')
+    : 'Painel da Plataforma';
+
+  const handleContextSwitch = () => {
+    if (!inPlatformContext) {
+      navigate('/superadmin');
+      return;
+    }
+    navigate(hasOwnBusiness ? '/' : '/profile');
+  };
+
 
   const platformMenuStructure = useMemo(() => [
     {
@@ -156,24 +172,29 @@ const Sidebar = () => {
     return [];
   }, [fullMenuStructure, platformMenuStructure, inPlatformContext, isSuperAdmin, isAdmin, isBarbeiro]);
 
-  const isActivePath = (path: string) =>
-    location.pathname === path || (path !== '/' && path !== '/superadmin' && location.pathname.startsWith(`${path}/`));
+  const isActivePath = (path: string) => {
+    if (location.pathname === path) return true;
+    // Rotas raiz não devem capturar sub-rotas de outras seções.
+    if (path === '/') return false;
+    if (path === '/superadmin') return false;
+    return location.pathname.startsWith(`${path}/`);
+  };
   const isCategoryActive = (items: { path: string }[]) =>
     items.some(i => isActivePath(i.path));
 
 
   const [openCategories, setOpenCategories] = useState<string[]>(() => {
-    const active = menuStructure.find(cat => cat.items.some(i => location.pathname === i.path));
+    const active = menuStructure.find(cat => cat.items.some(i => isActivePath(i.path)));
     return active ? [active.category] : [];
   });
 
   useEffect(() => {
-    const active = menuStructure.find(cat => cat.items.some(i => i.path === location.pathname));
+    const active = menuStructure.find(cat => cat.items.some(i => isActivePath(i.path)));
     if (active) {
       setOpenCategories(prev => prev.includes(active.category) ? prev : [...prev, active.category]);
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [location.pathname]);
+  }, [location.pathname, menuStructure]);
 
   const toggleCategory = (cat: string) => {
     setOpenCategories(prev =>
@@ -326,8 +347,8 @@ const Sidebar = () => {
         {isSuperAdmin && (
           <div className="mt-3 border-t border-white/10 pt-3">
             <button
-              onClick={() => navigate(inPlatformContext ? '/' : '/superadmin')}
-              title={collapsed ? (inPlatformContext ? 'Voltar ao meu negócio' : 'Painel da Plataforma') : undefined}
+              onClick={handleContextSwitch}
+              title={collapsed ? contextSwitchLabel : undefined}
               className={`w-full flex items-center gap-3 rounded-md text-[14px] font-semibold text-white/85 transition-colors hover:bg-white/10 hover:text-white ${
                 collapsed ? 'justify-center px-2 py-3' : 'px-3 py-2.5'
               }`}
@@ -335,7 +356,7 @@ const Sidebar = () => {
               {inPlatformContext
                 ? <ArrowLeft className="h-5 w-5 flex-shrink-0" />
                 : <Shield className="h-5 w-5 flex-shrink-0" />}
-              {!collapsed && <span className="truncate">{inPlatformContext ? 'Voltar ao meu negócio' : 'Painel da Plataforma'}</span>}
+              {!collapsed && <span className="truncate">{contextSwitchLabel}</span>}
             </button>
           </div>
         )}

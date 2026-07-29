@@ -55,9 +55,10 @@ export const useSubscribers = (filters?: SubscriberFilters) => {
         .from('platform_subscriptions')
         .select('user_id')
         .eq('id', id)
-        .single();
+        .maybeSingle();
 
       if (fetchError) throw fetchError;
+      if (!subscription) throw new Error('Assinatura não encontrada');
 
       const { error } = await supabase
         .from('platform_subscriptions')
