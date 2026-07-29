@@ -1,39 +1,39 @@
 ## Objetivo
 
-Hoje o Super Admin usa um shell próprio (`SuperAdminLayout` + `SuperAdminSidebar`) com aparência diferente: sidebar `bg-card`, largura fixa 64, sem colapso, sem topbar e sem menu de perfil. O acesso Admin usa `Layout` (Sidebar azul VIZZU + Topbar + colapso + dropdown de perfil). O plano é fazer o Super Admin usar exatamente o mesmo shell, apenas com o menu do Super Admin.
+Três frentes: (1) botão "Voltar ao meu negócio" sempre cair num contexto válido, (2) auditar as consultas/permissões usadas pelo Super Admin, (3) garantir sidebar/topbar idênticas ao Admin em todas as telas do Super Admin.
 
-## O que muda
+## O que foi verificado agora
 
-### 1. Sidebar unificada com menu por perfil
-- Extrair a estrutura de menu do `Sidebar.tsx` para dados: manter o `fullMenuStructure` atual (Admin/Profissional) e adicionar um `superAdminMenuStructure` com os grupos hoje presentes em `SuperAdminSidebar`:
-  - **Visão Geral**: Dashboard, Usuários do Sistema, Métricas Financeiras
-  - **Gestão de Assinantes**: Assinantes, Assinaturas Expirando (badge), Histórico de Pagamentos
-  - **Marketing & Comunicação**: Cupons, Mensagens em Massa, Templates de Email
-  - **Configurações**: Planos e Preços
-  - **Suporte**: Tickets (badge)
-  - **Auditoria**: Logs
-- Quando a rota atual começar com `/superadmin`, a sidebar mostra o menu Super Admin; caso contrário mostra o menu normal. Assim o super admin continua podendo operar a barbearia dele e alternar entre os dois contextos.
-- Badges dinâmicos (`useTicketStats`, `useExpiringStats`) passam a alimentar os itens do menu, com o mesmo estilo de badge já usado na sidebar azul (pílula vermelha / invertida quando ativo).
-- Manter todos os comportamentos atuais: colapso persistido, categorias expansíveis, item ativo em pílula branca, logo, botão de upgrade e dropdown de perfil.
+- O botão em `src/components/Sidebar.tsx` navega fixo para `/` (e para `/superadmin` no sentido inverso). Não há redirect automático de super_admin em `App.tsx` nem gate de onboarding, então não há loop de rota — mas o destino pode ser um painel vazio.
+- No banco: o único usuário com papel `super_admin` (`1bb82282-…`) **não tem** registro em `profiles`, nem em `barbershop_settings`, nem assinatura. Ou seja, ao clicar em "Voltar ao meu negócio" ele cai no dashboard de um negócio que não existe — dados vazios, saudação sem nome, hooks de assinatura retornando `null`.
+- Políticas RLS: `profiles` só tem `profiles_owner_manage` (dono) e leitura pública de profissionais ativos. **Não existe política de leitura para super_admin**, então a tela "Usuários do Sistema" (`usePlatformUsers`) enxerga praticamente nenhum perfil e as estatísticas (total de usuários, órfãos) ficam incorretas.
+- `platform_subscriptions`, `platform_support_tickets` e demais tabelas de plataforma já têm política de super admin.
+- Filtro inválido `role='barber'` já foi corrigido para `'barbeiro'`; não há outras ocorrências no código.
 
-### 2. Botão de troca de contexto
-- No lugar do botão "Super Admin" amarelo atual: quando estiver no contexto normal, mostra "Painel da Plataforma" (leva a `/superadmin`); quando estiver em `/superadmin/*`, mostra "Voltar ao meu negócio" (leva a `/`). Estilo alinhado ao restante da sidebar (sem o amarelo destoante).
+## Plano
 
-### 3. Layout do Super Admin
-- `SuperAdminLayout` passa a renderizar o `Layout` padrão (Sidebar + Topbar + `main` com `--sidebar-w`), removendo a barra própria com `ThemeToggle` solto — o toggle de tema já existe na Topbar e no dropdown de perfil.
-- `SuperAdminSidebar.tsx` é removido do uso (arquivo deletado após conferir que nenhuma outra tela o importa).
-- Verificar cada página em `src/pages/superadmin/*` para que não fique com padding/duplicidade de cabeçalho após a troca de shell.
+### 1. Troca de contexto confiável
+- Em `Sidebar.tsx`, trocar o destino fixo por uma decisão baseada no contexto real do usuário:
+  - se o super admin possui negócio próprio (existe `barbershop_settings` para o `user.id`) → volta para `/`;
+  - se não possui → em vez de mandar para um painel vazio, exibir o rótulo "Sair do painel da plataforma" e levar para `/profile`, ou mostrar no dashboard um aviso "Você não tem um negócio vinculado a esta conta" com atalho de volta para `/superadmin`.
+- Usar `navigate(..., { replace: false })` mantendo a sessão intacta (sem reload) e preservar o estado de colapso da sidebar na troca.
+- Adicionar um pequeno hook (`useHasOwnBusiness`) com React Query e cache, para não consultar a cada render.
 
-### 4. Paridade de qualidade nas telas do Super Admin
-- Padronizar cabeçalho de página (título + subtítulo) nas 12 páginas do Super Admin usando o mesmo padrão visual das páginas Admin.
-- Revisar estados de carregamento e vazio nas listagens (assinantes, pagamentos, tickets, logs) para não exibir tabela vazia sem mensagem.
-- Garantir responsividade: no mobile o Super Admin passa a herdar o `MobileTopbar` do `Layout` em vez de ficar sem navegação.
+### 2. Auditoria de consultas e permissões
+- Migration para permitir que super admins leiam perfis e papéis de toda a plataforma:
+  - política de SELECT em `public.profiles` usando `public.is_super_admin(auth.uid())`;
+  - conferir/garantir os GRANTs de Data API nas tabelas `platform_*` usadas pelas telas.
+- Revisar cada hook de `src/hooks/superadmin/` e páginas `src/pages/superadmin/` procurando: filtros por colunas inexistentes, `.single()` onde pode não haver linha (trocar por `.maybeSingle()`), e `select('*')` desnecessário em tabelas grandes (restringir colunas).
+- Rodar checagem automatizada no navegador percorrendo as 13 rotas do Super Admin, coletando erros de console e respostas HTTP 4xx/5xx, e corrigir o que aparecer.
 
-### 5. Validação no navegador
-- Login como Super Admin pelo botão de acesso rápido, navegar por todas as rotas `/superadmin/*`, conferir: sidebar azul idêntica, item ativo destacado, colapso funcionando, topbar presente, badges corretos, troca de contexto ida e volta, e ausência de erros no console.
+### 3. Consistência visual sidebar/topbar
+- Confirmar que `SuperAdminLayout` apenas encapsula o `Layout` padrão (já é o caso) e que **todas** as páginas do Super Admin usam esse layout — verificar página por página, incluindo `TicketDetail`.
+- Ajustar o cálculo de item ativo para as rotas aninhadas (ex.: `/superadmin/support/:id` deve manter "Tickets de Suporte" destacado e a categoria aberta), já que hoje `/superadmin` é excluído da regra de prefixo.
+- Garantir que o mesmo estilo "pill" branco do Admin se aplica aos itens do menu Plataforma, inclusive no modo recolhido, e que a Topbar (busca, data, tema, notificações) aparece igual.
+- Registro visual comparando Admin × Super Admin nas telas principais para confirmar cores e destaque.
 
 ## Detalhes técnicos
 
-- Arquivos afetados: `src/components/Sidebar.tsx` (menus por contexto + badges), `src/components/superadmin/SuperAdminLayout.tsx` (passa a usar `Layout`), remoção de `src/components/superadmin/SuperAdminSidebar.tsx`, ajustes pontuais em `src/pages/superadmin/*`.
-- Nenhuma mudança de banco, RLS ou regra de negócio; o `ProtectedRoute` e o `RoleContext` continuam iguais.
-- Os hooks `useTicketStats` e `useExpiringStats` passam a ser chamados apenas quando o contexto Super Admin está ativo, para não gerar requisições desnecessárias em contas Admin.
+- Arquivos afetados: `src/components/Sidebar.tsx`, `src/components/superadmin/SuperAdminLayout.tsx`, páginas em `src/pages/superadmin/`, hooks em `src/hooks/superadmin/`, novo hook de contexto de negócio.
+- Uma migration: política de SELECT em `profiles` para super admin + revisão de GRANTs.
+- Verificação final: navegação automatizada por todas as rotas do Super Admin com captura de console e rede.
