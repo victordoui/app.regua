@@ -145,6 +145,7 @@ const Sidebar = () => {
   ], []);
 
   const menuStructure = useMemo(() => {
+    if (inPlatformContext) return platformMenuStructure;
     if (isSuperAdmin || isAdmin) return fullMenuStructure;
     if (isBarbeiro) {
       return fullMenuStructure
@@ -153,11 +154,13 @@ const Sidebar = () => {
         .filter(cat => cat.items.length > 0);
     }
     return [];
-  }, [fullMenuStructure, isSuperAdmin, isAdmin, isBarbeiro]);
+  }, [fullMenuStructure, platformMenuStructure, inPlatformContext, isSuperAdmin, isAdmin, isBarbeiro]);
 
-  const isActivePath = (path: string) => location.pathname === path;
+  const isActivePath = (path: string) =>
+    location.pathname === path || (path !== '/' && path !== '/superadmin' && location.pathname.startsWith(`${path}/`));
   const isCategoryActive = (items: { path: string }[]) =>
     items.some(i => isActivePath(i.path));
+
 
   const [openCategories, setOpenCategories] = useState<string[]>(() => {
     const active = menuStructure.find(cat => cat.items.some(i => location.pathname === i.path));
