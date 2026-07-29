@@ -330,7 +330,31 @@ const Login = () => {
                   </form>
                 </Form>
 
+                {/* Acesso rápido para testes */}
+                <div className="mt-8 rounded-2xl border border-dashed border-border bg-muted/30 p-4">
+                  <p className="mb-3 text-center text-xs font-semibold uppercase tracking-wide text-muted-foreground">
+                    Acesso rápido para testes
+                  </p>
+                  <div className="grid grid-cols-2 gap-2">
+                    {quickAccounts.map((acc) => (
+                      <Button
+                        key={acc.email}
+                        type="button"
+                        variant="outline"
+                        size="sm"
+                        disabled={loading}
+                        onClick={() => quickLogin(acc.email)}
+                        className="h-10 justify-start gap-2 rounded-xl text-xs font-semibold"
+                      >
+                        <acc.icon className="h-4 w-4 text-primary" />
+                        {acc.label}
+                      </Button>
+                    ))}
+                  </div>
+                </div>
+
               </motion.div>
+
             )}
 
             {activeTab === "register" && (
