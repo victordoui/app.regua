@@ -6,6 +6,7 @@ import { useAuth } from "@/contexts/AuthContext";
 import { useTheme } from "next-themes";
 import { useSidebarCollapsed, SIDEBAR_W_EXPANDED, SIDEBAR_W_COLLAPSED } from "@/hooks/useSidebarCollapsed";
 import { useSuperAdminBadges } from "@/hooks/superadmin/useSuperAdminBadges";
+import { useHasOwnBusiness } from "@/hooks/useHasOwnBusiness";
 import {
   Home, BarChart3,
   Calendar, Users, Briefcase, Package,
