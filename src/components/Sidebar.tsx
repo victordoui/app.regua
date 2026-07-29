@@ -344,16 +344,19 @@ const Sidebar = () => {
 
       {/* Footer */}
       <div className={`space-y-2.5 border-t border-sidebar-border p-3 ${collapsed ? 'px-2' : ''}`}>
-        <button
-          onClick={() => navigate('/upgrade')}
-          title={collapsed ? 'Fazer Upgrade' : undefined}
-          className={`flex h-10 w-full items-center justify-center gap-1.5 rounded-md border border-white/20 text-sm font-semibold text-white transition-all hover:bg-white/10 ${
-            collapsed ? 'px-0' : ''
-          }`}
-        >
-          <Sparkles className="h-4 w-4" />
-          {!collapsed && 'Fazer Upgrade'}
-        </button>
+        {!inPlatformContext && (
+          <button
+            onClick={() => navigate('/upgrade')}
+            title={collapsed ? 'Fazer Upgrade' : undefined}
+            className={`flex h-10 w-full items-center justify-center gap-1.5 rounded-md border border-white/20 text-sm font-semibold text-white transition-all hover:bg-white/10 ${
+              collapsed ? 'px-0' : ''
+            }`}
+          >
+            <Sparkles className="h-4 w-4" />
+            {!collapsed && 'Fazer Upgrade'}
+          </button>
+        )}
+
 
         {/* Profile dropdown */}
         <DropdownMenu>
