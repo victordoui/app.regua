@@ -331,8 +331,8 @@ const Sidebar = () => {
         {isSuperAdmin && (
           <div className="mt-3 border-t border-white/10 pt-3">
             <button
-              onClick={() => navigate(inPlatformContext ? '/' : '/superadmin')}
-              title={collapsed ? (inPlatformContext ? 'Voltar ao meu negócio' : 'Painel da Plataforma') : undefined}
+              onClick={handleContextSwitch}
+              title={collapsed ? contextSwitchLabel : undefined}
               className={`w-full flex items-center gap-3 rounded-md text-[14px] font-semibold text-white/85 transition-colors hover:bg-white/10 hover:text-white ${
                 collapsed ? 'justify-center px-2 py-3' : 'px-3 py-2.5'
               }`}
@@ -340,7 +340,7 @@ const Sidebar = () => {
               {inPlatformContext
                 ? <ArrowLeft className="h-5 w-5 flex-shrink-0" />
                 : <Shield className="h-5 w-5 flex-shrink-0" />}
-              {!collapsed && <span className="truncate">{inPlatformContext ? 'Voltar ao meu negócio' : 'Painel da Plataforma'}</span>}
+              {!collapsed && <span className="truncate">{contextSwitchLabel}</span>}
             </button>
           </div>
         )}
