@@ -3,6 +3,7 @@ import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/contexts/AuthContext';
 import { useQueryClient } from '@tanstack/react-query';
 import { format, startOfMonth, endOfMonth, subMonths, isToday, parseISO, subDays, differenceInDays } from 'date-fns';
+import { sumCompletedRevenue } from '@/lib/revenue';
 import { ptBR } from 'date-fns/locale';
 
 interface DashboardMetrics {
@@ -86,7 +87,7 @@ export const useRealtimeDashboard = () => {
         // Today's appointments
         supabase
           .from('appointments')
-          .select('id, status')
+          .select('id, status, total_price')
           .eq('user_id', user.id)
           .eq('appointment_date', todayStr),
         
@@ -120,9 +121,8 @@ export const useRealtimeDashboard = () => {
       const revenueData = last6MonthsResult.data || [];
 
       // Month revenue (completed only)
-      const monthRevenue = monthAppts
-        .filter(a => a.status === 'completed')
-        .reduce((sum, a) => sum + (a.total_price || 0), 0);
+      const monthRevenue = sumCompletedRevenue(monthAppts);
+
 
       // Completed rate
       const completedAppts = monthAppts.filter(a => a.status === 'completed').length;
@@ -144,10 +144,9 @@ export const useRealtimeDashboard = () => {
 
       const isEmpty = todayAppts.length === 0 && monthAppts.length === 0 && clients.length === 0;
 
-      // Calculate today's revenue
-      const todayRevenue = todayAppts
-        .filter(a => a.status === 'completed')
-        .reduce((sum, a) => sum + ((a as any).total_price || 0), 0);
+      // Calculate today's revenue (concluídos apenas)
+      const todayRevenue = sumCompletedRevenue(todayAppts as any);
+
 
       if (isEmpty) {
         setMetrics({
