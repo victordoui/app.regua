@@ -46,6 +46,21 @@ const Sidebar = () => {
 
   const inPlatformContext = isSuperAdmin && location.pathname.startsWith('/superadmin');
   const { openTickets, expiring7Days } = useSuperAdminBadges(inPlatformContext);
+  const { hasOwnBusiness } = useHasOwnBusiness();
+
+  // Super admins sem negócio próprio não devem cair num painel vazio.
+  const contextSwitchLabel = inPlatformContext
+    ? (hasOwnBusiness ? 'Voltar ao meu negócio' : 'Sair do painel da plataforma')
+    : 'Painel da Plataforma';
+
+  const handleContextSwitch = () => {
+    if (!inPlatformContext) {
+      navigate('/superadmin');
+      return;
+    }
+    navigate(hasOwnBusiness ? '/' : '/profile');
+  };
+
 
   const platformMenuStructure = useMemo(() => [
     {
