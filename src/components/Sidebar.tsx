@@ -156,24 +156,29 @@ const Sidebar = () => {
     return [];
   }, [fullMenuStructure, platformMenuStructure, inPlatformContext, isSuperAdmin, isAdmin, isBarbeiro]);
 
-  const isActivePath = (path: string) =>
-    location.pathname === path || (path !== '/' && path !== '/superadmin' && location.pathname.startsWith(`${path}/`));
+  const isActivePath = (path: string) => {
+    if (location.pathname === path) return true;
+    // Rotas raiz não devem capturar sub-rotas de outras seções.
+    if (path === '/') return false;
+    if (path === '/superadmin') return false;
+    return location.pathname.startsWith(`${path}/`);
+  };
   const isCategoryActive = (items: { path: string }[]) =>
     items.some(i => isActivePath(i.path));
 
 
   const [openCategories, setOpenCategories] = useState<string[]>(() => {
-    const active = menuStructure.find(cat => cat.items.some(i => location.pathname === i.path));
+    const active = menuStructure.find(cat => cat.items.some(i => isActivePath(i.path)));
     return active ? [active.category] : [];
   });
 
   useEffect(() => {
-    const active = menuStructure.find(cat => cat.items.some(i => i.path === location.pathname));
+    const active = menuStructure.find(cat => cat.items.some(i => isActivePath(i.path)));
     if (active) {
       setOpenCategories(prev => prev.includes(active.category) ? prev : [...prev, active.category]);
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [location.pathname]);
+  }, [location.pathname, menuStructure]);
 
   const toggleCategory = (cat: string) => {
     setOpenCategories(prev =>
