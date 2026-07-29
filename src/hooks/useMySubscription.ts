@@ -69,7 +69,8 @@ export function useMySubscription(targetUserId?: string) {
         supabase
           .from('profiles')
           .select('*', { count: 'exact', head: true })
-          .eq('role', 'barber' as any),
+          .eq('user_id', userId)
+          .eq('role', 'barbeiro'),
         supabase
           .from('appointments')
           .select('*', { count: 'exact', head: true })
