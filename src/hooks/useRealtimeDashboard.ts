@@ -3,6 +3,7 @@ import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/contexts/AuthContext';
 import { useQueryClient } from '@tanstack/react-query';
 import { format, startOfMonth, endOfMonth, subMonths, isToday, parseISO, subDays, differenceInDays } from 'date-fns';
+import { sumCompletedRevenue } from '@/lib/revenue';
 import { ptBR } from 'date-fns/locale';
 
 interface DashboardMetrics {
@@ -120,9 +121,8 @@ export const useRealtimeDashboard = () => {
       const revenueData = last6MonthsResult.data || [];
 
       // Month revenue (completed only)
-      const monthRevenue = monthAppts
-        .filter(a => a.status === 'completed')
-        .reduce((sum, a) => sum + (a.total_price || 0), 0);
+      const monthRevenue = sumCompletedRevenue(monthAppts);
+
 
       // Completed rate
       const completedAppts = monthAppts.filter(a => a.status === 'completed').length;
