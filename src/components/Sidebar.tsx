@@ -51,7 +51,7 @@ const Sidebar = () => {
 
   // Super admins sem negócio próprio não devem cair num painel vazio.
   const contextSwitchLabel = inPlatformContext
-    ? (hasOwnBusiness ? 'Voltar ao meu negócio' : 'Sair do painel da plataforma')
+    ? (hasOwnBusiness ? 'Voltar ao meu negócio' : 'Sair da plataforma')
     : 'Painel da Plataforma';
 
   const handleContextSwitch = () => {
