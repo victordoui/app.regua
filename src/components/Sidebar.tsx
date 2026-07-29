@@ -44,6 +44,55 @@ const Sidebar = () => {
 
   const { collapsed } = useSidebarCollapsed();
 
+  const inPlatformContext = isSuperAdmin && location.pathname.startsWith('/superadmin');
+  const { openTickets, expiring7Days } = useSuperAdminBadges(inPlatformContext);
+
+  const platformMenuStructure = useMemo(() => [
+    {
+      category: "plat-overview", label: "Visão Geral", icon: LayoutDashboard,
+      items: [
+        { icon: LayoutDashboard, label: "Dashboard", path: "/superadmin" },
+        { icon: Users, label: "Usuários do Sistema", path: "/superadmin/users" },
+        { icon: DollarSign, label: "Métricas Financeiras", path: "/superadmin/metrics" },
+      ]
+    },
+    {
+      category: "plat-subscribers", label: "Assinantes", icon: Users,
+      items: [
+        { icon: Users, label: "Assinantes", path: "/superadmin/subscribers" },
+        { icon: CalendarClock, label: "Expirando", path: "/superadmin/expiring", badge: expiring7Days },
+        { icon: CreditCard, label: "Pagamentos", path: "/superadmin/payments" },
+      ]
+    },
+    {
+      category: "plat-marketing", label: "Marketing", icon: Send,
+      items: [
+        { icon: Ticket, label: "Cupons da Plataforma", path: "/superadmin/coupons" },
+        { icon: Send, label: "Mensagens em Massa", path: "/superadmin/broadcast" },
+        { icon: Mail, label: "Templates de Email", path: "/superadmin/templates" },
+      ]
+    },
+    {
+      category: "plat-settings", label: "Planos e Preços", icon: Settings,
+      items: [
+        { icon: Settings, label: "Planos e Preços", path: "/superadmin/plans" },
+      ]
+    },
+    {
+      category: "plat-support", label: "Suporte", icon: Headphones,
+      items: [
+        { icon: Headphones, label: "Tickets de Suporte", path: "/superadmin/support", badge: openTickets },
+      ]
+    },
+    {
+      category: "plat-audit", label: "Auditoria", icon: ScrollText,
+      items: [
+        { icon: ScrollText, label: "Logs de Auditoria", path: "/superadmin/logs" },
+      ]
+    },
+  ], [openTickets, expiring7Days]);
+
+
   const fullMenuStructure = useMemo(() => [
     {
       category: "dashboard", label: "Dashboard", icon: LayoutDashboard,
