@@ -3,7 +3,7 @@ import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { useToast } from "@/hooks/use-toast";
-import { Eye, EyeOff, Mail, Lock, ArrowRight, Calendar, CheckCircle, BarChart3 } from "lucide-react";
+import { Eye, EyeOff, Mail, Lock, ArrowRight, Calendar, CheckCircle, BarChart3, Shield, Crown, Scissors, UserRound } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
 import { motion, AnimatePresence } from "framer-motion";
 import { useForm } from "react-hook-form";
@@ -33,6 +33,8 @@ const registerSchema = z.object({
 
 type LoginFormValues = z.infer<typeof loginSchema>;
 type RegisterFormValues = z.infer<typeof registerSchema>;
+
+const TEST_PASSWORD = "admin123456";
 
 const Login = () => {
   const [loading, setLoading] = useState(false);
