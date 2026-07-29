@@ -5,6 +5,7 @@ import { useRole } from "@/contexts/RoleContext";
 import { useAuth } from "@/contexts/AuthContext";
 import { useTheme } from "next-themes";
 import { useSidebarCollapsed, SIDEBAR_W_EXPANDED, SIDEBAR_W_COLLAPSED } from "@/hooks/useSidebarCollapsed";
+import { useSuperAdminBadges } from "@/hooks/superadmin/useSuperAdminBadges";
 import {
   Home, BarChart3,
   Calendar, Users, Briefcase, Package,
@@ -17,6 +18,8 @@ import {
   ChevronDown, Settings, Moon, Sun,
   LayoutDashboard, Wallet, Megaphone,
   HeartHandshake, TrendingUp,
+  DollarSign, CalendarClock, Ticket, Send, Mail,
+  Headphones, ScrollText, ArrowLeft,
 } from "lucide-react";
 import {
   Collapsible, CollapsibleContent, CollapsibleTrigger,
@@ -31,6 +34,7 @@ const BARBER_PATHS = new Set([
 ]);
 const BARBER_CATEGORIES = new Set(['dashboard', 'operacoes', 'comunicacao', 'administracao']);
 
+
 const Sidebar = () => {
   const navigate = useNavigate();
   const location = useLocation();
@@ -39,6 +43,55 @@ const Sidebar = () => {
   const { resolvedTheme, setTheme } = useTheme();
 
   const { collapsed } = useSidebarCollapsed();
+
+  const inPlatformContext = isSuperAdmin && location.pathname.startsWith('/superadmin');
+  const { openTickets, expiring7Days } = useSuperAdminBadges(inPlatformContext);
+
+  const platformMenuStructure = useMemo(() => [
+    {
+      category: "plat-overview", label: "Visão Geral", icon: LayoutDashboard,
+      items: [
+        { icon: LayoutDashboard, label: "Dashboard", path: "/superadmin" },
+        { icon: Users, label: "Usuários do Sistema", path: "/superadmin/users" },
+        { icon: DollarSign, label: "Métricas Financeiras", path: "/superadmin/metrics" },
+      ]
+    },
+    {
+      category: "plat-subscribers", label: "Assinantes", icon: Users,
+      items: [
+        { icon: Users, label: "Assinantes", path: "/superadmin/subscribers" },
+        { icon: CalendarClock, label: "Expirando", path: "/superadmin/expiring", badge: expiring7Days },
+        { icon: CreditCard, label: "Pagamentos", path: "/superadmin/payments" },
+      ]
+    },
+    {
+      category: "plat-marketing", label: "Marketing", icon: Send,
+      items: [
+        { icon: Ticket, label: "Cupons da Plataforma", path: "/superadmin/coupons" },
+        { icon: Send, label: "Mensagens em Massa", path: "/superadmin/broadcast" },
+        { icon: Mail, label: "Templates de Email", path: "/superadmin/templates" },
+      ]
+    },
+    {
+      category: "plat-settings", label: "Planos e Preços", icon: Settings,
+      items: [
+        { icon: Settings, label: "Planos e Preços", path: "/superadmin/plans" },
+      ]
+    },
+    {
+      category: "plat-support", label: "Suporte", icon: Headphones,
+      items: [
+        { icon: Headphones, label: "Tickets de Suporte", path: "/superadmin/support", badge: openTickets },
+      ]
+    },
+    {
+      category: "plat-audit", label: "Auditoria", icon: ScrollText,
+      items: [
+        { icon: ScrollText, label: "Logs de Auditoria", path: "/superadmin/logs" },
+      ]
+    },
+  ], [openTickets, expiring7Days]);
+
 
   const fullMenuStructure = useMemo(() => [
     {
@@ -92,6 +145,7 @@ const Sidebar = () => {
   ], []);
 
   const menuStructure = useMemo(() => {
+    if (inPlatformContext) return platformMenuStructure;
     if (isSuperAdmin || isAdmin) return fullMenuStructure;
     if (isBarbeiro) {
       return fullMenuStructure
@@ -100,11 +154,13 @@ const Sidebar = () => {
         .filter(cat => cat.items.length > 0);
     }
     return [];
-  }, [fullMenuStructure, isSuperAdmin, isAdmin, isBarbeiro]);
+  }, [fullMenuStructure, platformMenuStructure, inPlatformContext, isSuperAdmin, isAdmin, isBarbeiro]);
 
-  const isActivePath = (path: string) => location.pathname === path;
+  const isActivePath = (path: string) =>
+    location.pathname === path || (path !== '/' && path !== '/superadmin' && location.pathname.startsWith(`${path}/`));
   const isCategoryActive = (items: { path: string }[]) =>
     items.some(i => isActivePath(i.path));
+
 
   const [openCategories, setOpenCategories] = useState<string[]>(() => {
     const active = menuStructure.find(cat => cat.items.some(i => location.pathname === i.path));
@@ -266,35 +322,41 @@ const Sidebar = () => {
           );
         })}
 
-        {/* Super Admin */}
+        {/* Troca de contexto (Super Admin) */}
         {isSuperAdmin && (
-          <div className="mt-2 pt-2">
+          <div className="mt-3 border-t border-white/10 pt-3">
             <button
-              onClick={() => navigate('/superadmin')}
-              title={collapsed ? 'Super Admin' : undefined}
-              className={`w-full flex items-center gap-3 rounded-md text-[14px] font-semibold text-amber-400 hover:bg-amber-500/10 transition-all ${
+              onClick={() => navigate(inPlatformContext ? '/' : '/superadmin')}
+              title={collapsed ? (inPlatformContext ? 'Voltar ao meu negócio' : 'Painel da Plataforma') : undefined}
+              className={`w-full flex items-center gap-3 rounded-md text-[14px] font-semibold text-white/85 transition-colors hover:bg-white/10 hover:text-white ${
                 collapsed ? 'justify-center px-2 py-3' : 'px-3 py-2.5'
-              } ${isActivePath('/superadmin') ? 'bg-amber-500/10' : ''}`}
+              }`}
             >
-              <Shield className="h-5 w-5 flex-shrink-0" />
-              {!collapsed && <span>Super Admin</span>}
+              {inPlatformContext
+                ? <ArrowLeft className="h-5 w-5 flex-shrink-0" />
+                : <Shield className="h-5 w-5 flex-shrink-0" />}
+              {!collapsed && <span className="truncate">{inPlatformContext ? 'Voltar ao meu negócio' : 'Painel da Plataforma'}</span>}
             </button>
           </div>
         )}
+
       </nav>
 
       {/* Footer */}
       <div className={`space-y-2.5 border-t border-sidebar-border p-3 ${collapsed ? 'px-2' : ''}`}>
-        <button
-          onClick={() => navigate('/upgrade')}
-          title={collapsed ? 'Fazer Upgrade' : undefined}
-          className={`flex h-10 w-full items-center justify-center gap-1.5 rounded-md border border-white/20 text-sm font-semibold text-white transition-all hover:bg-white/10 ${
-            collapsed ? 'px-0' : ''
-          }`}
-        >
-          <Sparkles className="h-4 w-4" />
-          {!collapsed && 'Fazer Upgrade'}
-        </button>
+        {!inPlatformContext && (
+          <button
+            onClick={() => navigate('/upgrade')}
+            title={collapsed ? 'Fazer Upgrade' : undefined}
+            className={`flex h-10 w-full items-center justify-center gap-1.5 rounded-md border border-white/20 text-sm font-semibold text-white transition-all hover:bg-white/10 ${
+              collapsed ? 'px-0' : ''
+            }`}
+          >
+            <Sparkles className="h-4 w-4" />
+            {!collapsed && 'Fazer Upgrade'}
+          </button>
+        )}
+
 
         {/* Profile dropdown */}
         <DropdownMenu>
