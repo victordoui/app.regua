@@ -52,6 +52,37 @@ const Login = () => {
     defaultValues: { fullName: "", email: "", password: "" },
   });
 
+  const redirectByRole = async () => {
+    const { data: { user } } = await supabase.auth.getUser();
+    if (!user) {
+      navigate("/");
+      return;
+    }
+
+    const { data: roles } = await supabase.from('user_roles').select('role').eq('user_id', user.id);
+    const roleList = (roles || []).map(r => r.role as string);
+
+    if (roleList.includes('super_admin')) {
+      navigate("/superadmin");
+      return;
+    }
+    if (roleList.includes('admin') || roleList.includes('barbeiro')) {
+      navigate(roleList.includes('admin') ? "/" : "/appointments");
+      return;
+    }
+    if (roleList.includes('cliente')) {
+      const { data: profile } = await supabase
+        .from('client_profiles')
+        .select('barbershop_user_id')
+        .eq('user_id', user.id)
+        .limit(1)
+        .maybeSingle();
+      navigate(profile?.barbershop_user_id ? `/b/${profile.barbershop_user_id}/home` : "/");
+      return;
+    }
+    navigate("/");
+  };
+
   const onLoginSubmit = async (data: LoginFormValues) => {
     setLoading(true);
     try {
@@ -60,14 +91,7 @@ const Login = () => {
         toast({ title: "Erro no login", description: error.message || "Credenciais inválidas", variant: "destructive" });
       } else if (success) {
         toast({ title: "Login realizado com sucesso!", description: "Bem-vindo ao sistema!" });
-        const { data: { user } } = await supabase.auth.getUser();
-        if (user) {
-          const { data: roles } = await supabase.from('user_roles').select('role').eq('user_id', user.id);
-          const isSuperAdmin = roles?.some(r => r.role === 'super_admin');
-          navigate(isSuperAdmin ? "/superadmin" : "/");
-        } else {
-          navigate("/");
-        }
+        await redirectByRole();
       }
     } catch (error: unknown) {
       console.error("Erro no login:", error);
@@ -76,6 +100,34 @@ const Login = () => {
       setLoading(false);
     }
   };
+
+  const quickAccounts = [
+    { label: "Admin", email: "admin@naregua.com", icon: Shield },
+    { label: "Super Admin", email: "superadmin@naregua.com", icon: Crown },
+    { label: "Profissional", email: "barbeiro@naregua.com", icon: Scissors },
+    { label: "Cliente", email: "qa.cliente.e2e@naregua.com", icon: UserRound },
+  ];
+
+  const quickLogin = async (email: string) => {
+    setLoading(true);
+    try {
+      loginForm.setValue("email", email);
+      loginForm.setValue("password", TEST_PASSWORD);
+      const { error, success } = await signIn(email, TEST_PASSWORD);
+      if (error) {
+        toast({ title: "Erro no acesso rápido", description: error.message || "Credenciais inválidas", variant: "destructive" });
+      } else if (success) {
+        toast({ title: "Acesso rápido", description: `Entrando como ${email}` });
+        await redirectByRole();
+      }
+    } catch (error: unknown) {
+      console.error("Erro no acesso rápido:", error);
+      toast({ title: "Erro no acesso rápido", description: "Ocorreu um erro inesperado", variant: "destructive" });
+    } finally {
+      setLoading(false);
+    }
+  };
+
 
   const onRegisterSubmit = async (data: RegisterFormValues) => {
     setLoading(true);
