@@ -5,17 +5,9 @@ import { BarChart3, FileText, FileSpreadsheet } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import HeroSection from "./HeroSection";
 import KpiStrip from "./KpiStrip";
-import OccupationHeatmap from "./OccupationHeatmap";
 import RevenueLineChart from "./RevenueLineChart";
-import MiniCalendarPanel from "./MiniCalendarPanel";
 import TodayAppointmentsPanel from "./TodayAppointmentsPanel";
 import RecentTransactionsPanel from "./RecentTransactionsPanel";
-import ProfessionalsPanel from "./ProfessionalsPanel";
-import MonthRevenueDonut from "./MonthRevenueDonut";
-import ComparativeMonthChart from "./analytics/ComparativeMonthChart";
-import ConversionFunnel from "./analytics/ConversionFunnel";
-import ServiceAnalysisChart from "./analytics/ServiceAnalysisChart";
-import RevenueForecastChart from "./analytics/RevenueForecastChart";
 import { PageContainer } from "@/components/ui/page-header";
 
 const periods = [
@@ -84,29 +76,12 @@ const DashboardOverview = () => {
         </div>
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-5">
-        <OccupationHeatmap />
+      <div className="grid grid-cols-1 gap-5">
         <RevenueLineChart data={monthlyRevenue} />
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-5">
-        <ComparativeMonthChart />
-        <ConversionFunnel />
-      </div>
-
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-5">
-        <ServiceAnalysisChart />
-        <RevenueForecastChart />
-      </div>
-
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-5 items-start">
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-5 items-start">
         <RecentTransactionsPanel />
-        <ProfessionalsPanel />
-        <MonthRevenueDonut monthRevenue={metrics.monthRevenue} />
-      </div>
-
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-5">
-        <MiniCalendarPanel />
         <TodayAppointmentsPanel />
       </div>
 
