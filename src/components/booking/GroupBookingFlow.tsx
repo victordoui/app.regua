@@ -25,7 +25,6 @@ import { useToast } from '@/hooks/use-toast';
 import { Button } from '@/components/ui/button';
 import { Calendar } from '@/components/ui/calendar';
 import { Card, CardContent } from '@/components/ui/card';
-import { Checkbox } from '@/components/ui/checkbox';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
@@ -519,7 +518,15 @@ const GroupBookingFlow: React.FC<GroupBookingFlowProps> = ({ userId }) => {
                     <span className="mt-1 block text-xs text-muted-foreground">{service.duration_minutes} min</span>
                     <span className="mt-1 block font-extrabold text-primary">{currency.format(service.price)}</span>
                   </span>
-                  <Checkbox checked={selected} aria-label={`Selecionar ${service.name}`} />
+                  <span
+                    aria-hidden="true"
+                    className={cn(
+                      'flex h-5 w-5 shrink-0 items-center justify-center rounded-md border-2 transition-colors',
+                      selected ? 'border-primary bg-primary text-primary-foreground' : 'border-muted-foreground/40 bg-background',
+                    )}
+                  >
+                    {selected && <Check className="h-3.5 w-3.5" />}
+                  </span>
                 </button>
               );
             })}

@@ -40,15 +40,15 @@ export const useRealtimeDashboard = () => {
   const { user } = useAuth();
   const queryClient = useQueryClient();
   const [metrics, setMetrics] = useState<DashboardMetrics>({
-    todayAppointments: 12,
-    monthAppointments: 187,
-    monthRevenue: 18450,
-    todayRevenue: 2350,
-    totalClients: 342,
-    newClientsThisMonth: 23,
-    completedRate: 87,
-    occupancyRate: 72,
-    activeSubscriptions: 3,
+    todayAppointments: 0,
+    monthAppointments: 0,
+    monthRevenue: 0,
+    todayRevenue: 0,
+    totalClients: 0,
+    newClientsThisMonth: 0,
+    completedRate: 0,
+    occupancyRate: 0,
+    activeSubscriptions: 0,
   });
   const [monthlyRevenue, setMonthlyRevenue] = useState<MonthlyRevenue[]>([]);
   const [weeklyAppointments, setWeeklyAppointments] = useState<WeeklyAppointments[]>([]);
@@ -142,37 +142,21 @@ export const useRealtimeDashboard = () => {
       const maxSlots = businessHoursPerDay * workDays;
       const occupancyRate = Math.min(Math.round((monthAppts.length / maxSlots) * 100), 100);
 
-      const isEmpty = todayAppts.length === 0 && monthAppts.length === 0 && clients.length === 0;
-
       // Calculate today's revenue (concluídos apenas)
       const todayRevenue = sumCompletedRevenue(todayAppts as any);
 
 
-      if (isEmpty) {
-        setMetrics({
-          todayAppointments: 12,
-          monthAppointments: 187,
-          monthRevenue: 18450,
-          todayRevenue: 2350,
-          totalClients: 342,
-          newClientsThisMonth: 23,
-          completedRate: 87,
-          occupancyRate: 72,
-          activeSubscriptions: 3,
-        });
-      } else {
-        setMetrics({
-          todayAppointments: todayAppts.length,
-          monthAppointments: monthAppts.length,
-          monthRevenue,
-          todayRevenue,
-          totalClients: clients.length,
-          newClientsThisMonth: newClients,
-          completedRate,
-          occupancyRate,
-          activeSubscriptions: subscriptions.length,
-        });
-      }
+      setMetrics({
+        todayAppointments: todayAppts.length,
+        monthAppointments: monthAppts.length,
+        monthRevenue,
+        todayRevenue,
+        totalClients: clients.length,
+        newClientsThisMonth: newClients,
+        completedRate,
+        occupancyRate,
+        activeSubscriptions: subscriptions.length,
+      });
 
       // Calculate monthly revenue for chart
       const revenueByMonth: Record<string, number> = {};
@@ -195,19 +179,7 @@ export const useRealtimeDashboard = () => {
         revenue
       }));
 
-      const isEmpty2 = monthlyRevenueData.every(m => m.revenue === 0);
-      if (isEmpty2) {
-        setMonthlyRevenue([
-          { month: 'Out', revenue: 12400 },
-          { month: 'Nov', revenue: 15800 },
-          { month: 'Dez', revenue: 14200 },
-          { month: 'Jan', revenue: 18900 },
-          { month: 'Fev', revenue: 16500 },
-          { month: 'Mar', revenue: 18450 },
-        ]);
-      } else {
-        setMonthlyRevenue(monthlyRevenueData);
-      }
+      setMonthlyRevenue(monthlyRevenueData);
 
       // Calculate weekly appointments for chart
       const weeklyData: Record<string, number> = {};

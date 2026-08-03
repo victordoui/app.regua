@@ -331,7 +331,7 @@ const Login = () => {
                 </Form>
 
                 {/* Acesso rápido para testes */}
-                <div className="mt-8 rounded-2xl border border-dashed border-border bg-muted/30 p-4">
+                {import.meta.env.DEV && <div className="mt-8 rounded-2xl border border-dashed border-border bg-muted/30 p-4">
                   <p className="mb-3 text-center text-xs font-semibold uppercase tracking-wide text-muted-foreground">
                     Acesso rápido para testes
                   </p>
@@ -351,7 +351,7 @@ const Login = () => {
                       </Button>
                     ))}
                   </div>
-                </div>
+                </div>}
 
               </motion.div>
 
