@@ -118,7 +118,7 @@ export const useWaitlist = () => {
     mutationFn: async ({ id, status }: { id: string; status: WaitlistItem['status'] }) => {
       if (!user) throw new Error('Usuário não autenticado');
 
-      const updates: Record<string, any> = { status };
+      const updates: { status: WaitlistItem['status']; notified_at?: string } = { status };
       if (status === 'notified') {
         updates.notified_at = new Date().toISOString();
       }

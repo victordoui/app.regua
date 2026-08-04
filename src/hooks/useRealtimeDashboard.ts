@@ -143,7 +143,7 @@ export const useRealtimeDashboard = () => {
       const occupancyRate = Math.min(Math.round((monthAppts.length / maxSlots) * 100), 100);
 
       // Calculate today's revenue (concluídos apenas)
-      const todayRevenue = sumCompletedRevenue(todayAppts as any);
+      const todayRevenue = sumCompletedRevenue(todayAppts);
 
 
       setMetrics({

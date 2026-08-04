@@ -136,7 +136,7 @@ export function useServiceCombos() {
       queryClient.invalidateQueries({ queryKey: ['service-combos'] });
       toast.success('Combo criado com sucesso!');
     },
-    onError: (error: any) => {
+    onError: (error: Error) => {
       console.error('Error creating combo:', error);
       toast.error('Erro ao criar combo');
     }
@@ -190,7 +190,7 @@ export function useServiceCombos() {
       queryClient.invalidateQueries({ queryKey: ['service-combos'] });
       toast.success('Combo atualizado com sucesso!');
     },
-    onError: (error: any) => {
+    onError: (error: Error) => {
       console.error('Error updating combo:', error);
       toast.error('Erro ao atualizar combo');
     }
@@ -211,7 +211,7 @@ export function useServiceCombos() {
       queryClient.invalidateQueries({ queryKey: ['service-combos'] });
       toast.success('Combo excluído com sucesso!');
     },
-    onError: (error: any) => {
+    onError: (error: Error) => {
       console.error('Error deleting combo:', error);
       toast.error('Erro ao excluir combo');
     }
@@ -232,7 +232,7 @@ export function useServiceCombos() {
       queryClient.invalidateQueries({ queryKey: ['service-combos'] });
       toast.success(data.active ? 'Combo ativado!' : 'Combo desativado!');
     },
-    onError: (error: any) => {
+    onError: (error: Error) => {
       console.error('Error toggling combo status:', error);
       toast.error('Erro ao alterar status do combo');
     }

@@ -43,11 +43,11 @@ export const useSubscriptions = () => {
         subscriptions: mappedSubscriptions as UserSubscription[] || [],
         clients: clientsRes.data as Client[] || [],
       };
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error("Error fetching subscription data:", error);
       toast({
         title: "Erro ao carregar dados",
-        description: error.message,
+        description: error instanceof Error ? error.message : "Tente novamente.",
         variant: "destructive",
       });
       return { plans: [], subscriptions: [], clients: [] };

@@ -2,10 +2,14 @@ import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/contexts/AuthContext';
 import { differenceInDays, startOfMonth, endOfMonth } from 'date-fns';
+import type { Database } from '@/integrations/supabase/types';
+
+type PlatformSubscription = Database['public']['Tables']['platform_subscriptions']['Row'];
+type PlatformPlanConfig = Database['public']['Tables']['platform_plan_config']['Row'];
 
 export interface SubscriptionData {
-  subscription: any | null;
-  planConfig: any | null;
+  subscription: PlatformSubscription | null;
+  planConfig: PlatformPlanConfig | null;
   usage: {
     barbersCount: number;
     appointmentsThisMonth: number;
