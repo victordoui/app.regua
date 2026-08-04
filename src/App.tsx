@@ -1,3 +1,4 @@
+import { lazy, Suspense } from "react";
 import { BrowserRouter, Routes, Route, Navigate, useParams } from "react-router-dom";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { ThemeProvider } from "next-themes";
@@ -48,8 +49,6 @@ import PlanConfiguration from "./pages/superadmin/PlanConfiguration";
 import SupportTickets from "./pages/superadmin/SupportTickets";
 import TicketDetail from "./pages/superadmin/TicketDetail";
 import SystemUsers from "./pages/superadmin/SystemUsers";
-import SignupPage from "./pages/public/SignupPage";
-import SalesPage from "./pages/public/SalesPage";
 import Upgrade from "./pages/Upgrade";
 
 // Client Mobile Pages
@@ -60,6 +59,14 @@ import ClientHome from "./pages/client/ClientHome";
 import ClientAppointments from "./pages/client/ClientAppointments";
 import ClientBooking from "./pages/client/ClientBooking";
 import ClientProfile from "./pages/client/ClientProfile";
+
+const SignupPage = lazy(() => import("./pages/public/SignupPage"));
+const SalesPage = lazy(() => import("./pages/public/SalesPage"));
+const PublicPageLoader = () => (
+  <div className="flex min-h-screen items-center justify-center">
+    <div className="h-8 w-8 animate-spin rounded-full border-2 border-primary border-t-transparent" />
+  </div>
+);
 
 const queryClient = new QueryClient();
 
@@ -106,8 +113,8 @@ function AppContent() {
         <Route path="/public-booking/:userId/*" element={<LegacyPublicBookingRedirect />} />
 
         {/* Páginas públicas */}
-        <Route path="/cadastro" element={<SignupPage />} />
-        <Route path="/vendas" element={<SalesPage />} />
+        <Route path="/cadastro" element={<Suspense fallback={<PublicPageLoader />}><SignupPage /></Suspense>} />
+        <Route path="/vendas" element={<Suspense fallback={<PublicPageLoader />}><SalesPage /></Suspense>} />
 
         {/* Dashboard - Admin vê completo, Barbeiro vê simplificado */}
         <Route path="/" element={<ProtectedRoute allowedRoles={['admin', 'barbeiro']}><Dashboard /></ProtectedRoute>} />

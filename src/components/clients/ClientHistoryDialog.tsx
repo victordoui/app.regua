@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from '@/components/ui/dialog';
 import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
@@ -51,13 +51,7 @@ const ClientHistoryDialog = ({ open, onOpenChange, clientId, clientName }: Clien
     lastVisit: null
   });
 
-  useEffect(() => {
-    if (open && clientId && user) {
-      fetchClientHistory();
-    }
-  }, [open, clientId, user]);
-
-  const fetchClientHistory = async () => {
+  const fetchClientHistory = useCallback(async () => {
     if (!user) return;
     setLoading(true);
 
@@ -134,7 +128,13 @@ const ClientHistoryDialog = ({ open, onOpenChange, clientId, clientName }: Clien
     } finally {
       setLoading(false);
     }
-  };
+  }, [clientId, user]);
+
+  useEffect(() => {
+    if (open && clientId && user) {
+      fetchClientHistory();
+    }
+  }, [open, clientId, user, fetchClientHistory]);
 
   const getStatusBadge = (status: string) => {
     const statusConfig: Record<string, { label: string; variant: 'default' | 'secondary' | 'destructive' | 'outline' }> = {

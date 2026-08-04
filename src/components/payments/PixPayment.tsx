@@ -63,6 +63,8 @@ const PixPayment: React.FC<PixPaymentProps> = ({
     }, 1000);
 
     return () => clearInterval(timer);
+  // The functional update intentionally avoids recreating the timer every second.
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const formatTime = (seconds: number) => {

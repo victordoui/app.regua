@@ -59,7 +59,7 @@ const SignupPage = () => {
     if (searchParams.get('payment') === 'cancelled') {
       toast({ title: 'Pagamento cancelado', description: 'Você pode tentar novamente.', variant: 'destructive' });
     }
-  }, []);
+  }, [toast]);
 
   const selectedPlanConfig = plans.find(p => p.plan_type === formData.selectedPlan);
   const isPaidPlan = formData.selectedPlan !== 'trial';

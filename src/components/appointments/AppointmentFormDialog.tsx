@@ -38,7 +38,7 @@ const AppointmentFormDialog: React.FC<AppointmentFormDialogProps> = ({
   barbers,
   editMode = 'single',
 }) => {
-  const defaultFormData: AppointmentFormData = {
+  const defaultFormData = useMemo<AppointmentFormData>(() => ({
     client_id: "",
     service_id: "",
     service_ids: [],
@@ -48,7 +48,7 @@ const AppointmentFormDialog: React.FC<AppointmentFormDialogProps> = ({
     notes: "",
     recurrence_type: null,
     recurrence_end_date: null,
-  };
+  }), [initialDate, initialTime]);
 
   const [formData, setFormData] = useState<AppointmentFormData>(defaultFormData);
   const [submitting, setSubmitting] = useState(false);
@@ -102,7 +102,7 @@ const AppointmentFormDialog: React.FC<AppointmentFormDialogProps> = ({
       });
       setUseMultiService(false);
     }
-  }, [editingAppointment, initialDate, initialTime, isOpen, clients, services, barbers]);
+  }, [editingAppointment, initialDate, initialTime, isOpen, clients, services, barbers, defaultFormData]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();

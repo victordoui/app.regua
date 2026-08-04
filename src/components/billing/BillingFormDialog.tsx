@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '@/components/ui/dialog';
 import { Label } from '@/components/ui/label';
 import { Input } from '@/components/ui/input';
@@ -23,13 +23,13 @@ const BillingFormDialog: React.FC<BillingFormDialogProps> = ({
   saveTransaction,
   initialType = 'payable',
 }) => {
-  const defaultFormData: AccountTransactionFormData = {
+  const defaultFormData = useMemo<AccountTransactionFormData>(() => ({
     description: "",
     amount: "",
     type: initialType,
     due_date: format(new Date(), 'yyyy-MM-dd'),
     category: "",
-  };
+  }), [initialType]);
 
   const [formData, setFormData] = useState<AccountTransactionFormData>(defaultFormData);
   const [submitting, setSubmitting] = useState(false);
@@ -50,7 +50,7 @@ const BillingFormDialog: React.FC<BillingFormDialogProps> = ({
         due_date: format(new Date(), 'yyyy-MM-dd'),
       });
     }
-  }, [editingTransaction, isOpen, initialType]);
+  }, [editingTransaction, isOpen, initialType, defaultFormData]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
