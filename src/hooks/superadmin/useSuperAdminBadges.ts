@@ -17,7 +17,7 @@ export const useSuperAdminBadges = (enabled: boolean) => {
         .from('platform_support_tickets')
         .select('status');
       if (error) throw error;
-      return (data || []).filter((t: any) => t.status === 'open').length;
+      return (data || []).filter((t) => t.status === 'open').length;
     },
   });
 
@@ -35,7 +35,7 @@ export const useSuperAdminBadges = (enabled: boolean) => {
 
       const today = startOfDay(new Date());
       const in7Days = addDays(today, 7);
-      return (data || []).filter((s: any) => {
+      return (data || []).filter((s) => {
         const end = new Date(s.end_date);
         return end >= today && end <= in7Days;
       }).length;

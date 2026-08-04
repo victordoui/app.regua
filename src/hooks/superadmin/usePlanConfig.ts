@@ -3,6 +3,7 @@ import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
 import { useAuth } from '@/contexts/AuthContext';
 import type { PlanConfig, PlanConfigFormData, PlanType } from '@/types/superAdmin';
+import type { Json } from '@/integrations/supabase/types';
 
 export const usePlanConfig = () => {
   const { toast } = useToast();
@@ -37,14 +38,14 @@ export const usePlanConfig = () => {
       await supabase.from('platform_audit_logs').insert([{
         super_admin_id: user?.id || '',
         action: 'update_plan_config',
-        details: { plan_type: planType, ...data } as any,
+        details: { plan_type: planType, ...data } as Json,
       }]);
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['platform-plan-config'] });
       toast({ title: 'Configuração de plano atualizada!' });
     },
-    onError: (error: any) => {
+    onError: (error: Error) => {
       toast({
         title: 'Erro ao atualizar configuração',
         description: error.message,
@@ -66,7 +67,7 @@ export const usePlanConfig = () => {
       queryClient.invalidateQueries({ queryKey: ['platform-plan-config'] });
       toast({ title: 'Status do plano atualizado!' });
     },
-    onError: (error: any) => {
+    onError: (error: Error) => {
       toast({
         title: 'Erro ao atualizar plano',
         description: error.message,
