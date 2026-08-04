@@ -20,7 +20,7 @@ export const useExpiringSubscriptions = (daysAhead: number = 7) => {
       const futureDate = addDays(today, daysAhead);
 
       // Filter subscriptions expiring within the specified days
-      return (data || []).filter((sub: any) => {
+      return (data || []).filter((sub) => {
         if (!sub.end_date) return false;
         const endDate = new Date(sub.end_date);
         return isAfter(endDate, today) && isBefore(endDate, futureDate);
@@ -49,15 +49,15 @@ export const useExpiringStats = () => {
       const subscriptions = data || [];
 
       return {
-        expiring7Days: subscriptions.filter((s: any) => {
+        expiring7Days: subscriptions.filter((s) => {
           const end = new Date(s.end_date);
           return isAfter(end, today) && isBefore(end, in7Days);
         }).length,
-        expiring15Days: subscriptions.filter((s: any) => {
+        expiring15Days: subscriptions.filter((s) => {
           const end = new Date(s.end_date);
           return isAfter(end, today) && isBefore(end, in15Days);
         }).length,
-        expiring30Days: subscriptions.filter((s: any) => {
+        expiring30Days: subscriptions.filter((s) => {
           const end = new Date(s.end_date);
           return isAfter(end, today) && isBefore(end, in30Days);
         }).length,

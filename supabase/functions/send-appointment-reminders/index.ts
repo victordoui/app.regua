@@ -82,9 +82,10 @@ serve(async (req) => {
     for (const appointment of appointments) {
       try {
         const isToday = appointment.appointment_date === todayStr;
-        const clientName = (appointment.clients as any)?.name || 'Cliente';
-        const clientEmail = (appointment.clients as any)?.email;
-        const serviceName = (appointment.services as any)?.name || 'Serviço';
+        const client = appointment.clients as { name: string | null; email: string | null } | null;
+        const clientName = client?.name || 'Cliente';
+        const clientEmail = client?.email;
+        const serviceName = (appointment.services as { name: string | null } | null)?.name || 'Serviço';
         
         const title = isToday 
           ? 'Agendamento Hoje!' 

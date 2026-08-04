@@ -13,7 +13,7 @@ const PLAN_PRICE_MAP: Record<string, string> = {
   enterprise: "price_1Sxv9iLLAa7XPFh3q4j2PU7x",
 };
 
-const logStep = (step: string, details?: any) => {
+const logStep = (step: string, details?: unknown) => {
   const detailsStr = details ? ` - ${JSON.stringify(details)}` : '';
   console.log(`[CREATE-CHECKOUT] ${step}${detailsStr}`);
 };
