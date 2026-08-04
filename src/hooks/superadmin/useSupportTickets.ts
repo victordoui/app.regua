@@ -3,6 +3,9 @@ import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
 import { useAuth } from '@/contexts/AuthContext';
 import type { SupportTicket, TicketMessage, TicketFilters, TicketStatus } from '@/types/superAdmin';
+import type { Database, Json } from '@/integrations/supabase/types';
+
+type SupportTicketUpdate = Database['public']['Tables']['platform_support_tickets']['Update'];
 
 export const useSupportTickets = (filters?: TicketFilters) => {
   const { toast } = useToast();
@@ -32,7 +35,7 @@ export const useSupportTickets = (filters?: TicketFilters) => {
 
   const updateTicketStatus = useMutation({
     mutationFn: async ({ id, status }: { id: string; status: TicketStatus }) => {
-      const updates: any = { status };
+      const updates: SupportTicketUpdate = { status };
       if (status === 'resolved') {
         updates.resolved_at = new Date().toISOString();
       }
@@ -47,14 +50,14 @@ export const useSupportTickets = (filters?: TicketFilters) => {
       await supabase.from('platform_audit_logs').insert([{
         super_admin_id: user?.id || '',
         action: 'resolve_ticket',
-        details: { ticket_id: id, status } as any,
+        details: { ticket_id: id, status } as Json,
       }]);
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['platform-tickets'] });
       toast({ title: 'Status do ticket atualizado!' });
     },
-    onError: (error: any) => {
+    onError: (error: Error) => {
       toast({
         title: 'Erro ao atualizar ticket',
         description: error.message,
@@ -75,14 +78,14 @@ export const useSupportTickets = (filters?: TicketFilters) => {
       await supabase.from('platform_audit_logs').insert([{
         super_admin_id: user?.id || '',
         action: 'assign_ticket',
-        details: { ticket_id: id, assigned_to: assignedTo } as any,
+        details: { ticket_id: id, assigned_to: assignedTo } as Json,
       }]);
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['platform-tickets'] });
       toast({ title: 'Ticket atribuído!' });
     },
-    onError: (error: any) => {
+    onError: (error: Error) => {
       toast({
         title: 'Erro ao atribuir ticket',
         description: error.message,
@@ -136,7 +139,7 @@ export const useTicketMessages = (ticketId: string) => {
       queryClient.invalidateQueries({ queryKey: ['ticket-messages', ticketId] });
       toast({ title: 'Mensagem enviada!' });
     },
-    onError: (error: any) => {
+    onError: (error: Error) => {
       toast({
         title: 'Erro ao enviar mensagem',
         description: error.message,
@@ -166,9 +169,9 @@ export const useTicketStats = () => {
       const tickets = data || [];
       return {
         total: tickets.length,
-        open: tickets.filter((t: any) => t.status === 'open').length,
-        in_progress: tickets.filter((t: any) => t.status === 'in_progress').length,
-        urgent: tickets.filter((t: any) => t.priority === 'urgent' && t.status !== 'closed').length,
+        open: tickets.filter((t) => t.status === 'open').length,
+        in_progress: tickets.filter((t) => t.status === 'in_progress').length,
+        urgent: tickets.filter((t) => t.priority === 'urgent' && t.status !== 'closed').length,
       };
     },
   });

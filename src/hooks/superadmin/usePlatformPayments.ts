@@ -58,25 +58,25 @@ export const usePaymentStats = () => {
       if (subsError) throw subsError;
 
       const planPrices: Record<string, number> = {};
-      (planConfigs || []).forEach((p: any) => {
+      (planConfigs || []).forEach((p) => {
         planPrices[p.plan_type] = p.price_monthly || 0;
       });
 
       // Calculate MRR from active subscriptions
-      const mrr = (subscriptions || []).reduce((acc: number, sub: any) => {
+      const mrr = (subscriptions || []).reduce((acc: number, sub) => {
         return acc + (planPrices[sub.plan_type] || 0);
       }, 0);
 
       const allPayments = payments || [];
-      const paidPayments = allPayments.filter((p: any) => p.status === 'paid');
-      const pendingPayments = allPayments.filter((p: any) => p.status === 'pending');
-      const failedPayments = allPayments.filter((p: any) => p.status === 'failed');
+      const paidPayments = allPayments.filter((p) => p.status === 'paid');
+      const pendingPayments = allPayments.filter((p) => p.status === 'pending');
+      const failedPayments = allPayments.filter((p) => p.status === 'failed');
 
-      const totalRevenue = paidPayments.reduce((acc: number, p: any) => acc + (p.amount || 0), 0);
+      const totalRevenue = paidPayments.reduce((acc: number, p) => acc + (p.amount || 0), 0);
       const averageTicket = paidPayments.length > 0 ? totalRevenue / paidPayments.length : 0;
 
       // Simple LTV calculation (average revenue per customer)
-      const uniqueUsers = new Set(paidPayments.map((p: any) => p.user_id)).size;
+      const uniqueUsers = new Set(paidPayments.map((p) => p.user_id)).size;
       const ltv = uniqueUsers > 0 ? totalRevenue / uniqueUsers : 0;
 
       return {

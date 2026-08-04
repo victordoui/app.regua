@@ -3,6 +3,7 @@ import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
 import { useAuth } from '@/contexts/AuthContext';
 import type { BroadcastMessage, BroadcastFormData } from '@/types/superAdmin';
+import type { Json } from '@/integrations/supabase/types';
 
 export const usePlatformBroadcast = () => {
   const { toast } = useToast();
@@ -35,14 +36,14 @@ export const usePlatformBroadcast = () => {
       await supabase.from('platform_audit_logs').insert([{
         super_admin_id: user?.id || '',
         action: 'send_broadcast',
-        details: formData as any,
+        details: formData as Json,
       }]);
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['platform-broadcast'] });
       toast({ title: 'Mensagem criada com sucesso!' });
     },
-    onError: (error: any) => {
+    onError: (error: Error) => {
       toast({
         title: 'Erro ao criar mensagem',
         description: error.message,
@@ -96,7 +97,7 @@ export const usePlatformBroadcast = () => {
       queryClient.invalidateQueries({ queryKey: ['platform-broadcast'] });
       toast({ title: `Mensagem enviada para ${data.sentCount} assinantes!` });
     },
-    onError: (error: any) => {
+    onError: (error: Error) => {
       toast({
         title: 'Erro ao enviar mensagem',
         description: error.message,
@@ -118,7 +119,7 @@ export const usePlatformBroadcast = () => {
       queryClient.invalidateQueries({ queryKey: ['platform-broadcast'] });
       toast({ title: 'Mensagem excluída!' });
     },
-    onError: (error: any) => {
+    onError: (error: Error) => {
       toast({
         title: 'Erro ao excluir mensagem',
         description: error.message,

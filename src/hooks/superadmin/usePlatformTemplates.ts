@@ -3,6 +3,7 @@ import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
 import { useAuth } from '@/contexts/AuthContext';
 import type { EmailTemplate, EmailTemplateFormData } from '@/types/superAdmin';
+import type { Json } from '@/integrations/supabase/types';
 
 export const usePlatformTemplates = () => {
   const { toast } = useToast();
@@ -32,14 +33,14 @@ export const usePlatformTemplates = () => {
       await supabase.from('platform_audit_logs').insert([{
         super_admin_id: user?.id || '',
         action: 'create_template',
-        details: { name: formData.name } as any,
+        details: { name: formData.name } as Json,
       }]);
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['platform-templates'] });
       toast({ title: 'Template criado com sucesso!' });
     },
-    onError: (error: any) => {
+    onError: (error: Error) => {
       toast({
         title: 'Erro ao criar template',
         description: error.message,
@@ -60,14 +61,14 @@ export const usePlatformTemplates = () => {
       await supabase.from('platform_audit_logs').insert([{
         super_admin_id: user?.id || '',
         action: 'update_template',
-        details: { template_id: id, ...data } as any,
+        details: { template_id: id, ...data } as Json,
       }]);
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['platform-templates'] });
       toast({ title: 'Template atualizado com sucesso!' });
     },
-    onError: (error: any) => {
+    onError: (error: Error) => {
       toast({
         title: 'Erro ao atualizar template',
         description: error.message,
@@ -88,14 +89,14 @@ export const usePlatformTemplates = () => {
       await supabase.from('platform_audit_logs').insert([{
         super_admin_id: user?.id || '',
         action: 'delete_template',
-        details: { template_id: id } as any,
+        details: { template_id: id } as Json,
       }]);
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['platform-templates'] });
       toast({ title: 'Template excluído!' });
     },
-    onError: (error: any) => {
+    onError: (error: Error) => {
       toast({
         title: 'Erro ao excluir template',
         description: error.message,
@@ -117,7 +118,7 @@ export const usePlatformTemplates = () => {
       queryClient.invalidateQueries({ queryKey: ['platform-templates'] });
       toast({ title: 'Template atualizado!' });
     },
-    onError: (error: any) => {
+    onError: (error: Error) => {
       toast({
         title: 'Erro ao atualizar template',
         description: error.message,
