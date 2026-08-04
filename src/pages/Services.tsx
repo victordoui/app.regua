@@ -133,7 +133,9 @@ const Services = () => {
     try {
       const fileExt = file.name.split('.').pop();
       const fileName = `service_${Date.now()}.${fileExt}`;
-      const filePath = `services/${fileName}`;
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) throw new Error('Usuário não autenticado');
+      const filePath = `${user.id}/services/${fileName}`;
 
       const { error: uploadError } = await supabase.storage
         .from('public-assets')

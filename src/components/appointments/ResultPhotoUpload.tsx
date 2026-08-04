@@ -63,7 +63,7 @@ const ResultPhotoUpload: React.FC<ResultPhotoUploadProps> = ({
     try {
       const fileExt = selectedFile.name.split('.').pop();
       const fileName = `${appointmentId}-${Date.now()}.${fileExt}`;
-      const filePath = `results/${fileName}`;
+      const filePath = `results/${appointmentId}/${fileName}`;
 
       // Upload to storage
       const { error: uploadError } = await supabase.storage
@@ -106,7 +106,7 @@ const ResultPhotoUpload: React.FC<ResultPhotoUploadProps> = ({
     try {
       // Extract file path from URL
       const urlParts = currentPhotoUrl.split('/');
-      const filePath = urlParts.slice(-2).join('/');
+      const filePath = urlParts.slice(-3).join('/');
 
       // Delete from storage
       await supabase.storage

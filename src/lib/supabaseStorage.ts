@@ -15,8 +15,13 @@ export const uploadFileToStorage = async (file: File, folder: string): Promise<s
   }
 
   // Gera um nome de arquivo único para evitar colisões
+  const { data: { user } } = await supabase.auth.getUser();
+  if (!user) {
+    throw new Error("Faça login antes de enviar um arquivo.");
+  }
+
   const fileExtension = file.name.split('.').pop();
-  const fileName = `${folder}/${uuidv4()}.${fileExtension}`;
+  const fileName = `${user.id}/${folder}/${uuidv4()}.${fileExtension}`;
 
   const { data, error } = await supabase.storage
     .from(BUCKET_NAME)

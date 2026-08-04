@@ -115,7 +115,9 @@ const CombosManager: React.FC = () => {
     try {
       const fileExt = file.name.split('.').pop();
       const fileName = `combo_${Date.now()}.${fileExt}`;
-      const filePath = `combos/${fileName}`;
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) throw new Error('Usuário não autenticado');
+      const filePath = `${user.id}/combos/${fileName}`;
 
       const { error: uploadError } = await supabase.storage
         .from('public-assets')
