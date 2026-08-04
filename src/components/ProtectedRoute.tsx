@@ -1,13 +1,46 @@
-import React, { ReactNode } from 'react';
+import React, { ReactNode, useEffect, useState } from 'react';
 import { Navigate } from 'react-router-dom';
 import { useAuth } from '@/contexts/AuthContext';
 import { useRole, AppRole } from '@/contexts/RoleContext';
+import { supabase } from '@/integrations/supabase/client';
 
 interface ProtectedRouteProps {
   children: ReactNode;
   requiredRole?: AppRole;
   allowedRoles?: AppRole[];
 }
+
+const ClientHomeRedirect: React.FC = () => {
+  const { user } = useAuth();
+  const [businessId, setBusinessId] = useState<string | null>(null);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    if (!user) {
+      setLoading(false);
+      return;
+    }
+
+    const loadBusiness = async () => {
+      const { data } = await supabase
+        .from('client_profiles')
+        .select('barbershop_user_id')
+        .eq('user_id', user.id)
+        .limit(1)
+        .maybeSingle();
+      setBusinessId(data?.barbershop_user_id ?? null);
+      setLoading(false);
+    };
+
+    loadBusiness();
+  }, [user?.id]);
+
+  if (loading) {
+    return <div className="flex min-h-screen items-center justify-center"><div className="h-8 w-8 animate-spin rounded-full border-2 border-primary border-t-transparent" /></div>;
+  }
+
+  return <Navigate to={businessId ? `/b/${businessId}/home` : '/login'} replace />;
+};
 
 const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ children, requiredRole, allowedRoles }) => {
   const { user, loading: authLoading } = useAuth();
@@ -43,7 +76,7 @@ const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ children, requiredRole,
     if (!hasAccess) {
       // Intelligent redirect based on actual role
       if (userRole === 'cliente') {
-        return <Navigate to={`/b/${user.id}/home`} replace />;
+        return <ClientHomeRedirect />;
       }
       if (userRole === 'barbeiro') {
         return <Navigate to="/appointments" replace />;
@@ -55,7 +88,7 @@ const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ children, requiredRole,
   // If user is a cliente trying to access admin area without allowedRoles specified
   // (fallback for routes without explicit role config)
   if (userRole === 'cliente' && !allowedRoles) {
-    return <Navigate to={`/b/${user.id}/home`} replace />;
+    return <ClientHomeRedirect />;
   }
 
   return <>{children}</>;
