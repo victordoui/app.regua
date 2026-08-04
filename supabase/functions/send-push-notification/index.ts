@@ -67,7 +67,7 @@ serve(async (req) => {
       throw new Error('title and body are required');
     }
 
-    let subscriptions: PushSubscriptionJSON[] = [];
+    const subscriptions: PushSubscriptionJSON[] = [];
 
     // If user_id is provided, fetch their subscription
     if (payload.user_id) {

@@ -1,5 +1,5 @@
 import React, { useState, useCallback } from 'react';
-import Cropper from 'react-easy-crop';
+import Cropper, { type Area } from 'react-easy-crop';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 import { Slider } from '@/components/ui/slider';
@@ -85,7 +85,7 @@ const ImageCropperDialog: React.FC<ImageCropperDialogProps> = ({
     setZoom(zoom);
   }, []);
 
-  const onCropAreaChange = useCallback((_croppedArea: any, croppedAreaPixels: any) => {
+  const onCropAreaChange = useCallback((_croppedArea: Area, croppedAreaPixels: Area) => {
     setCroppedAreaPixels(croppedAreaPixels);
   }, []);
 

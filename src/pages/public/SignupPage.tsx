@@ -102,7 +102,7 @@ const SignupPage = () => {
     } catch (error: any) {
       const msg = error.message || '';
       const code = error.code || '';
-      let title = 'Erro ao criar conta';
+      const title = 'Erro ao criar conta';
       let description = 'Ocorreu um erro inesperado. Tente novamente.';
 
       if (msg.includes('already registered') || msg.includes('already been registered')) {

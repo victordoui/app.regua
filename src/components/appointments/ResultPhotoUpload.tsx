@@ -88,10 +88,10 @@ const ResultPhotoUpload: React.FC<ResultPhotoUploadProps> = ({
       toast({ title: "Foto salva com sucesso!" });
       onSuccess(publicUrl);
       onClose();
-    } catch (error: any) {
+    } catch (error: unknown) {
       toast({
         title: "Erro ao salvar foto",
-        description: error.message,
+        description: error instanceof Error ? error.message : "Tente novamente.",
         variant: "destructive",
       });
     } finally {
@@ -124,10 +124,10 @@ const ResultPhotoUpload: React.FC<ResultPhotoUploadProps> = ({
       toast({ title: "Foto removida com sucesso" });
       onSuccess(null);
       onClose();
-    } catch (error: any) {
+    } catch (error: unknown) {
       toast({
         title: "Erro ao remover foto",
-        description: error.message,
+        description: error instanceof Error ? error.message : "Tente novamente.",
         variant: "destructive",
       });
     } finally {

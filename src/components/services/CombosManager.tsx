@@ -131,7 +131,7 @@ const CombosManager: React.FC = () => {
 
       setFormData(prev => ({ ...prev, image_url: publicUrl }));
       toast.success('Imagem carregada!');
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error('Upload error:', error);
       toast.error('Erro ao fazer upload');
     } finally {
