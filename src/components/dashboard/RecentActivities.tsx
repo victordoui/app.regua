@@ -26,6 +26,15 @@ interface ActivityItem {
   timestamp: Date;
 }
 
+interface RealtimeActivityData {
+  id?: string;
+  first_name?: string | null;
+  last_name?: string | null;
+  appointment_date?: string;
+  appointment_time?: string;
+  status?: string | null;
+}
+
 const activityConfig = {
   appointment_created: {
     icon: Calendar,
@@ -139,7 +148,7 @@ const RecentActivities: React.FC = () => {
   }, [user?.id]);
 
   // Handle realtime updates
-  const handleNewActivity = useCallback((type: ActivityItem['type'], data: any) => {
+  const handleNewActivity = useCallback((type: ActivityItem['type'], data: RealtimeActivityData) => {
     const newActivity: ActivityItem = {
       id: data.id || crypto.randomUUID(),
       type,
@@ -183,7 +192,7 @@ const RecentActivities: React.FC = () => {
           filter: `user_id=eq.${user.id}`
         },
         (payload) => {
-          const apt = payload.new as any;
+          const apt = payload.new as RealtimeActivityData;
           if (apt.status === 'completed') {
             handleNewActivity('appointment_completed', apt);
           } else if (apt.status === 'cancelled') {

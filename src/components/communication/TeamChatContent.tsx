@@ -11,7 +11,25 @@ import { useTeamChat, ChatConversation, ChatMessage } from '@/hooks/useTeamChat'
 import { format, formatDistanceToNow } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
 
-const NewConversationDialog = ({ teamMembers, currentUserId, onCreateConversation }: { teamMembers: any[]; currentUserId: string | null; onCreateConversation: (participantIds: string[], isGroup: boolean, groupName?: string) => void; }) => {
+type TeamChatState = ReturnType<typeof useTeamChat>;
+type TeamMember = TeamChatState['teamMembers'][number];
+
+interface NewConversationDialogProps {
+  teamMembers: TeamMember[];
+  currentUserId: string | null;
+  onCreateConversation: (participantIds: string[], isGroup: boolean, groupName?: string) => void;
+}
+
+interface ChatWindowProps {
+  conversationId: string;
+  currentUserId: string | null;
+  teamMembers: TeamMember[];
+  getMessages: TeamChatState['getMessages'];
+  sendMessage: TeamChatState['sendMessage'];
+  subscribeToConversation: TeamChatState['subscribeToConversation'];
+}
+
+const NewConversationDialog = ({ teamMembers, currentUserId, onCreateConversation }: NewConversationDialogProps) => {
   const [selectedMembers, setSelectedMembers] = useState<string[]>([]);
   const [isGroup, setIsGroup] = useState(false);
   const [groupName, setGroupName] = useState('');
@@ -46,12 +64,12 @@ const NewConversationDialog = ({ teamMembers, currentUserId, onCreateConversatio
   );
 };
 
-const ChatWindow = ({ conversationId, currentUserId, teamMembers, getMessages, sendMessage, subscribeToConversation }: { conversationId: string; currentUserId: string | null; teamMembers: any[]; getMessages: (id: string) => any; sendMessage: any; subscribeToConversation: (id: string) => () => void; }) => {
+const ChatWindow = ({ conversationId, currentUserId, teamMembers, getMessages, sendMessage, subscribeToConversation }: ChatWindowProps) => {
   const [message, setMessage] = useState('');
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const { data: messages = [], isLoading } = getMessages(conversationId);
 
-  useEffect(() => { const unsubscribe = subscribeToConversation(conversationId); return unsubscribe; }, [conversationId]);
+  useEffect(() => { const unsubscribe = subscribeToConversation(conversationId); return unsubscribe; }, [conversationId, subscribeToConversation]);
   useEffect(() => { messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' }); }, [messages]);
 
   const handleSend = () => { if (!message.trim()) return; sendMessage.mutate({ conversationId, content: message }); setMessage(''); };

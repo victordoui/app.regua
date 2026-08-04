@@ -14,7 +14,9 @@ import { ptBR } from 'date-fns/locale';
 
 const DAYS_OF_WEEK = [{ value: 0, label: 'Domingo', short: 'Dom' }, { value: 1, label: 'Segunda', short: 'Seg' }, { value: 2, label: 'Terça', short: 'Ter' }, { value: 3, label: 'Quarta', short: 'Qua' }, { value: 4, label: 'Quinta', short: 'Qui' }, { value: 5, label: 'Sexta', short: 'Sex' }, { value: 6, label: 'Sábado', short: 'Sáb' }];
 
-const ShiftForm = ({ onSubmit, onClose, barbers }: { onSubmit: (data: CreateShiftInput) => void; onClose: () => void; barbers: any[] }) => {
+type ShiftBarber = { id: string; display_name: string | null };
+
+const ShiftForm = ({ onSubmit, onClose, barbers }: { onSubmit: (data: CreateShiftInput) => void; onClose: () => void; barbers: ShiftBarber[] }) => {
   const [formData, setFormData] = useState<CreateShiftInput>({ barber_id: '', day_of_week: 1, start_time: '09:00', end_time: '18:00', is_recurring: true, break_start: '', break_end: '' });
   const [isSpecificDate, setIsSpecificDate] = useState(false);
   const handleSubmit = (e: React.FormEvent) => { e.preventDefault(); const data = { ...formData }; if (isSpecificDate) { data.is_recurring = false; data.day_of_week = undefined; } else { data.specific_date = undefined; } onSubmit(data); onClose(); };

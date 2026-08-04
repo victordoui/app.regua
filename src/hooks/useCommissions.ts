@@ -65,11 +65,11 @@ export const useCommissions = () => {
         appointments: appointmentsData || [],
         barbers: barbers,
       };
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error("Error fetching commission data:", error);
       toast({
         title: "Erro ao carregar dados de comissão",
-        description: error.message,
+        description: error instanceof Error ? error.message : "Tente novamente.",
         variant: "destructive",
       });
       return { appointments: [], barbers: [] };
@@ -92,7 +92,7 @@ export const useCommissions = () => {
 
     const filteredAppointments = selectedBarberId === 'all'
       ? appointments
-      : appointments.filter((apt: any) => apt.barbeiro_id === selectedBarberId);
+      : appointments.filter((apt: (typeof appointments)[number]) => apt.barbeiro_id === selectedBarberId);
 
     for (const apt of filteredAppointments) {
       // Handle joined data - can be array or single object
