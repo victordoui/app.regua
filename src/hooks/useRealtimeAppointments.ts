@@ -13,6 +13,13 @@ interface RealtimePayload {
   old: Appointment;
 }
 
+interface AppointmentClient {
+  id: string;
+  name: string | null;
+  phone: string | null;
+  email: string | null;
+}
+
 export const useRealtimeAppointments = () => {
   const { user } = useAuth();
   const { toast } = useToast();
@@ -43,16 +50,19 @@ export const useRealtimeAppointments = () => {
 
       if (error) throw error;
 
-      const formattedAppointments = (data || []).map(apt => ({
-        ...apt,
-        status: apt.status as Appointment['status'],
-        clients: apt.clients ? {
-          id: (apt.clients as any).id,
-          name: (apt.clients as any).name || '',
-          phone: (apt.clients as any).phone || '',
-          email: (apt.clients as any).email
-        } : undefined
-      })) as unknown as Appointment[];
+      const formattedAppointments = (data || []).map(apt => {
+        const client = apt.clients as AppointmentClient | null;
+        return {
+          ...apt,
+          status: apt.status as Appointment['status'],
+          clients: client ? {
+            id: client.id,
+            name: client.name || '',
+            phone: client.phone || '',
+            email: client.email,
+          } : undefined,
+        };
+      }) as unknown as Appointment[];
 
       setAppointments(formattedAppointments);
       
@@ -86,8 +96,10 @@ export const useRealtimeAppointments = () => {
       try {
         const audio = new Audio('/notification.mp3');
         audio.volume = 0.3;
-        audio.play().catch(() => {});
-      } catch {}
+        audio.play().catch(() => undefined);
+      } catch {
+        // Browsers may reject autoplay; notifications still work without sound.
+      }
       
       // Format date for display
       const formattedDate = format(parseISO(newAppointment.appointment_date), "dd 'de' MMMM", { locale: ptBR });

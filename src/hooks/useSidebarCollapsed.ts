@@ -25,7 +25,9 @@ export const setSidebarCollapsed = (next: boolean) => {
   state = next;
   try {
     window.localStorage.setItem(STORAGE_KEY, next ? "1" : "0");
-  } catch {}
+  } catch {
+    // Storage can be unavailable in restricted browsing contexts.
+  }
   listeners.forEach((l) => l());
 };
 

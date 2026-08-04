@@ -31,7 +31,7 @@ const ModernCard = React.forwardRef<HTMLDivElement, ModernCardProps>(
       ref={ref}
       className={cn(modernCardVariants({ variant, transition, className }))}
       whileHover={{ y: -2 }}
-      {...(props as any)}
+      {...(props as React.ComponentPropsWithoutRef<typeof motion.div>)}
     >
       {children}
     </motion.div>
