@@ -40,9 +40,9 @@ const ImageUploadField: React.FC<ImageUploadFieldProps> = ({
       const url = await uploadFile(fileToUpload, folder);
       onUploadSuccess(url);
       toast.success(`${label} atualizado com sucesso!`);
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error("Upload Error:", error);
-      toast.error(error.message || `Erro ao fazer upload do ${label}. Verifique as permissões do Supabase Storage.`);
+      toast.error(error instanceof Error ? error.message : `Erro ao fazer upload do ${label}. Verifique as permissões do Supabase Storage.`);
       setPreviewUrl(currentUrl);
     } finally {
       setIsUploading(false);

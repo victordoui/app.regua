@@ -32,7 +32,7 @@ import { usePlatformTemplates } from '@/hooks/superadmin/usePlatformTemplates';
 import { Mail, Plus, Pencil, Trash2, Eye } from 'lucide-react';
 import { format } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
-import type { EmailTemplateFormData } from '@/types/superAdmin';
+import type { EmailTemplate, EmailTemplateFormData } from '@/types/superAdmin';
 
 const triggerLabels: Record<string, string> = {
   welcome: 'Boas-vindas',
@@ -76,7 +76,7 @@ const EmailTemplates = () => {
     resetForm();
   };
 
-  const handleEdit = (template: any) => {
+  const handleEdit = (template: EmailTemplate) => {
     setFormData({
       name: template.name,
       subject: template.subject,

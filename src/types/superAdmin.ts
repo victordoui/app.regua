@@ -145,7 +145,7 @@ export interface AuditLog {
   super_admin_id: string;
   action: AuditAction;
   target_user_id: string | null;
-  details: Record<string, any> | null;
+  details: Record<string, unknown> | null;
   created_at: string;
   // Joined data
   target_user?: {

@@ -21,7 +21,7 @@ export interface UserSubscription {
   created_at: string;
   updated_at: string;
   subscription_plans?: SubscriptionPlan;
-  clients?: any;
+  clients?: Client;
 }
 
 export interface Client {

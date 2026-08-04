@@ -62,7 +62,7 @@ const SuperAdminDashboard = () => {
   const userStats = usersData?.stats;
   const recentUsers = usersData?.users?.slice(0, 5) || [];
   const trialPlan = plans.find((p) => p.plan_type === 'trial');
-  const trialDays = (trialPlan as any)?.trial_days ?? 14;
+  const trialDays = trialPlan?.trial_days ?? 14;
 
   if (isLoading) {
     return (

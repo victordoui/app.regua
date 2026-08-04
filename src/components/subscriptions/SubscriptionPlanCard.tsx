@@ -8,7 +8,7 @@ import { SubscriptionPlan } from '@/types/subscriptions';
 interface SubscriptionPlanCardProps {
   plan: SubscriptionPlan;
   onEdit: (plan: SubscriptionPlan) => void;
-  onToggleStatus: (params: { id: string; currentStatus: boolean }) => Promise<any>;
+  onToggleStatus: (params: { id: string; currentStatus: boolean }) => Promise<SubscriptionPlan>;
 }
 
 const SubscriptionPlanCard: React.FC<SubscriptionPlanCardProps> = ({ plan, onEdit, onToggleStatus }) => {

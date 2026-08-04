@@ -22,6 +22,7 @@ import { useAuth } from '@/contexts/AuthContext';
 import { supabase } from '@/integrations/supabase/client';
 import { useQueryClient } from '@tanstack/react-query';
 import type { PlanType } from '@/types/superAdmin';
+import type { Json } from '@/integrations/supabase/types';
 import { UserPlus, Loader2 } from 'lucide-react';
 
 interface NewSubscriberDialogProps {
@@ -79,7 +80,7 @@ export const NewSubscriberDialog = ({ open, onOpenChange }: NewSubscriberDialogP
         super_admin_id: user?.id || '',
         action: 'activate_subscription',
         target_user_id: formData.user_id,
-        details: { plan_type: formData.plan_type, manual: true } as any,
+        details: { plan_type: formData.plan_type, manual: true } as Json,
       }]);
 
       queryClient.invalidateQueries({ queryKey: ['platform-subscriptions'] });
@@ -93,10 +94,10 @@ export const NewSubscriberDialog = ({ open, onOpenChange }: NewSubscriberDialogP
         end_date: '',
         notes: '',
       });
-    } catch (error: any) {
+    } catch (error: unknown) {
       toast({
         title: 'Erro ao criar assinante',
-        description: error.message,
+        description: error instanceof Error ? error.message : 'Tente novamente.',
         variant: 'destructive',
       });
     } finally {

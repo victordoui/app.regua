@@ -9,7 +9,7 @@ import { ptBR } from 'date-fns/locale';
 
 interface UserSubscriptionCardProps {
   subscription: UserSubscription;
-  onUpdateStatus: (params: { id: string; status: 'active' | 'cancelled' | 'paused' | 'expired' }) => Promise<any>;
+  onUpdateStatus: (params: { id: string; status: 'active' | 'cancelled' | 'paused' | 'expired' }) => Promise<UserSubscription>;
 }
 
 const UserSubscriptionCard: React.FC<UserSubscriptionCardProps> = ({ subscription, onUpdateStatus }) => {

@@ -13,6 +13,7 @@ import type {
   SubscriptionStatus,
   AuditAction,
 } from '@/types/superAdmin';
+import type { Json } from '@/integrations/supabase/types';
 
 // Hook for managing platform subscriptions
 export const useSubscribers = (filters?: SubscriberFilters) => {
@@ -72,7 +73,7 @@ export const useSubscribers = (filters?: SubscriberFilters) => {
         super_admin_id: user?.id || '',
         action,
         target_user_id: subscription.user_id,
-        details: updates as any,
+        details: updates as Json,
       }]);
     },
     onSuccess: () => {
@@ -80,7 +81,7 @@ export const useSubscribers = (filters?: SubscriberFilters) => {
       queryClient.invalidateQueries({ queryKey: ['platform-stats'] });
       toast({ title: 'Assinatura atualizada com sucesso!' });
     },
-    onError: (error: any) => {
+    onError: (error: Error) => {
       toast({
         title: 'Erro ao atualizar assinatura',
         description: error.message,
@@ -210,14 +211,14 @@ export const usePlatformCoupons = () => {
       await supabase.from('platform_audit_logs').insert([{
         super_admin_id: user?.id || '',
         action: 'create_coupon',
-        details: couponData as any,
+        details: couponData as Json,
       }]);
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['platform-coupons'] });
       toast({ title: 'Cupom criado com sucesso!' });
     },
-    onError: (error: any) => {
+    onError: (error: Error) => {
       toast({
         title: 'Erro ao criar cupom',
         description: error.message,
@@ -245,7 +246,7 @@ export const usePlatformCoupons = () => {
       queryClient.invalidateQueries({ queryKey: ['platform-coupons'] });
       toast({ title: 'Cupom atualizado com sucesso!' });
     },
-    onError: (error: any) => {
+    onError: (error: Error) => {
       toast({
         title: 'Erro ao atualizar cupom',
         description: error.message,
@@ -273,7 +274,7 @@ export const usePlatformCoupons = () => {
       queryClient.invalidateQueries({ queryKey: ['platform-coupons'] });
       toast({ title: 'Cupom excluído com sucesso!' });
     },
-    onError: (error: any) => {
+    onError: (error: Error) => {
       toast({
         title: 'Erro ao excluir cupom',
         description: error.message,

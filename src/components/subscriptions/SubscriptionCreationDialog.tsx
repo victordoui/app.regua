@@ -4,13 +4,13 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Button } from '@/components/ui/button';
 import { Label } from '@/components/ui/label';
 import { Input } from '@/components/ui/input';
-import { SubscriptionFormData, Client, SubscriptionPlan } from '@/types/subscriptions';
+import { SubscriptionFormData, Client, SubscriptionPlan, UserSubscription } from '@/types/subscriptions';
 import { format } from 'date-fns';
 
 interface SubscriptionCreationDialogProps {
   isOpen: boolean;
   setIsOpen: (open: boolean) => void;
-  createSubscription: (formData: SubscriptionFormData) => Promise<any>;
+  createSubscription: (formData: SubscriptionFormData) => Promise<UserSubscription>;
   clients: Client[];
   plans: SubscriptionPlan[];
 }

@@ -42,10 +42,10 @@ const Upgrade = () => {
       } else {
         throw new Error('URL de checkout não retornada');
       }
-    } catch (err: any) {
+    } catch (err: unknown) {
       toast({
         title: 'Erro ao iniciar pagamento',
-        description: err.message || 'Tente novamente.',
+        description: err instanceof Error ? err.message : 'Tente novamente.',
         variant: 'destructive',
       });
     } finally {

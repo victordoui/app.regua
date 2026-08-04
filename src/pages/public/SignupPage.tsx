@@ -99,9 +99,9 @@ const SignupPage = () => {
         toast({ title: 'Conta criada com sucesso! 🎉', description: 'Verifique seu email para confirmar a conta.' });
         setTimeout(() => navigate('/onboarding'), 1500);
       }
-    } catch (error: any) {
-      const msg = error.message || '';
-      const code = error.code || '';
+    } catch (error: unknown) {
+      const msg = error instanceof Error ? error.message : '';
+      const code = error instanceof Error && 'code' in error ? String(error.code || '') : '';
       const title = 'Erro ao criar conta';
       let description = 'Ocorreu um erro inesperado. Tente novamente.';
 
@@ -136,10 +136,10 @@ const SignupPage = () => {
       } else {
         throw new Error('URL de checkout não recebida');
       }
-    } catch (error: any) {
+    } catch (error: unknown) {
       toast({
         title: 'Erro ao iniciar pagamento',
-        description: error.message || 'Tente novamente.',
+        description: error instanceof Error ? error.message : 'Tente novamente.',
         variant: 'destructive',
       });
     } finally {
