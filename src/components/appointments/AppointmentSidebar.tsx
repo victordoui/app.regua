@@ -7,17 +7,7 @@ import { Plus, CalendarPlus } from "lucide-react";
 import { ptBR } from 'date-fns/locale';
 import { Barber } from '@/types/appointments';
 import { cn } from '@/lib/utils';
-
-export const BARBER_COLORS = [
-  '#3b82f6', // blue
-  '#10b981', // emerald
-  '#8b5cf6', // purple
-  '#f97316', // orange
-  '#ec4899', // pink
-  '#14b8a6', // teal
-  '#f59e0b', // amber
-  '#6366f1', // indigo
-];
+import { BARBER_COLORS } from '@/lib/appointmentColors';
 
 export type CreatedFilter = 'all' | 'today' | 'week' | 'month';
 

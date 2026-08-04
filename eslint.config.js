@@ -26,4 +26,17 @@ export default tseslint.config(
       "@typescript-eslint/no-unused-vars": "off",
     },
   }
+  // Providers expose hooks with their components, and shadcn primitives expose
+  // variants alongside their components. These patterns are intentional and do
+  // not affect production behavior; Fast Refresh cannot infer them correctly.
+  , {
+    files: [
+      "src/components/ui/**/*.{ts,tsx}",
+      "src/contexts/**/*.{ts,tsx}",
+      "src/utils/test-utils.tsx",
+    ],
+    rules: {
+      "react-refresh/only-export-components": "off",
+    },
+  }
 );
