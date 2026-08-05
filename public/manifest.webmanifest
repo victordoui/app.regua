@@ -9,7 +9,8 @@
   "theme_color": "#2563EB",
   "lang": "pt-BR",
   "icons": [
-    { "src": "/logo-vizzu.png", "sizes": "192x192", "type": "image/png", "purpose": "any maskable" },
-    { "src": "/logo-vizzu.png", "sizes": "512x512", "type": "image/png", "purpose": "any maskable" }
+    { "src": "/pwa-icon-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any" },
+    { "src": "/pwa-icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any" },
+    { "src": "/pwa-icon-maskable-512.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable" }
   ]
 }

@@ -181,8 +181,8 @@ const SignupPage = () => {
       <div className="w-full max-w-2xl">
         {/* Header */}
         <div className="text-center mb-8">
-          <div className="inline-flex items-center justify-center w-16 h-16 rounded-2xl overflow-hidden mb-4">
-            <img src={vizzuIcon} alt="VIZZU" className="w-full h-full object-cover" />
+          <div className="mb-4 inline-flex h-16 w-16 items-center justify-center overflow-hidden rounded-2xl bg-blue-50 p-1.5 ring-1 ring-blue-100">
+            <img src={vizzuIcon} alt="VIZZU" className="h-full w-full object-contain" />
           </div>
           <h1 className="text-3xl font-bold text-foreground">VIZZU</h1>
           <p className="text-muted-foreground mt-1">Crie sua conta e comece a gerenciar seu negócio</p>
