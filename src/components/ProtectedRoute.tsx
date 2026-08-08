@@ -81,7 +81,9 @@ const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ children, requiredRole,
       if (userRole === 'barbeiro') {
         return <Navigate to="/appointments" replace />;
       }
-      return <Navigate to="/" replace />;
+      // A conta existe, mas ainda não concluiu o cadastro (plano, negócio e papel).
+      // Redirecionar para a raiz gerava um ciclo de rotas protegidas e tela em branco.
+      return <Navigate to="/cadastro?concluir=1" replace />;
     }
   }
 

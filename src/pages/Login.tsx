@@ -25,14 +25,7 @@ const loginSchema = z.object({
   password: z.string().min(6, "A senha deve ter no mínimo 6 caracteres"),
 });
 
-const registerSchema = z.object({
-  fullName: z.string().min(3, "Nome deve ter no mínimo 3 caracteres"),
-  email: z.string().email("E-mail inválido"),
-  password: z.string().min(6, "A senha deve ter no mínimo 6 caracteres"),
-});
-
 type LoginFormValues = z.infer<typeof loginSchema>;
-type RegisterFormValues = z.infer<typeof registerSchema>;
 
 const TEST_PASSWORD = "admin123456";
 
@@ -42,16 +35,11 @@ const Login = () => {
   const [activeTab, setActiveTab] = useState<"login" | "register">("login");
   const navigate = useNavigate();
   const { toast } = useToast();
-  const { signIn, signUp } = useAuth();
+  const { signIn } = useAuth();
 
   const loginForm = useForm<LoginFormValues>({
     resolver: zodResolver(loginSchema),
     defaultValues: { email: "", password: "" },
-  });
-
-  const registerForm = useForm<RegisterFormValues>({
-    resolver: zodResolver(registerSchema),
-    defaultValues: { fullName: "", email: "", password: "" },
   });
 
   const redirectByRole = async () => {
@@ -82,7 +70,7 @@ const Login = () => {
       navigate(profile?.barbershop_user_id ? `/b/${profile.barbershop_user_id}/home` : "/");
       return;
     }
-    navigate("/");
+    navigate("/cadastro?concluir=1");
   };
 
   const onLoginSubmit = async (data: LoginFormValues) => {
@@ -130,25 +118,6 @@ const Login = () => {
     }
   };
 
-
-  const onRegisterSubmit = async (data: RegisterFormValues) => {
-    setLoading(true);
-    try {
-      const { error, success } = await signUp(data.email, data.password, data.fullName);
-      if (error) {
-        toast({ title: "Erro no cadastro", description: error.message || "Não foi possível criar o usuário", variant: "destructive" });
-      } else if (success) {
-        toast({ title: "Usuário criado com sucesso!", description: "Verifique seu email para confirmar o cadastro." });
-        registerForm.reset();
-        setActiveTab("login");
-      }
-    } catch (error: unknown) {
-      console.error("Erro no cadastro:", error);
-      toast({ title: "Erro no cadastro", description: "Ocorreu um erro inesperado", variant: "destructive" });
-    } finally {
-      setLoading(false);
-    }
-  };
 
   const features = [
     { icon: Calendar, text: "Agendamento inteligente" },
@@ -365,88 +334,20 @@ const Login = () => {
                 exit={{ opacity: 0, x: -20 }}
                 transition={{ duration: 0.3 }}
               >
-                <Form {...registerForm}>
-                  <form onSubmit={registerForm.handleSubmit(onRegisterSubmit)} className="space-y-5">
-                    <FormField
-                      control={registerForm.control}
-                      name="fullName"
-                      render={({ field }) => (
-                        <FormItem>
-                          <FormLabel className="text-foreground ">Nome Completo</FormLabel>
-                          <FormControl>
-                            <Input
-                              {...field}
-                              placeholder="Seu nome completo"
-                              className="h-12 border-[#1F4FA3]/20 focus:border-[#1F4FA3] focus:ring-[#1F4FA3]/20 bg-card rounded-xl"
-                            />
-                          </FormControl>
-                          <FormMessage />
-                        </FormItem>
-                      )}
-                    />
-
-                    <FormField
-                      control={registerForm.control}
-                      name="email"
-                      render={({ field }) => (
-                        <FormItem>
-                          <FormLabel className="text-foreground ">E-mail</FormLabel>
-                          <FormControl>
-                            <div className="relative">
-                              <Mail className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-                              <Input
-                                {...field}
-                                placeholder="seu@email.com"
-                                className="pl-10 h-12 border-[#1F4FA3]/20 focus:border-[#1F4FA3] focus:ring-[#1F4FA3]/20 bg-card rounded-xl"
-                              />
-                            </div>
-                          </FormControl>
-                          <FormMessage />
-                        </FormItem>
-                      )}
-                    />
-
-                    <FormField
-                      control={registerForm.control}
-                      name="password"
-                      render={({ field }) => (
-                        <FormItem>
-                          <FormLabel className="text-foreground ">Senha</FormLabel>
-                          <FormControl>
-                            <div className="relative">
-                              <Lock className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-                              <Input
-                                {...field}
-                                type="password"
-                                placeholder="Crie uma senha forte"
-                                className="pl-10 h-12 border-[#1F4FA3]/20 focus:border-[#1F4FA3] focus:ring-[#1F4FA3]/20 bg-card rounded-xl"
-                              />
-                            </div>
-                          </FormControl>
-                          <FormMessage />
-                        </FormItem>
-                      )}
-                    />
-
-                    <Button
-                      type="submit"
-                      className="group h-12 w-full rounded-xl bg-primary text-base font-bold text-white shadow-[0_10px_24px_rgba(37,99,235,0.22)] transition-all duration-300 hover:-translate-y-0.5 hover:bg-primary/90"
-                      disabled={loading}
-                    >
-                      {loading ? (
-                        <span className="flex items-center">
-                          <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-white mr-2" />
-                          Cadastrando...
-                        </span>
-                      ) : (
-                        <span className="flex items-center">
-                          Criar Conta
-                          <ArrowRight className="ml-2 h-5 w-5 group-hover:translate-x-1 transition-transform" />
-                        </span>
-                      )}
-                    </Button>
-                  </form>
-                </Form>
+                <div className="space-y-5">
+                  <div className="rounded-2xl border border-primary/15 bg-primary/5 p-5 text-sm leading-6 text-muted-foreground">
+                    Para começar, você escolhe entre o período de teste gratuito ou um plano pago. Depois, criamos sua conta, negócio e assinatura em um único processo.
+                  </div>
+                  <Button
+                    type="button"
+                    onClick={() => navigate('/cadastro')}
+                    className="group h-12 w-full rounded-xl bg-primary text-base font-bold text-white shadow-[0_10px_24px_rgba(37,99,235,0.22)] transition-all duration-300 hover:-translate-y-0.5 hover:bg-primary/90"
+                  >
+                    Escolher plano e criar conta
+                    <ArrowRight className="ml-2 h-5 w-5 transition-transform group-hover:translate-x-1" />
+                  </Button>
+                  <p className="text-center text-sm text-muted-foreground">Você poderá iniciar pelo teste gratuito, sem cobrança imediata.</p>
+                </div>
               </motion.div>
             )}
           </AnimatePresence>
