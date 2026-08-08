@@ -7,7 +7,7 @@ import { Label } from '@/components/ui/label';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { useToast } from '@/hooks/use-toast';
-import { Check, ArrowRight, ArrowLeft, Loader2, Crown, Star, Zap, CreditCard, QrCode, Shield } from 'lucide-react';
+import { Check, ArrowRight, ArrowLeft, Loader2, Crown, Star, Zap, CreditCard, QrCode, Shield, Mail } from 'lucide-react';
 import { cn, formatPhoneBR, formatNameOnly } from '@/lib/utils';
 import logoVizzuBlue from '@/assets/logo-vizzu-blue.png';
 import logoVizzuWhite from '@/assets/logo-vizzu-white.png';
@@ -15,6 +15,8 @@ import vizzuIcon from '@/assets/vizzu-icon.png';
 import { useTheme } from 'next-themes';
 import PixPayment from '@/components/payments/PixPayment';
 import type { PlanConfig } from '@/types/superAdmin';
+import { useAuth } from '@/contexts/AuthContext';
+import { DEFAULT_PUBLIC_PLANS } from '@/lib/publicPlans';
 
 type Step = 1 | 2 | 3 | 4;
 
@@ -23,11 +25,14 @@ const SignupPage = () => {
   const logoVizzu = resolvedTheme === "dark" ? logoVizzuWhite : logoVizzuBlue;
   const navigate = useNavigate();
   const { toast } = useToast();
+  const { user } = useAuth();
   const [step, setStep] = useState<Step>(1);
   const [isLoading, setIsLoading] = useState(false);
-  const [plans, setPlans] = useState<PlanConfig[]>([]);
+  // Renderiza opções imediatamente; a consulta remota só atualiza o catálogo.
+  const [plans, setPlans] = useState<PlanConfig[]>(DEFAULT_PUBLIC_PLANS);
   const [paymentMethod, setPaymentMethod] = useState<'stripe' | 'pix' | null>(null);
   const [accountCreated, setAccountCreated] = useState(false);
+  const [confirmationEmailSent, setConfirmationEmailSent] = useState(false);
 
   const [formData, setFormData] = useState({
     fullName: '',
@@ -35,17 +40,20 @@ const SignupPage = () => {
     email: '',
     password: '',
     phone: '',
-    selectedPlan: 'trial' as string,
+    // O cliente precisa decidir conscientemente entre teste e um plano pago.
+    selectedPlan: '' as string,
   });
 
   useEffect(() => {
     const fetchPlans = async () => {
-      const { data } = await supabase
+      const { data, error } = await supabase
         .from('platform_plan_config')
         .select('*')
         .eq('is_active', true)
         .order('sort_order', { ascending: true });
-      if (data) setPlans(data as unknown as PlanConfig[]);
+      // A política do banco permite esta leitura sem login. A lista local é
+      // apenas uma contingência para que a conversão não pare em uma tela vazia.
+      setPlans(!error && data?.length ? data as unknown as PlanConfig[] : DEFAULT_PUBLIC_PLANS);
     };
     fetchPlans();
 
@@ -55,34 +63,77 @@ const SignupPage = () => {
       setFormData(f => ({ ...f, selectedPlan: preSelectedPlan }));
     }
 
+    if (user) {
+      setFormData(f => ({
+        ...f,
+        fullName: f.fullName || String(user.user_metadata?.full_name || ''),
+        companyName: f.companyName || String(user.user_metadata?.company_name || ''),
+        email: user.email || f.email,
+        selectedPlan: f.selectedPlan || String(user.user_metadata?.selected_plan || ''),
+      }));
+    }
+
     // Handle payment cancellation
     if (searchParams.get('payment') === 'cancelled') {
       toast({ title: 'Pagamento cancelado', description: 'Você pode tentar novamente.', variant: 'destructive' });
     }
-  }, [toast]);
+  }, [toast, user]);
 
   const selectedPlanConfig = plans.find(p => p.plan_type === formData.selectedPlan);
-  const isPaidPlan = formData.selectedPlan !== 'trial';
+  const isPaidPlan = Boolean(formData.selectedPlan && formData.selectedPlan !== 'trial');
   const totalSteps = isPaidPlan ? 4 : 3;
 
+  const isCompletingRegistration = Boolean(user);
+
   const handleSignup = async () => {
+    if (!selectedPlanConfig) {
+      toast({
+        title: 'Escolha uma opção',
+        description: 'Selecione o período de teste ou um plano para continuar.',
+        variant: 'destructive',
+      });
+      setStep(2);
+      return;
+    }
+
     setIsLoading(true);
     try {
-      const redirectUrl = `${window.location.origin}/onboarding`;
+      const redirectUrl = `${window.location.origin}/cadastro?confirmado=1`;
+      let account = user;
 
-      const { data: authData, error: authError } = await supabase.auth.signUp({
-        email: formData.email,
-        password: formData.password,
-        options: { emailRedirectTo: redirectUrl },
-      });
+      if (!account) {
+        const { data: authData, error: authError } = await supabase.auth.signUp({
+          email: formData.email,
+          password: formData.password,
+          options: {
+            emailRedirectTo: redirectUrl,
+            data: {
+              full_name: formData.fullName,
+              company_name: formData.companyName,
+              selected_plan: formData.selectedPlan,
+            },
+          },
+        });
 
-      if (authError) throw authError;
-      if (!authData.user) throw new Error('Erro ao criar conta');
+        if (authError) throw authError;
+        if (!authData.user) throw new Error('Erro ao criar conta');
+
+        // Com confirmação de e-mail ativa não existe sessão ainda. A conta só
+        // pode ganhar papel, negócio e assinatura após o clique no e-mail.
+        if (!authData.session) {
+          setConfirmationEmailSent(true);
+          return;
+        }
+
+        account = authData.user;
+      }
+
+      if (!account) throw new Error('Não foi possível identificar a conta criada');
 
       const { error: rpcError } = await supabase.rpc('create_subscriber_with_subscription', {
-        _user_id: authData.user.id,
+        _user_id: account.id,
         _display_name: formData.fullName,
-        _email: formData.email,
+        _email: account.email || formData.email,
         _plan_type: formData.selectedPlan,
         _company_name: formData.companyName,
       });
@@ -96,7 +147,7 @@ const SignupPage = () => {
         setStep(4);
         toast({ title: 'Conta criada! 🎉', description: 'Agora finalize o pagamento do seu plano.' });
       } else {
-        toast({ title: 'Conta criada com sucesso! 🎉', description: 'Verifique seu email para confirmar a conta.' });
+        toast({ title: 'Conta criada com sucesso! 🎉', description: 'Vamos preparar seu negócio.' });
         setTimeout(() => navigate('/onboarding'), 1500);
       }
     } catch (error: unknown) {
@@ -159,7 +210,7 @@ const SignupPage = () => {
     formData.fullName.trim() &&
     formData.companyName.trim() &&
     formData.email.trim() &&
-    formData.password.length >= 6;
+    (isCompletingRegistration || formData.password.length >= 6);
 
   const planIcons: Record<string, React.ReactNode> = {
     trial: <Zap className="h-6 w-6" />,
@@ -169,12 +220,64 @@ const SignupPage = () => {
   };
 
   const handleStep2Next = () => {
+    if (!selectedPlanConfig) {
+      toast({
+        title: 'Escolha uma opção',
+        description: 'Selecione o período de teste ou um plano para continuar.',
+        variant: 'destructive',
+      });
+      return;
+    }
     setStep(3);
   };
 
   const handleStep3Action = () => {
     handleSignup();
   };
+
+  const resendConfirmation = async () => {
+    setIsLoading(true);
+    try {
+      const { error } = await supabase.auth.resend({
+        type: 'signup',
+        email: formData.email,
+        options: { emailRedirectTo: `${window.location.origin}/cadastro?confirmado=1` },
+      });
+      if (error) throw error;
+      toast({ title: 'E-mail reenviado', description: 'Confira sua caixa de entrada e spam.' });
+    } catch (error: unknown) {
+      toast({
+        title: 'Não foi possível reenviar o e-mail',
+        description: error instanceof Error ? error.message : 'Tente novamente em alguns minutos.',
+        variant: 'destructive',
+      });
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  if (confirmationEmailSent) {
+    return (
+      <div className="flex min-h-screen items-center justify-center bg-gradient-to-br from-background via-muted/30 to-background p-4">
+        <Card className="w-full max-w-md text-center">
+          <CardHeader>
+            <div className="mx-auto mb-3 flex h-14 w-14 items-center justify-center rounded-2xl bg-primary/10 text-primary"><Mail className="h-7 w-7" /></div>
+            <CardTitle>Confirme seu e-mail</CardTitle>
+            <CardDescription>
+              Enviamos um link para <strong>{formData.email}</strong>. Depois de confirmar, você voltará para concluir o cadastro do negócio e ativar o plano escolhido.
+            </CardDescription>
+          </CardHeader>
+          <CardContent className="space-y-3">
+            <Button className="w-full" onClick={resendConfirmation} disabled={isLoading}>
+              {isLoading ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <Mail className="mr-2 h-4 w-4" />} Reenviar e-mail de confirmação
+            </Button>
+            <Button variant="outline" className="w-full" onClick={() => navigate('/login')}>Voltar para o login</Button>
+            <p className="text-xs text-muted-foreground">Não encontrou? Verifique a caixa de spam e aguarde alguns minutos antes de reenviar.</p>
+          </CardContent>
+        </Card>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-background via-muted/30 to-background flex items-center justify-center p-4">
@@ -185,7 +288,7 @@ const SignupPage = () => {
             <img src={vizzuIcon} alt="VIZZU" className="h-full w-full object-contain" />
           </div>
           <h1 className="text-3xl font-bold text-foreground">VIZZU</h1>
-          <p className="text-muted-foreground mt-1">Crie sua conta e comece a gerenciar seu negócio</p>
+          <p className="text-muted-foreground mt-1">{isCompletingRegistration ? 'Conclua os dados do negócio para liberar seu acesso' : 'Crie sua conta e comece a gerenciar seu negócio'}</p>
         </div>
 
         {/* Step indicator */}
@@ -213,8 +316,8 @@ const SignupPage = () => {
         {step === 1 && (
           <Card>
             <CardHeader>
-              <CardTitle>Dados da Conta</CardTitle>
-              <CardDescription>Preencha seus dados para criar sua conta</CardDescription>
+              <CardTitle>{isCompletingRegistration ? 'Conclua seu cadastro' : 'Dados da Conta'}</CardTitle>
+              <CardDescription>{isCompletingRegistration ? 'Escolha um plano e informe os dados do negócio para liberar o acesso.' : 'Preencha seus dados para criar sua conta'}</CardDescription>
             </CardHeader>
             <CardContent className="space-y-4">
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
@@ -247,7 +350,7 @@ const SignupPage = () => {
                   onChange={(e) => setFormData((f) => ({ ...f, email: e.target.value }))}
                 />
               </div>
-              <div className="space-y-2">
+              {!isCompletingRegistration && <div className="space-y-2">
                 <Label htmlFor="password">Senha (mín. 6 caracteres)</Label>
                 <Input
                   id="password"
@@ -256,7 +359,7 @@ const SignupPage = () => {
                   value={formData.password}
                   onChange={(e) => setFormData((f) => ({ ...f, password: e.target.value }))}
                 />
-              </div>
+              </div>}
               <div className="space-y-2">
                 <Label htmlFor="phone">Telefone (opcional)</Label>
                 <Input
@@ -299,6 +402,7 @@ const SignupPage = () => {
                     <button
                       key={plan.id}
                       onClick={() => setFormData((f) => ({ ...f, selectedPlan: plan.plan_type }))}
+                      aria-pressed={formData.selectedPlan === plan.plan_type}
                       className={cn(
                         'relative p-4 rounded-xl border-2 text-left transition-all',
                         formData.selectedPlan === plan.plan_type
@@ -307,11 +411,11 @@ const SignupPage = () => {
                       )}
                     >
                       {plan.plan_type === 'pro' && (
-                        <Badge className="absolute -top-2 right-3 bg-gradient-to-r from-primary to-primary-600 text-primary-foreground">
+                        <Badge className="absolute right-3 top-3 bg-gradient-to-r from-primary to-primary-600 text-primary-foreground">
                           Popular
                         </Badge>
                       )}
-                      <div className="flex items-center gap-3 mb-3">
+                      <div className={cn('mb-3 flex items-center gap-3', plan.plan_type === 'pro' && 'pr-16')}>
                         <div className={cn(
                           'w-10 h-10 rounded-lg flex items-center justify-center',
                           formData.selectedPlan === plan.plan_type ? 'bg-primary text-primary-foreground' : 'bg-muted text-muted-foreground'
@@ -321,7 +425,7 @@ const SignupPage = () => {
                         <div>
                           <h3 className="font-semibold text-foreground">{plan.display_name}</h3>
                           <p className="text-sm text-muted-foreground">
-                            {plan.plan_type === 'trial' ? 'Grátis por 14 dias' : `R$ ${plan.price_monthly}/mês`}
+                            {plan.plan_type === 'trial' ? `Grátis por ${plan.trial_days || 14} dias` : `R$ ${plan.price_monthly}/mês`}
                           </p>
                         </div>
                       </div>
@@ -329,11 +433,6 @@ const SignupPage = () => {
                         <p>• Até {plan.max_barbers} profissiona{plan.max_barbers > 1 ? 'is' : 'l'}</p>
                         <p>• {plan.max_appointments_month} agendamentos/mês</p>
                       </div>
-                      {formData.selectedPlan === plan.plan_type && (
-                        <div className="absolute top-3 left-3">
-                          <Check className="h-5 w-5 text-primary" />
-                        </div>
-                      )}
                     </button>
                   ))}
                 </div>
@@ -343,7 +442,7 @@ const SignupPage = () => {
               <Button variant="outline" onClick={() => setStep(1)} className="flex-1">
                 <ArrowLeft className="h-4 w-4 mr-2" /> Voltar
               </Button>
-              <Button onClick={handleStep2Next} className="flex-1">
+              <Button onClick={handleStep2Next} disabled={!selectedPlanConfig} className="flex-1">
                 Próximo <ArrowRight className="h-4 w-4 ml-2" />
               </Button>
             </div>
@@ -407,7 +506,7 @@ const SignupPage = () => {
                 ) : (
                   <Check className="h-4 w-4 mr-2" />
                 )}
-                {isPaidPlan ? 'Criar Conta e Pagar' : 'Criar Minha Conta'}
+                {isPaidPlan ? (isCompletingRegistration ? 'Concluir cadastro e pagar' : 'Criar Conta e Pagar') : (isCompletingRegistration ? 'Concluir meu cadastro' : 'Criar Minha Conta')}
               </Button>
             </div>
           </div>

@@ -30,6 +30,7 @@ import { LoadingSpinner } from '@/components/ui/loading-spinner';
 import { cn } from '@/lib/utils';
 import vizzuIcon from '@/assets/vizzu-icon.png';
 import type { PlanConfig } from '@/types/superAdmin';
+import { DEFAULT_PUBLIC_PLANS } from '@/lib/publicPlans';
 
 const FEATURE_LABELS: Record<string, string> = {
   basic_scheduling: 'Agenda online inteligente',
@@ -194,8 +195,7 @@ const SalesPage = () => {
         .select('*')
         .eq('is_active', true)
         .order('sort_order', { ascending: true });
-      if (error) throw error;
-      return (data || []) as PlanConfig[];
+      return !error && data?.length ? data as PlanConfig[] : DEFAULT_PUBLIC_PLANS;
     },
   });
 
