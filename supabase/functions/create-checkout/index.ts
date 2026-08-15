@@ -101,7 +101,8 @@ serve(async (req) => {
       },
     });
 
-    logStep("Checkout session created", { sessionId: session.id, url: session.url });
+    // The checkout URL contains a session token; never persist it in logs.
+    logStep("Checkout session created", { sessionId: session.id });
 
     return new Response(JSON.stringify({ url: session.url }), {
       headers: { ...corsHeaders(origin), "Content-Type": "application/json" },
