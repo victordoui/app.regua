@@ -132,6 +132,36 @@ serve(async (req) => {
       }
     }
 
+    if (event.type === "customer.subscription.updated" || event.type === "customer.subscription.deleted") {
+      const stripeSubscription = event.data.object as Stripe.Subscription;
+      const userId = stripeSubscription.metadata?.user_id;
+      if (userId) {
+        const supabase = createClient(
+          Deno.env.get("SUPABASE_URL") ?? "",
+          Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") ?? ""
+        );
+        const periodEndSeconds = (stripeSubscription as unknown as { current_period_end?: number }).current_period_end;
+        const endDate = periodEndSeconds ? new Date(periodEndSeconds * 1000).toISOString() : undefined;
+        const stripeStatus = stripeSubscription.status;
+        const status = event.type === "customer.subscription.deleted" || stripeStatus === "canceled"
+          ? "cancelled"
+          : stripeStatus === "active" || stripeStatus === "trialing"
+            ? "active"
+            : "pending_payment";
+        const paymentStatus = status === "active" ? "paid" : status === "cancelled" ? "cancelled" : "pending";
+
+        const payload: Record<string, unknown> = { status, payment_status: paymentStatus };
+        if (endDate) payload.end_date = endDate;
+
+        const { error } = await supabase
+          .from("platform_subscriptions")
+          .update(payload)
+          .eq("user_id", userId);
+        if (error) throw new Error(`Subscription lifecycle update failed: ${error.message}`);
+        logStep("Subscription lifecycle synchronized", { userId, stripeStatus, status });
+      }
+    }
+
     return new Response(JSON.stringify({ received: true }), {
       headers: { "Content-Type": "application/json" },
       status: 200,
