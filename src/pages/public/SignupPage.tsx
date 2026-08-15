@@ -7,10 +7,9 @@ import { Label } from '@/components/ui/label';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { useToast } from '@/hooks/use-toast';
-import { Check, ArrowRight, ArrowLeft, Loader2, Crown, Star, Zap, CreditCard, QrCode, Shield, Mail } from 'lucide-react';
+import { Check, ArrowRight, ArrowLeft, Loader2, Crown, Star, Zap, CreditCard, Shield, Mail } from 'lucide-react';
 import { cn, formatPhoneBR, formatNameOnly } from '@/lib/utils';
 import vizzuIcon from '@/assets/vizzu-icon.png';
-import PixPayment from '@/components/payments/PixPayment';
 import type { PlanConfig } from '@/types/superAdmin';
 import { useAuth } from '@/contexts/AuthContext';
 import { DEFAULT_PUBLIC_PLANS } from '@/lib/publicPlans';
@@ -26,8 +25,6 @@ const SignupPage = () => {
   const [isLoading, setIsLoading] = useState(false);
   // Renderiza opções imediatamente; a consulta remota só atualiza o catálogo.
   const [plans, setPlans] = useState<PlanConfig[]>(DEFAULT_PUBLIC_PLANS);
-  const [paymentMethod, setPaymentMethod] = useState<'stripe' | 'pix' | null>(null);
-  const [accountCreated, setAccountCreated] = useState(false);
   const [confirmationEmailSent, setConfirmationEmailSent] = useState(false);
 
   const [formData, setFormData] = useState({
@@ -136,8 +133,6 @@ const SignupPage = () => {
 
       if (rpcError) throw rpcError;
 
-      setAccountCreated(true);
-
       if (isPaidPlan) {
         // Move to payment step
         setStep(4);
@@ -192,14 +187,6 @@ const SignupPage = () => {
     } finally {
       setIsLoading(false);
     }
-  };
-
-  const handlePixConfirmed = () => {
-    toast({
-      title: 'Pagamento PIX registrado!',
-      description: 'Seu pagamento será confirmado em breve. Você já pode acessar o sistema.',
-    });
-    setTimeout(() => navigate('/onboarding'), 1500);
   };
 
   const canProceedStep1 =
@@ -548,64 +535,30 @@ const SignupPage = () => {
                   </p>
                 </div>
 
-                {!paymentMethod && (
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                    <button
-                      onClick={() => {
-                        setPaymentMethod('stripe');
-                        handleStripeCheckout();
-                      }}
-                      className="flex flex-col items-center gap-3 p-6 rounded-xl border-2 border-border hover:border-primary/60 hover:bg-primary/5 transition-all"
-                    >
-                      <div className="w-12 h-12 rounded-full bg-primary/10 flex items-center justify-center">
-                        <CreditCard className="h-6 w-6 text-primary" />
-                      </div>
-                      <div className="text-center">
-                        <p className="font-semibold text-foreground">Cartão de Crédito</p>
-                        <p className="text-xs text-muted-foreground">Via Stripe - pagamento seguro</p>
-                      </div>
-                    </button>
-
-                    <button
-                      onClick={() => setPaymentMethod('pix')}
-                      className="flex flex-col items-center gap-3 p-6 rounded-xl border-2 border-border hover:border-primary/60 hover:bg-primary/5 transition-all"
-                    >
-                      <div className="w-12 h-12 rounded-full bg-green-500/10 flex items-center justify-center">
-                        <QrCode className="h-6 w-6 text-green-600" />
-                      </div>
-                      <div className="text-center">
-                        <p className="font-semibold text-foreground">PIX</p>
-                        <p className="text-xs text-muted-foreground">Pagamento instantâneo</p>
-                      </div>
-                    </button>
-                  </div>
-                )}
-
-                {paymentMethod === 'stripe' && isLoading && (
+                {isLoading ? (
                   <div className="flex flex-col items-center gap-3 py-8">
                     <Loader2 className="h-8 w-8 animate-spin text-primary" />
                     <p className="text-sm text-muted-foreground">Redirecionando para o checkout seguro...</p>
                   </div>
-                )}
-
-                {paymentMethod === 'pix' && selectedPlanConfig && (
-                  <PixPayment
-                    amount={selectedPlanConfig.price_monthly}
-                    pixKey="naregua@pagamento.com"
-                    pixKeyType="email"
-                    merchantName="Na Regua"
-                    merchantCity="Sao Paulo"
-                    description={`Plano ${selectedPlanConfig.display_name}`}
-                    expirationMinutes={30}
-                    onPaymentConfirmed={handlePixConfirmed}
-                    onCancel={() => setPaymentMethod(null)}
-                  />
+                ) : (
+                  <button
+                    onClick={handleStripeCheckout}
+                    className="flex w-full flex-col items-center gap-3 rounded-xl border-2 border-border p-6 transition-all hover:border-primary/60 hover:bg-primary/5"
+                  >
+                    <div className="flex h-12 w-12 items-center justify-center rounded-full bg-primary/10">
+                      <CreditCard className="h-6 w-6 text-primary" />
+                    </div>
+                    <div className="text-center">
+                      <p className="font-semibold text-foreground">Pagar com cartão</p>
+                      <p className="text-xs text-muted-foreground">Checkout seguro via Stripe. PIX será disponibilizado com confirmação automática.</p>
+                    </div>
+                  </button>
                 )}
               </CardContent>
             </Card>
 
-            {!paymentMethod && (
-              <Button variant="outline" onClick={() => { setStep(3); setAccountCreated(false); }} className="w-full">
+            {!isLoading && (
+              <Button variant="outline" onClick={() => setStep(3)} className="w-full">
                 <ArrowLeft className="h-4 w-4 mr-2" /> Voltar
               </Button>
             )}
