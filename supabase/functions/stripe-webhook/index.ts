@@ -55,17 +55,38 @@ serve(async (req) => {
           Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") ?? ""
         );
 
+        const { data: plan, error: planError } = await supabase
+          .from("platform_plan_config")
+          .select("plan_type, max_barbers, max_appointments_month, features")
+          .eq("plan_type", planType)
+          .eq("is_active", true)
+          .maybeSingle();
+        if (planError || !plan) {
+          throw new Error(`Plan lookup failed: ${planError?.message || "plan not available"}`);
+        }
+
+        // A paid checkout can follow an expired trial or change an active
+        // paid plan. There is one subscription row per business, so update
+        // that row rather than requiring a matching pending plan type.
+        const paymentStart = new Date(event.created * 1000);
+        const paymentEnd = new Date(paymentStart);
+        paymentEnd.setMonth(paymentEnd.getMonth() + 1);
+
         // Repeating a verified Stripe event is safe: subscription activation is
         // idempotent and the payment row has a unique provider event id.
         const { data: activatedSubscription, error } = await supabase
           .from("platform_subscriptions")
           .update({
+            plan_type: plan.plan_type,
             status: "active",
             payment_status: "paid",
+            start_date: paymentStart.toISOString(),
+            end_date: paymentEnd.toISOString(),
+            max_barbers: plan.max_barbers,
+            max_appointments_month: plan.max_appointments_month,
+            features: plan.features,
           })
           .eq("user_id", userId)
-          .eq("plan_type", planType)
-          .eq("payment_status", "pending")
           .select("id")
           .maybeSingle();
 
@@ -80,7 +101,6 @@ serve(async (req) => {
             .from("platform_subscriptions")
             .select("id")
             .eq("user_id", userId)
-            .eq("plan_type", planType)
             .eq("status", "active")
             .maybeSingle();
           if (existingError) throw new Error(`Subscription lookup failed: ${existingError.message}`);

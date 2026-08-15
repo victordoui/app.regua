@@ -99,6 +99,14 @@ serve(async (req) => {
         user_id: user.id,
         plan_type,
       },
+      subscription_data: {
+        // These values are copied to the Stripe subscription and allow future
+        // lifecycle events (renewal/cancellation) to be linked to VIZZU.
+        metadata: {
+          user_id: user.id,
+          plan_type,
+        },
+      },
     });
 
     // The checkout URL contains a session token; never persist it in logs.
