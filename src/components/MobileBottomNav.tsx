@@ -36,8 +36,11 @@ const MobileBottomNav = () => {
   const navigate = useNavigate();
   const location = useLocation();
   const [open, setOpen] = useState(false);
-  const { isSuperAdmin } = useRole();
+  const { isSuperAdmin, isAdmin } = useRole();
   const { signOut } = useAuth();
+  const visibleMoreItems = isAdmin
+    ? moreItems
+    : moreItems.filter(item => ['/conversations', '/profile'].includes(item.path));
   const isActive = (path: string) => path === "/" ? location.pathname === path : location.pathname.startsWith(path);
 
   const NavItem = ({ item }: { item: (typeof mainItems)[number] }) => {
@@ -79,8 +82,8 @@ const MobileBottomNav = () => {
           </SheetTrigger>
           <SheetContent side="bottom" className="max-h-[78vh] overflow-y-auto rounded-t-[28px] px-5 pb-8">
             <SheetHeader className="pb-3 text-left"><SheetTitle>Todos os módulos</SheetTitle></SheetHeader>
-            <div className="grid grid-cols-4 gap-2">
-              {moreItems.map((item) => {
+            <div className="grid grid-cols-3 gap-2 sm:grid-cols-4">
+              {visibleMoreItems.map((item) => {
                 const Icon = item.icon;
                 const active = isActive(item.path);
                 return (
@@ -88,7 +91,7 @@ const MobileBottomNav = () => {
                     <div className={`flex h-11 w-11 items-center justify-center rounded-2xl ${active ? "bg-primary text-primary-foreground" : "bg-muted text-muted-foreground"}`}>
                       <Icon className="h-5 w-5" />
                     </div>
-                    <span className={`text-center text-[10px] font-semibold leading-tight ${active ? "text-primary" : "text-foreground"}`}>{item.label}</span>
+                    <span className={`text-center text-[11px] font-semibold leading-tight ${active ? "text-primary" : "text-foreground"}`}>{item.label}</span>
                   </button>
                 );
               })}

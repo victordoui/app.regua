@@ -9,20 +9,16 @@ import { Badge } from '@/components/ui/badge';
 import { useToast } from '@/hooks/use-toast';
 import { Check, ArrowRight, ArrowLeft, Loader2, Crown, Star, Zap, CreditCard, QrCode, Shield, Mail } from 'lucide-react';
 import { cn, formatPhoneBR, formatNameOnly } from '@/lib/utils';
-import logoVizzuBlue from '@/assets/logo-vizzu-blue.png';
-import logoVizzuWhite from '@/assets/logo-vizzu-white.png';
 import vizzuIcon from '@/assets/vizzu-icon.png';
-import { useTheme } from 'next-themes';
 import PixPayment from '@/components/payments/PixPayment';
 import type { PlanConfig } from '@/types/superAdmin';
 import { useAuth } from '@/contexts/AuthContext';
 import { DEFAULT_PUBLIC_PLANS } from '@/lib/publicPlans';
+import { formatCurrency } from '@/lib/pixUtils';
 
 type Step = 1 | 2 | 3 | 4;
 
 const SignupPage = () => {
-  const { resolvedTheme } = useTheme();
-  const logoVizzu = resolvedTheme === "dark" ? logoVizzuWhite : logoVizzuBlue;
   const navigate = useNavigate();
   const { toast } = useToast();
   const { user } = useAuth();
@@ -210,7 +206,7 @@ const SignupPage = () => {
     formData.fullName.trim() &&
     formData.companyName.trim() &&
     formData.email.trim() &&
-    (isCompletingRegistration || formData.password.length >= 6);
+    (isCompletingRegistration || formData.password.length >= 8);
 
   const planIcons: Record<string, React.ReactNode> = {
     trial: <Zap className="h-6 w-6" />,
@@ -256,15 +252,34 @@ const SignupPage = () => {
     }
   };
 
+  const sendPasswordRecovery = async () => {
+    setIsLoading(true);
+    try {
+      const { error } = await supabase.auth.resetPasswordForEmail(formData.email, {
+        redirectTo: `${window.location.origin}/redefinir-senha`,
+      });
+      if (error) throw error;
+      toast({ title: 'Se houver uma conta, enviaremos as instruções', description: 'Confira sua caixa de entrada e spam.' });
+    } catch (error: unknown) {
+      toast({
+        title: 'Não foi possível solicitar a recuperação',
+        description: error instanceof Error ? error.message : 'Tente novamente em alguns minutos.',
+        variant: 'destructive',
+      });
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
   if (confirmationEmailSent) {
     return (
       <div className="flex min-h-screen items-center justify-center bg-gradient-to-br from-background via-muted/30 to-background p-4">
         <Card className="w-full max-w-md text-center">
           <CardHeader>
             <div className="mx-auto mb-3 flex h-14 w-14 items-center justify-center rounded-2xl bg-primary/10 text-primary"><Mail className="h-7 w-7" /></div>
-            <CardTitle>Confirme seu e-mail</CardTitle>
+            <CardTitle>Confira seu e-mail</CardTitle>
             <CardDescription>
-              Enviamos um link para <strong>{formData.email}</strong>. Depois de confirmar, você voltará para concluir o cadastro do negócio e ativar o plano escolhido.
+              Se este for um novo cadastro, enviamos um link para <strong>{formData.email}</strong>. Depois de confirmar, você voltará para concluir o cadastro do negócio e ativar o plano escolhido.
             </CardDescription>
           </CardHeader>
           <CardContent className="space-y-3">
@@ -272,6 +287,7 @@ const SignupPage = () => {
               {isLoading ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <Mail className="mr-2 h-4 w-4" />} Reenviar e-mail de confirmação
             </Button>
             <Button variant="outline" className="w-full" onClick={() => navigate('/login')}>Voltar para o login</Button>
+            <Button variant="ghost" className="w-full" onClick={sendPasswordRecovery} disabled={isLoading}>Já tenho conta ou esqueci minha senha</Button>
             <p className="text-xs text-muted-foreground">Não encontrou? Verifique a caixa de spam e aguarde alguns minutos antes de reenviar.</p>
           </CardContent>
         </Card>
@@ -351,7 +367,7 @@ const SignupPage = () => {
                 />
               </div>
               {!isCompletingRegistration && <div className="space-y-2">
-                <Label htmlFor="password">Senha (mín. 6 caracteres)</Label>
+                <Label htmlFor="password">Senha (mín. 8 caracteres)</Label>
                 <Input
                   id="password"
                   type="password"
@@ -425,7 +441,7 @@ const SignupPage = () => {
                         <div>
                           <h3 className="font-semibold text-foreground">{plan.display_name}</h3>
                           <p className="text-sm text-muted-foreground">
-                            {plan.plan_type === 'trial' ? `Grátis por ${plan.trial_days || 14} dias` : `R$ ${plan.price_monthly}/mês`}
+                            {plan.plan_type === 'trial' ? `Teste gratuito por ${plan.trial_days || 7} dias` : `${formatCurrency(Number(plan.price_monthly))}/mês`}
                           </p>
                         </div>
                       </div>
@@ -480,7 +496,7 @@ const SignupPage = () => {
                   {isPaidPlan && selectedPlanConfig && (
                     <div className="flex justify-between pt-2 border-t border-border">
                       <span className="text-muted-foreground font-medium">Valor:</span>
-                      <span className="font-bold text-primary">R$ {selectedPlanConfig.price_monthly}/mês</span>
+                      <span className="font-bold text-primary">{formatCurrency(Number(selectedPlanConfig.price_monthly))}/mês</span>
                     </div>
                   )}
                 </div>
@@ -528,7 +544,7 @@ const SignupPage = () => {
                   <p className="text-sm text-muted-foreground">Plano selecionado</p>
                   <p className="text-lg font-bold text-foreground">{selectedPlanConfig?.display_name}</p>
                   <p className="text-2xl font-bold text-primary mt-1">
-                    R$ {selectedPlanConfig?.price_monthly}<span className="text-sm font-normal text-muted-foreground">/mês</span>
+                    {formatCurrency(Number(selectedPlanConfig?.price_monthly || 0))}<span className="text-sm font-normal text-muted-foreground">/mês</span>
                   </p>
                 </div>
 

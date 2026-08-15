@@ -129,7 +129,7 @@ const Sidebar = () => {
     {
       category: "operacoes", label: "Operações", icon: Calendar,
       items: [
-        { icon: Calendar, label: "Agenda", path: "/appointments", badge: 8 },
+        { icon: Calendar, label: "Agenda", path: "/appointments" },
         { icon: Users, label: "Clientes", path: "/clients" },
         { icon: Briefcase, label: "Profissionais", path: "/barbers" },
         { icon: Package, label: "Serviços", path: "/services" },

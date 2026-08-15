@@ -76,12 +76,12 @@ const ClientAppointments = () => {
 
       // Fetch barbershop settings
       const { data: settingsData } = await supabase
-        .from('barbershop_settings')
-        .select('company_name, logo_url, primary_color_hex, secondary_color_hex, is_public_page_enabled, allow_online_cancellation, cancellation_hours_before')
+        .from('public_business_profile')
+        .select('company_name, logo_url, primary_color_hex, secondary_color_hex, allow_online_cancellation, cancellation_hours_before')
         .eq('user_id', userId)
         .single();
 
-      if (!settingsData?.is_public_page_enabled) {
+      if (!settingsData) {
         setLoading(false);
         return;
       }
@@ -155,7 +155,7 @@ const ClientAppointments = () => {
               ? supabase.from('services').select('id, name, price, duration_minutes').in('id', serviceIds)
               : { data: [] as { id: string; name: string; price: number; duration_minutes: number }[] },
             barberIds.length > 0
-              ? supabase.from('profiles').select('id, display_name').in('id', barberIds as string[])
+              ? supabase.from('professional_directory').select('id, display_name').in('id', barberIds as string[])
               : { data: [] as { id: string; display_name: string }[] }
           ]);
 

@@ -9,10 +9,10 @@ import { useReviews } from '@/hooks/useReviews';
 import StarRating from '@/components/reviews/StarRating';
 import { format } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
-import { Star, Search, MessageSquare, TrendingUp, Users, Trash2, Loader2 } from 'lucide-react';
+import { Star, Search, MessageSquare, TrendingUp, Users, Loader2, AlertCircle } from 'lucide-react';
 
 const ReviewsContent = () => {
-  const { reviews, stats, isLoading, deleteReview, isDeleting } = useReviews();
+  const { reviews, stats, isLoading, error } = useReviews();
   const [search, setSearch] = useState('');
   const [filterRating, setFilterRating] = useState<number | null>(null);
 
@@ -21,10 +21,6 @@ const ReviewsContent = () => {
     const matchesRating = filterRating === null || review.rating === filterRating;
     return matchesSearch && matchesRating;
   });
-
-  const handleDelete = async (reviewId: string) => {
-    if (confirm('Tem certeza que deseja excluir esta avaliação?')) await deleteReview(reviewId);
-  };
 
   return (
     <div className="space-y-6">
@@ -40,9 +36,9 @@ const ReviewsContent = () => {
       {/* Filters */}
       <div className="flex flex-col sm:flex-row gap-4">
         <div className="relative flex-1"><Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" /><Input placeholder="Buscar por cliente ou comentário..." value={search} onChange={(e) => setSearch(e.target.value)} className="pl-10" /></div>
-        <div className="flex gap-2">
-          <Button variant={filterRating === null ? 'default' : 'outline'} size="sm" onClick={() => setFilterRating(null)}>Todas</Button>
-          {[5,4,3,2,1].map(rating => <Button key={rating} variant={filterRating === rating ? 'default' : 'outline'} size="sm" onClick={() => setFilterRating(filterRating === rating ? null : rating)}>{rating}★</Button>)}
+        <div className="flex flex-wrap gap-2">
+          <Button className="min-h-11" variant={filterRating === null ? 'default' : 'outline'} size="sm" onClick={() => setFilterRating(null)}>Todas</Button>
+          {[5,4,3,2,1].map(rating => <Button className="min-h-11 min-w-11" key={rating} variant={filterRating === rating ? 'default' : 'outline'} size="sm" onClick={() => setFilterRating(filterRating === rating ? null : rating)}>{rating}★</Button>)}
         </div>
       </div>
 
@@ -52,6 +48,11 @@ const ReviewsContent = () => {
         <CardContent>
           {isLoading ? (
             <div className="flex items-center justify-center py-12"><Loader2 className="h-8 w-8 animate-spin text-primary" /></div>
+          ) : error ? (
+            <div className="flex flex-col items-center justify-center gap-3 py-12 text-center text-destructive">
+              <AlertCircle className="h-10 w-10" />
+              <div><p className="font-medium">Não foi possível carregar as avaliações</p><p className="text-sm">Atualize a página e tente novamente.</p></div>
+            </div>
           ) : filteredReviews.length === 0 ? (
             <div className="text-center py-12 text-muted-foreground"><Star className="h-12 w-12 mx-auto mb-4 opacity-50" /><p>Nenhuma avaliação encontrada</p></div>
           ) : (
@@ -70,7 +71,6 @@ const ReviewsContent = () => {
                           {review.comment && <p className="mt-2 text-sm text-muted-foreground">"{review.comment}"</p>}
                           {review.barber && <Badge variant="outline" className="mt-2">Barbeiro: {review.barber.display_name}</Badge>}
                         </div>
-                        <Button variant="ghost" size="icon" onClick={() => handleDelete(review.id)} disabled={isDeleting}><Trash2 className="h-4 w-4 text-destructive" /></Button>
                       </div>
                     </CardContent>
                   </Card>

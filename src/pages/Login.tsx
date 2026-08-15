@@ -3,7 +3,7 @@ import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { useToast } from "@/hooks/use-toast";
-import { Eye, EyeOff, Mail, Lock, ArrowRight, Calendar, CheckCircle, BarChart3, Shield, Crown, Scissors, UserRound } from "lucide-react";
+import { Eye, EyeOff, Mail, Lock, ArrowRight, Calendar, CheckCircle, BarChart3 } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
 import { motion, AnimatePresence } from "framer-motion";
 import { useForm } from "react-hook-form";
@@ -27,11 +27,10 @@ const loginSchema = z.object({
 
 type LoginFormValues = z.infer<typeof loginSchema>;
 
-const TEST_PASSWORD = "admin123456";
-
 const Login = () => {
   const [loading, setLoading] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
+  const [showRecoveryOption, setShowRecoveryOption] = useState(false);
   const [activeTab, setActiveTab] = useState<"login" | "register">("login");
   const navigate = useNavigate();
   const { toast } = useToast();
@@ -57,6 +56,20 @@ const Login = () => {
       return;
     }
     if (roleList.includes('admin') || roleList.includes('barbeiro')) {
+      if (roleList.includes('admin')) {
+        const { data: subscription } = await supabase
+          .from('platform_subscriptions')
+          .select('status')
+          .eq('user_id', user.id)
+          .order('created_at', { ascending: false })
+          .limit(1)
+          .maybeSingle();
+
+        if (subscription && ['expired', 'cancelled', 'pending_payment'].includes(subscription.status)) {
+          navigate('/upgrade');
+          return;
+        }
+      }
       navigate(roleList.includes('admin') ? "/" : "/appointments");
       return;
     }
@@ -78,6 +91,7 @@ const Login = () => {
     try {
       const { error, success } = await signIn(data.email, data.password);
       if (error) {
+        setShowRecoveryOption(true);
         toast({ title: "Erro no login", description: error.message || "Credenciais inválidas", variant: "destructive" });
       } else if (success) {
         toast({ title: "Login realizado com sucesso!", description: "Bem-vindo ao sistema!" });
@@ -91,33 +105,30 @@ const Login = () => {
     }
   };
 
-  const quickAccounts = [
-    { label: "Admin", email: "admin@naregua.com", icon: Shield },
-    { label: "Super Admin", email: "superadmin@naregua.com", icon: Crown },
-    { label: "Profissional", email: "barbeiro@naregua.com", icon: Scissors },
-    { label: "Cliente", email: "qa.cliente.e2e@naregua.com", icon: UserRound },
-  ];
+  const requestPasswordRecovery = async () => {
+    const email = loginForm.getValues('email').trim();
+    if (!email) {
+      loginForm.setError('email', { message: 'Informe seu e-mail para recuperar o acesso.' });
+      return;
+    }
 
-  const quickLogin = async (email: string) => {
     setLoading(true);
     try {
-      loginForm.setValue("email", email);
-      loginForm.setValue("password", TEST_PASSWORD);
-      const { error, success } = await signIn(email, TEST_PASSWORD);
-      if (error) {
-        toast({ title: "Erro no acesso rápido", description: error.message || "Credenciais inválidas", variant: "destructive" });
-      } else if (success) {
-        toast({ title: "Acesso rápido", description: `Entrando como ${email}` });
-        await redirectByRole();
-      }
+      const { error } = await supabase.auth.resetPasswordForEmail(email, {
+        redirectTo: `${window.location.origin}/redefinir-senha`,
+      });
+      if (error) throw error;
+      toast({ title: 'Se houver uma conta, enviaremos as instruções', description: 'Confira sua caixa de entrada e spam.' });
     } catch (error: unknown) {
-      console.error("Erro no acesso rápido:", error);
-      toast({ title: "Erro no acesso rápido", description: "Ocorreu um erro inesperado", variant: "destructive" });
+      toast({
+        title: 'Não foi possível solicitar a recuperação',
+        description: error instanceof Error ? error.message : 'Tente novamente em alguns minutos.',
+        variant: 'destructive',
+      });
     } finally {
       setLoading(false);
     }
   };
-
 
   const features = [
     { icon: Calendar, text: "Agendamento inteligente" },
@@ -269,6 +280,7 @@ const Login = () => {
                                 type="button"
                                 className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground"
                                 onClick={() => setShowPassword(!showPassword)}
+                                aria-label={showPassword ? "Ocultar senha" : "Mostrar senha"}
                               >
                                 {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
                               </button>
@@ -299,28 +311,14 @@ const Login = () => {
                   </form>
                 </Form>
 
-                {/* Acesso rápido para testes */}
-                {import.meta.env.DEV && <div className="mt-8 rounded-2xl border border-dashed border-border bg-muted/30 p-4">
-                  <p className="mb-3 text-center text-xs font-semibold uppercase tracking-wide text-muted-foreground">
-                    Acesso rápido para testes
-                  </p>
-                  <div className="grid grid-cols-2 gap-2">
-                    {quickAccounts.map((acc) => (
-                      <Button
-                        key={acc.email}
-                        type="button"
-                        variant="outline"
-                        size="sm"
-                        disabled={loading}
-                        onClick={() => quickLogin(acc.email)}
-                        className="h-10 justify-start gap-2 rounded-xl text-xs font-semibold"
-                      >
-                        <acc.icon className="h-4 w-4 text-primary" />
-                        {acc.label}
-                      </Button>
-                    ))}
+                {showRecoveryOption && (
+                  <div className="mt-4 rounded-xl border border-primary/15 bg-primary/5 p-3 text-center text-sm text-muted-foreground">
+                    Já possui cadastro ou não lembra a senha?{' '}
+                    <button type="button" onClick={requestPasswordRecovery} disabled={loading} className="font-semibold text-primary hover:underline">
+                      Enviar link para recuperar acesso
+                    </button>
                   </div>
-                </div>}
+                )}
 
               </motion.div>
 

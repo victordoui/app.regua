@@ -16,6 +16,7 @@ interface Appointment {
   appointment_time: string;
   status: string;
   total_price: number;
+  barbeiro_id: string | null;
   services: { name: string; price: number } | null;
   profiles: { display_name: string } | null;
   result_photos: string[] | null;
@@ -53,8 +54,8 @@ const ClientHistory = () => {
 
       // Fetch barbershop settings
       const { data: settingsData } = await supabase
-        .from('barbershop_settings')
-        .select('*')
+        .from('public_business_profile')
+        .select('company_name, logo_url, banner_url, primary_color_hex, secondary_color_hex, slogan, address, phone')
         .eq('user_id', userId)
         .single();
 
@@ -65,11 +66,12 @@ const ClientHistory = () => {
       // Fetch client profile
       const { data: clientProfile } = await supabase
         .from('client_profiles')
-        .select('id')
+        .select('client_id')
         .eq('user_id', user.id)
-        .single();
+        .eq('barbershop_user_id', userId)
+        .maybeSingle();
 
-      if (clientProfile) {
+      if (clientProfile?.client_id) {
         // Fetch completed appointments
         const { data: appointmentsData } = await supabase
           .from('appointments')
@@ -79,16 +81,27 @@ const ClientHistory = () => {
             appointment_time,
             status,
             total_price,
+            barbeiro_id,
             result_photos,
-            services (name, price),
-            profiles:barber_id (display_name)
+            services (name, price)
           `)
-          .eq('client_id', clientProfile.id)
+          .eq('user_id', userId)
+          .eq('client_id', clientProfile.client_id)
           .eq('status', 'completed')
           .order('appointment_date', { ascending: false });
 
         if (appointmentsData) {
-          setAppointments(appointmentsData as unknown as Appointment[]);
+          const barberIds = [...new Set(appointmentsData.map(item => item.barbeiro_id).filter(Boolean))] as string[];
+          const { data: professionals } = barberIds.length
+            ? await supabase.from('professional_directory').select('id, display_name').in('id', barberIds)
+            : { data: [] };
+          const professionalsById = new Map((professionals || []).map(item => [item.id, item.display_name]));
+          setAppointments(appointmentsData.map(item => ({
+            ...item,
+            profiles: item.barbeiro_id
+              ? { display_name: professionalsById.get(item.barbeiro_id) || 'Profissional' }
+              : null,
+          })) as unknown as Appointment[]);
         }
       }
 

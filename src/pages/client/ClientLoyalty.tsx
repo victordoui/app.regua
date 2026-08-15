@@ -64,8 +64,8 @@ const ClientLoyalty = () => {
 
       // Fetch barbershop settings
       const { data: settingsData } = await supabase
-        .from('barbershop_settings')
-        .select('*')
+        .from('public_business_profile')
+        .select('company_name, logo_url, banner_url, primary_color_hex, secondary_color_hex, slogan, address, phone')
         .eq('user_id', userId)
         .single();
 

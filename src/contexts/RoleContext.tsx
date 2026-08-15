@@ -7,6 +7,8 @@ export type AppRole = 'super_admin' | 'admin' | 'barbeiro' | 'cliente';
 interface RoleContextType {
   userRole: AppRole | null;
   roles: AppRole[];
+  businessId: string | null;
+  teamProfileId: string | null;
   loading: boolean;
   isSuperAdmin: boolean;
   isAdmin: boolean;
@@ -33,11 +35,15 @@ interface RoleProviderProps {
 export const RoleProvider: React.FC<RoleProviderProps> = ({ children }) => {
   const { user, loading: authLoading } = useAuth();
   const [roles, setRoles] = useState<AppRole[]>([]);
+  const [businessId, setBusinessId] = useState<string | null>(null);
+  const [teamProfileId, setTeamProfileId] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
 
   const fetchRoles = async () => {
     if (!user) {
       setRoles([]);
+      setBusinessId(null);
+      setTeamProfileId(null);
       setLoading(false);
       return;
     }
@@ -48,19 +54,28 @@ export const RoleProvider: React.FC<RoleProviderProps> = ({ children }) => {
     try {
       const { data, error } = await supabase
         .from('user_roles')
-        .select('role')
+        .select('role, barbershop_user_id, profile_id')
         .eq('user_id', user.id);
 
       if (error) {
         console.error('Error fetching roles:', error);
         setRoles([]);
+        setBusinessId(user.id);
+        setTeamProfileId(null);
       } else {
         const userRoles = data?.map(r => r.role as AppRole) || [];
+        const delegatedRole = data?.find(
+          role => ['admin', 'barbeiro'].includes(role.role) && Boolean(role.barbershop_user_id),
+        );
         setRoles(userRoles);
+        setBusinessId(delegatedRole?.barbershop_user_id || user.id);
+        setTeamProfileId(delegatedRole?.profile_id || null);
       }
     } catch (error) {
       console.error('Unexpected error fetching roles:', error);
       setRoles([]);
+      setBusinessId(user.id);
+      setTeamProfileId(null);
     } finally {
       setLoading(false);
     }
@@ -93,6 +108,8 @@ export const RoleProvider: React.FC<RoleProviderProps> = ({ children }) => {
   const value: RoleContextType = {
     userRole,
     roles,
+    businessId,
+    teamProfileId,
     loading,
     isSuperAdmin: hasRole('super_admin'),
     isAdmin: hasRole('admin'),

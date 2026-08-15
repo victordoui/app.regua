@@ -136,7 +136,7 @@ export const NewSubscriberDialog = ({ open, onOpenChange }: NewSubscriberDialogP
                 <SelectValue />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="trial">Trial</SelectItem>
+                <SelectItem value="trial">Teste gratuito</SelectItem>
                 <SelectItem value="basic">Basic</SelectItem>
                 <SelectItem value="pro">Pro</SelectItem>
                 <SelectItem value="enterprise">Enterprise</SelectItem>

@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useMemo } from 'react';
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '@/components/ui/dialog';
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogFooter } from '@/components/ui/dialog';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
@@ -42,7 +42,7 @@ const AppointmentFormDialog: React.FC<AppointmentFormDialogProps> = ({
     client_id: "",
     service_id: "",
     service_ids: [],
-    barbeiro_id: "",
+    barbeiro_id: null,
     appointment_date: initialDate ? format(initialDate, 'yyyy-MM-dd') : "",
     appointment_time: initialTime || "",
     notes: "",
@@ -82,10 +82,16 @@ const AppointmentFormDialog: React.FC<AppointmentFormDialogProps> = ({
 
   useEffect(() => {
     if (editingAppointment) {
+      const linkedServiceIds = editingAppointment.appointment_services
+        ?.map(item => item.service_id)
+        .filter(Boolean) || [];
+      const selectedServiceIds = linkedServiceIds.length > 0
+        ? linkedServiceIds
+        : editingAppointment.service_id ? [editingAppointment.service_id] : [];
       setFormData({
         client_id: editingAppointment.client_id || "",
         service_id: editingAppointment.service_id || "",
-        service_ids: editingAppointment.service_id ? [editingAppointment.service_id] : [],
+        service_ids: selectedServiceIds,
         barbeiro_id: editingAppointment.barbeiro_id || "",
         appointment_date: editingAppointment.appointment_date,
         appointment_time: editingAppointment.appointment_time,
@@ -93,7 +99,7 @@ const AppointmentFormDialog: React.FC<AppointmentFormDialogProps> = ({
         recurrence_type: editingAppointment.recurrence_type || null,
         recurrence_end_date: editingAppointment.recurrence_end_date || null,
       });
-      setUseMultiService(false); // TODO: Check if appointment has multiple services
+      setUseMultiService(selectedServiceIds.length > 1);
     } else {
       setFormData({
         ...defaultFormData,
@@ -135,6 +141,9 @@ const AppointmentFormDialog: React.FC<AppointmentFormDialogProps> = ({
                 ? "Editar Agendamento" 
                 : "Novo Agendamento"}
           </DialogTitle>
+          <DialogDescription>
+            Informe cliente, serviços, profissional, data e horário do atendimento.
+          </DialogDescription>
         </DialogHeader>
         
         {isSeriesMode && (
@@ -255,16 +264,15 @@ const AppointmentFormDialog: React.FC<AppointmentFormDialogProps> = ({
             )}
           </div>
           <div>
-            <Label htmlFor="barbeiro_id">Profissional (Opcional)</Label>
+            <Label htmlFor="barbeiro_id">Profissional</Label>
             <Select 
-              value={formData.barbeiro_id || "unassigned-barber"} 
-              onValueChange={(value) => setFormData(prev => ({ ...prev, barbeiro_id: value === "unassigned-barber" ? null : value }))}
+              value={formData.barbeiro_id || undefined}
+              onValueChange={(value) => setFormData(prev => ({ ...prev, barbeiro_id: value }))}
             >
               <SelectTrigger>
                 <SelectValue placeholder="Selecione um profissional" />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="unassigned-barber">Nenhum (qualquer disponível)</SelectItem>
                 {barbers.map(barber => (
                   <SelectItem key={barber.id} value={barber.id}>
                     {barber.full_name}
@@ -363,7 +371,7 @@ const AppointmentFormDialog: React.FC<AppointmentFormDialogProps> = ({
             <Button type="button" variant="outline" onClick={() => setIsOpen(false)}>
               Cancelar
             </Button>
-            <Button type="submit" disabled={submitting}>
+            <Button type="submit" disabled={submitting || !formData.barbeiro_id}>
               {submitting ? "Salvando..." : "Salvar"}
             </Button>
           </DialogFooter>

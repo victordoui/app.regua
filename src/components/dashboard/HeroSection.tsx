@@ -2,13 +2,15 @@ import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { Pencil, Plus, Scissors } from "lucide-react";
 import { useCompanySettings } from "@/hooks/useCompanySettings";
-import { useRealtimeDashboard } from "@/hooks/useRealtimeDashboard";
 import EditGreetingDialog from "./EditGreetingDialog";
 
-const HeroSection = () => {
+interface HeroSectionProps {
+  todayAppointments: number;
+}
+
+const HeroSection = ({ todayAppointments }: HeroSectionProps) => {
   const navigate = useNavigate();
   const { settings } = useCompanySettings();
-  const { metrics } = useRealtimeDashboard();
   const [editOpen, setEditOpen] = useState(false);
   const companyName = settings?.company_name || "Sua Barbearia";
   const bannerUrl = settings?.banner_url;
@@ -16,7 +18,7 @@ const HeroSection = () => {
   const primaryColor = settings?.primary_color_hex || "#2563EB";
   const subtitle = settings?.slogan?.trim()
     ? settings.slogan
-    : `Você tem ${metrics.todayAppointments} agendamentos hoje`;
+    : `Você tem ${todayAppointments} agendamentos hoje`;
 
   return (
     <section className="overflow-hidden rounded-xl border border-white/20 shadow-[0_16px_40px_-24px_rgba(15,47,107,0.55)]">
@@ -59,7 +61,7 @@ const HeroSection = () => {
             )}
             <div className="min-w-0">
               <p className="mb-1 text-sm font-semibold text-white/80">
-                {metrics.todayAppointments} agendamento{metrics.todayAppointments === 1 ? "" : "s"} hoje
+                {todayAppointments} agendamento{todayAppointments === 1 ? "" : "s"} hoje
               </p>
               <h1 className="text-[26px] font-extrabold leading-tight tracking-tight text-white drop-shadow-md sm:text-[30px]">
                 Olá, {companyName} 👋

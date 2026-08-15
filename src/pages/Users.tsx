@@ -3,6 +3,9 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
+import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { Label } from "@/components/ui/label";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { 
   DropdownMenu, 
   DropdownMenuContent, 
@@ -14,7 +17,6 @@ import {
   Plus, 
   MoreHorizontal, 
   Edit, 
-  Trash2, 
   UserCheck, 
   UserX,
   Users as UsersIcon,
@@ -33,6 +35,7 @@ import { PageContainer, PageHeader } from "@/components/ui/page-header";
 interface UserProfile {
   id: string;
   user_id: string;
+  auth_user_id: string | null;
   display_name: string;
   email: string;
   role: string;
@@ -45,13 +48,17 @@ const Users = () => {
   const { toast } = useToast();
   const queryClient = useQueryClient();
   const [searchTerm, setSearchTerm] = useState("");
+  const [dialogOpen, setDialogOpen] = useState(false);
+  const [editingProfile, setEditingProfile] = useState<UserProfile | null>(null);
+  const [teamForm, setTeamForm] = useState({ display_name: "", email: "", role: "barbeiro" as const });
 
   const fetchAllProfiles = useCallback(async (): Promise<UserProfile[]> => {
     if (!currentUser) return [];
     
     const { data, error } = await supabase
       .from("profiles")
-      .select("id, user_id, display_name, email, role, active, created_at")
+      .select("id, user_id, auth_user_id, display_name, email, role, active, created_at")
+      .eq("user_id", currentUser.id)
       .order("created_at", { ascending: false });
 
     if (error) throw error;
@@ -69,15 +76,71 @@ const Users = () => {
     enabled: !!currentUser,
   });
 
-  // Toggle user active status
+  const openCreateDialog = () => {
+    setEditingProfile(null);
+    setTeamForm({ display_name: "", email: "", role: "barbeiro" });
+    setDialogOpen(true);
+  };
+
+  const openEditDialog = (profile: UserProfile) => {
+    setEditingProfile(profile);
+    setTeamForm({
+      display_name: profile.display_name,
+      email: profile.email || "",
+      role: "barbeiro",
+    });
+    setDialogOpen(true);
+  };
+
+  const openInviteDialog = (profile: UserProfile) => {
+    setEditingProfile(null);
+    setTeamForm({
+      display_name: profile.display_name,
+      email: profile.email || "",
+      role: "barbeiro",
+    });
+    setDialogOpen(true);
+  };
+
+  const saveTeamMemberMutation = useMutation({
+    mutationFn: async () => {
+      const { data, error } = await supabase.functions.invoke("manage-team-access", {
+        body: editingProfile
+          ? { action: "update", profile_id: editingProfile.id, display_name: teamForm.display_name, role: teamForm.role }
+          : { action: "invite", ...teamForm },
+      });
+      if (error) throw error;
+      if (data?.error) throw new Error(data.error);
+      return data;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["allProfiles"] });
+      setDialogOpen(false);
+      toast({
+        title: editingProfile ? "Acesso atualizado" : "Convite enviado",
+        description: editingProfile
+          ? "As permissões da equipe foram atualizadas."
+          : "O profissional receberá um e-mail para definir o acesso.",
+      });
+    },
+    onError: (error: Error) => {
+      const messages: Record<string, string> = {
+        EMAIL_ALREADY_REGISTERED: "Este e-mail já possui uma conta. Use outro endereço ou recupere o acesso existente.",
+        EMAIL_ALREADY_IN_TEAM: "Este e-mail já faz parte da equipe.",
+        INVITE_FAILED: "Não foi possível enviar o convite. Verifique a configuração de e-mail do sistema.",
+      };
+      toast({ title: "Não foi possível salvar o acesso", description: messages[error.message] || error.message, variant: "destructive" });
+    },
+  });
+
+  // Toggle user active status and its corresponding login role together.
   const toggleStatusMutation = useMutation({
     mutationFn: async ({ id, currentStatus }: { id: string; currentStatus: boolean }) => {
-      const { error } = await supabase
-        .from("profiles")
-        .update({ active: !currentStatus })
-        .eq("id", id);
-      
+      const { data, error } = await supabase.functions.invoke("manage-team-access", {
+        body: { action: "set_active", profile_id: id, active: !currentStatus },
+      });
       if (error) throw error;
+      if (data?.error) throw new Error(data.error);
     },
     onSuccess: (_, variables) => {
       queryClient.invalidateQueries({ queryKey: ["allProfiles"] });
@@ -95,40 +158,8 @@ const Users = () => {
     }
   });
 
-  // Delete user profile
-  const deleteProfileMutation = useMutation({
-    mutationFn: async (id: string) => {
-      const { error } = await supabase
-        .from("profiles")
-        .delete()
-        .eq("id", id);
-      
-      if (error) throw error;
-    },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["allProfiles"] });
-      toast({ 
-        title: "Usuário excluído",
-        description: "O perfil foi removido com sucesso."
-      });
-    },
-    onError: (error: Error) => {
-      toast({
-        title: "Erro ao excluir usuário",
-        description: error.message,
-        variant: "destructive"
-      });
-    }
-  });
-
   const handleToggleStatus = (id: string, currentStatus: boolean) => {
     toggleStatusMutation.mutate({ id, currentStatus });
-  };
-
-  const handleDelete = (id: string, displayName: string) => {
-    if (confirm(`Tem certeza que deseja excluir o usuário "${displayName}"?`)) {
-      deleteProfileMutation.mutate(id);
-    }
   };
 
   const getInitials = (name: string) => {
@@ -153,7 +184,7 @@ const Users = () => {
   const getRoleLabel = (role: string) => {
     switch (role) {
       case "admin": return "Administrador";
-      case "barbeiro": return "Barbeiro";
+      case "barbeiro": return "Profissional";
       case "recepcionista": return "Recepcionista";
       case "cliente": return "Cliente";
       default: return role;
@@ -194,7 +225,7 @@ const Users = () => {
       color: "blue"
     },
     {
-      title: "Barbeiros Ativos",
+      title: "Profissionais Ativos",
       value: profiles.filter(u => u.role === 'barbeiro' && u.active).length.toString(),
       subtitle: "Profissionais disponíveis",
       icon: Scissors,
@@ -208,9 +239,9 @@ const Users = () => {
       color: "orange"
     },
     {
-      title: "Clientes",
-      value: profiles.filter(u => u.role === 'cliente').length.toString(),
-      subtitle: "Base de clientes",
+      title: "Acessos Ativos",
+      value: profiles.filter(u => u.auth_user_id && u.active).length.toString(),
+      subtitle: "Contas aptas a entrar",
       icon: Crown,
       color: "purple"
     }
@@ -231,11 +262,52 @@ const Users = () => {
       <PageContainer>
         {/* Header */}
         <PageHeader eyebrow="Meu negócio" icon={<UsersIcon className="h-5 w-5" />} title="Usuários" subtitle="Gerencie acessos, papéis e disponibilidade da equipe">
-          <Button>
+          <Button onClick={openCreateDialog}>
             <Plus className="h-4 w-4 mr-2" />
             Novo Usuário
           </Button>
         </PageHeader>
+
+        <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
+          <DialogContent className="sm:max-w-md">
+            <DialogHeader>
+              <DialogTitle>{editingProfile ? "Editar acesso" : "Convidar para a equipe"}</DialogTitle>
+              <DialogDescription>
+                {editingProfile
+                  ? "Atualize o nome e o nível de acesso desta pessoa."
+                  : "A pessoa receberá um e-mail para criar a senha e acessar o VIZZU."}
+              </DialogDescription>
+            </DialogHeader>
+            <div className="space-y-4 py-2">
+              <div className="space-y-2">
+                <Label htmlFor="team-name">Nome</Label>
+                <Input id="team-name" value={teamForm.display_name} onChange={(event) => setTeamForm(current => ({ ...current, display_name: event.target.value }))} placeholder="Nome da pessoa" />
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="team-email">E-mail</Label>
+                <Input id="team-email" type="email" value={teamForm.email} disabled={Boolean(editingProfile)} onChange={(event) => setTeamForm(current => ({ ...current, email: event.target.value }))} placeholder="pessoa@empresa.com" />
+              </div>
+              <div className="space-y-2">
+                <Label>Nível de acesso</Label>
+                <Select value={teamForm.role} disabled>
+                  <SelectTrigger><SelectValue /></SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="barbeiro">Profissional — agenda, clientes e conversas</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+            </div>
+            <DialogFooter>
+              <Button variant="outline" onClick={() => setDialogOpen(false)}>Cancelar</Button>
+              <Button
+                onClick={() => saveTeamMemberMutation.mutate()}
+                disabled={saveTeamMemberMutation.isPending || teamForm.display_name.trim().length < 2 || (!editingProfile && !teamForm.email.includes("@"))}
+              >
+                {saveTeamMemberMutation.isPending ? "Salvando..." : editingProfile ? "Salvar alterações" : "Enviar convite"}
+              </Button>
+            </DialogFooter>
+          </DialogContent>
+        </Dialog>
 
         {/* Stats Cards */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
@@ -296,8 +368,8 @@ const Users = () => {
             ) : (
               <div className="space-y-4">
                 {filteredUsers.map((user) => (
-                  <div key={user.id} className="flex items-center justify-between p-4 border border-border rounded-lg hover:bg-muted/50 transition-colors">
-                    <div className="flex items-center gap-4">
+                  <div key={user.id} className="flex flex-col gap-4 rounded-lg border border-border p-4 transition-colors hover:bg-muted/50 sm:flex-row sm:items-center sm:justify-between">
+                    <div className="flex min-w-0 items-center gap-4">
                       <div className="w-12 h-12 bg-muted rounded-full flex items-center justify-center">
                         <span className="text-muted-foreground font-medium">
                           {getInitials(user.display_name)}
@@ -313,6 +385,7 @@ const Users = () => {
                           <Badge className={getStatusColor(user.active)}>
                             {getStatusLabel(user.active)}
                           </Badge>
+                          {!user.auth_user_id && <Badge variant="outline">Sem acesso</Badge>}
                         </div>
                         <div className="text-sm text-muted-foreground">
                           {user.email}
@@ -330,11 +403,14 @@ const Users = () => {
                         </Button>
                       </DropdownMenuTrigger>
                       <DropdownMenuContent align="end">
-                        <DropdownMenuItem>
+                        {user.auth_user_id ? <DropdownMenuItem onClick={() => openEditDialog(user)}>
                           <Edit className="mr-2 h-4 w-4" />
                           Editar
-                        </DropdownMenuItem>
-                        <DropdownMenuItem onClick={() => handleToggleStatus(user.id, user.active)}>
+                        </DropdownMenuItem> : <DropdownMenuItem onClick={() => openInviteDialog(user)}>
+                          <UserCheck className="mr-2 h-4 w-4" />
+                          Enviar convite de acesso
+                        </DropdownMenuItem>}
+                        {user.auth_user_id && <DropdownMenuItem onClick={() => handleToggleStatus(user.id, user.active)}>
                           {user.active ? (
                             <>
                               <UserX className="mr-2 h-4 w-4" />
@@ -346,14 +422,7 @@ const Users = () => {
                               Ativar
                             </>
                           )}
-                        </DropdownMenuItem>
-                        <DropdownMenuItem 
-                          className="text-destructive"
-                          onClick={() => handleDelete(user.id, user.display_name)}
-                        >
-                          <Trash2 className="mr-2 h-4 w-4" />
-                          Excluir
-                        </DropdownMenuItem>
+                        </DropdownMenuItem>}
                       </DropdownMenuContent>
                     </DropdownMenu>
                   </div>

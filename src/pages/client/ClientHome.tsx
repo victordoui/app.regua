@@ -92,8 +92,8 @@ const ClientHome = () => {
 
       // Fetch barbershop settings
       const { data: settingsData } = await supabase
-        .from('barbershop_settings')
-        .select('*')
+        .from('public_business_profile')
+        .select('company_name, logo_url, banner_url, primary_color_hex, secondary_color_hex, slogan, address, phone, whatsapp_number')
         .eq('user_id', userId)
         .single();
 
@@ -136,7 +136,7 @@ const ClientHome = () => {
           const [serviceResult, professionalResult] = await Promise.all([
             supabase.from('services').select('name, price').eq('id', next.service_id).maybeSingle(),
             next.barbeiro_id
-              ? supabase.from('profiles').select('display_name').eq('id', next.barbeiro_id).maybeSingle()
+              ? supabase.from('professional_directory').select('display_name').eq('id', next.barbeiro_id).maybeSingle()
               : Promise.resolve({ data: null, error: null }),
           ]);
           setNextAppointment({

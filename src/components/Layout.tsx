@@ -84,7 +84,7 @@ const MobileTopbar = () => {
       </button>
       <div className="flex items-center gap-2">
         <button
-          onClick={() => navigate('/notifications')}
+          onClick={() => navigate('/conversations?tab=notificacoes')}
           className="relative p-2 rounded-lg text-muted-foreground hover:text-foreground transition-colors"
           aria-label="Notificações"
         >

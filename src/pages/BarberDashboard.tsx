@@ -5,11 +5,9 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Calendar, Clock, Users, MessageCircle } from "lucide-react";
 import { useNavigate } from "react-router-dom";
-import { useAuth } from "@/contexts/AuthContext";
 import { motion } from "framer-motion";
 
 const BarberDashboard = () => {
-  const { user } = useAuth();
   const navigate = useNavigate();
 
   const container = {
@@ -76,15 +74,15 @@ const BarberDashboard = () => {
           <motion.div variants={item}>
             <Card className="hover:shadow-lg transition-all duration-300 hover:-translate-y-1">
               <CardHeader className="flex flex-row items-center justify-between pb-2">
-                <CardTitle className="text-sm font-medium text-muted-foreground">Chat da Equipe</CardTitle>
+                <CardTitle className="text-sm font-medium text-muted-foreground">Conversas com Clientes</CardTitle>
                 <div className="p-2 rounded-full bg-primary/10">
                   <MessageCircle className="h-5 w-5 text-primary" />
                 </div>
               </CardHeader>
               <CardContent>
-                <p className="text-xs text-muted-foreground mb-3">Converse com a equipe</p>
-                <Button variant="outline" className="w-full" onClick={() => navigate('/team-chat')}>
-                  Abrir Chat
+                <p className="text-xs text-muted-foreground mb-3">Atenda clientes com acesso vinculado</p>
+                <Button variant="outline" className="w-full" onClick={() => navigate('/conversations?tab=conversas')}>
+                  Abrir Conversas
                 </Button>
               </CardContent>
             </Card>

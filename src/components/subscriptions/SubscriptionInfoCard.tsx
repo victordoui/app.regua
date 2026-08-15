@@ -37,6 +37,7 @@ const SubscriptionInfoCard = ({ data }: SubscriptionInfoCardProps) => {
   const navigate = useNavigate();
   const { subscription, planConfig, usage, daysRemaining, progressPercent } = data;
   const showUpgradeButton = subscription && (subscription.plan_type === 'trial' || subscription.status === 'expired' || subscription.status === 'cancelled');
+  const trialEnded = subscription?.plan_type === 'trial' && daysRemaining === 0;
 
   if (!subscription) {
     return (
@@ -78,12 +79,15 @@ const SubscriptionInfoCard = ({ data }: SubscriptionInfoCardProps) => {
             </p>
           )}
 
-          {showUpgradeButton && (
-            <Button className="w-full gap-2 mt-2" onClick={() => navigate('/upgrade')}>
-              <Sparkles className="h-4 w-4" />
-              Ativar Plano Agora
-            </Button>
-          )}
+            {showUpgradeButton && (
+              <>
+                {trialEnded && <p className="text-sm text-muted-foreground">Seu teste gratuito terminou. Escolha uma assinatura para continuar usando todos os recursos.</p>}
+                <Button className="w-full gap-2 mt-2" onClick={() => navigate('/upgrade')}>
+                  <Sparkles className="h-4 w-4" />
+                  {trialEnded ? 'Escolher assinatura' : 'Ver planos e assinar'}
+                </Button>
+              </>
+            )}
         </CardContent>
       </Card>
 

@@ -58,6 +58,7 @@ const PlanConfiguration = () => {
       max_appointments_month: plan.max_appointments_month,
       features: plan.features,
       is_active: plan.is_active,
+      trial_days: plan.trial_days,
     });
   };
 
@@ -134,6 +135,11 @@ const PlanConfiguration = () => {
                 </div>
 
                 <div className="space-y-1 text-sm">
+                  {plan.plan_type === 'trial' && (
+                    <p className="text-muted-foreground">
+                      <strong className="text-foreground">{plan.trial_days ?? 7} dias</strong> de teste gratuito
+                    </p>
+                  )}
                   <p className="text-muted-foreground">
                     <strong className="text-foreground">{plan.max_barbers}</strong> barbeiros
                   </p>
@@ -220,6 +226,20 @@ const PlanConfiguration = () => {
                     />
                   </div>
                 </div>
+
+                {editingPlan?.plan_type === 'trial' && (
+                  <div className="space-y-2">
+                    <label className="text-sm font-medium">Período de teste gratuito (dias)</label>
+                    <Input
+                      type="number"
+                      min="1"
+                      max="30"
+                      value={formData.trial_days ?? 7}
+                      onChange={(e) => setFormData({ ...formData, trial_days: Math.max(1, parseInt(e.target.value, 10) || 1) })}
+                    />
+                    <p className="text-xs text-muted-foreground">Vale para novas contas que iniciarem o teste.</p>
+                  </div>
+                )}
 
                 <div className="grid grid-cols-2 gap-4">
                   <div className="space-y-2">

@@ -14,6 +14,10 @@ vi.mock('@/contexts/AuthContext', () => ({
   useAuth: () => ({ user: { id: 'owner-1' } }),
 }));
 
+vi.mock('@/contexts/RoleContext', () => ({
+  useRole: () => ({ businessId: 'owner-1' }),
+}));
+
 vi.mock('@/hooks/use-toast', () => ({
   useToast: () => ({ toast: vi.fn() }),
 }));

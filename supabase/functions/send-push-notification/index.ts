@@ -34,17 +34,12 @@ async function sendWebPush(
   vapidPublicKey: string,
   vapidPrivateKey: string
 ): Promise<Response> {
-  // For now, we'll use a simpler approach that logs the attempt
-  // Full web-push implementation requires proper VAPID signing
-  
-  console.log('[Push] Sending to endpoint:', subscription.endpoint);
-  console.log('[Push] Payload:', JSON.stringify(payload));
-  
-  // In production, you would use a proper web-push library or implement VAPID signing
-  // For Deno, you might need to use a compatible library or implement the protocol
-  
-  // Placeholder response - in production, implement actual push sending
-  return new Response(JSON.stringify({ success: true }), { status: 200 });
+  console.warn('[Push] Provider not implemented', {
+    endpointOrigin: new URL(subscription.endpoint).origin,
+    hasPayload: Boolean(payload),
+    hasVapidKeys: Boolean(vapidPublicKey && vapidPrivateKey),
+  });
+  return new Response(JSON.stringify({ error: 'Push provider not implemented' }), { status: 501 });
 }
 
 serve(async (req) => {
@@ -55,8 +50,18 @@ serve(async (req) => {
   try {
     const supabaseUrl = Deno.env.get('SUPABASE_URL')!;
     const supabaseServiceKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!;
+    const supabaseAnonKey = Deno.env.get('SUPABASE_ANON_KEY')!;
     const vapidPublicKey = Deno.env.get('VAPID_PUBLIC_KEY');
     const vapidPrivateKey = Deno.env.get('VAPID_PRIVATE_KEY');
+
+    const authHeader = req.headers.get('Authorization');
+    if (!authHeader) throw new Error('AUTH_REQUIRED');
+    const authClient = createClient(supabaseUrl, supabaseAnonKey, {
+      global: { headers: { Authorization: authHeader } },
+      auth: { persistSession: false },
+    });
+    const { data: authData, error: authError } = await authClient.auth.getUser();
+    if (authError || !authData.user) throw new Error('AUTH_REQUIRED');
 
     const supabase = createClient(supabaseUrl, supabaseServiceKey);
     const payload: PushPayload = await req.json();
@@ -68,13 +73,27 @@ serve(async (req) => {
     }
 
     const subscriptions: PushSubscriptionJSON[] = [];
+    let recipientUserId: string | null = null;
 
     // If user_id is provided, fetch their subscription
     if (payload.user_id) {
+      if (payload.user_id === authData.user.id) {
+        recipientUserId = payload.user_id;
+      } else {
+        const { data: recipientProfile } = await supabase
+          .from('client_profiles')
+          .select('user_id')
+          .eq('client_id', payload.user_id)
+          .eq('barbershop_user_id', authData.user.id)
+          .maybeSingle();
+        recipientUserId = recipientProfile?.user_id ?? null;
+      }
+      if (!recipientUserId) throw new Error('NOT_ALLOWED');
+
       const { data: prefs, error } = await supabase
         .from('notification_preferences')
         .select('push_subscription, push_enabled')
-        .eq('user_id', payload.user_id)
+        .eq('user_id', recipientUserId)
         .eq('push_enabled', true)
         .single();
 
@@ -84,8 +103,7 @@ serve(async (req) => {
         subscriptions.push(prefs.push_subscription as PushSubscriptionJSON);
       }
     } else if (payload.subscription) {
-      // Direct subscription provided
-      subscriptions.push(payload.subscription);
+      throw new Error('DIRECT_SUBSCRIPTION_NOT_ALLOWED');
     }
 
     if (subscriptions.length === 0) {
@@ -143,7 +161,7 @@ serve(async (req) => {
     // Log the notification if user_id is provided
     if (payload.user_id) {
       await supabase.from('notification_logs').insert({
-        user_id: payload.user_id,
+        user_id: authData.user.id,
         channel: 'push',
         recipient: 'browser',
         subject: payload.title,

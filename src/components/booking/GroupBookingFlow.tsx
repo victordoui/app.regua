@@ -141,9 +141,9 @@ const GroupBookingFlow: React.FC<GroupBookingFlowProps> = ({ userId }) => {
       try {
         const { data: { user } } = await supabase.auth.getUser();
         const [settingsResult, servicesResult, professionalsResult, hoursResult, profileResult] = await Promise.all([
-          supabase.from('barbershop_settings').select('buffer_minutes').eq('user_id', userId).single(),
+          supabase.from('public_business_profile').select('buffer_minutes').eq('user_id', userId).single(),
           supabase.from('services').select('id, name, description, price, duration_minutes, image_url').eq('user_id', userId).eq('active', true).order('name'),
-          supabase.from('profiles').select('id, display_name, email, avatar_url').eq('user_id', userId).eq('role', 'barbeiro').eq('active', true).order('display_name'),
+          supabase.from('professional_directory').select('id, display_name, avatar_url').eq('user_id', userId).order('display_name'),
           supabase.from('business_hours').select('day_of_week, open_time, close_time, is_closed').eq('user_id', userId),
           user
             ? supabase.from('client_profiles').select('full_name, phone').eq('user_id', user.id).eq('barbershop_user_id', userId).maybeSingle()
@@ -164,7 +164,7 @@ const GroupBookingFlow: React.FC<GroupBookingFlowProps> = ({ userId }) => {
         })));
         setProfessionals((professionalsResult.data || []).map(professional => ({
           id: professional.id,
-          name: professional.display_name || professional.email || 'Profissional',
+          name: professional.display_name || 'Profissional',
           avatar: professional.avatar_url || undefined,
         })));
         setBusinessHours(hoursResult.data || []);

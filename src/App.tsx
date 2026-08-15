@@ -12,54 +12,51 @@ import UpdateNotificationBanner from "@/components/UpdateNotificationBanner";
 
 // Pages
 import Login from "./pages/Login";
-import Dashboard from "./pages/Index";
-import BarberDashboard from "./pages/BarberDashboard";
-import Appointments from "./pages/Appointments";
-import Clients from "./pages/Clients";
-import BarberManagement from "./pages/BarberManagement";
-import Subscriptions from "./pages/Subscriptions";
-import Conversations from "./pages/Conversations";
-import Users from "./pages/Users";
-import Reports from "./pages/Reports";
-import Services from "./pages/Services";
-import Billing from "./pages/Billing";
-import Commissions from "./pages/Commissions";
-import CompanySettings from "./pages/CompanySettings";
-import Cash from "./pages/Cash";
-import Loyalty from "./pages/Loyalty";
-import Coupons from "./pages/Coupons";
-import ClientHistory from "./pages/client/ClientHistory";
-import ClientLoyalty from "./pages/client/ClientLoyalty";
-import Onboarding from "./pages/Onboarding";
-import Profile from "./pages/Profile";
-import DashboardPerformance from "./pages/DashboardPerformance";
-import DashboardCustomerSuccess from "./pages/DashboardCustomerSuccess";
-
-// Super Admin Pages
-import SuperAdminDashboard from "./pages/superadmin/SuperAdminDashboard";
-import SubscribersManagement from "./pages/superadmin/SubscribersManagement";
-import PlatformCoupons from "./pages/superadmin/PlatformCoupons";
-import AuditLogs from "./pages/superadmin/AuditLogs";
-import FinancialMetrics from "./pages/superadmin/FinancialMetrics";
-import ExpiringSubscriptions from "./pages/superadmin/ExpiringSubscriptions";
-import PaymentHistory from "./pages/superadmin/PaymentHistory";
-import BroadcastMessages from "./pages/superadmin/BroadcastMessages";
-import EmailTemplates from "./pages/superadmin/EmailTemplates";
-import PlanConfiguration from "./pages/superadmin/PlanConfiguration";
-import SupportTickets from "./pages/superadmin/SupportTickets";
-import TicketDetail from "./pages/superadmin/TicketDetail";
-import SystemUsers from "./pages/superadmin/SystemUsers";
-import Upgrade from "./pages/Upgrade";
-
-// Client Mobile Pages
-import ClientLogin from "./pages/client/ClientLogin";
-import ClientRegister from "./pages/client/ClientRegister";
-import ClientPayments from "./pages/client/ClientPayments";
-import ClientHome from "./pages/client/ClientHome";
-import ClientAppointments from "./pages/client/ClientAppointments";
-import ClientBooking from "./pages/client/ClientBooking";
-import ClientProfile from "./pages/client/ClientProfile";
-
+// Routes are loaded on demand so a client does not download the whole back office.
+const ResetPassword = lazy(() => import("./pages/ResetPassword"));
+const Dashboard = lazy(() => import("./pages/Index"));
+const BarberDashboard = lazy(() => import("./pages/BarberDashboard"));
+const Appointments = lazy(() => import("./pages/Appointments"));
+const Clients = lazy(() => import("./pages/Clients"));
+const BarberManagement = lazy(() => import("./pages/BarberManagement"));
+const Subscriptions = lazy(() => import("./pages/Subscriptions"));
+const Conversations = lazy(() => import("./pages/Conversations"));
+const Users = lazy(() => import("./pages/Users"));
+const Reports = lazy(() => import("./pages/Reports"));
+const Services = lazy(() => import("./pages/Services"));
+const Billing = lazy(() => import("./pages/Billing"));
+const Commissions = lazy(() => import("./pages/Commissions"));
+const CompanySettings = lazy(() => import("./pages/CompanySettings"));
+const Cash = lazy(() => import("./pages/Cash"));
+const Loyalty = lazy(() => import("./pages/Loyalty"));
+const Coupons = lazy(() => import("./pages/Coupons"));
+const ClientHistory = lazy(() => import("./pages/client/ClientHistory"));
+const ClientLoyalty = lazy(() => import("./pages/client/ClientLoyalty"));
+const Onboarding = lazy(() => import("./pages/Onboarding"));
+const Profile = lazy(() => import("./pages/Profile"));
+const DashboardPerformance = lazy(() => import("./pages/DashboardPerformance"));
+const DashboardCustomerSuccess = lazy(() => import("./pages/DashboardCustomerSuccess"));
+const SuperAdminDashboard = lazy(() => import("./pages/superadmin/SuperAdminDashboard"));
+const SubscribersManagement = lazy(() => import("./pages/superadmin/SubscribersManagement"));
+const PlatformCoupons = lazy(() => import("./pages/superadmin/PlatformCoupons"));
+const AuditLogs = lazy(() => import("./pages/superadmin/AuditLogs"));
+const FinancialMetrics = lazy(() => import("./pages/superadmin/FinancialMetrics"));
+const ExpiringSubscriptions = lazy(() => import("./pages/superadmin/ExpiringSubscriptions"));
+const PaymentHistory = lazy(() => import("./pages/superadmin/PaymentHistory"));
+const BroadcastMessages = lazy(() => import("./pages/superadmin/BroadcastMessages"));
+const EmailTemplates = lazy(() => import("./pages/superadmin/EmailTemplates"));
+const PlanConfiguration = lazy(() => import("./pages/superadmin/PlanConfiguration"));
+const SupportTickets = lazy(() => import("./pages/superadmin/SupportTickets"));
+const TicketDetail = lazy(() => import("./pages/superadmin/TicketDetail"));
+const SystemUsers = lazy(() => import("./pages/superadmin/SystemUsers"));
+const Upgrade = lazy(() => import("./pages/Upgrade"));
+const ClientLogin = lazy(() => import("./pages/client/ClientLogin"));
+const ClientRegister = lazy(() => import("./pages/client/ClientRegister"));
+const ClientPayments = lazy(() => import("./pages/client/ClientPayments"));
+const ClientHome = lazy(() => import("./pages/client/ClientHome"));
+const ClientAppointments = lazy(() => import("./pages/client/ClientAppointments"));
+const ClientBooking = lazy(() => import("./pages/client/ClientBooking"));
+const ClientProfile = lazy(() => import("./pages/client/ClientProfile"));
 const SignupPage = lazy(() => import("./pages/public/SignupPage"));
 const SalesPage = lazy(() => import("./pages/public/SalesPage"));
 const PublicPageLoader = () => (
@@ -78,8 +75,10 @@ function LegacyPublicBookingRedirect() {
 function AppContent() {
   return (
     <BrowserRouter>
+      <Suspense fallback={<PublicPageLoader />}>
       <Routes>
         <Route path="/login" element={<Login />} />
+        <Route path="/redefinir-senha" element={<ResetPassword />} />
         <Route path="/onboarding" element={<ProtectedRoute><Onboarding /></ProtectedRoute>} />
 
         {/* Super Admin Routes */}
@@ -152,7 +151,7 @@ function AppContent() {
         <Route path="/booking" element={<Navigate to="/appointments" replace />} />
         <Route path="/campaigns" element={<Navigate to="/conversations" replace />} />
         <Route path="/advanced-notifications" element={<Navigate to="/conversations?tab=notificacoes" replace />} />
-        <Route path="/team-chat" element={<Navigate to="/conversations?tab=chat-equipe" replace />} />
+        <Route path="/team-chat" element={<Navigate to="/conversations?tab=conversas" replace />} />
         <Route path="/gift-cards" element={<Navigate to="/coupons?tab=gift-cards" replace />} />
         <Route path="/dynamic-pricing" element={<Navigate to="/coupons?tab=precos" replace />} />
         <Route path="/inventory" element={<Navigate to="/settings/company?tab=estoque" replace />} />
@@ -166,6 +165,7 @@ function AppContent() {
         {/* Rota de fallback */}
         <Route path="*" element={<Navigate to="/" replace />} />
       </Routes>
+      </Suspense>
     </BrowserRouter>
   );
 }

@@ -202,20 +202,7 @@ export const useRealtimeDashboard = () => {
         count: weeklyData[date]
       }));
 
-      const isEmpty3 = weeklyApptsData.every(d => d.count === 0);
-      if (isEmpty3) {
-        setWeeklyAppointments([
-          { date: 'Dom', count: 2 },
-          { date: 'Seg', count: 8 },
-          { date: 'Ter', count: 12 },
-          { date: 'Qua', count: 10 },
-          { date: 'Qui', count: 14 },
-          { date: 'Sex', count: 16 },
-          { date: 'Sáb', count: 18 },
-        ]);
-      } else {
-        setWeeklyAppointments(weeklyApptsData);
-      }
+      setWeeklyAppointments(weeklyApptsData);
 
       // Recent activities (last 10 appointments)
       const activities: RecentActivity[] = monthAppts

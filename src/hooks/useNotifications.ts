@@ -445,6 +445,7 @@ export function useNotifications() {
       } else if (params.channel === 'whatsapp') {
         const { error } = await supabase.functions.invoke('send-whatsapp-notification', {
           body: {
+            client_id: params.clientId,
             phone: params.recipient,
             message: params.message,
           },

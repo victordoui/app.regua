@@ -1,8 +1,6 @@
-import React from "react";
 import TodayScheduleCard from "./TodayScheduleCard";
 import { useRealtimeDashboard } from "@/hooks/useRealtimeDashboard";
-import { BarChart3, FileText, FileSpreadsheet } from "lucide-react";
-import { Button } from "@/components/ui/button";
+import { BarChart3 } from "lucide-react";
 import HeroSection from "./HeroSection";
 import KpiStrip from "./KpiStrip";
 import RevenueLineChart from "./RevenueLineChart";
@@ -10,16 +8,8 @@ import TodayAppointmentsPanel from "./TodayAppointmentsPanel";
 import RecentTransactionsPanel from "./RecentTransactionsPanel";
 import { PageContainer } from "@/components/ui/page-header";
 
-const periods = [
-  { key: "today", label: "Hoje" },
-  { key: "week", label: "Semana" },
-  { key: "month", label: "Mês" },
-  { key: "year", label: "Ano" },
-] as const;
-
 const DashboardOverview = () => {
   const { metrics, monthlyRevenue, isLoading } = useRealtimeDashboard();
-  const [selectedPeriod, setSelectedPeriod] = React.useState<string>("month");
 
   if (isLoading) {
     return (
@@ -31,7 +21,7 @@ const DashboardOverview = () => {
 
   return (
     <PageContainer>
-      <HeroSection />
+      <HeroSection todayAppointments={metrics.todayAppointments} />
 
       <KpiStrip
         todayAppointments={metrics.todayAppointments}
@@ -51,29 +41,9 @@ const DashboardOverview = () => {
             <p className="text-section-sub">Performance e métricas detalhadas</p>
           </div>
         </div>
-        <div className="flex items-center gap-2 flex-wrap">
-          <div className="flex items-center gap-0.5 rounded-xl bg-muted/70 p-1">
-            {periods.map((p) => (
-              <button
-                key={p.key}
-                onClick={() => setSelectedPeriod(p.key)}
-                className={`px-3 py-1.5 rounded-md text-xs font-semibold transition-all ${
-                  selectedPeriod === p.key
-                    ? "bg-primary text-primary-foreground shadow-sm"
-                    : "text-muted-foreground hover:text-foreground"
-                }`}
-              >
-                {p.label}
-              </button>
-            ))}
-          </div>
-          <Button variant="outline" size="sm" className="gap-1.5">
-            <FileText className="h-4 w-4" /> PDF
-          </Button>
-          <Button variant="outline" size="sm" className="gap-1.5">
-            <FileSpreadsheet className="h-4 w-4" /> Excel
-          </Button>
-        </div>
+        <span className="rounded-lg border bg-background px-3 py-2 text-xs font-semibold text-muted-foreground">
+          Receita dos últimos 6 meses
+        </span>
       </div>
 
       <div className="grid grid-cols-1 gap-5">

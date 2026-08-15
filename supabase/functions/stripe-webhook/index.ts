@@ -14,24 +14,31 @@ serve(async (req) => {
     logStep("Webhook received");
 
     const stripeKey = Deno.env.get("STRIPE_SECRET_KEY");
+    const webhookSecret = Deno.env.get("STRIPE_WEBHOOK_SECRET");
     if (!stripeKey) throw new Error("STRIPE_SECRET_KEY not set");
+    if (!webhookSecret) throw new Error("STRIPE_WEBHOOK_SECRET not set");
 
     const stripe = new Stripe(stripeKey, { apiVersion: "2025-08-27.basil" });
 
     const body = await req.text();
     const signature = req.headers.get("stripe-signature");
-
-    // If STRIPE_WEBHOOK_SECRET is set, verify signature
-    const webhookSecret = Deno.env.get("STRIPE_WEBHOOK_SECRET");
-    let event: Stripe.Event;
-
-    if (webhookSecret && signature) {
-      event = stripe.webhooks.constructEvent(body, signature, webhookSecret);
-      logStep("Signature verified");
-    } else {
-      event = JSON.parse(body) as Stripe.Event;
-      logStep("No webhook secret, parsing body directly");
+    if (!signature) {
+      return new Response(JSON.stringify({ error: "Missing Stripe signature" }), {
+        headers: { "Content-Type": "application/json" },
+        status: 400,
+      });
     }
+
+    let event: Stripe.Event;
+    try {
+      event = stripe.webhooks.constructEvent(body, signature, webhookSecret);
+    } catch {
+      return new Response(JSON.stringify({ error: "Invalid Stripe signature" }), {
+        headers: { "Content-Type": "application/json" },
+        status: 400,
+      });
+    }
+    logStep("Signature verified");
 
     logStep("Event type", { type: event.type });
 
@@ -48,8 +55,9 @@ serve(async (req) => {
           Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") ?? ""
         );
 
-        // Update subscription to active and payment_status to paid
-        const { error } = await supabase
+        // Repeating a verified Stripe event is safe: subscription activation is
+        // idempotent and the payment row has a unique provider event id.
+        const { data: activatedSubscription, error } = await supabase
           .from("platform_subscriptions")
           .update({
             status: "active",
@@ -57,12 +65,26 @@ serve(async (req) => {
           })
           .eq("user_id", userId)
           .eq("plan_type", planType)
-          .eq("payment_status", "pending");
+          .eq("payment_status", "pending")
+          .select("id")
+          .maybeSingle();
 
         if (error) {
-          logStep("Error updating subscription", { error: error.message });
-        } else {
-          logStep("Subscription activated successfully");
+          throw new Error(`Subscription activation failed: ${error.message}`);
+        }
+        logStep("Subscription activation processed");
+
+        let subscriptionId = activatedSubscription?.id ?? null;
+        if (!subscriptionId) {
+          const { data: existingSubscription, error: existingError } = await supabase
+            .from("platform_subscriptions")
+            .select("id")
+            .eq("user_id", userId)
+            .eq("plan_type", planType)
+            .eq("status", "active")
+            .maybeSingle();
+          if (existingError) throw new Error(`Subscription lookup failed: ${existingError.message}`);
+          subscriptionId = existingSubscription?.id ?? null;
         }
 
         // Record payment in platform_payments
@@ -73,12 +95,17 @@ serve(async (req) => {
             amount: (session.amount_total || 0) / 100,
             status: "paid",
             payment_method: "stripe",
-            paid_at: new Date().toISOString(),
-            subscription_id: null, // Will be linked if needed
+            paid_at: new Date(event.created * 1000).toISOString(),
+            subscription_id: subscriptionId,
+            provider_event_id: event.id,
           });
 
         if (paymentError) {
-          logStep("Error recording payment", { error: paymentError.message });
+          if (paymentError.code === "23505") {
+            logStep("Duplicate Stripe event ignored", { eventId: event.id });
+          } else {
+            throw new Error(`Payment recording failed: ${paymentError.message}`);
+          }
         } else {
           logStep("Payment recorded");
         }

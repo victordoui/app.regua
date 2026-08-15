@@ -41,6 +41,16 @@ serve(async (req) => {
   try {
     const supabaseUrl = Deno.env.get('SUPABASE_URL')!;
     const supabaseServiceKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!;
+    const supabaseAnonKey = Deno.env.get('SUPABASE_ANON_KEY')!;
+    const authHeader = req.headers.get('Authorization');
+    if (!authHeader) throw new Error('AUTH_REQUIRED');
+
+    const authClient = createClient(supabaseUrl, supabaseAnonKey, {
+      global: { headers: { Authorization: authHeader } },
+      auth: { persistSession: false },
+    });
+    const { data: authData, error: authError } = await authClient.auth.getUser();
+    if (authError || !authData.user) throw new Error('AUTH_REQUIRED');
     const resendApiKey = Deno.env.get('RESEND_API_KEY');
     const zapiInstanceId = Deno.env.get('ZAPI_INSTANCE_ID');
     const zapiToken = Deno.env.get('ZAPI_TOKEN');
@@ -63,6 +73,9 @@ serve(async (req) => {
 
     if (campaignError || !campaign) {
       throw new Error(`Campaign not found: ${campaignError?.message}`);
+    }
+    if (campaign.user_id !== authData.user.id) {
+      throw new Error('NOT_ALLOWED');
     }
 
     // Update campaign status to 'sending'

@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useMemo, useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Button } from '@/components/ui/button';
@@ -13,13 +13,13 @@ import OnboardingStepServices from '@/components/onboarding/OnboardingStepServic
 import OnboardingStepBarbers from '@/components/onboarding/OnboardingStepBarbers';
 import OnboardingStepHours from '@/components/onboarding/OnboardingStepHours';
 import OnboardingStepShifts from '@/components/onboarding/OnboardingStepShifts';
+import { getCompletedOnboardingSteps } from '@/lib/onboardingProgress';
 
 const Onboarding: React.FC = () => {
   const navigate = useNavigate();
   const { toast } = useToast();
   const [showWelcome, setShowWelcome] = useState(true);
   const [currentStep, setCurrentStep] = useState(1);
-  const [completedSteps, setCompletedSteps] = useState<number[]>([]);
   const [isCompleting, setIsCompleting] = useState(false);
 
   const {
@@ -70,16 +70,16 @@ const Onboarding: React.FC = () => {
     }
   }, [isLoading, isOnboardingComplete, navigate]);
 
-  // Update completed steps based on data
-  useEffect(() => {
-    const completed: number[] = [];
-    if (settings?.company_name) completed.push(1);
-    if (services.length > 0) completed.push(2);
-    if (barbers.length > 0) completed.push(3);
-    if (businessHours.length > 0) completed.push(4);
-    if (shifts.length > 0) completed.push(5);
-    setCompletedSteps(completed);
-  }, [settings, services, barbers, businessHours, shifts]);
+  // Derive progress without scheduling another state update. Some data hooks can
+  // legitimately return a new empty-array reference while loading; persisting
+  // this derived value in state caused an infinite render/effect loop.
+  const completedSteps = useMemo(() => getCompletedOnboardingSteps({
+    hasCompany: Boolean(settings?.company_name),
+    servicesCount: services.length,
+    professionalsCount: barbers.length,
+    businessHoursCount: businessHours.length,
+    shiftsCount: shifts.length,
+  }), [settings?.company_name, services.length, barbers.length, businessHours.length, shifts.length]);
 
   const handleNext = async () => {
     // Save company data on step 1

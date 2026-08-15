@@ -69,12 +69,12 @@ const ClientProfile = () => {
 
       // Fetch barbershop settings
       const { data: settingsData } = await supabase
-        .from('barbershop_settings')
-        .select('company_name, logo_url, primary_color_hex, secondary_color_hex, is_public_page_enabled')
+        .from('public_business_profile')
+        .select('company_name, logo_url, primary_color_hex, secondary_color_hex')
         .eq('user_id', userId)
         .single();
 
-      if (settingsData?.is_public_page_enabled) {
+      if (settingsData) {
         setSettings(settingsData as BarbershopSettings);
       }
 

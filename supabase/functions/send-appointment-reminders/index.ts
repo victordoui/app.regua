@@ -23,6 +23,18 @@ serve(async (req) => {
   }
 
   try {
+    const cronSecret = Deno.env.get('REMINDER_CRON_SECRET');
+    const suppliedSecret = req.headers.get('x-cron-secret');
+    if (!cronSecret) {
+      throw new Error('REMINDER_CRON_SECRET not configured');
+    }
+    if (!suppliedSecret || suppliedSecret !== cronSecret) {
+      return new Response(JSON.stringify({ success: false, error: 'Unauthorized' }), {
+        status: 401,
+        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+      });
+    }
+
     const supabaseUrl = Deno.env.get('SUPABASE_URL')!;
     const supabaseServiceKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!;
     const resendApiKey = Deno.env.get('RESEND_API_KEY');

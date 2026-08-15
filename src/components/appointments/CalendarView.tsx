@@ -220,7 +220,7 @@ const CalendarView: React.FC<CalendarViewProps> = ({
                     </h2>
                 </div>
 
-                <div className="grid grid-cols-3 rounded-xl bg-muted p-1">
+                <div className={cn("grid rounded-xl bg-muted p-1", isMobile ? "grid-cols-2" : "grid-cols-3")}>
                     <button
                         className={cn(
                             "min-h-9 px-3 py-1.5 text-sm rounded-lg transition-all font-bold",
@@ -232,7 +232,7 @@ const CalendarView: React.FC<CalendarViewProps> = ({
                     >
                         Dia
                     </button>
-                    <button
+                    {!isMobile && <button
                         className={cn(
                             "min-h-9 px-3 py-1.5 text-sm rounded-lg transition-all font-bold",
                             currentViewMode === 'week' 
@@ -242,7 +242,7 @@ const CalendarView: React.FC<CalendarViewProps> = ({
                         onClick={() => handleViewModeChange('week')}
                     >
                         Semana
-                    </button>
+                    </button>}
                     <button
                         className={cn(
                             "min-h-9 px-3 py-1.5 text-sm rounded-lg transition-all font-bold",

@@ -57,12 +57,12 @@ const ClientRegister = () => {
       }
 
       const { data } = await supabase
-        .from('barbershop_settings')
-        .select('company_name, logo_url, primary_color_hex, secondary_color_hex, is_public_page_enabled')
+        .from('public_business_profile')
+        .select('company_name, logo_url, primary_color_hex, secondary_color_hex')
         .eq('user_id', userId)
         .single();
 
-      if (data?.is_public_page_enabled) {
+      if (data) {
         setSettings(data as BarbershopSettings);
       }
       setLoading(false);
@@ -288,6 +288,7 @@ const ClientRegister = () => {
                   type="button"
                   onClick={() => setShowPassword(!showPassword)}
                   className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground"
+                  aria-label={showPassword ? 'Ocultar senha' : 'Mostrar senha'}
                 >
                   {showPassword ? <EyeOff className="h-5 w-5" /> : <Eye className="h-5 w-5" />}
                 </button>

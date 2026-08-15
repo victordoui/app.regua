@@ -1541,6 +1541,7 @@ export type Database = {
           invoice_url: string | null
           paid_at: string | null
           payment_method: string | null
+          provider_event_id: string | null
           status: string | null
           subscription_id: string | null
           user_id: string
@@ -1552,6 +1553,7 @@ export type Database = {
           invoice_url?: string | null
           paid_at?: string | null
           payment_method?: string | null
+          provider_event_id?: string | null
           status?: string | null
           subscription_id?: string | null
           user_id: string
@@ -1563,6 +1565,7 @@ export type Database = {
           invoice_url?: string | null
           paid_at?: string | null
           payment_method?: string | null
+          provider_event_id?: string | null
           status?: string | null
           subscription_id?: string | null
           user_id?: string
@@ -1871,6 +1874,7 @@ export type Database = {
         Row: {
           active: boolean | null
           avatar_url: string | null
+          auth_user_id: string | null
           created_at: string
           display_name: string | null
           email: string | null
@@ -1885,6 +1889,7 @@ export type Database = {
         Insert: {
           active?: boolean | null
           avatar_url?: string | null
+          auth_user_id?: string | null
           created_at?: string
           display_name?: string | null
           email?: string | null
@@ -1899,6 +1904,7 @@ export type Database = {
         Update: {
           active?: boolean | null
           avatar_url?: string | null
+          auth_user_id?: string | null
           created_at?: string
           display_name?: string | null
           email?: string | null
@@ -2469,7 +2475,53 @@ export type Database = {
       }
     }
     Views: {
-      [_ in never]: never
+      professional_directory: {
+        Row: {
+          avatar_url: string | null
+          display_name: string | null
+          id: string
+          specializations: string[]
+          user_id: string
+        }
+        Insert: {
+          avatar_url?: string | null
+          display_name?: string | null
+          id: string
+          specializations?: string[]
+          user_id: string
+        }
+        Update: {
+          avatar_url?: string | null
+          display_name?: string | null
+          id?: string
+          specializations?: string[]
+          user_id?: string
+        }
+        Relationships: []
+      }
+      public_business_profile: {
+        Row: {
+          address: string | null
+          allow_guest_booking: boolean | null
+          allow_online_cancellation: boolean | null
+          banner_url: string | null
+          buffer_minutes: number
+          cancellation_hours_before: number | null
+          company_name: string
+          facebook_url: string | null
+          instagram_url: string | null
+          logo_url: string | null
+          phone: string | null
+          primary_color_hex: string | null
+          secondary_color_hex: string | null
+          slogan: string | null
+          user_id: string
+          whatsapp_number: string | null
+        }
+        Insert: { user_id: string; company_name: string; [key: string]: unknown }
+        Update: { [key: string]: unknown }
+        Relationships: []
+      }
     }
     Functions: {
       book_group_appointments: {
@@ -2478,6 +2530,21 @@ export type Database = {
           _notes?: string
           _participants: Json
           _responsible: Json
+        }
+        Returns: Json
+      }
+      save_business_appointments: {
+        Args: {
+          _appointment_dates: string[]
+          _appointment_id?: string | null
+          _appointment_time: string
+          _barber_id: string
+          _client_id: string
+          _notes?: string | null
+          _recurrence_end_date?: string | null
+          _recurrence_type?: string | null
+          _series_scope?: string
+          _service_ids: string[]
         }
         Returns: Json
       }

@@ -1,17 +1,15 @@
 import { useSearchParams } from "react-router-dom";
 import Layout from "@/components/Layout";
 import { Tabs, TabsContent } from "@/components/ui/tabs";
-import { MessageSquare, Bell, MessageCircle } from "lucide-react";
+import { MessageSquare, Bell } from "lucide-react";
 import ConversationsContent from "@/components/communication/ConversationsContent";
 import NotificationsContent from "@/components/communication/NotificationsContent";
-import TeamChatContent from "@/components/communication/TeamChatContent";
 import { PageContainer, PageHeader } from "@/components/ui/page-header";
 import { SectionTabsLayout } from "@/components/ui/section-tabs";
 
 const communicationSections = [
   { value: "conversas", label: "Conversas", description: "Atendimento aos clientes", icon: MessageSquare },
   { value: "notificacoes", label: "Notificações", description: "Avisos e lembretes", icon: Bell },
-  { value: "chat-equipe", label: "Chat da equipe", description: "Comunicação interna", icon: MessageCircle },
 ] as const;
 
 const Conversations = () => {
@@ -27,7 +25,6 @@ const Conversations = () => {
           <SectionTabsLayout items={communicationSections} navigationTitle="Como você quer se comunicar?">
             <TabsContent value="conversas" className="mt-0"><ConversationsContent /></TabsContent>
             <TabsContent value="notificacoes" className="mt-0"><NotificationsContent /></TabsContent>
-            <TabsContent value="chat-equipe" className="mt-0"><TeamChatContent /></TabsContent>
           </SectionTabsLayout>
         </Tabs>
       </PageContainer>

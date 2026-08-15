@@ -62,7 +62,7 @@ const SuperAdminDashboard = () => {
   const userStats = usersData?.stats;
   const recentUsers = usersData?.users?.slice(0, 5) || [];
   const trialPlan = plans.find((p) => p.plan_type === 'trial');
-  const trialDays = trialPlan?.trial_days ?? 14;
+  const trialDays = trialPlan?.trial_days ?? 7;
 
   if (isLoading) {
     return (
@@ -76,7 +76,7 @@ const SuperAdminDashboard = () => {
 
   const pieData = stats
     ? [
-        { name: 'Trial', value: stats.by_plan.trial, color: PLAN_COLORS.trial },
+        { name: 'Teste gratuito', value: stats.by_plan.trial, color: PLAN_COLORS.trial },
         { name: 'Basic', value: stats.by_plan.basic, color: PLAN_COLORS.basic },
         { name: 'Pro', value: stats.by_plan.pro, color: PLAN_COLORS.pro },
         { name: 'Enterprise', value: stats.by_plan.enterprise, color: PLAN_COLORS.enterprise },
@@ -184,7 +184,7 @@ const SuperAdminDashboard = () => {
           <Card>
             <CardHeader className="flex flex-row items-center justify-between pb-2">
               <CardTitle className="text-sm font-medium text-muted-foreground">
-                Período de Trial
+                Período de teste gratuito
               </CardTitle>
               <Clock className="h-5 w-5 text-primary" />
             </CardHeader>

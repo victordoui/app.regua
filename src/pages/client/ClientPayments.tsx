@@ -56,7 +56,7 @@ const ClientPayments = () => {
 
       // Fetch barbershop settings
       const { data: settingsData } = await supabase
-        .from('barbershop_settings')
+        .from('public_business_profile')
         .select('company_name, logo_url, banner_url, primary_color_hex, secondary_color_hex, slogan')
         .eq('user_id', userId)
         .single();
@@ -68,16 +68,18 @@ const ClientPayments = () => {
       // Get client profile
       const { data: clientProfile } = await supabase
         .from('client_profiles')
-        .select('id')
+        .select('client_id')
         .eq('user_id', user.id)
+        .eq('barbershop_user_id', userId)
         .maybeSingle();
 
-      if (clientProfile) {
+      if (clientProfile?.client_id) {
         // Get appointments for this client
         const { data: appointments } = await supabase
           .from('appointments')
           .select('id')
-          .eq('client_id', clientProfile.id);
+          .eq('user_id', userId)
+          .eq('client_id', clientProfile.client_id);
 
         if (appointments && appointments.length > 0) {
           const appointmentIds = appointments.map(a => a.id);
@@ -116,9 +118,9 @@ const ClientPayments = () => {
                 let barberProfile: { full_name: string } | null = null;
                 if (appointmentDetails?.barbeiro_id) {
                   const { data: barber } = await supabase
-                    .from('profiles')
+                    .from('professional_directory')
                     .select('display_name')
-                    .eq('user_id', appointmentDetails.barbeiro_id)
+                    .eq('id', appointmentDetails.barbeiro_id)
                     .maybeSingle();
                   if (barber?.display_name) {
                     barberProfile = { full_name: barber.display_name };

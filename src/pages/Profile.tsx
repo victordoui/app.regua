@@ -1,18 +1,17 @@
 import Layout from '@/components/Layout';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Avatar, AvatarFallback } from '@/components/ui/avatar';
-import { Button } from '@/components/ui/button';
-import { UserCircle, Mail, Phone, Edit } from 'lucide-react';
+import { UserCircle, Mail, Phone } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
+import { useRole } from '@/contexts/RoleContext';
 import { useMySubscription } from '@/hooks/useMySubscription';
 import SubscriptionInfoCard from '@/components/subscriptions/SubscriptionInfoCard';
-import { useNavigate } from 'react-router-dom';
 import { PageContainer, PageHeader } from '@/components/ui/page-header';
 
 const Profile = () => {
   const { user } = useAuth();
+  const { isBarbeiro } = useRole();
   const subscriptionData = useMySubscription();
-  const navigate = useNavigate();
 
   const userName = user?.user_metadata?.full_name || user?.email || 'Usuário';
   const userEmail = user?.email || '';
@@ -33,7 +32,7 @@ const Profile = () => {
   return (
     <Layout>
       <PageContainer className="max-w-4xl">
-        <PageHeader eyebrow="Meu negócio" icon={<UserCircle className="h-5 w-5" />} title="Meu Perfil" subtitle="Gerencie seus dados pessoais e sua assinatura" />
+        <PageHeader eyebrow="Minha conta" icon={<UserCircle className="h-5 w-5" />} title="Meu Perfil" subtitle={isBarbeiro ? "Consulte os dados do seu acesso profissional" : "Consulte seus dados pessoais e sua assinatura"} />
 
         {/* Personal Data */}
         <Card>
@@ -43,10 +42,6 @@ const Profile = () => {
                 <UserCircle className="h-5 w-5 text-primary" />
                 Dados Pessoais
               </CardTitle>
-              <Button variant="outline" size="sm" onClick={() => navigate('/settings')}>
-                <Edit className="h-4 w-4 mr-1" />
-                Editar
-              </Button>
             </div>
           </CardHeader>
           <CardContent className="space-y-4">
@@ -56,7 +51,7 @@ const Profile = () => {
               </Avatar>
               <div>
                 <p className="text-lg font-semibold text-foreground">{userName}</p>
-                <p className="text-sm text-muted-foreground">Administrador</p>
+                <p className="text-sm text-muted-foreground">{isBarbeiro ? "Profissional" : "Administrador"}</p>
               </div>
             </div>
             <div className="space-y-3 pt-2">
@@ -73,7 +68,7 @@ const Profile = () => {
         </Card>
 
         {/* Subscription */}
-        <div>
+        {!isBarbeiro && <div>
           <h2 className="text-xl font-semibold text-foreground mb-4">Minha Assinatura</h2>
           {subscriptionData.isLoading ? (
             <Card>
@@ -84,7 +79,7 @@ const Profile = () => {
           ) : (
             <SubscriptionInfoCard data={subscriptionData} />
           )}
-        </div>
+        </div>}
       </PageContainer>
     </Layout>
   );

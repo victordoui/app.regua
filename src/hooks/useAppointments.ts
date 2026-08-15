@@ -2,11 +2,23 @@ import { useState, useEffect, useCallback, useMemo } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
+import { useRole } from "@/contexts/RoleContext";
 import { useToast } from "@/hooks/use-toast";
 import { Appointment, AppointmentFormData, Barber, Client, Service, RecurrenceType } from "@/types/appointments";
 import { translateBookingError } from "@/lib/bookingErrors";
-import { appointmentsConflict, minutesFromTime } from "@/lib/bookingAvailability";
 import { format, addWeeks, addMonths, isBefore, parseISO } from "date-fns";
+
+interface SavedAppointmentResult {
+  id: string;
+  date: string;
+  time: string;
+}
+
+interface SaveAppointmentsResult {
+  appointments: SavedAppointmentResult[];
+  totalPrice: number;
+  durationMinutes: number;
+}
 
 // Helper function to calculate recurrence dates
 const calculateRecurrenceDates = (
@@ -44,6 +56,7 @@ const calculateRecurrenceDates = (
 
 export const useAppointments = () => {
   const { user } = useAuth();
+  const { businessId } = useRole();
   const { toast } = useToast();
   const queryClient = useQueryClient();
 
@@ -55,17 +68,17 @@ export const useAppointments = () => {
   }, [queryClient]);
 
   useEffect(() => {
-    if (!user) return;
+    if (!user || !businessId) return;
 
     const channel = supabase
-      .channel(`appointments-calendar-${user.id}`)
+      .channel(`appointments-calendar-${businessId}`)
       .on(
         "postgres_changes",
         {
           event: "*",
           schema: "public",
           table: "appointments",
-          filter: `user_id=eq.${user.id}`,
+          filter: `user_id=eq.${businessId}`,
         },
         invalidateAppointments,
       )
@@ -74,15 +87,15 @@ export const useAppointments = () => {
     return () => {
       supabase.removeChannel(channel);
     };
-  }, [invalidateAppointments, user]);
+  }, [businessId, invalidateAppointments, user]);
 
   const fetchAppointments = useCallback(async (date?: Date, statusFilter: string = 'all'): Promise<Appointment[]> => {
-    if (!user) return [];
+    if (!user || !businessId) return [];
 
     let query = supabase
       .from("appointments")
       .select("*")
-      .eq("user_id", user.id)
+      .eq("user_id", businessId)
       .order("appointment_time", { ascending: true });
 
     if (date) {
@@ -174,59 +187,59 @@ export const useAppointments = () => {
         barbers: appointment.barbeiro_id ? barbersById.get(appointment.barbeiro_id) : undefined,
       };
     }) as unknown as Appointment[];
-  }, [user]);
+  }, [businessId, user]);
 
   const fetchClients = useCallback(async (): Promise<Client[]> => {
-    if (!user) return [];
+    if (!user || !businessId) return [];
     const { data, error } = await supabase
       .from("clients")
       .select("id, name, email, phone, notes, created_at")
-      .eq("user_id", user.id)
+      .eq("user_id", businessId)
       .order("name", { ascending: true });
     if (error) throw error;
     return data || [];
-  }, [user]);
+  }, [businessId, user]);
 
   const fetchServices = useCallback(async (): Promise<Service[]> => {
-    if (!user) return [];
+    if (!user || !businessId) return [];
     const { data, error } = await supabase
       .from("services")
       .select("*")
-      .eq("user_id", user.id)
+      .eq("user_id", businessId)
       .eq("active", true)
       .order("name", { ascending: true });
     if (error) throw error;
     return data || [];
-  }, [user]);
+  }, [businessId, user]);
 
   const fetchBarbers = useCallback(async (): Promise<Barber[]> => {
-    if (!user) return [];
+    if (!user || !businessId) return [];
     const { data, error } = await supabase
       .from("profiles")
       .select("id, user_id, full_name:display_name, email, phone, role")
-      .eq("user_id", user.id) // Assuming barbers are also managed by the current user
+      .eq("user_id", businessId)
       .eq("role", "barbeiro") // Filter for profiles with 'barbeiro' role
       .order("display_name", { ascending: true });
     if (error) throw error;
     return data || [];
-  }, [user]);
+  }, [businessId, user]);
 
   const { data: clients, isLoading: isLoadingClients, error: clientsError } = useQuery<Client[], Error>({
-    queryKey: ["clients", user?.id],
+    queryKey: ["clients", businessId],
     queryFn: fetchClients,
-    enabled: !!user,
+    enabled: !!user && !!businessId,
   });
 
   const { data: services, isLoading: isLoadingServices, error: servicesError } = useQuery<Service[], Error>({
-    queryKey: ["services", user?.id],
+    queryKey: ["services", businessId],
     queryFn: fetchServices,
-    enabled: !!user,
+    enabled: !!user && !!businessId,
   });
 
   const { data: barbers, isLoading: isLoadingBarbers, error: barbersError } = useQuery<Barber[], Error>({
-    queryKey: ["barbers", user?.id],
+    queryKey: ["barbers", businessId],
     queryFn: fetchBarbers,
-    enabled: !!user,
+    enabled: !!user && !!businessId,
   });
 
   useEffect(() => {
@@ -241,12 +254,13 @@ export const useAppointments = () => {
 
   const addAppointmentMutation = useMutation<Appointment[], Error, AppointmentFormData>({
     mutationFn: async (formData) => {
-      if (!user) throw new Error("Usuário não autenticado.");
-      
-      // Calculate total price from all services
-      const serviceIds = formData.service_ids?.length ? formData.service_ids : [formData.service_id];
-      const selectedServices = services?.filter(s => serviceIds.includes(s.id)) || [];
-      const totalPrice = selectedServices.reduce((sum, s) => sum + s.price, 0);
+      if (!user || !businessId) throw new Error("Usuário não autenticado.");
+      if (!formData.barbeiro_id) throw new Error("PROFESSIONAL_REQUIRED");
+
+      const serviceIds = [...new Set(
+        formData.service_ids?.length ? formData.service_ids : [formData.service_id],
+      )].filter(Boolean);
+      if (serviceIds.length === 0) throw new Error("INVALID_SERVICE");
       
       // Calculate all dates for recurring appointments
       const appointmentDates = calculateRecurrenceDates(
@@ -255,117 +269,22 @@ export const useAppointments = () => {
         formData.recurrence_type || null
       );
 
-      // Bloqueia sobreposição com atendimentos já existentes do mesmo profissional.
-      if (formData.barbeiro_id) {
-        const newDuration = selectedServices.reduce((sum, s) => sum + s.duration_minutes, 0) || 30;
-        const { data: sameDay } = await supabase
-          .from("appointments")
-          .select("appointment_time, service_id, appointment_services(service_id)")
-          .eq("user_id", user.id)
-          .eq("barbeiro_id", formData.barbeiro_id)
-          .in("appointment_date", appointmentDates)
-          .neq("status", "cancelled");
+      const { data, error } = await supabase.rpc("save_business_appointments", {
+        _client_id: formData.client_id,
+        _service_ids: serviceIds,
+        _barber_id: formData.barbeiro_id,
+        _appointment_dates: appointmentDates,
+        _appointment_time: formData.appointment_time,
+        _notes: formData.notes || null,
+        _recurrence_type: formData.recurrence_type || null,
+        _recurrence_end_date: formData.recurrence_end_date || null,
+        _appointment_id: null,
+        _series_scope: "single",
+      });
 
-        const durationOf = (row: { service_id: string; appointment_services?: { service_id: string }[] }) => {
-          const ids = row.appointment_services?.length
-            ? row.appointment_services.map(item => item.service_id)
-            : [row.service_id];
-          const total = ids.reduce((sum, id) => sum + (services?.find(s => s.id === id)?.duration_minutes || 0), 0);
-          return total || 30;
-        };
-
-        const hasOverlap = (sameDay || []).some(row =>
-          appointmentsConflict(
-            minutesFromTime(formData.appointment_time),
-            newDuration,
-            minutesFromTime(row.appointment_time),
-            durationOf(row),
-          ),
-        );
-
-        if (hasOverlap) {
-          throw new Error("SLOT_UNAVAILABLE");
-        }
-      }
-
-      // Create the first (parent) appointment
-      const { data: parentAppointment, error: parentError } = await supabase
-        .from("appointments")
-        .insert({
-          user_id: user.id,
-          client_id: formData.client_id,
-          service_id: formData.service_id || serviceIds[0], // Primary service for backward compat
-          barbeiro_id: formData.barbeiro_id,
-          appointment_date: appointmentDates[0],
-          appointment_time: formData.appointment_time,
-          notes: formData.notes,
-          status: 'pending',
-          total_price: totalPrice,
-          recurrence_type: formData.recurrence_type,
-          recurrence_end_date: formData.recurrence_end_date,
-        })
-        .select()
-        .single();
-
-      if (parentError) throw parentError;
-      
-      // Insert into appointment_services for multi-service support
-      if (serviceIds.length > 0) {
-        const appointmentServices = selectedServices.map(service => ({
-          appointment_id: parentAppointment.id,
-          service_id: service.id,
-          price: service.price
-        }));
-        
-        const { error: servicesError } = await supabase
-          .from("appointment_services")
-          .insert(appointmentServices);
-        
-        if (servicesError) console.error("Error inserting appointment services:", servicesError);
-      }
-      
-      const createdAppointments: Appointment[] = [parentAppointment as Appointment];
-      
-      // Create child appointments if recurring
-      if (appointmentDates.length > 1) {
-        const childAppointments = appointmentDates.slice(1).map(date => ({
-          user_id: user.id,
-          client_id: formData.client_id,
-          service_id: formData.service_id || serviceIds[0],
-          barbeiro_id: formData.barbeiro_id,
-          appointment_date: date,
-          appointment_time: formData.appointment_time,
-          notes: formData.notes,
-          status: 'pending' as const,
-          total_price: totalPrice,
-          recurrence_type: formData.recurrence_type,
-          recurrence_end_date: formData.recurrence_end_date,
-          parent_appointment_id: parentAppointment.id,
-        }));
-        
-        const { data: childData, error: childError } = await supabase
-          .from("appointments")
-          .insert(childAppointments)
-          .select();
-        
-        if (childError) throw childError;
-        
-        // Insert appointment_services for each child appointment
-        if (childData && serviceIds.length > 0) {
-          for (const child of childData) {
-            const childServices = selectedServices.map(service => ({
-              appointment_id: child.id,
-              service_id: service.id,
-              price: service.price
-            }));
-            
-            await supabase.from("appointment_services").insert(childServices);
-          }
-          createdAppointments.push(...(childData as Appointment[]));
-        }
-      }
-
-      return createdAppointments;
+      if (error) throw error;
+      const result = data as unknown as SaveAppointmentsResult;
+      return result.appointments as unknown as Appointment[];
     },
     onSuccess: (data) => {
       invalidateAppointments();
@@ -387,25 +306,27 @@ export const useAppointments = () => {
 
   const updateAppointmentMutation = useMutation<Appointment, Error, { id: string; formData: AppointmentFormData }>({
     mutationFn: async ({ id, formData }) => {
-      if (!user) throw new Error("Usuário não autenticado.");
-      const { data, error } = await supabase
-        .from("appointments")
-        .update({
-          client_id: formData.client_id,
-          service_id: formData.service_id,
-          barbeiro_id: formData.barbeiro_id,
-          appointment_date: formData.appointment_date,
-          appointment_time: formData.appointment_time,
-          notes: formData.notes,
-          total_price: services?.find(s => s.id === formData.service_id)?.price || 0,
-        })
-        .eq("id", id)
-        .eq("user_id", user.id)
-        .select()
-        .single();
+      if (!user || !businessId) throw new Error("Usuário não autenticado.");
+      if (!formData.barbeiro_id) throw new Error("PROFESSIONAL_REQUIRED");
+      const serviceIds = [...new Set(
+        formData.service_ids?.length ? formData.service_ids : [formData.service_id],
+      )].filter(Boolean);
+      const { data, error } = await supabase.rpc("save_business_appointments", {
+        _client_id: formData.client_id,
+        _service_ids: serviceIds,
+        _barber_id: formData.barbeiro_id,
+        _appointment_dates: [formData.appointment_date],
+        _appointment_time: formData.appointment_time,
+        _notes: formData.notes || null,
+        _recurrence_type: formData.recurrence_type || null,
+        _recurrence_end_date: formData.recurrence_end_date || null,
+        _appointment_id: id,
+        _series_scope: "single",
+      });
 
       if (error) throw error;
-      return data as Appointment;
+      const result = data as unknown as SaveAppointmentsResult;
+      return result.appointments[0] as unknown as Appointment;
     },
     onSuccess: () => {
       invalidateAppointments();
@@ -422,12 +343,12 @@ export const useAppointments = () => {
 
   const updateAppointmentStatusMutation = useMutation<Appointment, Error, { id: string; status: 'pending' | 'confirmed' | 'completed' | 'cancelled' | 'no_show' }>({
     mutationFn: async ({ id, status }) => {
-      if (!user) throw new Error("Usuário não autenticado.");
+      if (!user || !businessId) throw new Error("Usuário não autenticado.");
       const { data, error } = await supabase
         .from("appointments")
         .update({ status })
         .eq("id", id)
-        .eq("user_id", user.id)
+        .eq("user_id", businessId)
         .select()
         .single();
 
@@ -449,30 +370,34 @@ export const useAppointments = () => {
 
   const deleteAppointmentMutation = useMutation<void, Error, { id: string; deleteAll?: boolean }>({
     mutationFn: async ({ id, deleteAll }) => {
-      if (!user) throw new Error("Usuário não autenticado.");
+      if (!user || !businessId) throw new Error("Usuário não autenticado.");
       
       if (deleteAll) {
         // Get the appointment to check if it's a parent or child
-        const { data: appointment } = await supabase
+        const { data: appointment, error: appointmentError } = await supabase
           .from("appointments")
           .select("parent_appointment_id")
+          .eq("user_id", businessId)
           .eq("id", id)
           .single();
+
+        if (appointmentError) throw appointmentError;
         
         const parentId = appointment?.parent_appointment_id || id;
         
         // Delete all related appointments (children and parent)
-        await supabase
+        const { error } = await supabase
           .from("appointments")
           .delete()
           .or(`id.eq.${parentId},parent_appointment_id.eq.${parentId}`)
-          .eq("user_id", user.id);
+          .eq("user_id", businessId);
+        if (error) throw error;
       } else {
         const { error } = await supabase
           .from("appointments")
           .delete()
           .eq("id", id)
-          .eq("user_id", user.id);
+          .eq("user_id", businessId);
 
         if (error) throw error;
       }
@@ -501,67 +426,34 @@ export const useAppointments = () => {
     updateFutureOnly?: boolean;
   }>({
     mutationFn: async ({ id, formData, updateFutureOnly = true }) => {
-      if (!user) throw new Error("Usuário não autenticado.");
+      if (!user || !businessId) throw new Error("Usuário não autenticado.");
       
-      // Get the appointment to find the parent
-      const { data: currentAppointment } = await supabase
-        .from("appointments")
-        .select("parent_appointment_id, appointment_date")
-        .eq("id", id)
-        .single();
-      
-      if (!currentAppointment) throw new Error("Agendamento não encontrado.");
-      
-      const parentId = currentAppointment.parent_appointment_id || id;
-      
-      // Fetch all appointments in the series
-      const { data: seriesAppointments, error: fetchError } = await supabase
-        .from("appointments")
-        .select("id, appointment_date")
-        .or(`id.eq.${parentId},parent_appointment_id.eq.${parentId}`)
-        .eq("user_id", user.id);
-      
-      if (fetchError) throw fetchError;
-      if (!seriesAppointments || seriesAppointments.length === 0) {
-        throw new Error("Nenhum agendamento encontrado na série.");
+      if (!formData.client_id || !formData.barbeiro_id || !formData.appointment_time) {
+        throw new Error("INVALID_APPOINTMENT");
       }
-      
-      // Filter for future appointments only if requested
-      let appointmentsToUpdate = seriesAppointments;
-      if (updateFutureOnly) {
-        const today = format(new Date(), 'yyyy-MM-dd');
-        appointmentsToUpdate = seriesAppointments.filter(apt => apt.appointment_date >= today);
-      }
-      
-      if (appointmentsToUpdate.length === 0) {
-        throw new Error("Nenhum agendamento futuro encontrado para atualizar.");
-      }
-      
-      // Prepare update data (exclude appointment_date as each has its own)
-      const updateData: Record<string, unknown> = {};
-      if (formData.service_id) updateData.service_id = formData.service_id;
-      if (formData.barbeiro_id !== undefined) updateData.barbeiro_id = formData.barbeiro_id;
-      if (formData.appointment_time) updateData.appointment_time = formData.appointment_time;
-      if (formData.notes !== undefined) updateData.notes = formData.notes;
-      if (formData.client_id) updateData.client_id = formData.client_id;
-      
-      // Update price if service changed
-      if (formData.service_id) {
-        const servicePrice = services?.find(s => s.id === formData.service_id)?.price || 0;
-        updateData.total_price = servicePrice;
-      }
-      
-      // Update each appointment
-      const ids = appointmentsToUpdate.map(apt => apt.id);
-      const { data, error } = await supabase
-        .from("appointments")
-        .update(updateData)
-        .in("id", ids)
-        .eq("user_id", user.id)
-        .select();
-      
+      const serviceIds = [...new Set(
+        formData.service_ids?.length
+          ? formData.service_ids
+          : formData.service_id ? [formData.service_id] : [],
+      )].filter(Boolean);
+      if (serviceIds.length === 0) throw new Error("INVALID_SERVICE");
+
+      const { data, error } = await supabase.rpc("save_business_appointments", {
+        _client_id: formData.client_id,
+        _service_ids: serviceIds,
+        _barber_id: formData.barbeiro_id,
+        _appointment_dates: formData.appointment_date ? [formData.appointment_date] : [],
+        _appointment_time: formData.appointment_time,
+        _notes: formData.notes || null,
+        _recurrence_type: formData.recurrence_type || null,
+        _recurrence_end_date: formData.recurrence_end_date || null,
+        _appointment_id: id,
+        _series_scope: updateFutureOnly ? "future" : "single",
+      });
+
       if (error) throw error;
-      return (data || []) as Appointment[];
+      const result = data as unknown as SaveAppointmentsResult;
+      return result.appointments as unknown as Appointment[];
     },
     onSuccess: (data) => {
       invalidateAppointments();
@@ -579,7 +471,7 @@ export const useAppointments = () => {
   });
 
   return {
-    appointmentsScopeId: user?.id ?? null,
+    appointmentsScopeId: businessId,
     clients: clients || [],
     services: services || [],
     barbers: barbers || [],

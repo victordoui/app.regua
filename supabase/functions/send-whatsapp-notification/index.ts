@@ -7,7 +7,8 @@ const corsHeaders = {
 };
 
 interface WhatsAppRequest {
-  phone: string;
+  client_id: string;
+  phone?: string;
   message: string;
   template?: 'reminder' | 'confirmation' | 'cancellation';
   appointmentData?: {
@@ -26,8 +27,29 @@ serve(async (req) => {
 
   try {
     const supabaseUrl = Deno.env.get('SUPABASE_URL')!;
-    const supabaseKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!;
-    const supabase = createClient(supabaseUrl, supabaseKey);
+    const supabaseServiceKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!;
+    const supabaseAnonKey = Deno.env.get('SUPABASE_ANON_KEY')!;
+    const authHeader = req.headers.get('Authorization');
+    if (!authHeader) {
+      return new Response(
+        JSON.stringify({ success: false, error: 'Authentication required' }),
+        { headers: { ...corsHeaders, 'Content-Type': 'application/json' }, status: 401 },
+      );
+    }
+
+    const authClient = createClient(supabaseUrl, supabaseAnonKey, {
+      global: { headers: { Authorization: authHeader } },
+      auth: { persistSession: false },
+    });
+    const { data: authData, error: authError } = await authClient.auth.getUser();
+    if (authError || !authData.user) {
+      return new Response(
+        JSON.stringify({ success: false, error: 'Invalid session' }),
+        { headers: { ...corsHeaders, 'Content-Type': 'application/json' }, status: 401 },
+      );
+    }
+
+    const supabase = createClient(supabaseUrl, supabaseServiceKey);
 
     // Get Z-API credentials from secrets
     const zapiInstanceId = Deno.env.get('ZAPI_INSTANCE_ID');
@@ -46,17 +68,34 @@ serve(async (req) => {
       );
     }
 
-    const { phone, message, template, appointmentData }: WhatsAppRequest = await req.json();
+    const { client_id, message, template, appointmentData }: WhatsAppRequest = await req.json();
 
-    if (!phone) {
+    if (!client_id || !message || message.length > 4000) {
       return new Response(
-        JSON.stringify({ success: false, error: 'Phone number is required' }),
+        JSON.stringify({ success: false, error: 'Client and a valid message are required' }),
         { headers: { ...corsHeaders, 'Content-Type': 'application/json' }, status: 400 }
       );
     }
 
+    // The recipient is resolved server-side and must belong to the caller's
+    // tenant. A signed-in account cannot spend the shared Z-API quota on an
+    // arbitrary phone number supplied by the browser.
+    const { data: client, error: clientError } = await supabase
+      .from('clients')
+      .select('id, phone')
+      .eq('id', client_id)
+      .eq('user_id', authData.user.id)
+      .maybeSingle();
+
+    if (clientError || !client?.phone) {
+      return new Response(
+        JSON.stringify({ success: false, error: 'Client not found for this business' }),
+        { headers: { ...corsHeaders, 'Content-Type': 'application/json' }, status: 403 },
+      );
+    }
+
     // Format phone number (Brazil)
-    let formattedPhone = phone.replace(/\D/g, '');
+    let formattedPhone = client.phone.replace(/\D/g, '');
     if (!formattedPhone.startsWith('55')) {
       formattedPhone = '55' + formattedPhone;
     }
