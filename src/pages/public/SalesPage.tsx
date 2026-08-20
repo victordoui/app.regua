@@ -1,7 +1,7 @@
 import { useEffect, useState, type ReactNode } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
-import { motion } from 'framer-motion';
+import { motion, useReducedMotion } from 'framer-motion';
 import {
   ArrowRight,
   BarChart3,
@@ -94,15 +94,30 @@ const fadeUp = {
   viewport: { once: true, amount: 0.2 },
 };
 
-const ProductPreview = () => (
-  <div className="relative mx-auto w-full max-w-[650px] lg:rotate-[1.2deg]">
+const ProductPreview = () => {
+  const reduceMotion = useReducedMotion();
+
+  return (
+  <motion.div
+    className="relative mx-auto w-full max-w-[650px] lg:rotate-[1.2deg]"
+    animate={reduceMotion ? undefined : { y: [0, -9, 0] }}
+    transition={{ duration: 6, ease: 'easeInOut', repeat: Infinity }}
+  >
     <div className="absolute -inset-12 -z-10 rounded-full bg-blue-400/25 blur-3xl" />
-    <div className="absolute -right-4 -top-6 z-20 hidden rounded-2xl border border-white/70 bg-white/95 px-4 py-3 shadow-xl backdrop-blur sm:block dark:border-white/10 dark:bg-slate-900/95">
+    <motion.div
+      className="absolute -right-4 -top-6 z-20 hidden rounded-2xl border border-white/70 bg-white/95 px-4 py-3 shadow-xl backdrop-blur sm:block dark:border-white/10 dark:bg-slate-900/95"
+      animate={reduceMotion ? undefined : { y: [0, -5, 0], rotate: [0, 0.6, 0] }}
+      transition={{ duration: 4.4, ease: 'easeInOut', repeat: Infinity, delay: 0.4 }}
+    >
       <p className="text-[10px] font-bold uppercase tracking-[0.15em] text-slate-400">Crescimento</p><p className="mt-0.5 flex items-center gap-1 text-sm font-black text-emerald-600"><TrendingUp className="h-4 w-4" /> +16,1% este mês</p>
-    </div>
-    <div className="absolute -bottom-5 -left-5 z-20 hidden items-center gap-3 rounded-2xl border border-white/70 bg-white/95 p-3 shadow-xl backdrop-blur sm:flex dark:border-white/10 dark:bg-slate-900/95">
+    </motion.div>
+    <motion.div
+      className="absolute -bottom-5 -left-5 z-20 hidden items-center gap-3 rounded-2xl border border-white/70 bg-white/95 p-3 shadow-xl backdrop-blur sm:flex dark:border-white/10 dark:bg-slate-900/95"
+      animate={reduceMotion ? undefined : { y: [0, 5, 0], rotate: [0, -0.5, 0] }}
+      transition={{ duration: 5, ease: 'easeInOut', repeat: Infinity, delay: 0.8 }}
+    >
       <span className="flex h-9 w-9 items-center justify-center rounded-xl bg-blue-100 text-primary"><CalendarDays className="h-5 w-5" /></span><div><p className="text-xs font-black">Agenda online 24h</p><p className="text-[10px] text-slate-500">Seu negócio nunca fecha</p></div>
-    </div>
+    </motion.div>
     <div className="overflow-hidden rounded-[30px] border border-white/70 bg-white shadow-[0_35px_100px_-30px_rgba(15,47,107,0.55)] dark:border-white/10 dark:bg-slate-950">
       <div className="flex items-center justify-between border-b border-slate-100 px-5 py-4 dark:border-slate-800">
         <div className="flex items-center gap-3">
@@ -160,10 +175,10 @@ const ProductPreview = () => (
             </div>
           </div>
 
-          <div className="rounded-2xl bg-gradient-to-br from-[#0F2F6B] via-[#164A9E] to-[#2E6FD3] p-4 text-white">
-            <p className="text-xs font-medium text-blue-100">Faturamento mensal</p>
-            <p className="mt-1 text-2xl font-extrabold">R$ 24.860</p>
-            <div className="mt-1 flex items-center gap-1 text-xs text-emerald-200">
+          <div className="rounded-2xl bg-gradient-to-br from-[#0A2861] via-[#164A9E] to-[#2E6FD3] p-4 text-white">
+            <p className="text-xs font-semibold text-blue-100">Faturamento mensal</p>
+            <p className="mt-1 text-2xl font-extrabold text-white">R$ 24.860</p>
+            <div className="mt-1 flex items-center gap-1 text-xs font-semibold text-emerald-200">
               <TrendingUp className="h-3.5 w-3.5" /> 16,1% este mês
             </div>
             <div className="mt-7 flex h-20 items-end gap-1.5">
@@ -175,8 +190,9 @@ const ProductPreview = () => (
         </div>
       </div>
     </div>
-  </div>
-);
+  </motion.div>
+  );
+};
 
 const PlanIcon = ({ type }: { type: string }): ReactNode => {
   if (type === 'pro') return <Crown className="h-5 w-5" />;
@@ -187,6 +203,7 @@ const PlanIcon = ({ type }: { type: string }): ReactNode => {
 
 const SalesPage = () => {
   const navigate = useNavigate();
+  const reduceMotion = useReducedMotion();
   const [showHeader, setShowHeader] = useState(false);
   const { data: plans = [], isLoading } = useQuery({
     queryKey: ['public-plans'],
@@ -241,7 +258,13 @@ const SalesPage = () => {
           <div className="mx-auto grid max-w-7xl items-center gap-16 lg:grid-cols-[0.92fr_1.08fr]">
             <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.5 }}>
               <div className="mb-7 flex items-center gap-4">
-                <img src={vizzuIcon} alt="Logo VIZZU" className="h-28 w-28 shrink-0 object-contain drop-shadow-[0_20px_25px_rgba(37,99,235,0.24)] sm:h-36 sm:w-36" />
+                <motion.img
+                  src={vizzuIcon}
+                  alt="Logo VIZZU"
+                  className="h-28 w-28 shrink-0 object-contain drop-shadow-[0_20px_25px_rgba(37,99,235,0.24)] sm:h-36 sm:w-36"
+                  animate={reduceMotion ? undefined : { y: [0, -6, 0], scale: [1, 1.025, 1] }}
+                  transition={{ duration: 5, ease: 'easeInOut', repeat: Infinity }}
+                />
                 <div><p className="text-[40px] font-black leading-none tracking-[0.08em] text-[#0F2F6B] sm:text-5xl dark:text-white">VIZZU</p><p className="mt-3 text-xs font-bold uppercase tracking-[0.2em] text-primary sm:text-sm">Visualize · Organize · Cresça</p></div>
               </div>
               <Badge className="mb-5 rounded-full border-primary/20 bg-white/80 px-3 py-1.5 text-primary shadow-sm hover:bg-white/80 dark:bg-white/10 dark:hover:bg-white/10">
@@ -399,7 +422,7 @@ const SalesPage = () => {
             <Sparkles className="mx-auto h-8 w-8 text-blue-200" />
             <h2 className="mx-auto mt-4 max-w-3xl text-3xl font-black tracking-tight sm:text-4xl">Seu negócio pode ser mais organizado já no próximo atendimento.</h2>
             <p className="mx-auto mt-4 max-w-2xl text-blue-100">Crie sua conta, configure seus serviços e compartilhe sua página de agendamento.</p>
-            <Button size="lg" className="mt-8 rounded-xl bg-white px-8 text-[#164A9E] hover:bg-blue-50" onClick={() => navigate('/cadastro')}>Começar com o VIZZU <ArrowRight className="ml-2 h-5 w-5" /></Button>
+            <Button size="lg" className="mt-8 rounded-xl !bg-white px-8 !text-[#0F2F6B] shadow-lg shadow-slate-950/15 hover:!bg-blue-50" onClick={() => navigate('/cadastro')}>Começar com o VIZZU <ArrowRight className="ml-2 h-5 w-5" /></Button>
           </motion.div>
         </section>
       </main>
