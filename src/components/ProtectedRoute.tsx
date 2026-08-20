@@ -81,9 +81,11 @@ const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ children, requiredRole,
       if (userRole === 'barbeiro') {
         return <Navigate to="/appointments" replace />;
       }
-      // A conta existe, mas ainda não concluiu o cadastro (plano, negócio e papel).
-      // Redirecionar para a raiz gerava um ciclo de rotas protegidas e tela em branco.
-      return <Navigate to="/cadastro?concluir=1" replace />;
+      // A página inicial deve sempre ser uma porta de entrada clara. A
+      // conclusão de cadastro continua acessível pelo link de confirmação,
+      // mas uma sessão incompleta não pode mandar o visitante direto para um
+      // formulário inesperado ao abrir o domínio.
+      return <Navigate to="/login?cadastro=pendente" replace />;
     }
   }
 

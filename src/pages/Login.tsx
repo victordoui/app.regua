@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useSearchParams } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { useToast } from "@/hooks/use-toast";
@@ -33,6 +33,7 @@ const Login = () => {
   const [showRecoveryOption, setShowRecoveryOption] = useState(false);
   const [activeTab, setActiveTab] = useState<"login" | "register">("login");
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
   const { toast } = useToast();
   const { signIn } = useAuth();
 
@@ -53,7 +54,7 @@ const Login = () => {
       if (rolesError) {
         console.error('Não foi possível carregar as permissões após o login:', rolesError);
         toast({ title: 'Acesso pendente', description: 'Não foi possível preparar sua conta agora. Tente novamente em instantes.', variant: 'destructive' });
-        navigate('/cadastro?concluir=1', { replace: true });
+        navigate('/login?cadastro=pendente', { replace: true });
         return;
       }
       const roleList = (roles || []).map(r => r.role as string);
@@ -90,7 +91,7 @@ const Login = () => {
         navigate(profile?.barbershop_user_id ? `/b/${profile.barbershop_user_id}/home` : "/login", { replace: true });
         return;
       }
-      navigate("/cadastro?concluir=1", { replace: true });
+      navigate("/login?cadastro=pendente", { replace: true });
     } catch (error) {
       console.error('Falha ao redirecionar após o login:', error);
       toast({ title: 'Não foi possível abrir sua conta', description: 'Tente entrar novamente.', variant: 'destructive' });
@@ -216,6 +217,12 @@ const Login = () => {
               {activeTab === "login" ? "Acesse sua conta para continuar" : "Comece a gerenciar seus agendamentos"}
             </p>
           </div>
+
+          {searchParams.get('cadastro') === 'pendente' && (
+            <div className="mb-5 rounded-xl border border-amber-500/25 bg-amber-500/10 p-3 text-sm text-amber-800 dark:text-amber-300">
+              Seu cadastro ainda não está concluído. Confirme o e-mail recebido para continuar ou crie uma nova conta.
+            </div>
+          )}
 
           {/* Pill Tabs */}
           <div className="mb-8 flex rounded-xl bg-muted/80 p-1">
