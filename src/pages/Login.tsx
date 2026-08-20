@@ -168,9 +168,9 @@ const Login = () => {
           transition={{ duration: 0.6 }}
           className="relative z-10 max-w-md text-left"
         >
-          <img src={vizzuIcon} alt="VIZZU" className="w-28 h-28 mx-auto mb-6 object-contain drop-shadow-2xl" />
+          <img src={vizzuIcon} alt="VIZZU" className="mx-auto mb-7 h-40 w-40 object-contain drop-shadow-2xl xl:h-44 xl:w-44" />
           <h1 className="text-4xl font-extrabold text-white mb-3 tracking-tight ">VIZZU</h1>
-          <p className="text-white/80 text-lg mb-10 ">Visualize. Organize. Cresça.</p>
+          <p className="text-white/80 text-lg mb-10 ">Visualize · Organize · Cresça</p>
 
           <div className="space-y-4">
             {features.map((f, i) => (
@@ -196,9 +196,9 @@ const Login = () => {
         className="p-5 text-center lg:hidden"
         style={{ background: "linear-gradient(135deg, #4FA3FF, #1F4FA3, #0F2F6B)" }}
       >
-        <img src={vizzuIcon} alt="VIZZU" className="w-16 h-16 mx-auto mb-2 object-contain" />
+        <img src={vizzuIcon} alt="VIZZU" className="mx-auto mb-2 h-24 w-24 object-contain drop-shadow-xl" />
         <h1 className="text-2xl font-extrabold text-white ">VIZZU</h1>
-        <p className="text-white/70 text-sm ">Visualize. Organize. Cresça.</p>
+        <p className="text-white/70 text-sm ">Visualize · Organize · Cresça</p>
       </div>
 
       {/* Right Panel - Form */}
