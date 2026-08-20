@@ -42,20 +42,27 @@ const Login = () => {
   });
 
   const redirectByRole = async () => {
-    const { data: { user } } = await supabase.auth.getUser();
-    if (!user) {
-      navigate("/");
-      return;
-    }
+    try {
+      const { data: { user }, error: userError } = await supabase.auth.getUser();
+      if (userError || !user) {
+        navigate('/login', { replace: true });
+        return;
+      }
 
-    const { data: roles } = await supabase.from('user_roles').select('role').eq('user_id', user.id);
-    const roleList = (roles || []).map(r => r.role as string);
+      const { data: roles, error: rolesError } = await supabase.from('user_roles').select('role').eq('user_id', user.id);
+      if (rolesError) {
+        console.error('Não foi possível carregar as permissões após o login:', rolesError);
+        toast({ title: 'Acesso pendente', description: 'Não foi possível preparar sua conta agora. Tente novamente em instantes.', variant: 'destructive' });
+        navigate('/cadastro?concluir=1', { replace: true });
+        return;
+      }
+      const roleList = (roles || []).map(r => r.role as string);
 
-    if (roleList.includes('super_admin')) {
-      navigate("/superadmin");
-      return;
-    }
-    if (roleList.includes('admin') || roleList.includes('barbeiro')) {
+      if (roleList.includes('super_admin')) {
+        navigate("/superadmin", { replace: true });
+        return;
+      }
+      if (roleList.includes('admin') || roleList.includes('barbeiro')) {
       if (roleList.includes('admin')) {
         const { data: subscription } = await supabase
           .from('platform_subscriptions')
@@ -70,20 +77,25 @@ const Login = () => {
           return;
         }
       }
-      navigate(roleList.includes('admin') ? "/" : "/appointments");
-      return;
-    }
-    if (roleList.includes('cliente')) {
+        navigate(roleList.includes('admin') ? "/" : "/appointments", { replace: true });
+        return;
+      }
+      if (roleList.includes('cliente')) {
       const { data: profile } = await supabase
         .from('client_profiles')
         .select('barbershop_user_id')
         .eq('user_id', user.id)
         .limit(1)
         .maybeSingle();
-      navigate(profile?.barbershop_user_id ? `/b/${profile.barbershop_user_id}/home` : "/");
-      return;
+        navigate(profile?.barbershop_user_id ? `/b/${profile.barbershop_user_id}/home` : "/login", { replace: true });
+        return;
+      }
+      navigate("/cadastro?concluir=1", { replace: true });
+    } catch (error) {
+      console.error('Falha ao redirecionar após o login:', error);
+      toast({ title: 'Não foi possível abrir sua conta', description: 'Tente entrar novamente.', variant: 'destructive' });
+      navigate('/login', { replace: true });
     }
-    navigate("/cadastro?concluir=1");
   };
 
   const onLoginSubmit = async (data: LoginFormValues) => {

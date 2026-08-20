@@ -21,11 +21,17 @@ const SignupPage = () => {
   const navigate = useNavigate();
   const { toast } = useToast();
   const { user } = useAuth();
+  const userId = user?.id;
+  const userEmail = user?.email;
+  const userFullName = user?.user_metadata?.full_name;
+  const userCompanyName = user?.user_metadata?.company_name;
+  const userSelectedPlan = user?.user_metadata?.selected_plan;
   const [step, setStep] = useState<Step>(1);
   const [isLoading, setIsLoading] = useState(false);
   // Renderiza opções imediatamente; a consulta remota só atualiza o catálogo.
   const [plans, setPlans] = useState<PlanConfig[]>(DEFAULT_PUBLIC_PLANS);
   const [confirmationEmailSent, setConfirmationEmailSent] = useState(false);
+  const [emailConfirmed, setEmailConfirmed] = useState(false);
 
   const [formData, setFormData] = useState({
     fullName: '',
@@ -50,27 +56,36 @@ const SignupPage = () => {
     };
     fetchPlans();
 
+  }, []);
+
+  useEffect(() => {
     const searchParams = new URLSearchParams(window.location.search);
     const preSelectedPlan = searchParams.get('plano');
     if (preSelectedPlan) {
       setFormData(f => ({ ...f, selectedPlan: preSelectedPlan }));
     }
 
-    if (user) {
-      setFormData(f => ({
-        ...f,
-        fullName: f.fullName || String(user.user_metadata?.full_name || ''),
-        companyName: f.companyName || String(user.user_metadata?.company_name || ''),
-        email: user.email || f.email,
-        selectedPlan: f.selectedPlan || String(user.user_metadata?.selected_plan || ''),
-      }));
+    if (searchParams.get('confirmado') === '1' && user) {
+      setEmailConfirmed(true);
     }
 
-    // Handle payment cancellation
     if (searchParams.get('payment') === 'cancelled') {
       toast({ title: 'Pagamento cancelado', description: 'Você pode tentar novamente.', variant: 'destructive' });
     }
   }, [toast, user]);
+
+  useEffect(() => {
+    if (userId) {
+      setFormData(f => ({
+        ...f,
+        fullName: f.fullName || String(userFullName || ''),
+        companyName: f.companyName || String(userCompanyName || ''),
+        email: userEmail || f.email,
+        selectedPlan: f.selectedPlan || String(userSelectedPlan || ''),
+      }));
+    }
+
+  }, [userId, userEmail, userFullName, userCompanyName, userSelectedPlan]);
 
   const selectedPlanConfig = plans.find(p => p.plan_type === formData.selectedPlan);
   const isPaidPlan = Boolean(formData.selectedPlan && formData.selectedPlan !== 'trial');
@@ -323,6 +338,11 @@ const SignupPage = () => {
               <CardDescription>{isCompletingRegistration ? 'Escolha um plano e informe os dados do negócio para liberar o acesso.' : 'Preencha seus dados para criar sua conta'}</CardDescription>
             </CardHeader>
             <CardContent className="space-y-4">
+              {emailConfirmed && isCompletingRegistration && (
+                <div className="rounded-lg border border-emerald-500/25 bg-emerald-500/10 p-3 text-sm text-emerald-800 dark:text-emerald-300">
+                  E-mail confirmado. Agora escolha o plano e conclua a criação do seu negócio.
+                </div>
+              )}
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div className="space-y-2">
                   <Label htmlFor="fullName">Nome completo</Label>
