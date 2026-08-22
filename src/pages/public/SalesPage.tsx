@@ -261,22 +261,22 @@ const HumanHeroVisual = () => {
   const reduceMotion = useReducedMotion();
 
   return (
-    <div className="relative mx-auto min-h-[900px] w-full max-w-[780px] sm:min-h-[850px] lg:min-h-[610px]">
+    <div className="relative mx-auto min-h-[900px] w-full max-w-[820px] sm:min-h-[850px] lg:min-h-[610px]">
       <motion.div
         initial={reduceMotion ? false : { opacity: 0, scale: 0.97, x: 24 }}
         animate={{ opacity: 1, scale: 1, x: 0 }}
         transition={{ duration: 0.9, delay: 0.08, ease: [0.22, 1, 0.36, 1] }}
-        className="absolute inset-x-0 top-0 h-[390px] overflow-hidden rounded-[30px] border border-white/90 bg-slate-200 shadow-[0_35px_90px_-38px_rgba(15,47,107,0.5)] dark:border-white/10 dark:bg-slate-900 sm:h-[430px] lg:inset-y-8 lg:left-0 lg:right-[46%] lg:h-auto"
+        className="absolute inset-x-0 top-0 h-[390px] overflow-hidden rounded-[30px] border border-white/90 bg-slate-200 shadow-[0_35px_90px_-38px_rgba(15,47,107,0.5)] dark:border-white/10 dark:bg-slate-900 sm:h-[430px] lg:inset-y-0 lg:left-[59%] lg:right-0 lg:h-auto lg:rounded-none lg:border-y-0 lg:border-r-0"
       >
         <img
           src={salonOwnerHero}
           alt="Profissional de beleza organizando seu negócio pelo tablet"
-          className="h-full w-full object-cover object-[66%_center] lg:object-[68%_center]"
+          className="h-full w-full object-cover object-[66%_center] lg:object-[66%_center]"
         />
-        <div className="absolute inset-0 bg-gradient-to-t from-[#061c47]/45 via-transparent to-white/5 lg:bg-gradient-to-r lg:from-transparent lg:via-transparent lg:to-[#eaf2ff]/30 dark:lg:to-[#030817]/40" />
+        <div className="absolute inset-0 bg-gradient-to-t from-[#061c47]/45 via-transparent to-white/5 lg:bg-gradient-to-r lg:from-[#eaf2ff]/25 lg:via-transparent lg:to-transparent dark:lg:from-[#030817]/35" />
       </motion.div>
 
-      <div className="absolute inset-x-0 top-[350px] z-10 sm:top-[385px] lg:left-[25%] lg:right-[-11%] lg:top-[48px] lg:origin-top-right lg:scale-[0.73] xl:left-[22%] xl:scale-[0.78]">
+      <div className="absolute inset-x-0 top-[350px] z-10 sm:top-[385px] lg:left-[-4%] lg:right-[26%] lg:top-[18px] lg:origin-top-left lg:scale-[0.76] xl:left-[-2%] xl:scale-[0.8]">
         <ProductPreview />
       </div>
 
@@ -284,7 +284,7 @@ const HumanHeroVisual = () => {
         initial={reduceMotion ? false : { opacity: 0, y: 18 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.6, delay: 0.72 }}
-        className="absolute right-3 top-[330px] z-20 hidden items-center gap-3 rounded-2xl border border-white/90 bg-white/95 px-4 py-3 shadow-[0_22px_55px_-24px_rgba(15,47,107,0.65)] backdrop-blur-md dark:border-white/10 dark:bg-[#08172f]/95 sm:flex lg:right-0 lg:top-4"
+        className="absolute right-3 top-[330px] z-20 hidden items-center gap-3 rounded-2xl border border-white/90 bg-white/95 px-4 py-3 shadow-[0_22px_55px_-24px_rgba(15,47,107,0.65)] backdrop-blur-md dark:border-white/10 dark:bg-[#08172f]/95 sm:flex lg:right-3 lg:top-5"
       >
         <span className="flex h-10 w-10 items-center justify-center rounded-xl bg-emerald-100 text-emerald-600"><TrendingUp className="h-5 w-5" weight="duotone" /></span>
         <div><p className="text-[10px] font-bold uppercase tracking-[0.12em] text-slate-400">Rotina organizada</p><p className="text-sm font-black text-slate-900 dark:text-white">Mais tempo para seus clientes</p></div>
@@ -294,7 +294,7 @@ const HumanHeroVisual = () => {
         initial={reduceMotion ? false : { opacity: 0, y: 16 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.6, delay: 0.86 }}
-        className="absolute bottom-5 right-3 z-20 hidden w-[235px] rounded-2xl border border-white/80 bg-white/94 p-4 text-slate-900 shadow-[0_22px_55px_-24px_rgba(15,47,107,0.65)] backdrop-blur-md dark:border-white/10 dark:bg-[#08172f]/95 dark:text-white sm:block lg:bottom-2 lg:right-2"
+        className="absolute bottom-5 right-3 z-20 hidden w-[235px] rounded-2xl border border-white/80 bg-white/94 p-4 text-slate-900 shadow-[0_22px_55px_-24px_rgba(15,47,107,0.65)] backdrop-blur-md dark:border-white/10 dark:bg-[#08172f]/95 dark:text-white sm:block lg:bottom-4 lg:right-4"
       >
         <div className="flex items-center gap-1 text-amber-400" aria-label="5 estrelas">{[0, 1, 2, 3, 4].map((star) => <Star key={star} className="h-4 w-4" weight="fill" />)}</div>
         <p className="mt-2 text-sm font-bold leading-5">“Agora tenho tempo para atender e clareza para crescer.”</p>
