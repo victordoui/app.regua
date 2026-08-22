@@ -333,10 +333,10 @@ const Sidebar = () => {
                       <button
                         key={item.path}
                         onClick={() => navigate(item.path)}
-                        className={`relative flex w-full items-center gap-3 rounded-lg px-3 py-1.5 text-[13px] font-semibold transition-all duration-150 ${
+                        className={`relative flex items-center gap-2.5 rounded-lg py-1.5 text-[13px] font-semibold transition-all duration-150 ${
                           active
-                            ? 'bg-white font-semibold text-[hsl(var(--sidebar-background))] shadow-sm'
-                            : 'text-white/78 hover:bg-white/[0.07] hover:text-white'
+                            ? 'w-fit max-w-full bg-white px-2.5 font-semibold text-[hsl(var(--sidebar-background))] shadow-sm'
+                            : 'w-full px-3 text-white/78 hover:bg-white/[0.07] hover:text-white'
                         }`}
                       >
                         <Icon className="h-[18px] w-[18px] flex-shrink-0 opacity-90" />
