@@ -11,6 +11,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
 import { supabase } from "@/integrations/supabase/client";
 import vizzuIcon from "@/assets/vizzu-icon.png";
+import salonOwnerHero from "@/assets/vizzu-salon-owner-hero.png";
 import {
   Form,
   FormControl,
@@ -150,41 +151,43 @@ const Login = () => {
   ];
 
   return (
-    <div className="min-h-screen flex flex-col bg-[hsl(var(--page))] lg:flex-row">
+    <div className="min-h-screen flex flex-col bg-[linear-gradient(145deg,#eef5ff_0%,#f8fbff_45%,#e8f1ff_100%)] lg:flex-row dark:bg-[linear-gradient(145deg,#030817_0%,#07172f_52%,#030817_100%)]">
       {/* Left Panel - Branding */}
       <div
-        className="relative hidden overflow-hidden lg:flex lg:w-[46%] lg:flex-col lg:items-center lg:justify-center lg:p-12"
-        style={{ background: "linear-gradient(145deg, #2563EB 0%, #173F92 48%, #081D46 100%)" }}
+        className="relative hidden min-h-screen overflow-hidden lg:flex lg:w-[52%] lg:flex-col lg:justify-between lg:p-10 xl:p-14"
       >
-        {/* Geometric decorations */}
-        <div className="absolute top-20 left-20 w-32 h-32 border border-white/10 rounded-2xl rotate-12" />
-        <div className="absolute bottom-32 right-16 w-24 h-24 border border-white/10 rounded-full" />
-        <div className="absolute top-1/3 right-24 w-16 h-16 bg-white/5 rounded-lg rotate-45" />
-        <div className="absolute bottom-20 left-32 w-20 h-20 bg-white/5 rounded-full" />
+        <img src={salonOwnerHero} alt="Profissional usando o VIZZU no salão" className="absolute inset-0 h-full w-full object-cover object-[64%_center]" />
+        <div className="absolute inset-0 bg-[linear-gradient(90deg,rgba(3,18,48,0.88)_0%,rgba(5,28,72,0.58)_42%,rgba(5,24,58,0.12)_75%),linear-gradient(0deg,rgba(3,16,42,0.92)_0%,transparent_58%)]" />
+        <div className="absolute inset-0 ring-1 ring-inset ring-white/10" />
+
+        <button type="button" onClick={() => navigate('/vendas')} className="relative z-10 flex w-fit items-center gap-3 rounded-2xl border border-white/15 bg-[#061c47]/55 px-4 py-3 text-left shadow-xl backdrop-blur-md transition hover:bg-[#061c47]/70" aria-label="Ir para a página inicial do VIZZU">
+          <img src={vizzuIcon} alt="" className="h-14 w-14 object-contain drop-shadow-lg" />
+          <div><p className="text-2xl font-black tracking-[0.08em] text-white">VIZZU</p><p className="text-[10px] font-bold uppercase tracking-[0.18em] text-blue-200">Visualize · Organize · Cresça</p></div>
+        </button>
 
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.6 }}
-          className="relative z-10 max-w-md text-left"
+          className="relative z-10 max-w-xl text-left"
         >
-          <img src={vizzuIcon} alt="VIZZU" className="mx-auto mb-7 h-40 w-40 object-contain drop-shadow-2xl xl:h-44 xl:w-44" />
-          <h1 className="text-4xl font-extrabold text-white mb-3 tracking-tight ">VIZZU</h1>
-          <p className="text-white/80 text-lg mb-10 ">Visualize · Organize · Cresça</p>
+          <span className="inline-flex rounded-full border border-white/20 bg-white/10 px-3 py-1.5 text-xs font-bold uppercase tracking-[0.14em] text-blue-100 backdrop-blur">Gestão feita para quem atende bem</span>
+          <h1 className="mt-5 max-w-lg text-4xl font-black leading-[1.06] tracking-[-0.04em] text-white xl:text-5xl">Sua agenda organizada. Seu negócio crescendo.</h1>
+          <p className="mt-4 max-w-md text-base leading-7 text-blue-100/90">Entre para acompanhar clientes, equipe e resultados em um só lugar.</p>
 
-          <div className="space-y-4">
+          <div className="mt-8 grid gap-3 sm:grid-cols-3">
             {features.map((f, i) => (
               <motion.div
                 key={i}
                 initial={{ opacity: 0, x: -20 }}
                 animate={{ opacity: 1, x: 0 }}
                 transition={{ delay: 0.3 + i * 0.15 }}
-                className="flex items-center gap-3 text-white/85"
+                className="rounded-2xl border border-white/15 bg-[#061c47]/55 p-4 text-white shadow-lg backdrop-blur-md"
               >
-                <div className="flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-xl border border-white/10 bg-white/10">
+                <div className="flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-xl bg-blue-500/30 text-blue-100">
                   <f.icon className="w-5 h-5" />
                 </div>
-                <span className="text-sm font-medium ">{f.text}</span>
+                <span className="mt-3 block text-xs font-bold leading-5">{f.text}</span>
               </motion.div>
             ))}
           </div>
@@ -192,22 +195,23 @@ const Login = () => {
       </div>
 
       {/* Mobile Header */}
-      <div
-        className="p-5 text-center lg:hidden"
-        style={{ background: "linear-gradient(135deg, #4FA3FF, #1F4FA3, #0F2F6B)" }}
-      >
-        <img src={vizzuIcon} alt="VIZZU" className="mx-auto mb-2 h-24 w-24 object-contain drop-shadow-xl" />
-        <h1 className="text-2xl font-extrabold text-white ">VIZZU</h1>
-        <p className="text-white/70 text-sm ">Visualize · Organize · Cresça</p>
+      <div className="relative h-[210px] overflow-hidden lg:hidden">
+        <img src={salonOwnerHero} alt="Profissional usando o VIZZU no salão" className="h-full w-full object-cover object-[64%_38%]" />
+        <div className="absolute inset-0 bg-gradient-to-r from-[#061c47]/90 via-[#092760]/55 to-transparent" />
+        <button type="button" onClick={() => navigate('/vendas')} className="absolute left-5 top-5 flex items-center gap-3 text-left">
+          <img src={vizzuIcon} alt="" className="h-16 w-16 object-contain drop-shadow-xl" />
+          <div><h1 className="text-2xl font-black tracking-[0.08em] text-white">VIZZU</h1><p className="text-[10px] font-bold uppercase tracking-[0.14em] text-blue-100">Visualize · Organize · Cresça</p></div>
+        </button>
+        <p className="absolute bottom-5 left-5 max-w-[240px] text-lg font-black leading-6 text-white">Sua agenda organizada. Seu negócio crescendo.</p>
       </div>
 
       {/* Right Panel - Form */}
-      <div className="flex flex-1 items-center justify-center p-4 sm:p-6 lg:p-12">
+      <div className="flex flex-1 items-center justify-center p-4 sm:p-7 lg:p-10 xl:p-14">
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.5, delay: 0.2 }}
-          className="w-full max-w-[460px] rounded-[28px] border border-border/70 bg-card p-6 shadow-[0_28px_70px_-35px_rgba(15,47,107,0.38)] sm:p-8"
+          className="w-full max-w-[470px] rounded-[30px] border border-white/90 bg-white/92 p-6 shadow-[0_32px_80px_-34px_rgba(15,47,107,0.45)] backdrop-blur-xl sm:p-8 dark:border-white/10 dark:bg-[#07152d]/92"
         >
           <div className="mb-8">
             <h2 className="text-2xl font-black tracking-tight text-foreground">
