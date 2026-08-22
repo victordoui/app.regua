@@ -248,7 +248,7 @@ const Sidebar = () => {
       </div>
 
       {/* Navigation */}
-      <nav className="flex-1 space-y-0.5 overflow-y-auto px-2.5 pb-3 scrollbar-hidden-hover">
+      <nav className="flex-1 space-y-px overflow-y-auto px-2.5 pb-3 scrollbar-hidden-hover">
         {menuStructure.map((category, categoryIndex) => {
           const CatIcon = category.icon;
           const isOpen = openCategories.includes(category.category);
@@ -256,13 +256,13 @@ const Sidebar = () => {
           const isSingle = category.items.length === 1;
           const showSection = !collapsed && category.section !== 'Início' && (categoryIndex === 0 || menuStructure[categoryIndex - 1]?.section !== category.section);
           const sectionLabel = showSection ? (
-            <div className="flex items-center gap-2 px-2 pb-1 pt-3">
+            <div className="flex items-center gap-2 px-2 pb-0.5 pt-2.5">
               <span className="whitespace-nowrap text-[9px] font-bold uppercase tracking-[0.15em] text-white/65">{category.section}</span>
               <span className="h-px flex-1 bg-white/10" />
             </div>
           ) : null;
           const moduleClass = categoryIndex > 0
-            ? (showSection ? "mt-2" : "mt-2 border-t border-white/10 pt-2")
+            ? (showSection ? "mt-1.5" : "mt-1.5 border-t border-white/10 pt-1.5")
             : undefined;
           // Categoria com 1 item → link direto
           if (isSingle) {
@@ -276,7 +276,7 @@ const Sidebar = () => {
                   onClick={() => navigate(item.path)}
                   title={collapsed ? item.label : undefined}
                   className={`flex w-full items-center gap-3 rounded-xl text-[14px] font-bold transition-all duration-150 ${
-                    collapsed ? 'justify-center px-2 py-3' : 'px-3 py-2.5'
+                    collapsed ? 'justify-center px-2 py-2.5' : 'px-3 py-2'
                   } ${
                     active
                       ? 'bg-white text-[hsl(var(--sidebar-background))] shadow-sm'
@@ -297,7 +297,7 @@ const Sidebar = () => {
                 key={category.category}
                 onClick={() => navigate(category.items[0].path)}
                 title={category.label}
-                className={`flex w-full items-center justify-center rounded-xl px-2 py-3 transition-colors ${
+                className={`flex w-full items-center justify-center rounded-xl px-2 py-2.5 transition-colors ${
                   hasActive
                     ? 'bg-white text-[hsl(var(--sidebar-background))] shadow-sm'
                     : 'text-white/85 hover:bg-white/10 hover:text-white'
@@ -314,7 +314,7 @@ const Sidebar = () => {
               <Collapsible open={isOpen} onOpenChange={() => toggleCategory(category.category)}>
                 <CollapsibleTrigger asChild>
                   <button
-                    className={`flex w-full items-center gap-3 rounded-xl px-3 py-2.5 text-[14px] font-bold transition-all duration-150 ${
+                    className={`flex w-full items-center gap-3 rounded-xl px-3 py-2 text-[14px] font-bold transition-all duration-150 ${
                       hasActive && isOpen
                         ? 'bg-white/[0.09] text-white shadow-inner shadow-white/[0.03]'
                         : 'text-white/90 hover:bg-white/[0.07] hover:text-white'
@@ -325,7 +325,7 @@ const Sidebar = () => {
                     <ChevronDown className={`h-4 w-4 transition-transform duration-200 opacity-80 ${isOpen ? 'rotate-180' : ''}`} />
                   </button>
                 </CollapsibleTrigger>
-                <CollapsibleContent className="mt-0.5 space-y-0.5 pl-3">
+                <CollapsibleContent className="mt-px space-y-px pl-3">
                   {category.items.map((item) => {
                     const Icon = item.icon;
                     const active = isActivePath(item.path);
@@ -333,7 +333,7 @@ const Sidebar = () => {
                       <button
                         key={item.path}
                         onClick={() => navigate(item.path)}
-                        className={`relative flex w-full items-center gap-3 rounded-lg px-3 py-2.5 text-[13px] font-semibold transition-all duration-150 ${
+                        className={`relative flex w-full items-center gap-3 rounded-lg px-3 py-1.5 text-[13px] font-semibold transition-all duration-150 ${
                           active
                             ? 'bg-white font-semibold text-[hsl(var(--sidebar-background))] shadow-sm'
                             : 'text-white/78 hover:bg-white/[0.07] hover:text-white'
@@ -361,12 +361,12 @@ const Sidebar = () => {
 
         {/* Troca de contexto (Super Admin) */}
         {isSuperAdmin && (
-          <div className="mt-3 border-t border-white/10 pt-3">
+          <div className="mt-2 border-t border-white/10 pt-2">
             <button
               onClick={handleContextSwitch}
               title={collapsed ? contextSwitchLabel : undefined}
               className={`w-full flex items-center gap-3 rounded-md text-[14px] font-semibold text-white/85 transition-colors hover:bg-white/10 hover:text-white ${
-                collapsed ? 'justify-center px-2 py-3' : 'px-3 py-2.5'
+                collapsed ? 'justify-center px-2 py-2.5' : 'px-3 py-2'
               }`}
             >
               {inPlatformContext
