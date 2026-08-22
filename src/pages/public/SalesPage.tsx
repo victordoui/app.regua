@@ -1,7 +1,6 @@
 import { useEffect, useState, type ReactNode } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
-import { motion } from 'framer-motion';
 import {
   ArrowRight,
   BarChart3,
@@ -65,111 +64,104 @@ const segments = ['Barbearias', 'Salões', 'Estética', 'Manicure', 'Tatuagem', 
 const outcomes = [
   {
     icon: CalendarDays,
-    title: 'Uma agenda que trabalha por você',
-    description: 'Receba agendamentos 24 horas por dia, organize a equipe e reduza conflitos de horário.',
+    title: 'Agenda inteligente',
+    description: 'Horários, profissionais e confirmações organizados para você atender sem conflitos.',
   },
   {
-    icon: WalletCards,
-    title: 'Controle financeiro sem planilhas',
-    description: 'Acompanhe caixa, comissões, serviços e faturamento em uma visão simples e confiável.',
+    icon: Users,
+    title: 'Clientes em um só lugar',
+    description: 'Histórico, preferências e relacionamento reunidos para cada cliente se sentir lembrado.',
   },
   {
     icon: HeartHandshake,
-    title: 'Clientes que voltam mais vezes',
-    description: 'Use pontos, cupons, lembretes e campanhas para construir relacionamento de verdade.',
+    title: 'Equipe bem coordenada',
+    description: 'Turnos, comissões e desempenho visíveis para cada profissional saber o que precisa fazer.',
+  },
+  {
+    icon: BarChart3,
+    title: 'Financeiro com clareza',
+    description: 'Receitas, caixa e indicadores fáceis de entender para decidir com mais segurança.',
   },
 ];
 
+const proofHighlights = [
+  { icon: CalendarDays, value: '24h', label: 'Agendamento online', detail: 'Seu negócio recebe pedidos mesmo fechado', color: 'bg-blue-50 text-blue-600' },
+  { icon: Check, value: '7 dias', label: 'Teste gratuito', detail: 'Conheça o sistema antes de assinar', color: 'bg-emerald-50 text-emerald-600' },
+  { icon: ShieldCheck, value: 'Seguro', label: 'Dados protegidos', detail: 'Acesso controlado para sua equipe', color: 'bg-violet-50 text-violet-600' },
+  { icon: HeartHandshake, value: 'Humano', label: 'Suporte de verdade', detail: 'Ajuda para configurar e evoluir', color: 'bg-orange-50 text-orange-600' },
+];
+
 const faqs = [
-  { q: 'Posso testar antes de assinar?', a: 'Sim. Você pode começar pelo período de teste e conhecer o fluxo completo antes de escolher um plano.' },
+  { q: 'Posso testar antes de assinar?', a: 'Sim. Você pode usar o VIZZU gratuitamente por 7 dias, sem cartão de crédito, e escolher um plano depois de conhecer o fluxo completo.' },
   { q: 'Meus clientes precisam instalar um aplicativo?', a: 'Não. Eles acessam a página do seu negócio pelo navegador do celular e fazem tudo pelo link.' },
   { q: 'Consigo cadastrar mais de um profissional?', a: 'Sim. O limite depende do plano escolhido e você pode alterar o plano conforme sua operação crescer.' },
   { q: 'O VIZZU funciona fora de barbearias?', a: 'Sim. A plataforma atende diferentes negócios de serviços, como salões, estética, manicure, clínicas, tatuagem e bem-estar.' },
   { q: 'Consigo acompanhar resultados?', a: 'Sim. O painel reúne agenda, clientes, faturamento, desempenho da equipe e indicadores de fidelização.' },
 ];
 
-const fadeUp = {
-  initial: { opacity: 0, y: 24 },
-  whileInView: { opacity: 1, y: 0 },
-  viewport: { once: true, amount: 0.2 },
-};
-
 const ProductPreview = () => (
-  <div className="relative mx-auto w-full max-w-[650px] lg:rotate-[1.2deg]">
-    <div className="absolute -inset-12 -z-10 rounded-full bg-blue-400/25 blur-3xl" />
-    <div className="absolute -right-4 -top-6 z-20 hidden rounded-2xl border border-white/70 bg-white/95 px-4 py-3 shadow-xl backdrop-blur sm:block dark:border-white/10 dark:bg-slate-900/95">
-      <p className="text-[10px] font-bold uppercase tracking-[0.15em] text-slate-400">Crescimento</p><p className="mt-0.5 flex items-center gap-1 text-sm font-black text-emerald-600"><TrendingUp className="h-4 w-4" /> +16,1% este mês</p>
+  <div className="relative mx-auto w-full max-w-[720px]">
+    <div className="absolute -inset-12 -z-10 rounded-full bg-blue-500/25 blur-3xl" />
+    <div className="absolute -right-3 -top-5 z-20 hidden rounded-2xl border border-white/80 bg-white/95 px-4 py-3 shadow-xl backdrop-blur sm:block">
+      <p className="text-[10px] font-bold uppercase tracking-[0.15em] text-slate-400">Visão clara</p>
+      <p className="mt-0.5 flex items-center gap-1 text-sm font-black text-emerald-600"><TrendingUp className="h-4 w-4" /> Decisões com dados</p>
     </div>
-    <div className="absolute -bottom-5 -left-5 z-20 hidden items-center gap-3 rounded-2xl border border-white/70 bg-white/95 p-3 shadow-xl backdrop-blur sm:flex dark:border-white/10 dark:bg-slate-900/95">
-      <span className="flex h-9 w-9 items-center justify-center rounded-xl bg-blue-100 text-primary"><CalendarDays className="h-5 w-5" /></span><div><p className="text-xs font-black">Agenda online 24h</p><p className="text-[10px] text-slate-500">Seu negócio nunca fecha</p></div>
+    <div className="absolute -bottom-5 -left-4 z-20 hidden items-center gap-3 rounded-2xl border border-white/80 bg-white/95 p-3 shadow-xl backdrop-blur sm:flex">
+      <span className="flex h-9 w-9 items-center justify-center rounded-xl bg-blue-100 text-primary"><CalendarDays className="h-5 w-5" /></span>
+      <div><p className="text-xs font-black text-slate-900">Agenda online 24h</p><p className="text-[10px] text-slate-500">Seu cliente agenda pelo celular</p></div>
     </div>
-    <div className="overflow-hidden rounded-[30px] border border-white/70 bg-white shadow-[0_35px_100px_-30px_rgba(15,47,107,0.55)] dark:border-white/10 dark:bg-slate-950">
-      <div className="flex items-center justify-between border-b border-slate-100 px-5 py-4 dark:border-slate-800">
-        <div className="flex items-center gap-3">
-          <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-blue-50 p-1 ring-1 ring-blue-100 dark:bg-blue-500/10 dark:ring-blue-400/20"><img src={vizzuIcon} alt="" className="h-full w-full object-contain" /></span>
-          <div>
-            <p className="text-sm font-bold text-slate-900 dark:text-white">Visão do negócio</p>
-            <p className="text-xs text-slate-500">Hoje, 28 de julho</p>
-          </div>
+
+    <div className="overflow-hidden rounded-[28px] border border-white/90 bg-white shadow-[0_38px_100px_-32px_rgba(15,47,107,0.58)]">
+      <div className="flex items-center justify-between border-b border-slate-100 bg-white px-4 py-3 sm:px-5">
+        <div className="flex items-center gap-2.5">
+          <img src={vizzuIcon} alt="" className="h-8 w-8 object-contain" />
+          <div><p className="text-xs font-black tracking-[0.05em] text-[#0F2F6B]">VIZZU</p><p className="text-[9px] text-slate-400">Demonstração do painel</p></div>
         </div>
-        <div className="rounded-full bg-emerald-50 px-3 py-1 text-xs font-semibold text-emerald-700 dark:bg-emerald-500/10 dark:text-emerald-300">Operação ativa</div>
+        <div className="flex items-center gap-2"><span className="hidden text-right sm:block"><span className="block text-[10px] font-bold text-slate-700">Studio VIZZU</span><span className="block text-[9px] text-slate-400">Administrador</span></span><span className="flex h-8 w-8 items-center justify-center rounded-full bg-primary text-[10px] font-bold text-white">SV</span></div>
       </div>
 
-      <div className="space-y-4 bg-slate-50/70 p-5 dark:bg-slate-900/60">
-        <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
-          {[
-            { label: 'Agenda hoje', value: '18', icon: CalendarDays, color: 'text-blue-600 bg-blue-50' },
-            { label: 'Ocupação', value: '84%', icon: TrendingUp, color: 'text-emerald-600 bg-emerald-50' },
-            { label: 'Novos clientes', value: '12', icon: Users, color: 'text-violet-600 bg-violet-50' },
-            { label: 'Receita', value: 'R$ 1.840', icon: WalletCards, color: 'text-orange-600 bg-orange-50' },
-          ].map((item) => (
-            <div key={item.label} className="rounded-2xl border border-slate-100 bg-white p-3 dark:border-slate-800 dark:bg-slate-950">
-              <div className={cn('mb-3 flex h-8 w-8 items-center justify-center rounded-lg', item.color)}>
-                <item.icon className="h-4 w-4" />
-              </div>
-              <p className="text-lg font-extrabold text-slate-950 dark:text-white">{item.value}</p>
-              <p className="text-[11px] text-slate-500">{item.label}</p>
-            </div>
-          ))}
-        </div>
+      <div className="grid bg-[#f3f6fb] sm:grid-cols-[118px_1fr]">
+        <aside className="hidden min-h-[400px] flex-col bg-gradient-to-b from-[#285ec4] to-[#12336f] px-2.5 py-4 text-white sm:flex">
+          <div className="mb-5 flex items-center justify-center"><img src={vizzuIcon} alt="" className="h-12 w-12 object-contain drop-shadow" /></div>
+          <div className="space-y-1.5 text-[9px] font-semibold">
+            {[['Visão geral', BarChart3], ['Agenda', CalendarDays], ['Clientes', Users], ['Financeiro', WalletCards]].map(([label, Icon], index) => {
+              const NavIcon = Icon as typeof BarChart3;
+              return <div key={label as string} className={cn('flex items-center gap-2 rounded-lg px-2.5 py-2', index === 0 ? 'bg-white text-[#174a9e] shadow-sm' : 'text-blue-50')}><NavIcon className="h-3.5 w-3.5" />{label as string}</div>;
+            })}
+          </div>
+          <div className="mt-auto rounded-xl border border-white/15 bg-white/10 p-2.5 text-[9px] leading-4 text-blue-50">Toda a operação em um só lugar.</div>
+        </aside>
 
-        <div className="grid gap-3 sm:grid-cols-[1.35fr_1fr]">
-          <div className="rounded-2xl border border-slate-100 bg-white p-4 dark:border-slate-800 dark:bg-slate-950">
-            <div className="mb-4 flex items-center justify-between">
-              <div>
-                <p className="text-sm font-bold text-slate-900 dark:text-white">Próximos horários</p>
-                <p className="text-xs text-slate-500">Equipe e atendimentos do dia</p>
-              </div>
-              <Clock3 className="h-4 w-4 text-primary" />
-            </div>
-            <div className="space-y-2">
-              {[
-                ['09:30', 'Corte + barba', 'Carlos'],
-                ['10:20', 'Corte feminino', 'Ana'],
-                ['11:10', 'Manicure', 'Bianca'],
-              ].map(([time, service, professional], index) => (
-                <div key={time} className="flex items-center gap-3 rounded-xl bg-slate-50 p-2.5 dark:bg-slate-900">
-                  <div className={cn('h-9 w-1 rounded-full', index === 0 ? 'bg-primary' : index === 1 ? 'bg-violet-500' : 'bg-orange-500')} />
-                  <div className="min-w-0 flex-1">
-                    <p className="truncate text-xs font-semibold text-slate-800 dark:text-slate-100">{service}</p>
-                    <p className="text-[11px] text-slate-500">com {professional}</p>
-                  </div>
-                  <span className="text-xs font-bold text-slate-700 dark:text-slate-200">{time}</span>
-                </div>
-              ))}
-            </div>
+        <div className="space-y-3 p-3 sm:p-4">
+          <div className="relative overflow-hidden rounded-2xl bg-gradient-to-r from-[#0d285c] via-[#214e93] to-[#172b4e] px-4 py-4 text-white">
+            <div className="absolute -right-6 -top-10 h-32 w-32 rounded-full border-[18px] border-white/5" />
+            <p className="text-[9px] font-semibold text-blue-100">0 agendamentos hoje</p>
+            <p className="mt-1 text-base font-black text-white sm:text-lg">Olá, Studio VIZZU 👋</p>
+            <p className="mt-0.5 text-[10px] text-blue-100">Seu negócio pronto para crescer</p>
           </div>
 
-          <div className="rounded-2xl bg-gradient-to-br from-[#0A2861] via-[#164A9E] to-[#2E6FD3] p-4 text-white">
-            <p className="text-xs font-semibold text-blue-100">Faturamento mensal</p>
-            <p className="mt-1 text-2xl font-extrabold text-white">R$ 24.860</p>
-            <div className="mt-1 flex items-center gap-1 text-xs font-semibold text-emerald-200">
-              <TrendingUp className="h-3.5 w-3.5" /> 16,1% este mês
+          <div className="grid grid-cols-2 gap-2 lg:grid-cols-4">
+            {[
+              { label: 'Agenda hoje', value: '18', icon: CalendarDays, color: 'text-blue-600 bg-blue-50' },
+              { label: 'Conclusão', value: '84%', icon: Check, color: 'text-emerald-600 bg-emerald-50' },
+              { label: 'Novos clientes', value: '12', icon: Users, color: 'text-violet-600 bg-violet-50' },
+              { label: 'Receita', value: 'R$ 1.840', icon: WalletCards, color: 'text-sky-600 bg-sky-50' },
+            ].map((item) => (
+              <div key={item.label} className="rounded-xl border border-slate-200/80 bg-white p-2.5 shadow-sm">
+                <div className={cn('mb-2 flex h-6 w-6 items-center justify-center rounded-lg', item.color)}><item.icon className="h-3.5 w-3.5" /></div>
+                <p className="text-sm font-black text-slate-950">{item.value}</p><p className="text-[9px] text-slate-500">{item.label}</p>
+              </div>
+            ))}
+          </div>
+
+          <div className="grid gap-2 lg:grid-cols-[1.15fr_0.85fr]">
+            <div className="rounded-xl border border-slate-200/80 bg-white p-3 shadow-sm">
+              <div className="mb-2 flex items-center justify-between"><div><p className="text-[11px] font-bold text-slate-900">Próximos agendamentos</p><p className="text-[9px] text-slate-400">Sua equipe e horários do dia</p></div><Clock3 className="h-3.5 w-3.5 text-primary" /></div>
+              <div className="space-y-1.5">{[['09:30', 'Corte + barba', 'Carlos'], ['10:20', 'Coloração', 'Juliana'], ['11:10', 'Manicure', 'Mariana']].map(([time, service, professional], index) => <div key={time} className="flex items-center gap-2 rounded-lg bg-slate-50 px-2 py-1.5"><span className={cn('h-7 w-1 rounded-full', index === 0 ? 'bg-blue-500' : index === 1 ? 'bg-violet-500' : 'bg-orange-500')} /><div className="min-w-0 flex-1"><p className="truncate text-[9px] font-bold text-slate-700">{service}</p><p className="text-[8px] text-slate-400">com {professional}</p></div><span className="text-[9px] font-bold text-slate-600">{time}</span></div>)}</div>
             </div>
-            <div className="mt-7 flex h-20 items-end gap-1.5">
-              {[34, 48, 42, 63, 58, 76, 69, 92, 84, 100].map((height, index) => (
-                <div key={index} className="flex-1 rounded-t bg-white/80" style={{ height: `${height}%` }} />
-              ))}
+            <div className="rounded-xl bg-gradient-to-br from-[#0A2861] via-[#164A9E] to-[#2E6FD3] p-3 text-white shadow-sm">
+              <p className="text-[9px] font-semibold text-blue-100">Faturamento mensal</p><p className="mt-0.5 text-lg font-black text-white">R$ 24.860</p><p className="flex items-center gap-1 text-[9px] font-semibold text-emerald-200"><TrendingUp className="h-3 w-3" /> +16,1% este mês</p>
+              <div className="mt-4 flex h-14 items-end gap-1">{[34, 48, 42, 63, 58, 76, 69, 92, 84, 100].map((height, index) => <div key={index} className="flex-1 rounded-t bg-white/80" style={{ height: `${height}%` }} />)}</div>
             </div>
           </div>
         </div>
@@ -218,68 +210,68 @@ const SalesPage = () => {
         aria-hidden={!showHeader}
       >
         <div className="mx-auto flex h-[70px] max-w-6xl items-center justify-between rounded-[22px] border border-white/80 bg-white/90 px-5 shadow-[0_18px_45px_-28px_rgba(15,47,107,0.5)] backdrop-blur-xl dark:border-white/10 dark:bg-slate-950/85 sm:px-7">
-          <button className="flex items-center gap-2.5 rounded-lg focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary" onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })} aria-label="Voltar ao início">
+          <button className="flex items-center gap-2.5 rounded-lg focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary" onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })} aria-label="Voltar ao início" tabIndex={showHeader ? 0 : -1}>
             <img src={vizzuIcon} alt="VIZZU" className="h-12 w-12 object-contain drop-shadow-sm" />
             <span className="text-2xl font-black tracking-[0.06em] text-[#0F2F6B] dark:text-white">VIZZU</span>
           </button>
           <nav className="hidden items-center gap-8 text-sm font-semibold text-slate-700 lg:flex dark:text-slate-200">
-            <a href="#recursos" className="transition-colors hover:text-primary">Recursos</a>
-            <a href="#para-quem" className="transition-colors hover:text-primary">Para quem é</a>
-            <a href="#planos" className="transition-colors hover:text-primary">Preços</a>
-            <a href="#duvidas" className="transition-colors hover:text-primary">Dúvidas</a>
+            <a href="#recursos" className="transition-colors hover:text-primary" tabIndex={showHeader ? 0 : -1}>Recursos</a>
+            <a href="#para-quem" className="transition-colors hover:text-primary" tabIndex={showHeader ? 0 : -1}>Para quem é</a>
+            <a href="#planos" className="transition-colors hover:text-primary" tabIndex={showHeader ? 0 : -1}>Preços</a>
+            <a href="#duvidas" className="transition-colors hover:text-primary" tabIndex={showHeader ? 0 : -1}>Dúvidas</a>
           </nav>
           <div className="flex items-center gap-2 sm:gap-3">
-            <Button variant="ghost" className="hidden font-semibold text-primary sm:inline-flex" onClick={() => navigate('/login')}>Entrar</Button>
-            <Button className="rounded-xl px-4 shadow-lg shadow-primary/25 sm:px-5" onClick={() => navigate('/cadastro')}>Começar agora <ArrowRight className="ml-2 h-4 w-4" /></Button>
+            <Button variant="ghost" className="hidden font-semibold text-primary sm:inline-flex" onClick={() => navigate('/login')} tabIndex={showHeader ? 0 : -1}>Entrar</Button>
+            <Button className="rounded-xl px-4 shadow-lg shadow-primary/25 sm:px-5" onClick={() => navigate('/cadastro?plano=trial')} tabIndex={showHeader ? 0 : -1}>Testar grátis <ArrowRight className="ml-2 h-4 w-4" /></Button>
           </div>
         </div>
       </header>
       <main>
-        <section className="relative isolate overflow-hidden px-4 pb-16 pt-14 sm:px-6 sm:pt-20 lg:pb-24">
-          <div className="pointer-events-none absolute inset-0 -z-20 bg-[linear-gradient(135deg,#f8fbff_0%,#eef5ff_48%,#f9fbff_100%)] dark:bg-[linear-gradient(135deg,#020617_0%,#071b3e_50%,#020617_100%)]" />
-          <div className="pointer-events-none absolute -left-32 top-10 -z-10 h-96 w-96 rounded-full bg-blue-300/25 blur-3xl" />
-          <div className="pointer-events-none absolute -right-28 top-20 -z-10 h-[420px] w-[420px] rounded-full bg-violet-300/20 blur-3xl" />
-          <div className="mx-auto grid max-w-7xl items-center gap-16 lg:grid-cols-[0.92fr_1.08fr]">
-            <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.5 }}>
+        <section className="relative isolate overflow-hidden px-4 pb-16 pt-8 sm:px-6 sm:pt-12 lg:pb-24">
+          <div className="pointer-events-none absolute inset-0 -z-20 bg-[radial-gradient(circle_at_12%_16%,rgba(73,139,255,0.23),transparent_34%),radial-gradient(circle_at_88%_12%,rgba(81,132,224,0.2),transparent_30%),linear-gradient(135deg,#f8fbff_0%,#edf4ff_50%,#f8fbff_100%)] dark:bg-[linear-gradient(135deg,#020617_0%,#071b3e_50%,#020617_100%)]" />
+          <div className="pointer-events-none absolute -left-32 top-10 -z-10 h-96 w-96 rounded-full border border-blue-300/20" />
+          <div className="pointer-events-none absolute -right-28 top-20 -z-10 h-[420px] w-[420px] rounded-full border border-blue-300/20" />
+          <div className="mx-auto grid max-w-7xl items-center gap-12 lg:grid-cols-[0.88fr_1.12fr]">
+            <div>
               <div className="mb-8 flex items-center gap-4 sm:gap-5">
                 <img
                   src={vizzuIcon}
                   alt="Logo VIZZU"
-                  className="h-28 w-28 shrink-0 object-contain drop-shadow-[0_20px_25px_rgba(37,99,235,0.24)] sm:h-40 sm:w-40"
+                  className="h-24 w-24 shrink-0 object-contain drop-shadow-[0_20px_25px_rgba(37,99,235,0.24)] sm:h-32 sm:w-32"
                 />
                 <div>
-                  <p className="text-5xl font-black leading-none tracking-[0.08em] text-[#0F2F6B] sm:text-6xl dark:text-white">VIZZU</p>
+                  <p className="text-5xl font-black leading-none tracking-[0.08em] text-[#0F2F6B] sm:text-[58px] dark:text-white">VIZZU</p>
                   <p className="mt-3 text-xs font-bold uppercase tracking-[0.2em] text-primary sm:text-sm">Visualize · Organize · Cresça</p>
                 </div>
               </div>
-              <Badge className="mb-6 rounded-full border-primary/20 bg-white/80 px-3 py-1.5 text-primary shadow-sm hover:bg-white/80 dark:bg-white/10 dark:hover:bg-white/10">
-                <Zap className="mr-1.5 h-3.5 w-3.5 fill-current" /> Gestão simples para negócios de serviços
+              <Badge className="mb-5 rounded-full border-primary/20 bg-white/85 px-3 py-1.5 text-primary shadow-sm hover:bg-white/85 dark:bg-white/10 dark:hover:bg-white/10">
+                <Zap className="mr-1.5 h-3.5 w-3.5 fill-current" /> Gestão completa para negócios de serviços
               </Badge>
-              <h1 className="max-w-2xl text-4xl font-black leading-[1.04] tracking-[-0.045em] sm:text-5xl lg:text-[58px]">
-                Organize seu negócio. <span className="bg-gradient-to-r from-[#2878ef] via-[#1557b8] to-[#0F2F6B] bg-clip-text text-transparent dark:from-blue-300 dark:to-blue-100">Acelere seu crescimento.</span>
+              <h1 className="max-w-2xl text-4xl font-black leading-[1.03] tracking-[-0.045em] sm:text-5xl lg:text-[58px]">
+                Sua agenda cheia. <span className="bg-gradient-to-r from-[#2878ef] via-[#1557b8] to-[#0F2F6B] bg-clip-text text-transparent dark:from-blue-300 dark:to-blue-100">Seu negócio no controle.</span>
               </h1>
               <p className="mt-6 max-w-xl text-base leading-7 text-slate-600 sm:text-lg dark:text-slate-300">
-                Uma plataforma bonita, simples e completa para cuidar da agenda, clientes, equipe e financeiro — enquanto seus clientes agendam pelo celular.
+                Centralize agendamentos, clientes, equipe e financeiro em um sistema simples de usar. Enquanto o VIZZU organiza a operação, você ganha tempo para atender melhor e crescer.
               </p>
               <div className="mt-8 flex flex-col gap-3 sm:flex-row">
-                <Button size="lg" className="h-13 rounded-xl px-7 text-base shadow-lg shadow-primary/25" onClick={() => navigate('/cadastro')}>
-                  Começar agora grátis <ArrowRight className="ml-2 h-5 w-5" />
+                <Button size="lg" className="h-13 rounded-xl px-7 text-base shadow-lg shadow-primary/25" onClick={() => navigate('/cadastro?plano=trial')}>
+                  Testar grátis por 7 dias <ArrowRight className="ml-2 h-5 w-5" />
                 </Button>
-                <Button size="lg" variant="outline" className="h-13 rounded-xl border-slate-300 bg-white/70 px-7 text-base dark:border-slate-700 dark:bg-slate-900/60" asChild><a href="#planos">Conhecer os planos</a></Button>
+                <Button size="lg" variant="outline" className="h-13 rounded-xl border-slate-300 bg-white/70 px-7 text-base dark:border-slate-700 dark:bg-slate-900/60" asChild><a href="#recursos">Ver o VIZZU por dentro</a></Button>
               </div>
               <div className="mt-7 flex flex-wrap gap-x-5 gap-y-2 text-sm font-medium text-slate-600 dark:text-slate-300">
-                {['Teste sem compromisso', 'Configuração rápida', 'Suporte humano'].map((item) => (
+                {['Sem cartão de crédito', 'Configuração guiada', 'Cancele quando quiser'].map((item) => (
                   <span key={item} className="flex items-center gap-1.5"><Check className="h-4 w-4 text-emerald-500" />{item}</span>
                 ))}
               </div>
-            </motion.div>
-            <motion.div initial={{ opacity: 0, scale: 0.96, y: 18 }} animate={{ opacity: 1, scale: 1, y: 0 }} transition={{ duration: 0.65, delay: 0.1 }}>
+            </div>
+            <div>
               <ProductPreview />
-            </motion.div>
+            </div>
           </div>
-          <motion.div {...fadeUp} className="mx-auto mt-16 grid max-w-7xl overflow-hidden rounded-3xl border border-white/80 bg-white/80 shadow-[0_18px_50px_-30px_rgba(15,47,107,0.45)] backdrop-blur sm:grid-cols-2 lg:grid-cols-4 dark:border-white/10 dark:bg-slate-900/70">
-            {[['24h', 'Agendamento online'], ['100%', 'Pensado para celular'], ['1 painel', 'Toda a operação'], ['+ tempo', 'Para atender e crescer']].map(([value, label], index) => <div key={label} className={cn('px-6 py-5 text-center', index > 0 && 'border-t border-slate-200/70 sm:border-l sm:border-t-0', index === 2 && 'sm:border-t lg:border-t-0', 'dark:border-slate-700')}><p className="text-2xl font-black text-primary">{value}</p><p className="mt-1 text-sm font-semibold text-slate-600 dark:text-slate-300">{label}</p></div>)}
-          </motion.div>
+          <div className="mx-auto mt-16 grid max-w-7xl overflow-hidden rounded-3xl border border-white/90 bg-white/90 shadow-[0_18px_50px_-30px_rgba(15,47,107,0.45)] backdrop-blur sm:grid-cols-2 lg:grid-cols-4 dark:border-white/10 dark:bg-slate-900/70">
+            {proofHighlights.map((item, index) => <div key={item.label} className={cn('flex items-center gap-3 px-5 py-5', index > 0 && 'border-t border-slate-200/70 sm:border-l sm:border-t-0', index === 2 && 'sm:border-t lg:border-t-0', 'dark:border-slate-700')}><span className={cn('flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl', item.color)}><item.icon className="h-5 w-5" /></span><div><p className="text-lg font-black text-primary">{item.value}</p><p className="text-sm font-bold text-slate-800 dark:text-slate-100">{item.label}</p><p className="text-[11px] leading-4 text-slate-500">{item.detail}</p></div></div>)}
+          </div>
         </section>
 
         <section id="para-quem" className="scroll-mt-6 border-y border-slate-200/80 bg-white px-4 py-8 dark:border-slate-800 dark:bg-slate-900/50">
@@ -293,30 +285,30 @@ const SalesPage = () => {
 
         <section id="recursos" className="scroll-mt-24 px-4 py-20 sm:px-6 lg:py-28">
           <div className="mx-auto max-w-7xl">
-            <motion.div {...fadeUp} className="mx-auto mb-12 max-w-2xl text-center">
-              <span className="text-sm font-bold uppercase tracking-[0.18em] text-primary">Tudo no lugar certo</span>
-              <h2 className="mt-3 text-3xl font-black tracking-tight sm:text-4xl">Uma operação organizada do agendamento ao resultado</h2>
-              <p className="mt-4 text-slate-600 dark:text-slate-300">O VIZZU reúne as tarefas que costumam ficar espalhadas e transforma tudo em uma rotina simples.</p>
-            </motion.div>
-            <div className="grid gap-5 lg:grid-cols-3">
-              {outcomes.map((outcome, index) => (
-                <motion.div key={outcome.title} {...fadeUp} transition={{ delay: index * 0.08 }}>
+            <div className="mx-auto mb-12 max-w-3xl text-center">
+              <span className="text-sm font-bold uppercase tracking-[0.18em] text-primary">Menos improviso. Mais resultado.</span>
+              <h2 className="mt-3 text-3xl font-black tracking-tight sm:text-4xl">Tudo o que sua empresa precisa para vender, atender e crescer melhor</h2>
+              <p className="mt-4 text-slate-600 dark:text-slate-300">O VIZZU transforma agenda espalhada, informações soltas e contas manuais em uma rotina clara para você, sua equipe e seus clientes.</p>
+            </div>
+            <div className="grid gap-5 md:grid-cols-2 lg:grid-cols-4">
+              {outcomes.map((outcome) => (
+                <div key={outcome.title}>
                   <Card className="group h-full overflow-hidden rounded-3xl border-slate-200/80 bg-white shadow-sm transition-all hover:-translate-y-1 hover:shadow-xl dark:border-slate-800 dark:bg-slate-900">
                     <CardContent className="p-7">
-                      <div className="mb-8 flex h-12 w-12 items-center justify-center rounded-2xl bg-primary/10 text-primary transition-colors group-hover:bg-primary group-hover:text-white"><outcome.icon className="h-6 w-6" /></div>
+                      <div className="mb-7 flex h-12 w-12 items-center justify-center rounded-2xl bg-primary/10 text-primary transition-colors group-hover:bg-primary group-hover:text-white"><outcome.icon className="h-6 w-6" /></div>
                       <h3 className="text-xl font-bold">{outcome.title}</h3>
                       <p className="mt-3 leading-7 text-slate-600 dark:text-slate-300">{outcome.description}</p>
-                      <div className="mt-6 flex items-center gap-1 text-sm font-bold text-primary">Conheça os recursos <ChevronRight className="h-4 w-4" /></div>
+                      <div className="mt-6 flex items-center gap-1 text-sm font-bold text-primary">Tudo conectado <ChevronRight className="h-4 w-4" /></div>
                     </CardContent>
                   </Card>
-                </motion.div>
+                </div>
               ))}
             </div>
           </div>
         </section>
 
         <section className="px-4 pb-20 sm:px-6 lg:pb-28">
-          <motion.div {...fadeUp} className="mx-auto grid max-w-7xl overflow-hidden rounded-[32px] bg-[#0B1F45] text-white shadow-2xl lg:grid-cols-[1fr_0.9fr]">
+          <div className="mx-auto grid max-w-7xl overflow-hidden rounded-[32px] bg-gradient-to-br from-[#285ec4] via-[#174a9e] to-[#0f2f6b] text-white shadow-2xl lg:grid-cols-[1fr_0.9fr]">
             <div className="p-8 sm:p-12 lg:p-16">
               <Badge className="border-white/15 bg-white/10 text-blue-100 hover:bg-white/10">Experiência do cliente</Badge>
               <h2 className="mt-5 text-3xl font-black tracking-tight sm:text-4xl">Seu cliente agenda em poucos passos. Você recebe tudo organizado.</h2>
@@ -337,22 +329,22 @@ const SalesPage = () => {
                 </div>
               </div>
             </div>
-          </motion.div>
+          </div>
         </section>
 
         <section id="planos" className="scroll-mt-24 border-y border-slate-200 bg-white px-4 py-20 sm:px-6 lg:py-28 dark:border-slate-800 dark:bg-slate-900/40">
           <div className="mx-auto max-w-7xl">
-            <motion.div {...fadeUp} className="mx-auto mb-12 max-w-2xl text-center">
+            <div className="mx-auto mb-12 max-w-2xl text-center">
               <span className="text-sm font-bold uppercase tracking-[0.18em] text-primary">Planos flexíveis</span>
               <h2 className="mt-3 text-3xl font-black tracking-tight sm:text-4xl">Comece no seu ritmo. Cresça sem trocar de sistema.</h2>
               <p className="mt-4 text-slate-600 dark:text-slate-300">Escolha o plano que acompanha o momento atual do seu negócio.</p>
-            </motion.div>
+            </div>
             {isLoading ? <LoadingSpinner className="py-20" size={32} /> : (
               <><div className={cn('mx-auto grid items-stretch gap-5', plans.length <= 2 ? 'max-w-3xl md:grid-cols-2' : plans.length === 3 ? 'max-w-5xl md:grid-cols-3' : 'sm:grid-cols-2 xl:grid-cols-4')}>
-                {plans.map((plan, index) => {
+                {plans.map((plan) => {
                   const popular = plan.plan_type === 'pro';
                   return (
-                    <motion.div key={plan.id} {...fadeUp} transition={{ delay: index * 0.07 }} className="relative pt-3">
+                    <div key={plan.id} className="relative pt-3">
                       {popular && <div className="absolute inset-x-0 top-0 z-10 mx-auto w-fit rounded-full bg-primary px-4 py-1 text-xs font-bold text-white shadow-lg">Mais escolhido</div>}
                       <Card className={cn('flex h-full flex-col rounded-3xl border-slate-200 bg-white shadow-sm dark:border-slate-800 dark:bg-slate-950', popular && 'border-primary shadow-xl shadow-primary/10 ring-1 ring-primary')}>
                         <CardHeader className="p-6 pb-3">
@@ -366,7 +358,7 @@ const SalesPage = () => {
                           <Button className="mt-7 w-full rounded-xl" variant={popular ? 'default' : 'outline'} onClick={() => navigate(`/cadastro?plano=${plan.plan_type}`)}>{plan.plan_type === 'trial' ? 'Testar gratuitamente' : 'Escolher este plano'}<ArrowRight className="ml-2 h-4 w-4" /></Button>
                         </CardContent>
                       </Card>
-                    </motion.div>
+                    </div>
                   );
                 })}
               </div>
@@ -388,27 +380,27 @@ const SalesPage = () => {
 
         <section id="duvidas" className="scroll-mt-24 px-4 py-20 sm:px-6 lg:py-28">
           <div className="mx-auto grid max-w-6xl gap-12 lg:grid-cols-[0.75fr_1.25fr]">
-            <motion.div {...fadeUp}>
+            <div>
               <span className="text-sm font-bold uppercase tracking-[0.18em] text-primary">Sem letras pequenas</span>
               <h2 className="mt-3 text-3xl font-black tracking-tight sm:text-4xl">Dúvidas antes de começar?</h2>
               <p className="mt-4 leading-7 text-slate-600 dark:text-slate-300">As respostas mais importantes para você entender como o VIZZU entra na rotina do seu negócio.</p>
               <div className="mt-7 flex items-center gap-3 rounded-2xl border border-slate-200 bg-white p-4 dark:border-slate-800 dark:bg-slate-900"><div className="flex h-10 w-10 items-center justify-center rounded-xl bg-emerald-50 text-emerald-600 dark:bg-emerald-500/10"><MessageCircleMore className="h-5 w-5" /></div><div><p className="text-sm font-bold">Ainda precisa de ajuda?</p><p className="text-xs text-slate-500">Nossa equipe pode orientar você.</p></div></div>
-            </motion.div>
-            <motion.div {...fadeUp} transition={{ delay: 0.08 }}>
+            </div>
+            <div>
               <Accordion type="single" collapsible className="rounded-3xl border border-slate-200 bg-white px-6 dark:border-slate-800 dark:bg-slate-900">
                 {faqs.map((faq, index) => <AccordionItem key={faq.q} value={`faq-${index}`}><AccordionTrigger className="py-5 text-left text-base font-bold hover:no-underline">{faq.q}</AccordionTrigger><AccordionContent className="pb-5 leading-7 text-slate-600 dark:text-slate-300">{faq.a}</AccordionContent></AccordionItem>)}
               </Accordion>
-            </motion.div>
+            </div>
           </div>
         </section>
 
         <section className="px-4 pb-20 sm:px-6">
-          <motion.div {...fadeUp} className="mx-auto max-w-7xl overflow-hidden rounded-[32px] bg-gradient-to-r from-[#2E6FD3] to-[#0F2F6B] px-6 py-12 text-center text-white shadow-2xl sm:px-12 sm:py-16">
+          <div className="mx-auto max-w-7xl overflow-hidden rounded-[32px] bg-gradient-to-r from-[#2E6FD3] to-[#0F2F6B] px-6 py-12 text-center text-white shadow-2xl sm:px-12 sm:py-16">
             <Sparkles className="mx-auto h-8 w-8 text-blue-200" />
             <h2 className="mx-auto mt-4 max-w-3xl text-3xl font-black tracking-tight sm:text-4xl">Seu negócio pode ser mais organizado já no próximo atendimento.</h2>
             <p className="mx-auto mt-4 max-w-2xl text-blue-100">Crie sua conta, configure seus serviços e compartilhe sua página de agendamento.</p>
-            <Button size="lg" className="mt-8 rounded-xl !bg-white px-8 !text-[#0F2F6B] shadow-lg shadow-slate-950/15 hover:!bg-blue-50" onClick={() => navigate('/cadastro')}>Começar com o VIZZU <ArrowRight className="ml-2 h-5 w-5" /></Button>
-          </motion.div>
+            <Button size="lg" className="mt-8 rounded-xl !bg-white px-8 !text-[#0F2F6B] shadow-lg shadow-slate-950/15 hover:!bg-blue-50" onClick={() => navigate('/cadastro?plano=trial')}>Começar teste gratuito <ArrowRight className="ml-2 h-5 w-5" /></Button>
+          </div>
         </section>
       </main>
 
