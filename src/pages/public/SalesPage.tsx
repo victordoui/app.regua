@@ -66,21 +66,29 @@ const outcomes = [
     icon: CalendarDays,
     title: 'Agenda inteligente',
     description: 'Horários, profissionais e confirmações organizados para você atender sem conflitos.',
+    tone: 'border-blue-100 bg-gradient-to-b from-blue-50/90 to-white',
+    iconTone: 'bg-blue-100 text-blue-600',
   },
   {
     icon: Users,
     title: 'Clientes em um só lugar',
     description: 'Histórico, preferências e relacionamento reunidos para cada cliente se sentir lembrado.',
+    tone: 'border-violet-100 bg-gradient-to-b from-violet-50/90 to-white',
+    iconTone: 'bg-violet-100 text-violet-600',
   },
   {
     icon: HeartHandshake,
     title: 'Equipe bem coordenada',
     description: 'Turnos, comissões e desempenho visíveis para cada profissional saber o que precisa fazer.',
+    tone: 'border-orange-100 bg-gradient-to-b from-orange-50/90 to-white',
+    iconTone: 'bg-orange-100 text-orange-600',
   },
   {
     icon: BarChart3,
     title: 'Financeiro com clareza',
     description: 'Receitas, caixa e indicadores fáceis de entender para decidir com mais segurança.',
+    tone: 'border-emerald-100 bg-gradient-to-b from-emerald-50/90 to-white',
+    iconTone: 'bg-emerald-100 text-emerald-600',
   },
 ];
 
@@ -89,6 +97,20 @@ const proofHighlights = [
   { icon: Check, value: '7 dias', label: 'Teste gratuito', detail: 'Conheça o sistema antes de assinar', color: 'bg-emerald-50 text-emerald-600' },
   { icon: ShieldCheck, value: 'Seguro', label: 'Dados protegidos', detail: 'Acesso controlado para sua equipe', color: 'bg-violet-50 text-violet-600' },
   { icon: HeartHandshake, value: 'Humano', label: 'Suporte de verdade', detail: 'Ajuda para configurar e evoluir', color: 'bg-orange-50 text-orange-600' },
+];
+
+const organizationSteps = [
+  { number: '01', title: 'Organize a agenda', description: 'Serviços, profissionais e horários ficam conectados desde o primeiro agendamento.' },
+  { number: '02', title: 'Conheça seus clientes', description: 'Histórico e preferências ajudam sua equipe a oferecer um atendimento mais pessoal.' },
+  { number: '03', title: 'Acompanhe a operação', description: 'Equipe, caixa, comissões e rotina ficam visíveis em um único painel.' },
+  { number: '04', title: 'Decida com clareza', description: 'Indicadores mostram o que está funcionando e onde existe oportunidade de crescer.' },
+];
+
+const routineComparison = [
+  { before: 'Agendamentos espalhados entre mensagens, papel e memória.', after: 'Uma agenda centralizada, disponível para toda a equipe.' },
+  { before: 'Dúvida sobre horários, profissionais e serviços disponíveis.', after: 'Disponibilidade organizada para reduzir conflito e retrabalho.' },
+  { before: 'Fim do mês sem clareza sobre receitas e comissões.', after: 'Financeiro e indicadores reunidos para acompanhar a operação.' },
+  { before: 'Clientes que deixam de voltar sem ninguém perceber.', after: 'Histórico e relacionamento para manter o cliente por perto.' },
 ];
 
 const faqs = [
@@ -100,72 +122,54 @@ const faqs = [
 ];
 
 const ProductPreview = () => (
-  <div className="relative mx-auto w-full max-w-[720px]">
-    <div className="absolute -inset-12 -z-10 rounded-full bg-blue-500/25 blur-3xl" />
-    <div className="absolute -right-3 -top-5 z-20 hidden rounded-2xl border border-white/80 bg-white/95 px-4 py-3 shadow-xl backdrop-blur sm:block">
-      <p className="text-[10px] font-bold uppercase tracking-[0.15em] text-slate-400">Visão clara</p>
-      <p className="mt-0.5 flex items-center gap-1 text-sm font-black text-emerald-600"><TrendingUp className="h-4 w-4" /> Decisões com dados</p>
-    </div>
-    <div className="absolute -bottom-5 -left-4 z-20 hidden items-center gap-3 rounded-2xl border border-white/80 bg-white/95 p-3 shadow-xl backdrop-blur sm:flex">
-      <span className="flex h-9 w-9 items-center justify-center rounded-xl bg-blue-100 text-primary"><CalendarDays className="h-5 w-5" /></span>
-      <div><p className="text-xs font-black text-slate-900">Agenda online 24h</p><p className="text-[10px] text-slate-500">Seu cliente agenda pelo celular</p></div>
-    </div>
+  <div className="relative mx-auto min-h-[720px] w-full max-w-[720px] sm:min-h-[520px]">
+    <div className="absolute -inset-10 -z-10 rounded-full bg-gradient-to-br from-blue-300/30 via-violet-200/20 to-transparent blur-3xl" />
+    <div className="absolute -right-5 bottom-12 -z-10 h-36 w-36 rounded-full bg-gradient-to-br from-blue-500 to-violet-500 opacity-90 shadow-[0_25px_70px_rgba(71,77,229,0.3)] sm:h-44 sm:w-44" />
+    <div className="absolute left-5 top-5 h-9 w-9 rotate-45 rounded-lg bg-gradient-to-br from-blue-500 to-violet-500 shadow-lg shadow-blue-500/20 sm:left-12" />
+    <Sparkles className="absolute right-16 top-3 h-8 w-8 text-amber-400 drop-shadow-sm" />
 
-    <div className="overflow-hidden rounded-[28px] border border-white/90 bg-white shadow-[0_38px_100px_-32px_rgba(15,47,107,0.58)]">
-      <div className="flex items-center justify-between border-b border-slate-100 bg-white px-4 py-3 sm:px-5">
-        <div className="flex items-center gap-2.5">
-          <img src={vizzuIcon} alt="" className="h-8 w-8 object-contain" />
-          <div><p className="text-xs font-black tracking-[0.05em] text-[#0F2F6B]">VIZZU</p><p className="text-[9px] text-slate-400">Demonstração do painel</p></div>
-        </div>
-        <div className="flex items-center gap-2"><span className="hidden text-right sm:block"><span className="block text-[10px] font-bold text-slate-700">Studio VIZZU</span><span className="block text-[9px] text-slate-400">Administrador</span></span><span className="flex h-8 w-8 items-center justify-center rounded-full bg-primary text-[10px] font-bold text-white">SV</span></div>
+    <div className="absolute inset-x-0 top-12 z-10 overflow-hidden rounded-[26px] border border-white/90 bg-white shadow-[0_38px_100px_-34px_rgba(15,47,107,0.55)] sm:left-10 sm:right-3 sm:rotate-[1.2deg]">
+      <div className="flex h-14 items-center justify-between border-b border-slate-100 px-4 sm:px-5">
+        <div className="flex items-center gap-2.5"><img src={vizzuIcon} alt="" className="h-8 w-8 object-contain" /><span className="text-sm font-black tracking-[0.04em] text-[#0F2F6B]">VIZZU</span></div>
+        <div className="hidden w-44 items-center gap-2 rounded-xl border border-slate-200 bg-slate-50 px-3 py-2 text-[9px] text-slate-400 sm:flex"><span className="h-3 w-3 rounded-full border border-slate-300" /> Buscar no sistema...</div>
+        <div className="flex items-center gap-2"><span className="h-7 w-7 rounded-full bg-slate-100" /><span className="flex h-8 w-8 items-center justify-center rounded-full bg-primary text-[9px] font-bold text-white">A</span></div>
       </div>
 
-      <div className="grid bg-[#f3f6fb] sm:grid-cols-[118px_1fr]">
-        <aside className="hidden min-h-[400px] flex-col bg-gradient-to-b from-[#285ec4] to-[#12336f] px-2.5 py-4 text-white sm:flex">
-          <div className="mb-5 flex items-center justify-center"><img src={vizzuIcon} alt="" className="h-12 w-12 object-contain drop-shadow" /></div>
-          <div className="space-y-1.5 text-[9px] font-semibold">
-            {[['Visão geral', BarChart3], ['Agenda', CalendarDays], ['Clientes', Users], ['Financeiro', WalletCards]].map(([label, Icon], index) => {
-              const NavIcon = Icon as typeof BarChart3;
-              return <div key={label as string} className={cn('flex items-center gap-2 rounded-lg px-2.5 py-2', index === 0 ? 'bg-white text-[#174a9e] shadow-sm' : 'text-blue-50')}><NavIcon className="h-3.5 w-3.5" />{label as string}</div>;
-            })}
-          </div>
-          <div className="mt-auto rounded-xl border border-white/15 bg-white/10 p-2.5 text-[9px] leading-4 text-blue-50">Toda a operação em um só lugar.</div>
-        </aside>
+      <div className="bg-[#f7f9fd] p-4 sm:p-5">
+        <div className="mb-4 flex items-end justify-between"><div><p className="text-sm font-black text-slate-900 sm:text-base">Visão geral</p><p className="text-[9px] text-slate-400">Hoje, sua operação em um só lugar</p></div><span className="rounded-lg border border-slate-200 bg-white px-2.5 py-1.5 text-[9px] font-semibold text-slate-500">Este mês</span></div>
 
-        <div className="space-y-3 p-3 sm:p-4">
-          <div className="relative overflow-hidden rounded-2xl bg-gradient-to-r from-[#0d285c] via-[#214e93] to-[#172b4e] px-4 py-4 text-white">
-            <div className="absolute -right-6 -top-10 h-32 w-32 rounded-full border-[18px] border-white/5" />
-            <p className="text-[9px] font-semibold text-blue-100">0 agendamentos hoje</p>
-            <p className="mt-1 text-base font-black text-white sm:text-lg">Olá, Studio VIZZU 👋</p>
-            <p className="mt-0.5 text-[10px] text-blue-100">Seu negócio pronto para crescer</p>
-          </div>
+        <div className="grid grid-cols-3 gap-2.5">
+          {[{ label: 'Agendamentos', value: '214', change: '+14%', color: 'text-blue-600 bg-blue-50' }, { label: 'Conclusão', value: '92%', change: '+5%', color: 'text-emerald-600 bg-emerald-50' }, { label: 'Novos clientes', value: '38', change: '+31%', color: 'text-violet-600 bg-violet-50' }].map((item) => <div key={item.label} className="rounded-2xl border border-slate-100 bg-white p-3 shadow-sm"><div className={cn('mb-3 flex h-7 w-7 items-center justify-center rounded-lg', item.color)}><TrendingUp className="h-3.5 w-3.5" /></div><div className="flex items-end justify-between gap-1"><p className="text-base font-black text-slate-900 sm:text-lg">{item.value}</p><span className="text-[8px] font-bold text-emerald-500">{item.change}</span></div><p className="mt-0.5 text-[8px] text-slate-400 sm:text-[9px]">{item.label}</p></div>)}
+        </div>
 
-          <div className="grid grid-cols-2 gap-2 lg:grid-cols-4">
-            {[
-              { label: 'Agenda hoje', value: '18', icon: CalendarDays, color: 'text-blue-600 bg-blue-50' },
-              { label: 'Conclusão', value: '84%', icon: Check, color: 'text-emerald-600 bg-emerald-50' },
-              { label: 'Novos clientes', value: '12', icon: Users, color: 'text-violet-600 bg-violet-50' },
-              { label: 'Receita', value: 'R$ 1.840', icon: WalletCards, color: 'text-sky-600 bg-sky-50' },
-            ].map((item) => (
-              <div key={item.label} className="rounded-xl border border-slate-200/80 bg-white p-2.5 shadow-sm">
-                <div className={cn('mb-2 flex h-6 w-6 items-center justify-center rounded-lg', item.color)}><item.icon className="h-3.5 w-3.5" /></div>
-                <p className="text-sm font-black text-slate-950">{item.value}</p><p className="text-[9px] text-slate-500">{item.label}</p>
-              </div>
-            ))}
+        <div className="mt-3 grid gap-3 sm:grid-cols-[1.05fr_0.95fr]">
+          <div className="rounded-2xl border border-slate-100 bg-white p-3.5 shadow-sm">
+            <div className="mb-4 flex items-center justify-between"><div><p className="text-[11px] font-bold text-slate-800">Metas do negócio</p><p className="text-[8px] text-slate-400">Acompanhe a evolução da equipe</p></div><BarChart3 className="h-4 w-4 text-primary" /></div>
+            <div className="space-y-3">{[['Ocupação da agenda', '84%', 'w-[84%]', 'bg-blue-500'], ['Clientes recorrentes', '71%', 'w-[71%]', 'bg-violet-500'], ['Meta de faturamento', '92%', 'w-[92%]', 'bg-emerald-500']].map(([label, value, width, color]) => <div key={label}><div className="mb-1 flex justify-between text-[9px]"><span className="font-semibold text-slate-600">{label}</span><span className="font-bold text-slate-800">{value}</span></div><div className="h-1.5 overflow-hidden rounded-full bg-slate-100"><div className={cn('h-full rounded-full', width, color)} /></div></div>)}</div>
           </div>
-
-          <div className="grid gap-2 lg:grid-cols-[1.15fr_0.85fr]">
-            <div className="rounded-xl border border-slate-200/80 bg-white p-3 shadow-sm">
-              <div className="mb-2 flex items-center justify-between"><div><p className="text-[11px] font-bold text-slate-900">Próximos agendamentos</p><p className="text-[9px] text-slate-400">Sua equipe e horários do dia</p></div><Clock3 className="h-3.5 w-3.5 text-primary" /></div>
-              <div className="space-y-1.5">{[['09:30', 'Corte + barba', 'Carlos'], ['10:20', 'Coloração', 'Juliana'], ['11:10', 'Manicure', 'Mariana']].map(([time, service, professional], index) => <div key={time} className="flex items-center gap-2 rounded-lg bg-slate-50 px-2 py-1.5"><span className={cn('h-7 w-1 rounded-full', index === 0 ? 'bg-blue-500' : index === 1 ? 'bg-violet-500' : 'bg-orange-500')} /><div className="min-w-0 flex-1"><p className="truncate text-[9px] font-bold text-slate-700">{service}</p><p className="text-[8px] text-slate-400">com {professional}</p></div><span className="text-[9px] font-bold text-slate-600">{time}</span></div>)}</div>
-            </div>
-            <div className="rounded-xl bg-gradient-to-br from-[#0A2861] via-[#164A9E] to-[#2E6FD3] p-3 text-white shadow-sm">
-              <p className="text-[9px] font-semibold text-blue-100">Faturamento mensal</p><p className="mt-0.5 text-lg font-black text-white">R$ 24.860</p><p className="flex items-center gap-1 text-[9px] font-semibold text-emerald-200"><TrendingUp className="h-3 w-3" /> +16,1% este mês</p>
-              <div className="mt-4 flex h-14 items-end gap-1">{[34, 48, 42, 63, 58, 76, 69, 92, 84, 100].map((height, index) => <div key={index} className="flex-1 rounded-t bg-white/80" style={{ height: `${height}%` }} />)}</div>
-            </div>
+          <div className="rounded-2xl border border-slate-100 bg-white p-3.5 shadow-sm">
+            <div className="mb-3 flex items-center justify-between"><div><p className="text-[11px] font-bold text-slate-800">Equipe em movimento</p><p className="text-[8px] text-slate-400">Próximos atendimentos</p></div><Users className="h-4 w-4 text-violet-500" /></div>
+            <div className="space-y-2">{[['CM', 'Carlos', 'Corte + barba', '09:30'], ['JL', 'Juliana', 'Coloração', '10:20'], ['MR', 'Mariana', 'Manicure', '11:10']].map(([initials, name, service, time], index) => <div key={time} className="flex items-center gap-2 rounded-xl bg-slate-50 p-2"><span className={cn('flex h-7 w-7 items-center justify-center rounded-full text-[8px] font-bold', index === 0 ? 'bg-blue-100 text-blue-600' : index === 1 ? 'bg-violet-100 text-violet-600' : 'bg-orange-100 text-orange-600')}>{initials}</span><div className="min-w-0 flex-1"><p className="truncate text-[9px] font-bold text-slate-700">{name}</p><p className="truncate text-[8px] text-slate-400">{service}</p></div><span className="text-[8px] font-bold text-slate-500">{time}</span></div>)}</div>
           </div>
         </div>
       </div>
+    </div>
+
+    <div className="absolute left-0 top-28 z-20 hidden w-14 flex-col items-center gap-4 rounded-2xl border border-white/90 bg-white py-4 shadow-[0_20px_50px_-20px_rgba(37,99,235,0.45)] sm:flex">
+      <img src={vizzuIcon} alt="" className="h-8 w-8 object-contain" />
+      {[BarChart3, CalendarDays, Users, WalletCards].map((Icon, index) => <span key={index} className={cn('flex h-8 w-8 items-center justify-center rounded-xl', index === 0 ? 'bg-primary text-white shadow-md shadow-primary/25' : 'text-slate-400')}><Icon className="h-4 w-4" /></span>)}
+    </div>
+
+    <div className="absolute -right-2 top-24 z-20 hidden w-36 rounded-2xl border border-white/90 bg-white p-3.5 shadow-[0_22px_55px_-22px_rgba(42,91,190,0.5)] sm:block">
+      <span className="flex h-8 w-8 items-center justify-center rounded-xl bg-blue-100 text-primary"><CalendarDays className="h-4 w-4" /></span><p className="mt-3 text-[10px] font-black text-slate-800">Agenda inteligente</p><p className="mt-1 text-[8px] leading-4 text-slate-400">Horários organizados sem conflito.</p><div className="mt-3 h-1.5 overflow-hidden rounded-full bg-slate-100"><div className="h-full w-[84%] rounded-full bg-primary" /></div>
+    </div>
+
+    <div className="absolute bottom-0 right-8 z-20 hidden w-36 rounded-2xl border border-white/90 bg-white p-3.5 shadow-[0_22px_55px_-22px_rgba(75,65,210,0.5)] sm:block">
+      <p className="text-[9px] font-bold text-slate-800">Desempenho</p><div className="mx-auto mt-2 flex h-20 w-20 items-center justify-center rounded-full bg-[conic-gradient(#4f46e5_0_84%,#e9e9ff_84%_100%)]"><div className="flex h-14 w-14 flex-col items-center justify-center rounded-full bg-white"><span className="text-base font-black text-slate-900">84%</span><span className="text-[7px] text-emerald-500">+12%</span></div></div><p className="mt-2 text-center text-[8px] text-slate-400">Agenda ocupada</p>
+    </div>
+
+    <div className="absolute bottom-8 left-6 z-20 hidden items-center gap-2 rounded-2xl border border-white/90 bg-white px-3.5 py-3 shadow-[0_22px_55px_-22px_rgba(42,91,190,0.5)] sm:left-16 sm:flex">
+      <span className="flex h-8 w-8 items-center justify-center rounded-xl bg-emerald-100 text-emerald-600"><Check className="h-4 w-4" /></span><div><p className="text-[9px] font-black text-slate-800">Operação organizada</p><p className="text-[8px] text-slate-400">Tudo conectado no VIZZU</p></div>
     </div>
   </div>
 );
@@ -293,9 +297,9 @@ const SalesPage = () => {
             <div className="grid gap-5 md:grid-cols-2 lg:grid-cols-4">
               {outcomes.map((outcome) => (
                 <div key={outcome.title}>
-                  <Card className="group h-full overflow-hidden rounded-3xl border-slate-200/80 bg-white shadow-sm transition-all hover:-translate-y-1 hover:shadow-xl dark:border-slate-800 dark:bg-slate-900">
+                  <Card className={cn('group h-full overflow-hidden rounded-3xl shadow-sm transition-all hover:-translate-y-1 hover:shadow-xl dark:border-slate-800 dark:bg-slate-900', outcome.tone)}>
                     <CardContent className="p-7">
-                      <div className="mb-7 flex h-12 w-12 items-center justify-center rounded-2xl bg-primary/10 text-primary transition-colors group-hover:bg-primary group-hover:text-white"><outcome.icon className="h-6 w-6" /></div>
+                      <div className={cn('mb-7 flex h-12 w-12 items-center justify-center rounded-2xl transition-transform group-hover:scale-105', outcome.iconTone)}><outcome.icon className="h-6 w-6" /></div>
                       <h3 className="text-xl font-bold">{outcome.title}</h3>
                       <p className="mt-3 leading-7 text-slate-600 dark:text-slate-300">{outcome.description}</p>
                       <div className="mt-6 flex items-center gap-1 text-sm font-bold text-primary">Tudo conectado <ChevronRight className="h-4 w-4" /></div>
@@ -303,6 +307,41 @@ const SalesPage = () => {
                   </Card>
                 </div>
               ))}
+            </div>
+          </div>
+        </section>
+
+        <section className="border-y border-slate-200/80 bg-white px-4 py-20 sm:px-6 lg:py-28 dark:border-slate-800 dark:bg-slate-900/40">
+          <div className="mx-auto max-w-7xl">
+            <div className="mx-auto mb-12 max-w-3xl text-center">
+              <span className="text-sm font-bold uppercase tracking-[0.18em] text-primary">Da rotina corrida ao negócio organizado</span>
+              <h2 className="mt-3 text-3xl font-black tracking-tight sm:text-4xl">O VIZZU coloca sua operação em ordem, etapa por etapa</h2>
+              <p className="mt-4 text-slate-600 dark:text-slate-300">Você começa pelo essencial e ganha uma visão cada vez mais clara do atendimento, da equipe e dos resultados.</p>
+            </div>
+
+            <div className="relative grid gap-4 md:grid-cols-2 lg:grid-cols-4">
+              <div className="pointer-events-none absolute left-[12%] right-[12%] top-7 hidden h-px bg-gradient-to-r from-transparent via-blue-200 to-transparent lg:block" />
+              {organizationSteps.map((step) => (
+                <div key={step.number} className="relative rounded-3xl border border-slate-200 bg-[#fbfcff] p-6 shadow-sm dark:border-slate-800 dark:bg-slate-950">
+                  <span className="relative z-10 flex h-14 w-14 items-center justify-center rounded-2xl bg-gradient-to-br from-[#387ff1] to-[#174a9e] text-sm font-black text-white shadow-lg shadow-blue-500/20">{step.number}</span>
+                  <h3 className="mt-6 text-lg font-black text-slate-900 dark:text-white">{step.title}</h3>
+                  <p className="mt-2 text-sm leading-6 text-slate-600 dark:text-slate-300">{step.description}</p>
+                </div>
+              ))}
+            </div>
+
+            <div className="mt-14 overflow-hidden rounded-[32px] border border-slate-200 bg-slate-50 shadow-sm dark:border-slate-800 dark:bg-slate-950">
+              <div className="grid lg:grid-cols-2">
+                <div className="border-b border-slate-200 p-7 sm:p-10 lg:border-b-0 lg:border-r dark:border-slate-800">
+                  <div className="mb-7 flex items-center gap-3"><span className="flex h-10 w-10 items-center justify-center rounded-2xl bg-rose-100 text-rose-600"><X className="h-5 w-5" /></span><div><p className="text-xs font-bold uppercase tracking-[0.15em] text-rose-500">Sem organização</p><h3 className="text-xl font-black">A rotina depende de esforço e memória</h3></div></div>
+                  <div className="space-y-4">{routineComparison.map((item) => <div key={item.before} className="flex gap-3 text-sm leading-6 text-slate-600 dark:text-slate-300"><X className="mt-1 h-4 w-4 shrink-0 text-rose-400" />{item.before}</div>)}</div>
+                </div>
+                <div className="bg-gradient-to-br from-blue-50 via-white to-violet-50 p-7 sm:p-10 dark:from-blue-950/30 dark:via-slate-950 dark:to-violet-950/20">
+                  <div className="mb-7 flex items-center gap-3"><span className="flex h-10 w-10 items-center justify-center rounded-2xl bg-emerald-100 text-emerald-600"><Check className="h-5 w-5" /></span><div><p className="text-xs font-bold uppercase tracking-[0.15em] text-emerald-600">Com o VIZZU</p><h3 className="text-xl font-black">A operação funciona com mais clareza</h3></div></div>
+                  <div className="space-y-4">{routineComparison.map((item) => <div key={item.after} className="flex gap-3 text-sm font-medium leading-6 text-slate-700 dark:text-slate-200"><Check className="mt-1 h-4 w-4 shrink-0 text-emerald-500" />{item.after}</div>)}</div>
+                  <Button className="mt-8 rounded-xl px-6 shadow-lg shadow-primary/20" onClick={() => navigate('/cadastro?plano=trial')}>Começar teste gratuito <ArrowRight className="ml-2 h-4 w-4" /></Button>
+                </div>
+              </div>
             </div>
           </div>
         </section>
