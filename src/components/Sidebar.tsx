@@ -249,19 +249,11 @@ const Sidebar = () => {
 
       {/* Navigation */}
       <nav className="flex-1 space-y-0.5 overflow-y-auto px-2.5 pb-3 scrollbar-hidden-hover">
-        {menuStructure.map((category, categoryIndex) => {
+        {menuStructure.map((category) => {
           const CatIcon = category.icon;
           const isOpen = openCategories.includes(category.category);
           const hasActive = isCategoryActive(category.items);
           const isSingle = category.items.length === 1;
-          const showSection = !collapsed && category.section !== 'Início' && (categoryIndex === 0 || menuStructure[categoryIndex - 1]?.section !== category.section);
-
-          const sectionLabel = showSection ? (
-            <p className="px-2 pb-1 pt-4 text-[10px] font-extrabold uppercase tracking-[0.16em] text-sidebar-muted/75">
-              {category.section}
-            </p>
-          ) : null;
-
           // Categoria com 1 item → link direto
           if (isSingle) {
             const item = category.items[0];
@@ -269,7 +261,6 @@ const Sidebar = () => {
             const active = isActivePath(item.path);
             return (
               <div key={category.category}>
-                {sectionLabel}
                 <button
                   onClick={() => navigate(item.path)}
                   title={collapsed ? item.label : undefined}
@@ -308,7 +299,6 @@ const Sidebar = () => {
 
           return (
             <div key={category.category}>
-              {sectionLabel}
               <Collapsible open={isOpen} onOpenChange={() => toggleCategory(category.category)}>
                 <CollapsibleTrigger asChild>
                   <button
