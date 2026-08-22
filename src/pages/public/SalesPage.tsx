@@ -42,8 +42,7 @@ import { cn } from '@/lib/utils';
 import vizzuIcon from '@/assets/vizzu-icon.png';
 import heroProfessionalMan from '@/assets/sales/vizzu-professional-man-tattoo.png';
 import heroProfessionalWoman from '@/assets/sales/vizzu-professional-woman.png';
-import heroDashboard from '@/assets/sales/vizzu-dashboard-showcase.png';
-import heroMobileDashboard from '@/assets/sales/vizzu-mobile-showcase-source.png';
+import heroDashboard from '@/assets/sales/vizzu-dashboard-mobile-composite.png';
 import type { PlanConfig } from '@/types/superAdmin';
 import { DEFAULT_PUBLIC_PLANS } from '@/lib/publicPlans';
 
@@ -268,7 +267,7 @@ const HeroShowcase = () => {
       <motion.img
         src={heroDashboard}
         alt="Dashboard VIZZU com agenda, indicadores e financeiro"
-        className="absolute left-1/2 top-8 z-10 w-[72%] max-w-[720px] -translate-x-1/2 rounded-xl bg-white object-contain shadow-[0_30px_65px_-30px_rgba(15,47,107,0.6)] sm:top-10"
+        className="absolute left-1/2 top-8 z-10 w-[72%] max-w-[760px] -translate-x-1/2 rounded-xl bg-white object-contain shadow-[0_30px_65px_-30px_rgba(15,47,107,0.6)] sm:top-10"
         initial={reduceMotion ? false : { opacity: 0, y: 24 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.72, delay: 0.08, ease: [0.22, 1, 0.36, 1] }}
@@ -291,14 +290,6 @@ const HeroShowcase = () => {
         animate={{ opacity: 1, x: 0 }}
         transition={{ duration: 0.85, delay: 0.22, ease: [0.22, 1, 0.36, 1] }}
       />
-      <motion.div
-        className="absolute bottom-0 left-1/2 z-30 hidden h-[265px] w-[142px] -translate-x-1/2 overflow-hidden rounded-[25px] bg-black shadow-[0_24px_55px_-18px_rgba(15,23,42,0.75)] sm:block xl:h-[340px] xl:w-[182px] xl:rounded-[32px]"
-        initial={reduceMotion ? false : { opacity: 0, y: 24 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.72, delay: 0.32, ease: [0.22, 1, 0.36, 1] }}
-      >
-        <img src={heroMobileDashboard} alt="Aplicativo VIZZU no celular" className="absolute left-1/2 h-full max-w-none -translate-x-1/2 object-contain" />
-      </motion.div>
       <div className="absolute bottom-7 right-[9%] z-30 hidden max-w-[180px] rounded-2xl border border-white/90 bg-white/95 p-3 shadow-[0_22px_50px_-24px_rgba(15,47,107,0.55)] backdrop-blur 2xl:block dark:border-white/10 dark:bg-[#0a1935]/95">
         <div className="flex items-center gap-1 text-amber-400"><Star className="h-3.5 w-3.5" weight="fill" /><Star className="h-3.5 w-3.5" weight="fill" /><Star className="h-3.5 w-3.5" weight="fill" /><Star className="h-3.5 w-3.5" weight="fill" /><Star className="h-3.5 w-3.5" weight="fill" /></div>
         <p className="mt-2 text-[10px] font-bold leading-4 text-slate-800 dark:text-white">“Mais organização e mais clientes!”</p>
