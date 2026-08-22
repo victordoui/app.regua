@@ -254,13 +254,24 @@ const Sidebar = () => {
           const isOpen = openCategories.includes(category.category);
           const hasActive = isCategoryActive(category.items);
           const isSingle = category.items.length === 1;
+          const showSection = !collapsed && category.section !== 'Início' && (categoryIndex === 0 || menuStructure[categoryIndex - 1]?.section !== category.section);
+          const sectionLabel = showSection ? (
+            <div className="flex items-center gap-2 px-2 pb-1 pt-3">
+              <span className="whitespace-nowrap text-[9px] font-bold uppercase tracking-[0.15em] text-white/65">{category.section}</span>
+              <span className="h-px flex-1 bg-white/10" />
+            </div>
+          ) : null;
+          const moduleClass = categoryIndex > 0
+            ? (showSection ? "mt-2" : "mt-2 border-t border-white/10 pt-2")
+            : undefined;
           // Categoria com 1 item → link direto
           if (isSingle) {
             const item = category.items[0];
             const Icon = item.icon;
             const active = isActivePath(item.path);
             return (
-              <div key={category.category} className={categoryIndex > 0 ? "mt-2 border-t border-white/10 pt-2" : undefined}>
+              <div key={category.category} className={moduleClass}>
+                {sectionLabel}
                 <button
                   onClick={() => navigate(item.path)}
                   title={collapsed ? item.label : undefined}
@@ -298,7 +309,8 @@ const Sidebar = () => {
           }
 
           return (
-            <div key={category.category} className={categoryIndex > 0 ? "mt-2 border-t border-white/10 pt-2" : undefined}>
+            <div key={category.category} className={moduleClass}>
+              {sectionLabel}
               <Collapsible open={isOpen} onOpenChange={() => toggleCategory(category.category)}>
                 <CollapsibleTrigger asChild>
                   <button
