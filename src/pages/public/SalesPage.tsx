@@ -40,9 +40,7 @@ import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/
 import { LoadingSpinner } from '@/components/ui/loading-spinner';
 import { cn } from '@/lib/utils';
 import vizzuIcon from '@/assets/vizzu-icon.png';
-import heroProfessionalMan from '@/assets/sales/vizzu-professional-man-cutout.png';
-import heroProfessionalWoman from '@/assets/sales/vizzu-professional-woman-cutout.png';
-import heroDashboard from '@/assets/sales/vizzu-dashboard-mobile-composite.png';
+import heroComposition from '@/assets/sales/vizzu-sales-hero-composition.png';
 import type { PlanConfig } from '@/types/superAdmin';
 import { DEFAULT_PUBLIC_PLANS } from '@/lib/publicPlans';
 
@@ -263,32 +261,14 @@ const HeroShowcase = () => {
   const reduceMotion = useReducedMotion();
 
   return (
-    <div className="relative mx-auto h-[410px] w-full max-w-[1160px] sm:h-[500px] xl:h-[560px]">
+    <div className="relative mx-auto h-[400px] w-full max-w-[1280px] sm:h-[500px] xl:h-[560px]">
       <motion.img
-        src={heroDashboard}
-        alt="Dashboard VIZZU com agenda, indicadores e financeiro"
-        className="absolute left-1/2 top-9 z-10 w-[72%] max-w-[860px] -translate-x-1/2 object-contain sm:top-8 xl:w-[76%]"
+        src={heroComposition}
+        alt="VIZZU com painel de gestão, aplicativo mobile e profissionais"
+        className="absolute left-1/2 top-1/2 z-10 w-full max-w-[1280px] -translate-x-1/2 -translate-y-1/2 object-contain"
         initial={reduceMotion ? false : { opacity: 0, y: 24 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.72, delay: 0.08, ease: [0.22, 1, 0.36, 1] }}
-      />
-      <motion.img
-        src={heroProfessionalMan}
-        alt="Profissional usando o VIZZU no celular"
-        className="pointer-events-none absolute bottom-0 left-[-5%] z-20 hidden h-[365px] w-auto object-contain xl:block 2xl:h-[470px]"
-        style={{ scaleX: -1 }}
-        initial={reduceMotion ? false : { opacity: 0, x: -28 }}
-        animate={{ opacity: 1, x: 0 }}
-        transition={{ duration: 0.85, delay: 0.15, ease: [0.22, 1, 0.36, 1] }}
-      />
-      <motion.img
-        src={heroProfessionalWoman}
-        alt="Profissional acompanhando sua agenda no VIZZU"
-        className="pointer-events-none absolute bottom-0 right-[-5%] z-20 hidden h-[365px] w-auto object-contain xl:block 2xl:h-[470px]"
-        style={{ scaleX: -1 }}
-        initial={reduceMotion ? false : { opacity: 0, x: 28 }}
-        animate={{ opacity: 1, x: 0 }}
-        transition={{ duration: 0.85, delay: 0.22, ease: [0.22, 1, 0.36, 1] }}
       />
     </div>
   );
