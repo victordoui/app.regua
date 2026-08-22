@@ -41,6 +41,7 @@ import { LoadingSpinner } from '@/components/ui/loading-spinner';
 import { cn } from '@/lib/utils';
 import vizzuIcon from '@/assets/vizzu-icon.png';
 import salonOwnerCutout from '@/assets/vizzu-salon-owner-cutout.png';
+import barberOwnerCutout from '@/assets/vizzu-barber-owner-cutout.png';
 import type { PlanConfig } from '@/types/superAdmin';
 import { DEFAULT_PUBLIC_PLANS } from '@/lib/publicPlans';
 
@@ -259,19 +260,38 @@ const ProductPreview = () => {
 
 const HumanHeroVisual = () => {
   const reduceMotion = useReducedMotion();
+  const [featuredProfessional, setFeaturedProfessional] = useState<'woman' | 'man'>(() => Math.random() < 0.5 ? 'woman' : 'man');
+  const professionalImage = featuredProfessional === 'woman' ? salonOwnerCutout : barberOwnerCutout;
+  const professionalAlt = featuredProfessional === 'woman'
+    ? 'Profissional de beleza organizando seu negócio pelo tablet'
+    : 'Profissional de barbearia organizando seu negócio pelo tablet';
+
+  useEffect(() => {
+    const rotationTimer = window.setInterval(() => {
+      setFeaturedProfessional((current) => current === 'woman' ? 'man' : 'woman');
+    }, 10000);
+
+    return () => window.clearInterval(rotationTimer);
+  }, []);
 
   return (
     <div className="relative mx-auto min-h-[900px] w-full max-w-[820px] sm:min-h-[850px] lg:min-h-[610px]">
       <motion.img
-        src={salonOwnerCutout}
-        alt="Profissional de beleza organizando seu negócio pelo tablet"
+        key={featuredProfessional}
+        src={professionalImage}
+        alt={professionalAlt}
         initial={reduceMotion ? false : { opacity: 0, scale: 0.97, x: 24 }}
         animate={{ opacity: 1, scale: 1, x: 0 }}
         transition={{ duration: 0.9, delay: 0.08, ease: [0.22, 1, 0.36, 1] }}
-        className="pointer-events-none absolute bottom-0 right-[-42%] z-[5] h-[520px] w-auto max-w-none object-contain object-bottom drop-shadow-[0_32px_48px_rgba(15,47,107,0.24)] sm:right-[-25%] sm:h-[590px] lg:right-[-8%] lg:h-[610px] dark:drop-shadow-[0_32px_54px_rgba(43,111,255,0.16)]"
+        className={cn(
+          'pointer-events-none absolute bottom-0 z-[5] w-auto max-w-none object-contain object-bottom drop-shadow-[0_32px_48px_rgba(15,47,107,0.18)] dark:drop-shadow-[0_32px_54px_rgba(43,111,255,0.16)]',
+          featuredProfessional === 'woman'
+            ? 'right-[-58%] h-[500px] sm:right-[-44%] sm:h-[560px] lg:right-[-34%] lg:h-[590px]'
+            : 'right-[-5%] h-[500px] sm:right-[-2%] sm:h-[560px] lg:right-[-2%] lg:h-[590px]',
+        )}
       />
 
-      <div className="absolute inset-x-0 top-[350px] z-10 sm:top-[385px] lg:left-[-4%] lg:right-[26%] lg:top-[18px] lg:origin-top-left lg:scale-[0.76] xl:left-[-2%] xl:scale-[0.8]">
+      <div className="absolute inset-x-0 top-[350px] z-10 sm:top-[385px] lg:left-[-6%] lg:right-[38%] lg:top-[18px] lg:origin-top-left lg:scale-[0.7] xl:left-[-4%] xl:scale-[0.74]">
         <ProductPreview />
       </div>
 
@@ -293,7 +313,7 @@ const HumanHeroVisual = () => {
       >
         <div className="flex items-center gap-1 text-amber-400" aria-label="5 estrelas">{[0, 1, 2, 3, 4].map((star) => <Star key={star} className="h-4 w-4" weight="fill" />)}</div>
         <p className="mt-2 text-sm font-bold leading-5">“Agora tenho tempo para atender e clareza para crescer.”</p>
-        <p className="mt-2 text-[11px] text-slate-500 dark:text-blue-100">Camila · Gestora de salão</p>
+        <p className="mt-2 text-[11px] text-slate-500 dark:text-blue-100">{featuredProfessional === 'woman' ? 'Camila · Gestora de salão' : 'Rafael · Gestor de barbearia'}</p>
       </motion.div>
     </div>
   );
@@ -332,7 +352,7 @@ const SalesPage = () => {
   const toggleTheme = () => setTheme(isDark ? 'light' : 'dark');
 
   return (
-    <div className="min-h-screen scroll-smooth overflow-x-hidden bg-[#eaf2ff] text-slate-950 transition-colors duration-500 dark:bg-[#030817] dark:text-white">
+    <div className="min-h-screen scroll-smooth overflow-x-hidden bg-white text-slate-950 transition-colors duration-500 dark:bg-[#030817] dark:text-white">
       <header
         className="fixed inset-x-0 top-0 z-50 border-b border-blue-100/80 bg-white/92 px-4 shadow-[0_8px_35px_-28px_rgba(15,47,107,0.5)] backdrop-blur-xl dark:border-white/10 dark:bg-[#030817]/92 sm:px-6"
       >
@@ -356,7 +376,7 @@ const SalesPage = () => {
       </header>
       <main>
         <section className="relative isolate overflow-hidden px-4 pb-12 pt-28 sm:px-6 sm:pt-32 lg:min-h-[760px] lg:pb-16">
-          <div className="pointer-events-none absolute inset-0 -z-20 bg-[radial-gradient(circle_at_12%_16%,rgba(53,126,255,0.3),transparent_32%),radial-gradient(circle_at_88%_12%,rgba(99,102,241,0.22),transparent_31%),linear-gradient(135deg,#eaf3ff_0%,#dceaff_48%,#eef4ff_100%)] dark:bg-[radial-gradient(circle_at_16%_18%,rgba(37,99,235,0.2),transparent_34%),radial-gradient(circle_at_84%_10%,rgba(99,102,241,0.16),transparent_30%),linear-gradient(135deg,#020617_0%,#071b3e_50%,#030712_100%)]" />
+          <div className="pointer-events-none absolute inset-0 -z-20 bg-white dark:bg-[radial-gradient(circle_at_16%_18%,rgba(37,99,235,0.2),transparent_34%),radial-gradient(circle_at_84%_10%,rgba(99,102,241,0.16),transparent_30%),linear-gradient(135deg,#020617_0%,#071b3e_50%,#030712_100%)]" />
           <motion.div className="pointer-events-none absolute -left-32 top-10 -z-10 h-96 w-96 rounded-full border border-blue-300/30 dark:border-blue-400/10" animate={reduceMotion ? undefined : { scale: [1, 1.08, 1], x: [0, 18, 0] }} transition={{ duration: 10, repeat: Infinity, ease: 'easeInOut' }} />
           <motion.div className="pointer-events-none absolute -right-28 top-20 -z-10 h-[420px] w-[420px] rounded-full border border-blue-300/30 dark:border-blue-400/10" animate={reduceMotion ? undefined : { scale: [1.08, 1, 1.08], y: [0, 20, 0] }} transition={{ duration: 12, repeat: Infinity, ease: 'easeInOut' }} />
           <div className="mx-auto grid max-w-7xl items-center gap-10 lg:grid-cols-[0.82fr_1.18fr]">
