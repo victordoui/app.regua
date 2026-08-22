@@ -40,19 +40,8 @@ import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/
 import { LoadingSpinner } from '@/components/ui/loading-spinner';
 import { cn } from '@/lib/utils';
 import vizzuIcon from '@/assets/vizzu-icon.png';
-import salonOwnerCutout from '@/assets/vizzu-salon-owner-cutout.png';
-import barberOwnerCutout from '@/assets/vizzu-barber-owner-cutout.png';
-import salonOwnerLeftCutout from '@/assets/vizzu-salon-owner-left-cutout.png';
-import barberOwnerTattooCutout from '@/assets/vizzu-barber-owner-tattoo-cutout.png';
 import type { PlanConfig } from '@/types/superAdmin';
 import { DEFAULT_PUBLIC_PLANS } from '@/lib/publicPlans';
-
-const HERO_PROFESSIONALS = [
-  { image: salonOwnerCutout, alt: 'Profissional de beleza organizando seu negócio pelo tablet', attribution: 'Camila · Gestora de salão' },
-  { image: barberOwnerCutout, alt: 'Profissional de barbearia organizando seu negócio pelo tablet', attribution: 'Rafael · Gestor de barbearia' },
-  { image: salonOwnerLeftCutout, alt: 'Profissional de beleza consultando seu negócio pelo tablet', attribution: 'Marina · Gestora de estética' },
-  { image: barberOwnerTattooCutout, alt: 'Profissional de barbearia administrando seu negócio pelo celular', attribution: 'André · Gestor de barbearia' },
-] as const;
 
 const FEATURE_LABELS: Record<string, string> = {
   basic_scheduling: 'Agenda online inteligente',
@@ -267,59 +256,6 @@ const ProductPreview = () => {
   );
 };
 
-const HumanHeroVisual = () => {
-  const reduceMotion = useReducedMotion();
-  const [featuredProfessional, setFeaturedProfessional] = useState(() => Math.floor(Math.random() * HERO_PROFESSIONALS.length));
-  const professional = HERO_PROFESSIONALS[featuredProfessional];
-
-  useEffect(() => {
-    const rotationTimer = window.setInterval(() => {
-      setFeaturedProfessional((current) => (current + 1) % HERO_PROFESSIONALS.length);
-    }, 10000);
-
-    return () => window.clearInterval(rotationTimer);
-  }, []);
-
-  return (
-    <div className="relative mx-auto min-h-[900px] w-full max-w-[820px] sm:min-h-[850px] lg:min-h-[610px]">
-      <motion.img
-        key={featuredProfessional}
-        src={professional.image}
-        alt={professional.alt}
-        initial={reduceMotion ? false : { opacity: 0, scale: 0.97, x: 24 }}
-        animate={{ opacity: 1, scale: 1, x: 0 }}
-        transition={{ duration: 0.9, delay: 0.08, ease: [0.22, 1, 0.36, 1] }}
-        className="pointer-events-none absolute bottom-0 right-[-5%] z-[5] h-[500px] w-auto max-w-none object-contain object-bottom drop-shadow-[0_32px_48px_rgba(15,47,107,0.18)] sm:right-[-2%] sm:h-[560px] lg:right-[-2%] lg:h-[590px] dark:drop-shadow-[0_32px_54px_rgba(43,111,255,0.16)]"
-      />
-
-      <div className="absolute inset-x-0 top-[350px] z-10 sm:top-[385px] lg:left-[-6%] lg:right-[38%] lg:top-[18px] lg:origin-top-left lg:scale-[0.7] xl:left-[-4%] xl:scale-[0.74]">
-        <ProductPreview />
-      </div>
-
-      <motion.div
-        initial={reduceMotion ? false : { opacity: 0, y: 18 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.6, delay: 0.72 }}
-        className="absolute right-3 top-[330px] z-20 hidden items-center gap-3 rounded-2xl border border-white/90 bg-white/95 px-4 py-3 shadow-[0_22px_55px_-24px_rgba(15,47,107,0.65)] backdrop-blur-md dark:border-white/10 dark:bg-[#08172f]/95 sm:flex lg:right-3 lg:top-5"
-      >
-        <span className="flex h-10 w-10 items-center justify-center rounded-xl bg-emerald-100 text-emerald-600"><TrendingUp className="h-5 w-5" weight="duotone" /></span>
-        <div><p className="text-[10px] font-bold uppercase tracking-[0.12em] text-slate-400">Rotina organizada</p><p className="text-sm font-black text-slate-900 dark:text-white">Mais tempo para seus clientes</p></div>
-      </motion.div>
-
-      <motion.div
-        initial={reduceMotion ? false : { opacity: 0, y: 16 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.6, delay: 0.86 }}
-        className="absolute bottom-5 right-3 z-20 hidden w-[235px] rounded-2xl border border-white/80 bg-white/94 p-4 text-slate-900 shadow-[0_22px_55px_-24px_rgba(15,47,107,0.65)] backdrop-blur-md dark:border-white/10 dark:bg-[#08172f]/95 dark:text-white sm:block lg:bottom-4 lg:right-4"
-      >
-        <div className="flex items-center gap-1 text-amber-400" aria-label="5 estrelas">{[0, 1, 2, 3, 4].map((star) => <Star key={star} className="h-4 w-4" weight="fill" />)}</div>
-        <p className="mt-2 text-sm font-bold leading-5">“Agora tenho tempo para atender e clareza para crescer.”</p>
-        <p className="mt-2 text-[11px] text-slate-500 dark:text-blue-100">{professional.attribution}</p>
-      </motion.div>
-    </div>
-  );
-};
-
 const PlanIcon = ({ type }: { type: string }): ReactNode => {
   if (type === 'pro') return <Crown className="h-5 w-5" />;
   if (type === 'enterprise') return <ShieldCheck className="h-5 w-5" />;
@@ -331,6 +267,7 @@ const SalesPage = () => {
   const navigate = useNavigate();
   const { resolvedTheme, setTheme } = useTheme();
   const reduceMotion = useReducedMotion();
+  const [showHeader, setShowHeader] = useState(false);
   const [themeReady, setThemeReady] = useState(false);
   const isDark = themeReady && resolvedTheme === 'dark';
   const { data: plans = [], isLoading } = useQuery({
@@ -346,51 +283,75 @@ const SalesPage = () => {
   });
 
   useEffect(() => {
-    setTheme('light');
     setThemeReady(true);
-  }, [setTheme]);
+    const updateHeaderVisibility = () => setShowHeader(window.scrollY > 120);
+
+    updateHeaderVisibility();
+    window.addEventListener('scroll', updateHeaderVisibility, { passive: true });
+    return () => window.removeEventListener('scroll', updateHeaderVisibility);
+  }, []);
 
   const toggleTheme = () => setTheme(isDark ? 'light' : 'dark');
 
   return (
-    <div className="min-h-screen scroll-smooth overflow-x-hidden bg-white text-slate-950 transition-colors duration-500 dark:bg-[#030817] dark:text-white">
+    <div className="min-h-screen scroll-smooth overflow-x-hidden bg-[#eaf2ff] text-slate-950 transition-colors duration-500 dark:bg-[#030817] dark:text-white">
+      {!showHeader && themeReady && (
+        <div className="fixed right-4 top-4 z-50 sm:right-6 sm:top-6">
+          <ThemeSwitch isDark={isDark} onToggle={toggleTheme} />
+        </div>
+      )}
       <header
-        className="fixed inset-x-0 top-0 z-50 border-b border-blue-100/80 bg-white/92 px-4 shadow-[0_8px_35px_-28px_rgba(15,47,107,0.5)] backdrop-blur-xl dark:border-white/10 dark:bg-[#030817]/92 sm:px-6"
+        className={cn(
+          'fixed inset-x-0 top-0 z-50 px-4 pt-4 transition-all duration-300 sm:px-6',
+          showHeader ? 'translate-y-0 opacity-100' : 'pointer-events-none -translate-y-5 opacity-0',
+        )}
+        aria-hidden={!showHeader}
       >
-        <div className="mx-auto flex h-[78px] max-w-7xl items-center justify-between px-1 sm:px-3">
-          <button className="flex items-center gap-3 rounded-lg focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary" onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })} aria-label="Voltar ao início">
-            <img src={vizzuIcon} alt="VIZZU" className="h-14 w-14 object-contain drop-shadow-sm" />
-            <div className="text-left"><span className="block text-2xl font-black tracking-[0.06em] text-[#0F2F6B] dark:text-white">VIZZU</span><span className="hidden text-[9px] font-bold uppercase tracking-[0.16em] text-primary sm:block">Visualize · Organize · Cresça</span></div>
+        <div className="mx-auto flex h-[70px] max-w-6xl items-center justify-between rounded-[22px] border border-white/80 bg-[#f7fbff]/90 px-4 shadow-[0_18px_45px_-28px_rgba(15,47,107,0.5)] backdrop-blur-xl dark:border-white/10 dark:bg-slate-950/85 sm:px-7">
+          <button className="flex items-center gap-2.5 rounded-lg focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary" onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })} aria-label="Voltar ao início" tabIndex={showHeader ? 0 : -1}>
+            <img src={vizzuIcon} alt="VIZZU" className="h-12 w-12 object-contain drop-shadow-sm" />
+            <span className="text-2xl font-black tracking-[0.06em] text-[#0F2F6B] dark:text-white">VIZZU</span>
           </button>
           <nav className="hidden items-center gap-8 text-sm font-semibold text-slate-700 lg:flex dark:text-slate-200">
-            <a href="#recursos" className="transition-colors hover:text-primary">Funcionalidades</a>
-            <a href="#para-quem" className="transition-colors hover:text-primary">Para quem é</a>
-            <a href="#planos" className="transition-colors hover:text-primary">Planos</a>
-            <a href="#duvidas" className="transition-colors hover:text-primary">Dúvidas</a>
+            <a href="#recursos" className="transition-colors hover:text-primary" tabIndex={showHeader ? 0 : -1}>Recursos</a>
+            <a href="#para-quem" className="transition-colors hover:text-primary" tabIndex={showHeader ? 0 : -1}>Para quem é</a>
+            <a href="#planos" className="transition-colors hover:text-primary" tabIndex={showHeader ? 0 : -1}>Preços</a>
+            <a href="#duvidas" className="transition-colors hover:text-primary" tabIndex={showHeader ? 0 : -1}>Dúvidas</a>
           </nav>
           <div className="flex items-center gap-2 sm:gap-3">
             {themeReady && <ThemeSwitch isDark={isDark} onToggle={toggleTheme} compact />}
-            <Button variant="ghost" className="hidden font-semibold text-primary sm:inline-flex" onClick={() => navigate('/login')}>Entrar</Button>
-            <Button className="rounded-xl px-3 shadow-lg shadow-primary/25 sm:px-5" onClick={() => navigate('/cadastro?plano=trial')}><span className="sm:hidden">Testar</span><span className="hidden sm:inline">Testar grátis por 7 dias</span><ArrowRight className="ml-2 h-4 w-4" /></Button>
+            <Button variant="ghost" className="hidden font-semibold text-primary sm:inline-flex" onClick={() => navigate('/login')} tabIndex={showHeader ? 0 : -1}>Entrar</Button>
+            <Button className="rounded-xl px-4 shadow-lg shadow-primary/25 sm:px-5" onClick={() => navigate('/cadastro?plano=trial')} tabIndex={showHeader ? 0 : -1}>Testar grátis <ArrowRight className="ml-2 h-4 w-4" /></Button>
           </div>
         </div>
       </header>
       <main>
-        <section className="relative isolate overflow-hidden px-4 pb-12 pt-28 sm:px-6 sm:pt-32 lg:min-h-[760px] lg:pb-16">
-          <div className="pointer-events-none absolute inset-0 -z-20 bg-white dark:bg-[radial-gradient(circle_at_16%_18%,rgba(37,99,235,0.2),transparent_34%),radial-gradient(circle_at_84%_10%,rgba(99,102,241,0.16),transparent_30%),linear-gradient(135deg,#020617_0%,#071b3e_50%,#030712_100%)]" />
+        <section className="relative isolate overflow-hidden px-4 pb-16 pt-24 sm:px-6 sm:pt-20 lg:min-h-[880px] lg:pb-24">
+          <div className="pointer-events-none absolute inset-0 -z-20 bg-[radial-gradient(circle_at_12%_16%,rgba(53,126,255,0.3),transparent_32%),radial-gradient(circle_at_88%_12%,rgba(99,102,241,0.22),transparent_31%),linear-gradient(135deg,#eaf3ff_0%,#dceaff_48%,#eef4ff_100%)] dark:bg-[radial-gradient(circle_at_16%_18%,rgba(37,99,235,0.2),transparent_34%),radial-gradient(circle_at_84%_10%,rgba(99,102,241,0.16),transparent_30%),linear-gradient(135deg,#020617_0%,#071b3e_50%,#030712_100%)]" />
           <motion.div className="pointer-events-none absolute -left-32 top-10 -z-10 h-96 w-96 rounded-full border border-blue-300/30 dark:border-blue-400/10" animate={reduceMotion ? undefined : { scale: [1, 1.08, 1], x: [0, 18, 0] }} transition={{ duration: 10, repeat: Infinity, ease: 'easeInOut' }} />
           <motion.div className="pointer-events-none absolute -right-28 top-20 -z-10 h-[420px] w-[420px] rounded-full border border-blue-300/30 dark:border-blue-400/10" animate={reduceMotion ? undefined : { scale: [1.08, 1, 1.08], y: [0, 20, 0] }} transition={{ duration: 12, repeat: Infinity, ease: 'easeInOut' }} />
-          <div className="mx-auto grid max-w-7xl items-center gap-10 lg:grid-cols-[0.82fr_1.18fr]">
+          <div className="mx-auto grid max-w-7xl items-center gap-12 lg:grid-cols-[0.88fr_1.12fr]">
             <motion.div
               initial={reduceMotion ? false : { opacity: 0, y: 30 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.8, ease: [0.22, 1, 0.36, 1] }}
             >
+              <div className="mb-8 flex items-center gap-4 sm:gap-5">
+                <img
+                  src={vizzuIcon}
+                  alt="Logo VIZZU"
+                  className="h-24 w-24 shrink-0 object-contain drop-shadow-[0_20px_25px_rgba(37,99,235,0.24)] sm:h-32 sm:w-32"
+                />
+                <div>
+                  <p className="text-5xl font-black leading-none tracking-[0.08em] text-[#0F2F6B] sm:text-[58px] dark:text-white">VIZZU</p>
+                  <p className="mt-3 text-xs font-bold uppercase tracking-[0.2em] text-primary sm:text-sm">Visualize · Organize · Cresça</p>
+                </div>
+              </div>
               <Badge className="mb-5 rounded-full border-primary/20 bg-white/75 px-3 py-1.5 text-primary shadow-sm backdrop-blur hover:bg-white/85 dark:border-blue-300/15 dark:bg-white/10 dark:text-blue-200 dark:hover:bg-white/10">
                 <Zap className="mr-1.5 h-3.5 w-3.5" weight="duotone" /> Gestão completa para negócios de serviços
               </Badge>
-              <h1 className="max-w-2xl text-4xl font-black leading-[1.03] tracking-[-0.05em] sm:text-5xl lg:text-[60px]">
-                Agenda cheia.<br />Negócio no controle.<br /><span className="bg-gradient-to-r from-[#2878ef] via-[#1557b8] to-[#0F2F6B] bg-clip-text text-transparent dark:from-blue-300 dark:to-blue-100">Crescimento contínuo.</span>
+              <h1 className="max-w-2xl text-4xl font-black leading-[1.03] tracking-[-0.045em] sm:text-5xl lg:text-[58px]">
+                Sua agenda cheia. <span className="bg-gradient-to-r from-[#2878ef] via-[#1557b8] to-[#0F2F6B] bg-clip-text text-transparent dark:from-blue-300 dark:to-blue-100">Seu negócio no controle.</span>
               </h1>
               <p className="mt-6 max-w-xl text-base leading-7 text-slate-600 sm:text-lg dark:text-slate-300">
                 Centralize agendamentos, clientes, equipe e financeiro em um sistema simples de usar. Enquanto o VIZZU organiza a operação, você ganha tempo para atender melhor e crescer.
@@ -408,10 +369,10 @@ const SalesPage = () => {
               </div>
             </motion.div>
             <div>
-              <HumanHeroVisual />
+              <ProductPreview />
             </div>
           </div>
-          <Reveal className="mx-auto mt-5 grid max-w-7xl overflow-hidden rounded-3xl border border-white/90 bg-[#f8fbff]/92 shadow-[0_18px_50px_-30px_rgba(15,47,107,0.45)] backdrop-blur sm:grid-cols-2 lg:grid-cols-4 dark:border-white/10 dark:bg-slate-900/75">
+          <Reveal className="mx-auto mt-16 grid max-w-7xl overflow-hidden rounded-3xl border border-white/90 bg-[#f8fbff]/85 shadow-[0_18px_50px_-30px_rgba(15,47,107,0.45)] backdrop-blur sm:grid-cols-2 lg:grid-cols-4 dark:border-white/10 dark:bg-slate-900/65">
             {proofHighlights.map((item, index) => <motion.div whileHover={reduceMotion ? undefined : { y: -3 }} key={item.label} className={cn('flex items-center gap-3 px-5 py-5', index > 0 && 'border-t border-slate-200/70 sm:border-l sm:border-t-0', index === 2 && 'sm:border-t lg:border-t-0', 'dark:border-slate-700')}><span className={cn('flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl', item.color)}><item.icon className="h-5 w-5" weight="duotone" /></span><div><p className="text-lg font-black text-primary dark:text-blue-300">{item.value}</p><p className="text-sm font-bold text-slate-800 dark:text-slate-100">{item.label}</p><p className="text-[11px] leading-4 text-slate-500 dark:text-slate-400">{item.detail}</p></div></motion.div>)}
           </Reveal>
         </section>
