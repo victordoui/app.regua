@@ -262,11 +262,11 @@ const HeroShowcase = () => {
   const reduceMotion = useReducedMotion();
 
   return (
-    <div className="relative mx-auto w-full max-w-[880px] py-8 lg:-mx-20 lg:max-w-[920px]">
+    <div className="relative mx-auto h-[500px] w-full max-w-[1040px] sm:h-[555px] xl:h-[610px]">
       <motion.img
         src={heroProfessionalMan}
         alt="Profissional usando o VIZZU no celular"
-        className="pointer-events-none absolute -bottom-2 -left-24 z-0 hidden h-[470px] w-auto object-contain lg:block xl:-left-36 xl:h-[530px]"
+        className="pointer-events-none absolute bottom-0 left-0 z-20 hidden h-[405px] w-auto object-contain xl:block 2xl:h-[500px]"
         initial={reduceMotion ? false : { opacity: 0, x: -28 }}
         animate={{ opacity: 1, x: 0 }}
         transition={{ duration: 0.85, delay: 0.15, ease: [0.22, 1, 0.36, 1] }}
@@ -274,15 +274,15 @@ const HeroShowcase = () => {
       <motion.img
         src={heroProfessionalWoman}
         alt="Profissional acompanhando sua agenda no VIZZU"
-        className="pointer-events-none absolute -bottom-3 -right-24 z-0 hidden h-[470px] w-auto object-contain lg:block xl:-right-36 xl:h-[530px]"
+        className="pointer-events-none absolute bottom-0 right-0 z-20 hidden h-[405px] w-auto object-contain xl:block 2xl:h-[500px]"
         initial={reduceMotion ? false : { opacity: 0, x: 28 }}
         animate={{ opacity: 1, x: 0 }}
         transition={{ duration: 0.85, delay: 0.22, ease: [0.22, 1, 0.36, 1] }}
       />
-      <div className="relative z-10 mx-auto max-w-[690px]">
+      <div className="absolute left-1/2 top-0 z-10 w-[680px] origin-top -translate-x-1/2 scale-[0.72] sm:scale-[0.82] xl:scale-[0.9]">
         <ProductPreview />
       </div>
-      <div className="absolute bottom-9 right-0 z-20 hidden max-w-[190px] rounded-2xl border border-white/90 bg-white/95 p-3.5 shadow-[0_22px_50px_-24px_rgba(15,47,107,0.55)] backdrop-blur xl:block dark:border-white/10 dark:bg-[#0a1935]/95">
+      <div className="absolute bottom-7 right-[4%] z-30 hidden max-w-[190px] rounded-2xl border border-white/90 bg-white/95 p-3.5 shadow-[0_22px_50px_-24px_rgba(15,47,107,0.55)] backdrop-blur 2xl:block dark:border-white/10 dark:bg-[#0a1935]/95">
         <div className="flex items-center gap-1 text-amber-400"><Star className="h-3.5 w-3.5" weight="fill" /><Star className="h-3.5 w-3.5" weight="fill" /><Star className="h-3.5 w-3.5" weight="fill" /><Star className="h-3.5 w-3.5" weight="fill" /><Star className="h-3.5 w-3.5" weight="fill" /></div>
         <p className="mt-2 text-[11px] font-bold leading-4 text-slate-800 dark:text-white">“Agora tenho mais tempo para atender e clareza para crescer.”</p>
         <p className="mt-2 text-[9px] font-semibold text-slate-400">Camila · Gestora de salão</p>
@@ -365,7 +365,7 @@ const SalesPage = () => {
           <div className="pointer-events-none absolute inset-0 -z-20 bg-[radial-gradient(circle_at_12%_16%,rgba(53,126,255,0.3),transparent_32%),radial-gradient(circle_at_88%_12%,rgba(99,102,241,0.22),transparent_31%),linear-gradient(135deg,#eaf3ff_0%,#dceaff_48%,#eef4ff_100%)] dark:bg-[radial-gradient(circle_at_16%_18%,rgba(37,99,235,0.2),transparent_34%),radial-gradient(circle_at_84%_10%,rgba(99,102,241,0.16),transparent_30%),linear-gradient(135deg,#020617_0%,#071b3e_50%,#030712_100%)]" />
           <motion.div className="pointer-events-none absolute -left-32 top-10 -z-10 h-96 w-96 rounded-full border border-blue-300/30 dark:border-blue-400/10" animate={reduceMotion ? undefined : { scale: [1, 1.08, 1], x: [0, 18, 0] }} transition={{ duration: 10, repeat: Infinity, ease: 'easeInOut' }} />
           <motion.div className="pointer-events-none absolute -right-28 top-20 -z-10 h-[420px] w-[420px] rounded-full border border-blue-300/30 dark:border-blue-400/10" animate={reduceMotion ? undefined : { scale: [1.08, 1, 1.08], y: [0, 20, 0] }} transition={{ duration: 12, repeat: Infinity, ease: 'easeInOut' }} />
-          <div className="mx-auto grid max-w-7xl items-center gap-12 lg:grid-cols-[0.88fr_1.12fr]">
+          <div className="mx-auto grid max-w-[1600px] items-center gap-8 lg:grid-cols-[0.46fr_1.54fr] xl:gap-10">
             <motion.div
               initial={reduceMotion ? false : { opacity: 0, y: 30 }}
               animate={{ opacity: 1, y: 0 }}
@@ -403,7 +403,7 @@ const SalesPage = () => {
                 ))}
               </div>
             </motion.div>
-            <div className="lg:pr-6">
+            <div className="lg:pr-0">
               <HeroShowcase />
             </div>
           </div>
