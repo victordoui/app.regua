@@ -28,6 +28,20 @@ interface WeeklyAppointments {
   count: number;
 }
 
+export interface DashboardAnalytics {
+  totalAppointments: number;
+  attendanceRate: number;
+  averageTicket: number;
+  averageRating: number;
+  totalRevenue: number;
+}
+
+export interface ServiceDistribution {
+  name: string;
+  value: number;
+  percentage: number;
+}
+
 interface RecentActivity {
   id: string;
   type: 'appointment' | 'client' | 'subscription' | 'payment';
@@ -53,6 +67,8 @@ export const useRealtimeDashboard = () => {
   const [monthlyRevenue, setMonthlyRevenue] = useState<MonthlyRevenue[]>([]);
   const [weeklyAppointments, setWeeklyAppointments] = useState<WeeklyAppointments[]>([]);
   const [recentActivities, setRecentActivities] = useState<RecentActivity[]>([]);
+  const [analytics, setAnalytics] = useState<DashboardAnalytics>({ totalAppointments: 0, attendanceRate: 0, averageTicket: 0, averageRating: 0, totalRevenue: 0 });
+  const [serviceDistribution, setServiceDistribution] = useState<ServiceDistribution[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [isConnected, setIsConnected] = useState(false);
   const [lastUpdate, setLastUpdate] = useState<Date | null>(null);
@@ -74,7 +90,8 @@ export const useRealtimeDashboard = () => {
         todayResult,
         clientsResult,
         subscriptionsResult,
-        last6MonthsResult
+        last6MonthsResult,
+        reviewsResult,
       ] = await Promise.all([
         // Month appointments
         supabase
@@ -107,10 +124,14 @@ export const useRealtimeDashboard = () => {
         // Last 6 months revenue
         supabase
           .from('appointments')
-          .select('total_price, appointment_date, status')
+          .select('total_price, appointment_date, status, service_id, services:service_id(name)')
           .eq('user_id', user.id)
-          .eq('status', 'completed')
-          .gte('appointment_date', format(subMonths(now, 5), 'yyyy-MM-dd'))
+          .gte('appointment_date', format(startOfMonth(subMonths(now, 5)), 'yyyy-MM-dd')),
+
+        supabase
+          .from('reviews')
+          .select('rating')
+          .eq('user_id', user.id),
       ]);
 
       // Calculate metrics
@@ -119,6 +140,7 @@ export const useRealtimeDashboard = () => {
       const clients = clientsResult.data || [];
       const subscriptions = subscriptionsResult.data || [];
       const revenueData = last6MonthsResult.data || [];
+      const reviews = reviewsResult.data || [];
 
       // Month revenue (completed only)
       const monthRevenue = sumCompletedRevenue(monthAppts);
@@ -167,7 +189,7 @@ export const useRealtimeDashboard = () => {
         revenueByMonth[monthKey] = 0;
       }
 
-      revenueData.forEach(apt => {
+      revenueData.filter((apt) => apt.status === 'completed').forEach(apt => {
         const monthKey = format(parseISO(apt.appointment_date), 'yyyy-MM');
         if (revenueByMonth[monthKey] !== undefined) {
           revenueByMonth[monthKey] += apt.total_price || 0;
@@ -180,6 +202,32 @@ export const useRealtimeDashboard = () => {
       }));
 
       setMonthlyRevenue(monthlyRevenueData);
+
+      const completedInPeriod = revenueData.filter((apt) => apt.status === 'completed');
+      const attendedInPeriod = revenueData.filter((apt) => !['cancelled', 'no_show'].includes(apt.status));
+      const totalRevenue = completedInPeriod.reduce((sum, apt) => sum + Number(apt.total_price || 0), 0);
+      const serviceCounts = new Map<string, number>();
+
+      revenueData.forEach((apt) => {
+        const relation = apt.services as { name?: string } | { name?: string }[] | null;
+        const serviceName = Array.isArray(relation) ? relation[0]?.name : relation?.name;
+        const name = serviceName || 'Outros serviços';
+        serviceCounts.set(name, (serviceCounts.get(name) || 0) + 1);
+      });
+
+      setAnalytics({
+        totalAppointments: revenueData.length,
+        attendanceRate: revenueData.length ? Math.round((attendedInPeriod.length / revenueData.length) * 100) : 0,
+        averageTicket: completedInPeriod.length ? totalRevenue / completedInPeriod.length : 0,
+        averageRating: reviews.length ? reviews.reduce((sum, review) => sum + review.rating, 0) / reviews.length : 0,
+        totalRevenue,
+      });
+
+      setServiceDistribution(
+        Array.from(serviceCounts.entries())
+          .map(([name, value]) => ({ name, value, percentage: revenueData.length ? (value / revenueData.length) * 100 : 0 }))
+          .sort((a, b) => b.value - a.value),
+      );
 
       // Calculate weekly appointments for chart
       const weeklyData: Record<string, number> = {};
@@ -304,6 +352,8 @@ export const useRealtimeDashboard = () => {
     monthlyRevenue,
     weeklyAppointments,
     recentActivities,
+    analytics,
+    serviceDistribution,
     isLoading,
     isConnected,
     lastUpdate,

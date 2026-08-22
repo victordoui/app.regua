@@ -22,7 +22,7 @@ const KpiStrip = ({ todayAppointments, completedRate, newClients, dayRevenue }: 
     { label: "Agendamentos hoje", value: String(todayAppointments), context: "programados para hoje", icon: Calendar, tone: "bg-primary/10 text-primary" },
     { label: "Taxa de conclusão", value: `${completedRate}%`, context: "dos atendimentos", icon: CheckCircle2, tone: "bg-emerald-500/10 text-emerald-600" },
     { label: "Novos clientes", value: String(newClients), context: "neste mês", icon: Users, tone: "bg-violet-500/10 text-violet-600" },
-    { label: "Receita do dia", value: dayRevenue.toLocaleString("pt-BR", { style: "currency", currency: "BRL", maximumFractionDigits: 0 }), context: "faturamento confirmado", icon: DollarSign, tone: "bg-sky-500/10 text-sky-600" },
+    { label: "Receita do dia", value: dayRevenue.toLocaleString("pt-BR", { style: "currency", currency: "BRL", minimumFractionDigits: 2, maximumFractionDigits: 2 }), context: "faturamento confirmado", icon: DollarSign, tone: "bg-sky-500/10 text-sky-600" },
   ];
 
   return (
