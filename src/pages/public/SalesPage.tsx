@@ -1,7 +1,7 @@
 import { useEffect, useState, type ReactNode } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
-import { motion, useReducedMotion, useScroll, useTransform } from 'framer-motion';
+import { AnimatePresence, motion, useReducedMotion, useScroll, useTransform } from 'framer-motion';
 import { useTheme } from 'next-themes';
 import {
   ArrowRightIcon as ArrowRight,
@@ -43,6 +43,7 @@ import vizzuIcon from '@/assets/vizzu-icon.png';
 import heroDashboard from '@/assets/sales/vizzu-sales-dashboard-barbershop.png';
 import heroWoman from '@/assets/sales/vizzu-sales-woman-left.png';
 import heroMan from '@/assets/sales/vizzu-sales-man-right.png';
+import mobileDashboard from '@/assets/sales/vizzu-mobile-dashboard.png';
 import type { PlanConfig } from '@/types/superAdmin';
 import { DEFAULT_PUBLIC_PLANS } from '@/lib/publicPlans';
 
@@ -154,6 +155,12 @@ const proofHighlights = [
   { icon: Check, value: '7 dias', label: 'Teste gratuito', detail: 'Conheça o sistema antes de assinar', color: 'bg-emerald-50 text-emerald-600' },
   { icon: ShieldCheck, value: 'Seguro', label: 'Dados protegidos', detail: 'Acesso controlado para sua equipe', color: 'bg-violet-50 text-violet-600' },
   { icon: HeartHandshake, value: 'Humano', label: 'Suporte de verdade', detail: 'Ajuda para configurar e evoluir', color: 'bg-orange-50 text-orange-600' },
+];
+
+const heroMessages = [
+  { first: 'Sua agenda cheia.', second: 'Seu negócio no controle.' },
+  { first: 'Mais clientes voltando.', second: 'Mais crescimento acontecendo.' },
+  { first: 'Sua equipe organizada.', second: 'Seus resultados visíveis.' },
 ];
 
 const organizationSteps = [
@@ -315,6 +322,7 @@ const SalesPage = () => {
   const reduceMotion = useReducedMotion();
   const [showHeader, setShowHeader] = useState(false);
   const [themeReady, setThemeReady] = useState(false);
+  const [heroMessageIndex, setHeroMessageIndex] = useState(0);
   const isDark = themeReady && resolvedTheme === 'dark';
   const { data: plans = [], isLoading } = useQuery({
     queryKey: ['public-plans'],
@@ -337,10 +345,18 @@ const SalesPage = () => {
     return () => window.removeEventListener('scroll', updateHeaderVisibility);
   }, []);
 
+  useEffect(() => {
+    if (reduceMotion) return undefined;
+    const messageTimer = window.setInterval(() => {
+      setHeroMessageIndex((current) => (current + 1) % heroMessages.length);
+    }, 4200);
+    return () => window.clearInterval(messageTimer);
+  }, [reduceMotion]);
+
   const toggleTheme = () => setTheme(isDark ? 'light' : 'dark');
 
   return (
-    <div className="min-h-screen scroll-smooth overflow-x-hidden bg-[#eaf2ff] text-slate-950 transition-colors duration-500 dark:bg-[#030817] dark:text-white">
+    <div className="min-h-screen scroll-smooth overflow-x-hidden bg-white text-slate-950 transition-colors duration-500 dark:bg-[#030817] dark:text-white">
       {!showHeader && themeReady && (
         <div className="fixed right-4 top-4 z-50 sm:right-6 sm:top-6">
           <ThemeSwitch isDark={isDark} onToggle={toggleTheme} />
@@ -373,7 +389,7 @@ const SalesPage = () => {
       </header>
       <main>
         <section className="relative isolate overflow-hidden px-4 pb-12 pt-8 sm:px-6 sm:pt-10 lg:min-h-[720px] lg:pb-16">
-          <div className="pointer-events-none absolute inset-0 -z-20 bg-[radial-gradient(circle_at_12%_16%,rgba(53,126,255,0.3),transparent_32%),radial-gradient(circle_at_88%_12%,rgba(99,102,241,0.22),transparent_31%),linear-gradient(135deg,#eaf3ff_0%,#dceaff_48%,#eef4ff_100%)] dark:bg-[radial-gradient(circle_at_16%_18%,rgba(37,99,235,0.2),transparent_34%),radial-gradient(circle_at_84%_10%,rgba(99,102,241,0.16),transparent_30%),linear-gradient(135deg,#020617_0%,#071b3e_50%,#030712_100%)]" />
+          <div className="pointer-events-none absolute inset-0 -z-20 bg-white dark:bg-[radial-gradient(circle_at_16%_18%,rgba(37,99,235,0.2),transparent_34%),radial-gradient(circle_at_84%_10%,rgba(99,102,241,0.16),transparent_30%),linear-gradient(135deg,#020617_0%,#071b3e_50%,#030712_100%)]" />
           <motion.div className="pointer-events-none absolute -left-32 top-10 -z-10 h-96 w-96 rounded-full border border-blue-300/30 dark:border-blue-400/10" animate={reduceMotion ? undefined : { scale: [1, 1.08, 1], x: [0, 18, 0] }} transition={{ duration: 10, repeat: Infinity, ease: 'easeInOut' }} />
           <motion.div className="pointer-events-none absolute -right-28 top-20 -z-10 h-[420px] w-[420px] rounded-full border border-blue-300/30 dark:border-blue-400/10" animate={reduceMotion ? undefined : { scale: [1.08, 1, 1.08], y: [0, 20, 0] }} transition={{ duration: 12, repeat: Infinity, ease: 'easeInOut' }} />
           <div className="mx-auto grid max-w-[1600px] items-center gap-8 lg:grid-cols-[380px_minmax(0,1fr)] lg:gap-4 xl:grid-cols-[420px_minmax(0,1fr)]">
@@ -386,19 +402,33 @@ const SalesPage = () => {
                 <img
                   src={vizzuIcon}
                   alt="Logo VIZZU"
-                  className="h-20 w-20 shrink-0 object-contain drop-shadow-[0_20px_25px_rgba(37,99,235,0.24)] sm:h-24 sm:w-24"
+                  className="h-24 w-24 shrink-0 object-contain drop-shadow-[0_20px_25px_rgba(37,99,235,0.24)] sm:h-32 sm:w-32"
                 />
                 <div>
-                  <p className="text-4xl font-black leading-none tracking-[0.08em] text-[#0F2F6B] sm:text-[48px] dark:text-white">VIZZU</p>
-                  <p className="mt-2 text-[10px] font-bold uppercase tracking-[0.2em] text-primary sm:text-xs">Visualize · Organize · Cresça</p>
+                  <p className="text-[42px] font-black leading-none tracking-[0.08em] text-[#0F2F6B] sm:text-[58px] dark:text-white">VIZZU</p>
+                  <p className="mt-2 text-[10px] font-bold uppercase tracking-[0.2em] text-primary sm:text-sm">Visualize · Organize · Cresça</p>
                 </div>
               </div>
               <Badge className="mb-5 rounded-full border-primary/20 bg-white/75 px-3 py-1.5 text-primary shadow-sm backdrop-blur hover:bg-white/85 dark:border-blue-300/15 dark:bg-white/10 dark:text-blue-200 dark:hover:bg-white/10">
                 <Zap className="mr-1.5 h-3.5 w-3.5" weight="duotone" /> Gestão completa para negócios de serviços
               </Badge>
-              <h1 className="max-w-2xl text-4xl font-black leading-[1.03] tracking-[-0.045em] lg:text-[48px]">
-                Sua agenda cheia. <span className="bg-gradient-to-r from-[#2878ef] via-[#1557b8] to-[#0F2F6B] bg-clip-text text-transparent dark:from-blue-300 dark:to-blue-100">Seu negócio no controle.</span>
-              </h1>
+              <div className="min-h-[104px] sm:min-h-[120px]">
+                <AnimatePresence mode="wait" initial={false}>
+                  <motion.h1
+                    key={heroMessageIndex}
+                    initial={reduceMotion ? false : { opacity: 0, y: 16 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    exit={reduceMotion ? undefined : { opacity: 0, y: -12 }}
+                    transition={{ duration: 0.42, ease: [0.22, 1, 0.36, 1] }}
+                    className="max-w-2xl text-4xl font-black leading-[1.03] tracking-[-0.045em] lg:text-[48px]"
+                  >
+                    {heroMessages[heroMessageIndex].first}{' '}
+                    <span className="bg-gradient-to-r from-[#2878ef] via-[#1557b8] to-[#0F2F6B] bg-clip-text text-transparent dark:from-blue-300 dark:to-blue-100">
+                      {heroMessages[heroMessageIndex].second}
+                    </span>
+                  </motion.h1>
+                </AnimatePresence>
+              </div>
               <p className="mt-5 max-w-xl text-[15px] leading-6 text-slate-600 dark:text-slate-300">
                 Centralize agendamentos, clientes, equipe e financeiro em um sistema simples de usar. Enquanto o VIZZU organiza a operação, você ganha tempo para atender melhor e crescer.
               </p>
@@ -418,8 +448,8 @@ const SalesPage = () => {
               <HeroShowcase />
             </div>
           </div>
-          <Reveal className="mx-auto mt-16 grid max-w-7xl overflow-hidden rounded-3xl border border-white/90 bg-[#f8fbff]/85 shadow-[0_18px_50px_-30px_rgba(15,47,107,0.45)] backdrop-blur sm:grid-cols-2 lg:grid-cols-4 dark:border-white/10 dark:bg-slate-900/65">
-            {proofHighlights.map((item, index) => <motion.div whileHover={reduceMotion ? undefined : { y: -3 }} key={item.label} className={cn('flex items-center gap-3 px-5 py-5', index > 0 && 'border-t border-slate-200/70 sm:border-l sm:border-t-0', index === 2 && 'sm:border-t lg:border-t-0', 'dark:border-slate-700')}><span className={cn('flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl', item.color)}><item.icon className="h-5 w-5" weight="duotone" /></span><div><p className="text-lg font-black text-primary dark:text-blue-300">{item.value}</p><p className="text-sm font-bold text-slate-800 dark:text-slate-100">{item.label}</p><p className="text-[11px] leading-4 text-slate-500 dark:text-slate-400">{item.detail}</p></div></motion.div>)}
+          <Reveal className="mx-auto mt-16 grid max-w-7xl gap-3 sm:grid-cols-2 lg:grid-cols-4">
+            {proofHighlights.map((item) => <motion.div whileHover={reduceMotion ? undefined : { y: -5 }} key={item.label} className="flex items-center gap-3 rounded-2xl border border-blue-100 bg-white px-5 py-5 shadow-[0_16px_38px_-24px_rgba(15,47,107,0.45)] dark:border-white/10 dark:bg-slate-900/70"><span className={cn('flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl', item.color)}><item.icon className="h-5 w-5" weight="duotone" /></span><div><p className="text-lg font-black text-primary dark:text-blue-300">{item.value}</p><p className="text-sm font-bold text-slate-800 dark:text-slate-100">{item.label}</p><p className="text-[11px] leading-4 text-slate-500 dark:text-slate-400">{item.detail}</p></div></motion.div>)}
           </Reveal>
         </section>
 
@@ -534,16 +564,18 @@ const SalesPage = () => {
                 ))}
               </div>
             </div>
-            <div className="relative flex min-h-[340px] items-center justify-center overflow-hidden bg-gradient-to-br from-blue-500/20 to-violet-400/15 p-8">
-              <motion.div className="absolute h-64 w-64 rounded-full border border-white/10" animate={reduceMotion ? undefined : { rotate: 360 }} transition={{ duration: 22, repeat: Infinity, ease: 'linear' }} />
-              <motion.div whileHover={reduceMotion ? undefined : { y: -8, rotate: -1 }} className="w-[260px] rounded-[32px] border-[7px] border-slate-900 bg-slate-50 p-3 shadow-2xl">
-                <div className="rounded-[22px] bg-white p-4">
-                  <div className="flex items-center gap-2"><span className="flex h-8 w-8 items-center justify-center rounded-lg bg-blue-50 p-1"><img src={vizzuIcon} alt="" className="h-full w-full object-contain" /></span><div><p className="text-xs font-bold text-slate-900">Seu negócio</p><p className="text-[10px] text-slate-500">Agendamento online</p></div></div>
-                  <div className="mt-4 rounded-2xl bg-gradient-to-br from-orange-500 to-orange-700 p-4 text-white"><p className="text-[10px] font-bold uppercase tracking-widest text-orange-100">Agenda online</p><p className="mt-1 text-sm font-bold">Seu próximo horário, sem complicação</p></div>
-                  <div className="mt-4 space-y-2">{['Escolha o serviço', 'Selecione o profissional', 'Confirme o horário'].map((step, index) => <div key={step} className="flex items-center gap-2 rounded-xl bg-slate-100 p-2.5 text-[11px] font-semibold text-slate-700"><span className="flex h-5 w-5 items-center justify-center rounded-full bg-primary text-[9px] text-white">{index + 1}</span>{step}</div>)}</div>
-                  <div className="mt-4 rounded-xl bg-primary py-2.5 text-center text-[11px] font-bold text-white">Agendar agora</div>
-                </div>
-              </motion.div>
+            <div className="relative flex min-h-[420px] items-end justify-center overflow-hidden bg-gradient-to-br from-blue-500/20 to-violet-400/15 px-5 pt-8 sm:min-h-[520px]">
+              <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_50%_45%,rgba(96,165,250,0.32),transparent_48%)]" />
+              <motion.img
+                src={mobileDashboard}
+                alt="VIZZU funcionando no celular com indicadores, atalhos e próximos agendamentos"
+                initial={reduceMotion ? false : { opacity: 0, y: 36, scale: 0.96 }}
+                whileInView={{ opacity: 1, y: 0, scale: 1 }}
+                viewport={{ once: true, amount: 0.25 }}
+                whileHover={reduceMotion ? undefined : { y: -8 }}
+                transition={{ duration: 0.75, ease: [0.22, 1, 0.36, 1] }}
+                className="relative z-10 max-h-[500px] w-auto max-w-full object-contain object-bottom drop-shadow-[0_30px_45px_rgba(0,0,0,0.35)]"
+              />
             </div>
           </Reveal>
         </section>
