@@ -283,12 +283,7 @@ const HumanHeroVisual = () => {
         initial={reduceMotion ? false : { opacity: 0, scale: 0.97, x: 24 }}
         animate={{ opacity: 1, scale: 1, x: 0 }}
         transition={{ duration: 0.9, delay: 0.08, ease: [0.22, 1, 0.36, 1] }}
-        className={cn(
-          'pointer-events-none absolute bottom-0 z-[5] w-auto max-w-none object-contain object-bottom drop-shadow-[0_32px_48px_rgba(15,47,107,0.18)] dark:drop-shadow-[0_32px_54px_rgba(43,111,255,0.16)]',
-          featuredProfessional === 'woman'
-            ? 'right-[-58%] h-[500px] sm:right-[-44%] sm:h-[560px] lg:right-[-34%] lg:h-[590px]'
-            : 'right-[-5%] h-[500px] sm:right-[-2%] sm:h-[560px] lg:right-[-2%] lg:h-[590px]',
-        )}
+        className="pointer-events-none absolute bottom-0 right-[-5%] z-[5] h-[500px] w-auto max-w-none object-contain object-bottom drop-shadow-[0_32px_48px_rgba(15,47,107,0.18)] sm:right-[-2%] sm:h-[560px] lg:right-[-2%] lg:h-[590px] dark:drop-shadow-[0_32px_54px_rgba(43,111,255,0.16)]"
       />
 
       <div className="absolute inset-x-0 top-[350px] z-10 sm:top-[385px] lg:left-[-6%] lg:right-[38%] lg:top-[18px] lg:origin-top-left lg:scale-[0.7] xl:left-[-4%] xl:scale-[0.74]">
