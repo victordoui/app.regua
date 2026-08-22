@@ -264,7 +264,7 @@ const HeroShowcase = () => {
 
   return (
     <div className="relative mx-auto h-[340px] w-full max-w-[1180px] sm:h-[460px] xl:h-[540px]">
-      <div className="absolute inset-x-0 top-6 z-10 flex justify-center xl:top-8">
+      <div className="absolute inset-x-0 bottom-0 z-10 flex justify-center">
         <motion.img
           src={heroDashboard}
           alt="Dashboard VIZZU com agenda, indicadores e gestão financeira"
@@ -274,22 +274,30 @@ const HeroShowcase = () => {
           transition={{ duration: 0.72, delay: 0.08, ease: [0.22, 1, 0.36, 1] }}
         />
       </div>
-      <motion.img
-        src={heroWoman}
-        alt="Profissional utilizando o VIZZU em um tablet"
-        className="pointer-events-none absolute bottom-0 left-[-2%] z-20 hidden h-[88%] w-auto object-contain sm:block xl:left-[-4%] xl:h-[96%]"
+      <motion.div
+        className="pointer-events-none absolute bottom-0 left-[-3%] z-20 hidden h-[98%] sm:block xl:left-[-5%] xl:h-[104%]"
         initial={reduceMotion ? false : { opacity: 0, x: -32 }}
         animate={{ opacity: 1, x: 0 }}
         transition={{ duration: 0.85, delay: 0.16, ease: [0.22, 1, 0.36, 1] }}
-      />
-      <motion.img
-        src={heroMan}
-        alt="Profissional utilizando o VIZZU no celular"
-        className="pointer-events-none absolute bottom-0 right-[-2%] z-20 hidden h-[88%] w-auto object-contain sm:block xl:right-[-4%] xl:h-[96%]"
+      >
+        <img
+          src={heroWoman}
+          alt="Profissional utilizando o VIZZU em um tablet"
+          className="h-full w-auto -scale-x-100 object-contain"
+        />
+      </motion.div>
+      <motion.div
+        className="pointer-events-none absolute bottom-0 right-[-3%] z-20 hidden h-[98%] sm:block xl:right-[-5%] xl:h-[104%]"
         initial={reduceMotion ? false : { opacity: 0, x: 32 }}
         animate={{ opacity: 1, x: 0 }}
         transition={{ duration: 0.85, delay: 0.22, ease: [0.22, 1, 0.36, 1] }}
-      />
+      >
+        <img
+          src={heroMan}
+          alt="Profissional utilizando o VIZZU no celular"
+          className="h-full w-auto object-contain"
+        />
+      </motion.div>
     </div>
   );
 };
