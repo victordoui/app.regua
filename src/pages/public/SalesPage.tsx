@@ -268,7 +268,7 @@ const HeroShowcase = () => {
       <motion.img
         src={heroDashboard}
         alt="Dashboard VIZZU com agenda, indicadores e financeiro"
-        className="absolute left-1/2 top-8 z-10 w-[76%] -translate-x-1/2 rounded-xl bg-white object-contain shadow-[0_30px_65px_-30px_rgba(15,47,107,0.6)] sm:top-10 xl:w-[72%]"
+        className="absolute left-1/2 top-8 z-10 w-[72%] max-w-[720px] -translate-x-1/2 rounded-xl bg-white object-contain shadow-[0_30px_65px_-30px_rgba(15,47,107,0.6)] sm:top-10"
         initial={reduceMotion ? false : { opacity: 0, y: 24 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.72, delay: 0.08, ease: [0.22, 1, 0.36, 1] }}
@@ -382,7 +382,7 @@ const SalesPage = () => {
           <div className="pointer-events-none absolute inset-0 -z-20 bg-[radial-gradient(circle_at_12%_16%,rgba(53,126,255,0.3),transparent_32%),radial-gradient(circle_at_88%_12%,rgba(99,102,241,0.22),transparent_31%),linear-gradient(135deg,#eaf3ff_0%,#dceaff_48%,#eef4ff_100%)] dark:bg-[radial-gradient(circle_at_16%_18%,rgba(37,99,235,0.2),transparent_34%),radial-gradient(circle_at_84%_10%,rgba(99,102,241,0.16),transparent_30%),linear-gradient(135deg,#020617_0%,#071b3e_50%,#030712_100%)]" />
           <motion.div className="pointer-events-none absolute -left-32 top-10 -z-10 h-96 w-96 rounded-full border border-blue-300/30 dark:border-blue-400/10" animate={reduceMotion ? undefined : { scale: [1, 1.08, 1], x: [0, 18, 0] }} transition={{ duration: 10, repeat: Infinity, ease: 'easeInOut' }} />
           <motion.div className="pointer-events-none absolute -right-28 top-20 -z-10 h-[420px] w-[420px] rounded-full border border-blue-300/30 dark:border-blue-400/10" animate={reduceMotion ? undefined : { scale: [1.08, 1, 1.08], y: [0, 20, 0] }} transition={{ duration: 12, repeat: Infinity, ease: 'easeInOut' }} />
-          <div className="mx-auto grid max-w-[1600px] items-center gap-8 lg:grid-cols-[0.46fr_1.54fr] xl:gap-10">
+          <div className="mx-auto grid max-w-[1600px] items-center gap-8 lg:grid-cols-[330px_minmax(0,1fr)] lg:gap-0">
             <motion.div
               initial={reduceMotion ? false : { opacity: 0, y: 30 }}
               animate={{ opacity: 1, y: 0 }}
@@ -420,7 +420,7 @@ const SalesPage = () => {
                 ))}
               </div>
             </motion.div>
-            <div className="lg:pr-0">
+            <div className="lg:-ml-32 xl:-ml-40">
               <HeroShowcase />
             </div>
           </div>
