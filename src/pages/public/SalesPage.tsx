@@ -40,7 +40,9 @@ import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/
 import { LoadingSpinner } from '@/components/ui/loading-spinner';
 import { cn } from '@/lib/utils';
 import vizzuIcon from '@/assets/vizzu-icon.png';
-import heroComposition from '@/assets/sales/vizzu-sales-hero-composition.png';
+import heroDashboard from '@/assets/sales/vizzu-sales-dashboard-barbershop.png';
+import heroWoman from '@/assets/sales/vizzu-sales-woman-left.png';
+import heroMan from '@/assets/sales/vizzu-sales-man-right.png';
 import type { PlanConfig } from '@/types/superAdmin';
 import { DEFAULT_PUBLIC_PLANS } from '@/lib/publicPlans';
 
@@ -261,14 +263,32 @@ const HeroShowcase = () => {
   const reduceMotion = useReducedMotion();
 
   return (
-    <div className="relative mx-auto h-[400px] w-full max-w-[1280px] sm:h-[500px] xl:h-[560px]">
+    <div className="relative mx-auto h-[340px] w-full max-w-[1180px] sm:h-[460px] xl:h-[540px]">
+      <div className="absolute inset-x-0 top-6 z-10 flex justify-center xl:top-8">
+        <motion.img
+          src={heroDashboard}
+          alt="Dashboard VIZZU com agenda, indicadores e gestão financeira"
+          className="w-[94%] max-w-[980px] rounded-2xl object-contain shadow-[0_32px_70px_-38px_rgba(15,47,107,0.48)] sm:w-[88%] xl:w-[84%]"
+          initial={reduceMotion ? false : { opacity: 0, scale: 0.97 }}
+          animate={{ opacity: 1, scale: 1 }}
+          transition={{ duration: 0.72, delay: 0.08, ease: [0.22, 1, 0.36, 1] }}
+        />
+      </div>
       <motion.img
-        src={heroComposition}
-        alt="VIZZU com painel de gestão, aplicativo mobile e profissionais"
-        className="absolute left-1/2 top-1/2 z-10 w-full max-w-[1280px] -translate-x-1/2 -translate-y-1/2 object-contain"
-        initial={reduceMotion ? false : { opacity: 0, y: 24 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.72, delay: 0.08, ease: [0.22, 1, 0.36, 1] }}
+        src={heroWoman}
+        alt="Profissional utilizando o VIZZU em um tablet"
+        className="pointer-events-none absolute bottom-0 left-[-2%] z-20 hidden h-[88%] w-auto object-contain sm:block xl:left-[-4%] xl:h-[96%]"
+        initial={reduceMotion ? false : { opacity: 0, x: -32 }}
+        animate={{ opacity: 1, x: 0 }}
+        transition={{ duration: 0.85, delay: 0.16, ease: [0.22, 1, 0.36, 1] }}
+      />
+      <motion.img
+        src={heroMan}
+        alt="Profissional utilizando o VIZZU no celular"
+        className="pointer-events-none absolute bottom-0 right-[-2%] z-20 hidden h-[88%] w-auto object-contain sm:block xl:right-[-4%] xl:h-[96%]"
+        initial={reduceMotion ? false : { opacity: 0, x: 32 }}
+        animate={{ opacity: 1, x: 0 }}
+        transition={{ duration: 0.85, delay: 0.22, ease: [0.22, 1, 0.36, 1] }}
       />
     </div>
   );
@@ -344,49 +364,49 @@ const SalesPage = () => {
         </div>
       </header>
       <main>
-        <section className="relative isolate overflow-hidden px-4 pb-16 pt-24 sm:px-6 sm:pt-20 lg:min-h-[880px] lg:pb-24">
+        <section className="relative isolate overflow-hidden px-4 pb-12 pt-8 sm:px-6 sm:pt-10 lg:min-h-[720px] lg:pb-16">
           <div className="pointer-events-none absolute inset-0 -z-20 bg-[radial-gradient(circle_at_12%_16%,rgba(53,126,255,0.3),transparent_32%),radial-gradient(circle_at_88%_12%,rgba(99,102,241,0.22),transparent_31%),linear-gradient(135deg,#eaf3ff_0%,#dceaff_48%,#eef4ff_100%)] dark:bg-[radial-gradient(circle_at_16%_18%,rgba(37,99,235,0.2),transparent_34%),radial-gradient(circle_at_84%_10%,rgba(99,102,241,0.16),transparent_30%),linear-gradient(135deg,#020617_0%,#071b3e_50%,#030712_100%)]" />
           <motion.div className="pointer-events-none absolute -left-32 top-10 -z-10 h-96 w-96 rounded-full border border-blue-300/30 dark:border-blue-400/10" animate={reduceMotion ? undefined : { scale: [1, 1.08, 1], x: [0, 18, 0] }} transition={{ duration: 10, repeat: Infinity, ease: 'easeInOut' }} />
           <motion.div className="pointer-events-none absolute -right-28 top-20 -z-10 h-[420px] w-[420px] rounded-full border border-blue-300/30 dark:border-blue-400/10" animate={reduceMotion ? undefined : { scale: [1.08, 1, 1.08], y: [0, 20, 0] }} transition={{ duration: 12, repeat: Infinity, ease: 'easeInOut' }} />
-          <div className="mx-auto grid max-w-[1600px] items-center gap-8 lg:grid-cols-[330px_minmax(0,1fr)] lg:gap-0">
+          <div className="mx-auto grid max-w-[1600px] items-center gap-8 lg:grid-cols-[380px_minmax(0,1fr)] lg:gap-4 xl:grid-cols-[420px_minmax(0,1fr)]">
             <motion.div
               initial={reduceMotion ? false : { opacity: 0, y: 30 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.8, ease: [0.22, 1, 0.36, 1] }}
             >
-              <div className="mb-8 flex items-center gap-4 sm:gap-5">
+              <div className="mb-6 flex items-center gap-3 sm:gap-4">
                 <img
                   src={vizzuIcon}
                   alt="Logo VIZZU"
-                  className="h-24 w-24 shrink-0 object-contain drop-shadow-[0_20px_25px_rgba(37,99,235,0.24)] sm:h-32 sm:w-32"
+                  className="h-20 w-20 shrink-0 object-contain drop-shadow-[0_20px_25px_rgba(37,99,235,0.24)] sm:h-24 sm:w-24"
                 />
                 <div>
-                  <p className="text-5xl font-black leading-none tracking-[0.08em] text-[#0F2F6B] sm:text-[58px] dark:text-white">VIZZU</p>
-                  <p className="mt-3 text-xs font-bold uppercase tracking-[0.2em] text-primary sm:text-sm">Visualize · Organize · Cresça</p>
+                  <p className="text-4xl font-black leading-none tracking-[0.08em] text-[#0F2F6B] sm:text-[48px] dark:text-white">VIZZU</p>
+                  <p className="mt-2 text-[10px] font-bold uppercase tracking-[0.2em] text-primary sm:text-xs">Visualize · Organize · Cresça</p>
                 </div>
               </div>
               <Badge className="mb-5 rounded-full border-primary/20 bg-white/75 px-3 py-1.5 text-primary shadow-sm backdrop-blur hover:bg-white/85 dark:border-blue-300/15 dark:bg-white/10 dark:text-blue-200 dark:hover:bg-white/10">
                 <Zap className="mr-1.5 h-3.5 w-3.5" weight="duotone" /> Gestão completa para negócios de serviços
               </Badge>
-              <h1 className="max-w-2xl text-4xl font-black leading-[1.03] tracking-[-0.045em] sm:text-5xl lg:text-[58px]">
+              <h1 className="max-w-2xl text-4xl font-black leading-[1.03] tracking-[-0.045em] lg:text-[48px]">
                 Sua agenda cheia. <span className="bg-gradient-to-r from-[#2878ef] via-[#1557b8] to-[#0F2F6B] bg-clip-text text-transparent dark:from-blue-300 dark:to-blue-100">Seu negócio no controle.</span>
               </h1>
-              <p className="mt-6 max-w-xl text-base leading-7 text-slate-600 sm:text-lg dark:text-slate-300">
+              <p className="mt-5 max-w-xl text-[15px] leading-6 text-slate-600 dark:text-slate-300">
                 Centralize agendamentos, clientes, equipe e financeiro em um sistema simples de usar. Enquanto o VIZZU organiza a operação, você ganha tempo para atender melhor e crescer.
               </p>
-              <div className="mt-8 flex flex-col gap-3 sm:flex-row">
+              <div className="mt-6 flex flex-col gap-3 sm:flex-row">
                 <Button size="lg" className="group h-13 rounded-xl px-7 text-base shadow-lg shadow-primary/25 transition-transform hover:-translate-y-0.5" onClick={() => navigate('/cadastro?plano=trial')}>
                   Testar grátis por 7 dias <ArrowRight className="ml-2 h-5 w-5 transition-transform group-hover:translate-x-1" />
                 </Button>
                 <Button size="lg" variant="outline" className="h-13 rounded-xl border-slate-300 bg-white/70 px-7 text-base dark:border-slate-700 dark:bg-slate-900/60" asChild><a href="#recursos">Ver o VIZZU por dentro</a></Button>
               </div>
-              <div className="mt-7 flex flex-wrap gap-x-5 gap-y-2 text-sm font-medium text-slate-600 dark:text-slate-300">
+              <div className="mt-5 flex flex-wrap gap-x-4 gap-y-2 text-xs font-medium text-slate-600 dark:text-slate-300">
                 {['Sem cartão de crédito', 'Configuração guiada', 'Cancele quando quiser'].map((item) => (
                   <span key={item} className="flex items-center gap-1.5"><Check className="h-4 w-4 text-emerald-500" />{item}</span>
                 ))}
               </div>
             </motion.div>
-            <div className="lg:-ml-32 xl:-ml-40">
+            <div>
               <HeroShowcase />
             </div>
           </div>
