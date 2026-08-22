@@ -40,7 +40,7 @@ import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/
 import { LoadingSpinner } from '@/components/ui/loading-spinner';
 import { cn } from '@/lib/utils';
 import vizzuIcon from '@/assets/vizzu-icon.png';
-import salonOwnerHero from '@/assets/vizzu-salon-owner-hero.png';
+import salonOwnerCutout from '@/assets/vizzu-salon-owner-cutout.png';
 import type { PlanConfig } from '@/types/superAdmin';
 import { DEFAULT_PUBLIC_PLANS } from '@/lib/publicPlans';
 
@@ -262,19 +262,14 @@ const HumanHeroVisual = () => {
 
   return (
     <div className="relative mx-auto min-h-[900px] w-full max-w-[820px] sm:min-h-[850px] lg:min-h-[610px]">
-      <motion.div
+      <motion.img
+        src={salonOwnerCutout}
+        alt="Profissional de beleza organizando seu negócio pelo tablet"
         initial={reduceMotion ? false : { opacity: 0, scale: 0.97, x: 24 }}
         animate={{ opacity: 1, scale: 1, x: 0 }}
         transition={{ duration: 0.9, delay: 0.08, ease: [0.22, 1, 0.36, 1] }}
-        className="absolute inset-x-0 top-0 h-[390px] overflow-hidden rounded-[30px] border border-white/90 bg-slate-200 shadow-[0_35px_90px_-38px_rgba(15,47,107,0.5)] dark:border-white/10 dark:bg-slate-900 sm:h-[430px] lg:inset-y-0 lg:left-[59%] lg:right-0 lg:h-auto lg:rounded-none lg:border-y-0 lg:border-r-0"
-      >
-        <img
-          src={salonOwnerHero}
-          alt="Profissional de beleza organizando seu negócio pelo tablet"
-          className="h-full w-full object-cover object-[66%_center] lg:object-[66%_center]"
-        />
-        <div className="absolute inset-0 bg-gradient-to-t from-[#061c47]/45 via-transparent to-white/5 lg:bg-gradient-to-r lg:from-[#eaf2ff]/25 lg:via-transparent lg:to-transparent dark:lg:from-[#030817]/35" />
-      </motion.div>
+        className="pointer-events-none absolute bottom-0 right-[-42%] z-[5] h-[520px] w-auto max-w-none object-contain object-bottom drop-shadow-[0_32px_48px_rgba(15,47,107,0.24)] sm:right-[-25%] sm:h-[590px] lg:right-[-8%] lg:h-[610px] dark:drop-shadow-[0_32px_54px_rgba(43,111,255,0.16)]"
+      />
 
       <div className="absolute inset-x-0 top-[350px] z-10 sm:top-[385px] lg:left-[-4%] lg:right-[26%] lg:top-[18px] lg:origin-top-left lg:scale-[0.76] xl:left-[-2%] xl:scale-[0.8]">
         <ProductPreview />
