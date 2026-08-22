@@ -7,19 +7,21 @@ interface DashboardFilterBarProps {
   isRefreshing: boolean;
   onChange: (filters: DashboardFilters) => void;
   onRefresh: () => void;
+  embedded?: boolean;
 }
 
 const inputClass = "min-h-10 rounded-xl border border-border bg-background px-3 text-xs font-bold text-foreground shadow-sm outline-none transition-colors hover:border-primary/40 focus:border-primary focus:ring-2 focus:ring-primary/15";
 
-const DashboardFilterBar = ({ filters, serviceOptions, isRefreshing, onChange, onRefresh }: DashboardFilterBarProps) => (
-  <section className="dashboard-surface flex flex-col gap-3 p-3 lg:flex-row lg:items-center lg:justify-between">
+const DashboardFilterBar = ({ filters, serviceOptions, isRefreshing, onChange, onRefresh, embedded = false }: DashboardFilterBarProps) => (
+  <section className={`${embedded ? "flex flex-col gap-3 border-b border-border px-4 py-3 xl:flex-row xl:items-center xl:justify-between" : "dashboard-surface flex flex-col gap-3 p-3 lg:flex-row lg:items-center lg:justify-between"}`}>
     <div className="flex items-center gap-3">
       <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-primary/10 text-primary">
         <SlidersHorizontal className="h-5 w-5" />
       </div>
       <div>
-        <h2 className="text-sm font-extrabold text-foreground">Central de análise</h2>
-        <p className="text-xs font-medium text-muted-foreground">Os filtros abaixo atualizam todos os gráficos e indicadores analíticos.</p>
+        <p className="text-[10px] font-bold uppercase tracking-[0.12em] text-primary">Central de análise</p>
+        <h2 className="mt-0.5 text-sm font-extrabold text-foreground">Painel Analítico</h2>
+        <p className="text-xs font-medium text-muted-foreground">Personalize o período, situação e serviços em todos os indicadores.</p>
       </div>
     </div>
 

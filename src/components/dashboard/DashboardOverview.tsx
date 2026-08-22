@@ -36,9 +36,10 @@ const DashboardOverview = () => {
         dayRevenue={metrics.todayRevenue}
       />
 
-      <DashboardFilterBar filters={filters} serviceOptions={serviceOptions} isRefreshing={isRefreshing} onChange={setFilters} onRefresh={refetch} />
-
-      <AnalyticsSummaryStrip analytics={analytics} periodLabel={periodLabel} />
+      <section className="dashboard-surface overflow-hidden">
+        <DashboardFilterBar embedded filters={filters} serviceOptions={serviceOptions} isRefreshing={isRefreshing} onChange={setFilters} onRefresh={refetch} />
+        <AnalyticsSummaryStrip embedded analytics={analytics} periodLabel={periodLabel} />
+      </section>
 
       <div className="grid grid-cols-1 gap-4 xl:grid-cols-2">
         <RevenueLineChart data={monthlyRevenue} periodLabel={periodLabel} totalRevenue={analytics.totalRevenue} revenueTrend={analytics.revenueTrend} />
