@@ -314,7 +314,7 @@ const Sidebar = () => {
               <Collapsible open={isOpen} onOpenChange={() => toggleCategory(category.category)}>
                 <CollapsibleTrigger asChild>
                   <button
-                    className={`flex w-full items-center gap-3 rounded-xl px-3 py-2 text-[14px] font-bold transition-all duration-150 ${
+                    className={`flex min-h-10 w-full items-center gap-3 rounded-xl px-3 py-0 text-[14px] font-bold transition-all duration-150 ${
                       hasActive && isOpen
                         ? 'bg-white/[0.09] text-white shadow-inner shadow-white/[0.03]'
                         : 'text-white/90 hover:bg-white/[0.07] hover:text-white'
@@ -333,13 +333,13 @@ const Sidebar = () => {
                       <button
                         key={item.path}
                         onClick={() => navigate(item.path)}
-                        className={`relative flex w-full items-center gap-3 rounded-lg px-3 py-1 text-[13px] font-semibold transition-all duration-150 ${
+                        className={`relative flex min-h-8 w-full items-center gap-2.5 rounded-md px-3 py-0.5 text-[13px] font-semibold transition-all duration-150 ${
                           active
                             ? 'bg-white font-semibold text-[hsl(var(--sidebar-background))] shadow-sm'
                             : 'text-white/78 hover:bg-white/[0.07] hover:text-white'
                         }`}
                       >
-                        <Icon className="h-[18px] w-[18px] flex-shrink-0 opacity-90" />
+                        <Icon className="h-4 w-4 flex-shrink-0 opacity-90" />
                         <span className="truncate">{item.label}</span>
                         {item.badge && (
                           <span className={`ml-auto min-w-[20px] h-5 px-1.5 rounded-full flex items-center justify-center text-[10px] font-bold ${
