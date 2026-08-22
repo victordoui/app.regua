@@ -1,7 +1,7 @@
 import { useEffect, useSyncExternalStore } from "react";
 
 const STORAGE_KEY = "vizzu:sidebar-collapsed";
-export const SIDEBAR_W_EXPANDED = 248;
+export const SIDEBAR_W_EXPANDED = 254;
 export const SIDEBAR_W_COLLAPSED = 72;
 
 const listeners = new Set<() => void>();

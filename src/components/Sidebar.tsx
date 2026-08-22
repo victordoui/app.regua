@@ -33,7 +33,7 @@ import {
 const BARBER_PATHS = new Set([
   '/', '/appointments', '/clients', '/conversations', '/profile'
 ]);
-const BARBER_CATEGORIES = new Set(['dashboard', 'operacoes', 'comunicacao', 'administracao']);
+const BARBER_CATEGORIES = new Set(['home', 'analytics', 'negocio', 'operacoes', 'comunicacao']);
 
 
 const Sidebar = () => {
@@ -65,7 +65,7 @@ const Sidebar = () => {
 
   const platformMenuStructure = useMemo(() => [
     {
-      category: "plat-overview", label: "Visão Geral", icon: LayoutDashboard,
+      category: "plat-overview", label: "Visão Geral", icon: LayoutDashboard, section: "Início",
       items: [
         { icon: LayoutDashboard, label: "Dashboard", path: "/superadmin" },
         { icon: Users, label: "Usuários do Sistema", path: "/superadmin/users" },
@@ -73,7 +73,7 @@ const Sidebar = () => {
       ]
     },
     {
-      category: "plat-subscribers", label: "Assinantes", icon: Users,
+      category: "plat-subscribers", label: "Assinantes", icon: Users, section: "Operação",
       items: [
         { icon: Users, label: "Assinantes", path: "/superadmin/subscribers" },
         { icon: CalendarClock, label: "Expirando", path: "/superadmin/expiring", badge: expiring7Days },
@@ -81,7 +81,7 @@ const Sidebar = () => {
       ]
     },
     {
-      category: "plat-marketing", label: "Marketing", icon: Send,
+      category: "plat-marketing", label: "Marketing", icon: Send, section: "Relacionamento",
       items: [
         { icon: Ticket, label: "Cupons da Plataforma", path: "/superadmin/coupons" },
         { icon: Send, label: "Mensagens em Massa", path: "/superadmin/broadcast" },
@@ -89,19 +89,19 @@ const Sidebar = () => {
       ]
     },
     {
-      category: "plat-settings", label: "Planos e Preços", icon: Settings,
+      category: "plat-settings", label: "Planos e Preços", icon: Settings, section: "Gestão",
       items: [
         { icon: Settings, label: "Planos e Preços", path: "/superadmin/plans" },
       ]
     },
     {
-      category: "plat-support", label: "Suporte", icon: Headphones,
+      category: "plat-support", label: "Suporte", icon: Headphones, section: "Atendimento",
       items: [
         { icon: Headphones, label: "Tickets de Suporte", path: "/superadmin/support", badge: openTickets },
       ]
     },
     {
-      category: "plat-audit", label: "Auditoria", icon: ScrollText,
+      category: "plat-audit", label: "Auditoria", icon: ScrollText, section: "Controle",
       items: [
         { icon: ScrollText, label: "Logs de Auditoria", path: "/superadmin/logs" },
       ]
@@ -111,15 +111,20 @@ const Sidebar = () => {
 
   const fullMenuStructure = useMemo(() => [
     {
-      category: "dashboard", label: "Dashboard", icon: LayoutDashboard,
+      category: "home", label: "Início", icon: Home, section: "Início",
       items: [
         { icon: Home, label: "Visão Geral", path: "/" },
+      ]
+    },
+    {
+      category: "analytics", label: "Análises", icon: LayoutDashboard, section: "Análise",
+      items: [
         { icon: TrendingUp, label: "Desempenho", path: "/dashboard/desempenho" },
         { icon: HeartHandshake, label: "Sucesso do Cliente", path: "/dashboard/sucesso-cliente" },
       ]
     },
     {
-      category: "negocio", label: "Meu Negócio", icon: Building,
+      category: "negocio", label: "Meu Negócio", icon: Building, section: "Gestão",
       items: [
         { icon: Building, label: "Minha Empresa", path: "/settings/company" },
         { icon: UserCircle, label: "Meu Perfil", path: "/profile" },
@@ -127,7 +132,7 @@ const Sidebar = () => {
       ]
     },
     {
-      category: "operacoes", label: "Operações", icon: Calendar,
+      category: "operacoes", label: "Operações", icon: Calendar, section: "Operação",
       items: [
         { icon: Calendar, label: "Agenda", path: "/appointments" },
         { icon: Users, label: "Clientes", path: "/clients" },
@@ -136,26 +141,26 @@ const Sidebar = () => {
       ]
     },
     {
-      category: "comunicacao", label: "Comunicação", icon: Megaphone,
+      category: "comunicacao", label: "Comunicação", icon: Megaphone, section: "Relacionamento",
       items: [
         { icon: MessageSquare, label: "Conversas", path: "/conversations" },
       ]
     },
     {
-      category: "financeiro", label: "Financeiro", icon: Wallet,
+      category: "engajamento", label: "Engajamento", icon: Heart, section: "Relacionamento",
+      items: [
+        { icon: Crown, label: "Planos", path: "/subscriptions" },
+        { icon: Heart, label: "Rewards", path: "/loyalty" },
+      ]
+    },
+    {
+      category: "financeiro", label: "Financeiro", icon: Wallet, section: "Financeiro",
       items: [
         { icon: BarChart3, label: "Insights", path: "/reports" },
         { icon: CreditCard, label: "Contas", path: "/billing" },
         { icon: Receipt, label: "Comissões", path: "/commissions" },
         { icon: Tag, label: "Promoções", path: "/coupons" },
         { icon: ShoppingCart, label: "Caixa / PDV", path: "/cash" },
-      ]
-    },
-    {
-      category: "engajamento", label: "Engajamento", icon: Heart,
-      items: [
-        { icon: Crown, label: "Planos", path: "/subscriptions" },
-        { icon: Heart, label: "Rewards", path: "/loyalty" },
       ]
     },
   ], []);
@@ -228,27 +233,34 @@ const Sidebar = () => {
 
   return (
     <aside
-      className="fixed bottom-0 left-0 top-0 z-40 hidden flex-col border-r border-sidebar-border bg-sidebar text-sidebar-foreground transition-[width] duration-200 md:flex"
+      className="fixed bottom-0 left-0 top-0 z-40 hidden flex-col border-r border-sidebar-border bg-sidebar text-sidebar-foreground shadow-[8px_0_28px_-24px_rgba(2,20,45,0.7)] transition-[width] duration-200 md:flex"
       style={{ width: collapsed ? SIDEBAR_W_COLLAPSED : SIDEBAR_W_EXPANDED }}
     >
       {/* Toggle agora vive na Topbar */}
 
       {/* Brand */}
-      <div className={`flex items-center justify-center ${collapsed ? 'px-2 pb-2 pt-3' : 'px-4 pb-2 pt-3'}`}>
+      <div className={`flex shrink-0 items-center justify-center ${collapsed ? 'h-[76px] px-2' : 'h-[138px] px-4'}`}>
         <img
           src={vizzuLogo}
           alt="VIZZU"
-          className={`object-contain transition-all duration-200 ${collapsed ? 'h-10 w-10' : 'h-36 w-36'}`}
+          className={`object-contain transition-all duration-200 ${collapsed ? 'h-11 w-11' : 'h-[112px] w-[142px]'}`}
         />
       </div>
 
       {/* Navigation */}
-      <nav className={`flex-1 space-y-0.5 overflow-y-auto px-2 py-3 scrollbar-hidden-hover`}>
-        {menuStructure.map((category) => {
+      <nav className="flex-1 space-y-0.5 overflow-y-auto px-2.5 pb-3 scrollbar-hidden-hover">
+        {menuStructure.map((category, categoryIndex) => {
           const CatIcon = category.icon;
           const isOpen = openCategories.includes(category.category);
           const hasActive = isCategoryActive(category.items);
           const isSingle = category.items.length === 1;
+          const showSection = !collapsed && category.section !== 'Início' && (categoryIndex === 0 || menuStructure[categoryIndex - 1]?.section !== category.section);
+
+          const sectionLabel = showSection ? (
+            <p className="px-2 pb-1 pt-4 text-[10px] font-extrabold uppercase tracking-[0.16em] text-sidebar-muted/75">
+              {category.section}
+            </p>
+          ) : null;
 
           // Categoria com 1 item → link direto
           if (isSingle) {
@@ -257,15 +269,16 @@ const Sidebar = () => {
             const active = isActivePath(item.path);
             return (
               <div key={category.category}>
+                {sectionLabel}
                 <button
                   onClick={() => navigate(item.path)}
                   title={collapsed ? item.label : undefined}
-                  className={`w-full flex items-center gap-3 rounded-md text-[15px] font-semibold transition-colors ${
-                    collapsed ? 'justify-center px-2 py-3' : 'px-3 py-3'
+                  className={`flex w-full items-center gap-3 rounded-xl text-[14px] font-bold transition-all duration-150 ${
+                    collapsed ? 'justify-center px-2 py-3' : 'px-3 py-2.5'
                   } ${
                     active
                       ? 'bg-white text-[hsl(var(--sidebar-background))] shadow-sm'
-                      : 'text-white/85 hover:bg-white/10 hover:text-white'
+                      : 'text-white/90 hover:bg-white/[0.08] hover:text-white'
                   }`}
                 >
                   <Icon className="h-5 w-5 flex-shrink-0" />
@@ -282,7 +295,7 @@ const Sidebar = () => {
                 key={category.category}
                 onClick={() => navigate(category.items[0].path)}
                 title={category.label}
-                className={`w-full flex items-center justify-center px-2 py-3 rounded-md transition-colors ${
+                className={`flex w-full items-center justify-center rounded-xl px-2 py-3 transition-colors ${
                   hasActive
                     ? 'bg-white text-[hsl(var(--sidebar-background))] shadow-sm'
                     : 'text-white/85 hover:bg-white/10 hover:text-white'
@@ -295,13 +308,14 @@ const Sidebar = () => {
 
           return (
             <div key={category.category}>
+              {sectionLabel}
               <Collapsible open={isOpen} onOpenChange={() => toggleCategory(category.category)}>
                 <CollapsibleTrigger asChild>
                   <button
-                    className={`w-full flex items-center gap-3 rounded-md px-3 py-3 text-[15px] font-semibold transition-colors ${
+                    className={`flex w-full items-center gap-3 rounded-xl px-3 py-2.5 text-[14px] font-bold transition-all duration-150 ${
                       hasActive && isOpen
-                        ? 'bg-white/10 text-white'
-                        : 'text-white/90 hover:bg-white/10 hover:text-white'
+                        ? 'bg-white/[0.09] text-white shadow-inner shadow-white/[0.03]'
+                        : 'text-white/90 hover:bg-white/[0.07] hover:text-white'
                     }`}
                   >
                     <CatIcon className="h-5 w-5 flex-shrink-0" />
@@ -309,7 +323,7 @@ const Sidebar = () => {
                     <ChevronDown className={`h-4 w-4 transition-transform duration-200 opacity-80 ${isOpen ? 'rotate-180' : ''}`} />
                   </button>
                 </CollapsibleTrigger>
-                <CollapsibleContent className="mt-0.5 space-y-0.5">
+                <CollapsibleContent className="mt-0.5 space-y-0.5 pl-3">
                   {category.items.map((item) => {
                     const Icon = item.icon;
                     const active = isActivePath(item.path);
@@ -317,10 +331,10 @@ const Sidebar = () => {
                       <button
                         key={item.path}
                         onClick={() => navigate(item.path)}
-                        className={`relative flex w-full items-center gap-3 rounded-md py-2.5 pl-10 pr-3 text-[14px] font-medium transition-colors ${
+                        className={`relative flex w-full items-center gap-3 rounded-lg px-3 py-2.5 text-[13px] font-semibold transition-all duration-150 ${
                           active
                             ? 'bg-white font-semibold text-[hsl(var(--sidebar-background))] shadow-sm'
-                            : 'text-white/75 hover:bg-white/10 hover:text-white'
+                            : 'text-white/78 hover:bg-white/[0.07] hover:text-white'
                         }`}
                       >
                         <Icon className="h-[18px] w-[18px] flex-shrink-0 opacity-90" />
@@ -364,7 +378,7 @@ const Sidebar = () => {
       </nav>
 
       {/* Footer */}
-      <div className={`space-y-2.5 border-t border-sidebar-border p-3 ${collapsed ? 'px-2' : ''}`}>
+      <div className={`shrink-0 space-y-2 border-t border-white/10 bg-black/[0.04] p-2.5 ${collapsed ? 'px-2' : ''}`}>
         {!inPlatformContext && (
           <button
             onClick={() => navigate('/upgrade')}
@@ -384,7 +398,7 @@ const Sidebar = () => {
           <DropdownMenuTrigger asChild>
             <button
               title={collapsed ? getUserName() : undefined}
-              className={`group flex w-full items-center gap-2.5 rounded-md p-2 transition-colors hover:bg-white/10 ${
+            className={`group flex w-full items-center gap-2.5 rounded-xl bg-white/[0.07] p-2 transition-colors hover:bg-white/[0.12] ${
                 collapsed ? 'justify-center' : ''
               }`}
             >
