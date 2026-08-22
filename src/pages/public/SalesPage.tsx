@@ -40,6 +40,8 @@ import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/
 import { LoadingSpinner } from '@/components/ui/loading-spinner';
 import { cn } from '@/lib/utils';
 import vizzuIcon from '@/assets/vizzu-icon.png';
+import heroProfessionalMan from '@/assets/sales/vizzu-professional-man-tattoo.png';
+import heroProfessionalWoman from '@/assets/sales/vizzu-professional-woman.png';
 import type { PlanConfig } from '@/types/superAdmin';
 import { DEFAULT_PUBLIC_PLANS } from '@/lib/publicPlans';
 
@@ -256,6 +258,39 @@ const ProductPreview = () => {
   );
 };
 
+const HeroShowcase = () => {
+  const reduceMotion = useReducedMotion();
+
+  return (
+    <div className="relative mx-auto w-full max-w-[880px] py-8 lg:-mx-20 lg:max-w-[920px]">
+      <motion.img
+        src={heroProfessionalMan}
+        alt="Profissional usando o VIZZU no celular"
+        className="pointer-events-none absolute -bottom-2 -left-24 z-0 hidden h-[470px] w-auto object-contain lg:block xl:-left-36 xl:h-[530px]"
+        initial={reduceMotion ? false : { opacity: 0, x: -28 }}
+        animate={{ opacity: 1, x: 0 }}
+        transition={{ duration: 0.85, delay: 0.15, ease: [0.22, 1, 0.36, 1] }}
+      />
+      <motion.img
+        src={heroProfessionalWoman}
+        alt="Profissional acompanhando sua agenda no VIZZU"
+        className="pointer-events-none absolute -bottom-3 -right-24 z-0 hidden h-[470px] w-auto object-contain lg:block xl:-right-36 xl:h-[530px]"
+        initial={reduceMotion ? false : { opacity: 0, x: 28 }}
+        animate={{ opacity: 1, x: 0 }}
+        transition={{ duration: 0.85, delay: 0.22, ease: [0.22, 1, 0.36, 1] }}
+      />
+      <div className="relative z-10 mx-auto max-w-[690px]">
+        <ProductPreview />
+      </div>
+      <div className="absolute bottom-9 right-0 z-20 hidden max-w-[190px] rounded-2xl border border-white/90 bg-white/95 p-3.5 shadow-[0_22px_50px_-24px_rgba(15,47,107,0.55)] backdrop-blur xl:block dark:border-white/10 dark:bg-[#0a1935]/95">
+        <div className="flex items-center gap-1 text-amber-400"><Star className="h-3.5 w-3.5" weight="fill" /><Star className="h-3.5 w-3.5" weight="fill" /><Star className="h-3.5 w-3.5" weight="fill" /><Star className="h-3.5 w-3.5" weight="fill" /><Star className="h-3.5 w-3.5" weight="fill" /></div>
+        <p className="mt-2 text-[11px] font-bold leading-4 text-slate-800 dark:text-white">“Agora tenho mais tempo para atender e clareza para crescer.”</p>
+        <p className="mt-2 text-[9px] font-semibold text-slate-400">Camila · Gestora de salão</p>
+      </div>
+    </div>
+  );
+};
+
 const PlanIcon = ({ type }: { type: string }): ReactNode => {
   if (type === 'pro') return <Crown className="h-5 w-5" />;
   if (type === 'enterprise') return <ShieldCheck className="h-5 w-5" />;
@@ -368,8 +403,8 @@ const SalesPage = () => {
                 ))}
               </div>
             </motion.div>
-            <div>
-              <ProductPreview />
+            <div className="lg:pr-6">
+              <HeroShowcase />
             </div>
           </div>
           <Reveal className="mx-auto mt-16 grid max-w-7xl overflow-hidden rounded-3xl border border-white/90 bg-[#f8fbff]/85 shadow-[0_18px_50px_-30px_rgba(15,47,107,0.45)] backdrop-blur sm:grid-cols-2 lg:grid-cols-4 dark:border-white/10 dark:bg-slate-900/65">
