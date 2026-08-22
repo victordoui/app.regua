@@ -1,4 +1,4 @@
-import type { ReactNode } from 'react';
+import { useEffect, useState, type ReactNode } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
 import { motion } from 'framer-motion';
@@ -187,6 +187,7 @@ const PlanIcon = ({ type }: { type: string }): ReactNode => {
 
 const SalesPage = () => {
   const navigate = useNavigate();
+  const [showHeader, setShowHeader] = useState(false);
   const { data: plans = [], isLoading } = useQuery({
     queryKey: ['public-plans'],
     queryFn: async (): Promise<PlanConfig[]> => {
@@ -199,9 +200,23 @@ const SalesPage = () => {
     },
   });
 
+  useEffect(() => {
+    const updateHeaderVisibility = () => setShowHeader(window.scrollY > 120);
+
+    updateHeaderVisibility();
+    window.addEventListener('scroll', updateHeaderVisibility, { passive: true });
+    return () => window.removeEventListener('scroll', updateHeaderVisibility);
+  }, []);
+
   return (
     <div className="min-h-screen scroll-smooth overflow-x-hidden bg-[#f7f9fc] text-slate-950 dark:bg-slate-950 dark:text-white">
-      <header className="relative z-40 px-4 pt-5 sm:px-6">
+      <header
+        className={cn(
+          'fixed inset-x-0 top-0 z-50 px-4 pt-4 transition-all duration-300 sm:px-6',
+          showHeader ? 'translate-y-0 opacity-100' : 'pointer-events-none -translate-y-5 opacity-0',
+        )}
+        aria-hidden={!showHeader}
+      >
         <div className="mx-auto flex h-[70px] max-w-6xl items-center justify-between rounded-[22px] border border-white/80 bg-white/90 px-5 shadow-[0_18px_45px_-28px_rgba(15,47,107,0.5)] backdrop-blur-xl dark:border-white/10 dark:bg-slate-950/85 sm:px-7">
           <button className="flex items-center gap-2.5 rounded-lg focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary" onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })} aria-label="Voltar ao início">
             <img src={vizzuIcon} alt="VIZZU" className="h-12 w-12 object-contain drop-shadow-sm" />
@@ -226,6 +241,17 @@ const SalesPage = () => {
           <div className="pointer-events-none absolute -right-28 top-20 -z-10 h-[420px] w-[420px] rounded-full bg-violet-300/20 blur-3xl" />
           <div className="mx-auto grid max-w-7xl items-center gap-16 lg:grid-cols-[0.92fr_1.08fr]">
             <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.5 }}>
+              <div className="mb-8 flex items-center gap-4 sm:gap-5">
+                <img
+                  src={vizzuIcon}
+                  alt="Logo VIZZU"
+                  className="h-28 w-28 shrink-0 object-contain drop-shadow-[0_20px_25px_rgba(37,99,235,0.24)] sm:h-40 sm:w-40"
+                />
+                <div>
+                  <p className="text-5xl font-black leading-none tracking-[0.08em] text-[#0F2F6B] sm:text-6xl dark:text-white">VIZZU</p>
+                  <p className="mt-3 text-xs font-bold uppercase tracking-[0.2em] text-primary sm:text-sm">Visualize · Organize · Cresça</p>
+                </div>
+              </div>
               <Badge className="mb-6 rounded-full border-primary/20 bg-white/80 px-3 py-1.5 text-primary shadow-sm hover:bg-white/80 dark:bg-white/10 dark:hover:bg-white/10">
                 <Zap className="mr-1.5 h-3.5 w-3.5 fill-current" /> Gestão simples para negócios de serviços
               </Badge>
