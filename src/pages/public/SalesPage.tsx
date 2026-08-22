@@ -201,33 +201,43 @@ const SalesPage = () => {
 
   return (
     <div className="min-h-screen scroll-smooth overflow-x-hidden bg-[#f7f9fc] text-slate-950 dark:bg-slate-950 dark:text-white">
+      <header className="relative z-40 px-4 pt-5 sm:px-6">
+        <div className="mx-auto flex h-[70px] max-w-6xl items-center justify-between rounded-[22px] border border-white/80 bg-white/90 px-5 shadow-[0_18px_45px_-28px_rgba(15,47,107,0.5)] backdrop-blur-xl dark:border-white/10 dark:bg-slate-950/85 sm:px-7">
+          <button className="flex items-center gap-2.5 rounded-lg focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary" onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })} aria-label="Voltar ao início">
+            <img src={vizzuIcon} alt="VIZZU" className="h-12 w-12 object-contain drop-shadow-sm" />
+            <span className="text-2xl font-black tracking-[0.06em] text-[#0F2F6B] dark:text-white">VIZZU</span>
+          </button>
+          <nav className="hidden items-center gap-8 text-sm font-semibold text-slate-700 lg:flex dark:text-slate-200">
+            <a href="#recursos" className="transition-colors hover:text-primary">Recursos</a>
+            <a href="#para-quem" className="transition-colors hover:text-primary">Para quem é</a>
+            <a href="#planos" className="transition-colors hover:text-primary">Preços</a>
+            <a href="#duvidas" className="transition-colors hover:text-primary">Dúvidas</a>
+          </nav>
+          <div className="flex items-center gap-2 sm:gap-3">
+            <Button variant="ghost" className="hidden font-semibold text-primary sm:inline-flex" onClick={() => navigate('/login')}>Entrar</Button>
+            <Button className="rounded-xl px-4 shadow-lg shadow-primary/25 sm:px-5" onClick={() => navigate('/cadastro')}>Começar agora <ArrowRight className="ml-2 h-4 w-4" /></Button>
+          </div>
+        </div>
+      </header>
       <main>
-        <section className="relative isolate overflow-hidden px-4 pb-16 pt-10 sm:px-6 sm:pt-16 lg:pb-24">
+        <section className="relative isolate overflow-hidden px-4 pb-16 pt-14 sm:px-6 sm:pt-20 lg:pb-24">
           <div className="pointer-events-none absolute inset-0 -z-20 bg-[linear-gradient(135deg,#f8fbff_0%,#eef5ff_48%,#f9fbff_100%)] dark:bg-[linear-gradient(135deg,#020617_0%,#071b3e_50%,#020617_100%)]" />
           <div className="pointer-events-none absolute -left-32 top-10 -z-10 h-96 w-96 rounded-full bg-blue-300/25 blur-3xl" />
           <div className="pointer-events-none absolute -right-28 top-20 -z-10 h-[420px] w-[420px] rounded-full bg-violet-300/20 blur-3xl" />
           <div className="mx-auto grid max-w-7xl items-center gap-16 lg:grid-cols-[0.92fr_1.08fr]">
             <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.5 }}>
-              <div className="mb-7 flex items-center gap-4">
-                <img
-                  src={vizzuIcon}
-                  alt="Logo VIZZU"
-                  className="h-28 w-28 shrink-0 object-contain drop-shadow-[0_20px_25px_rgba(37,99,235,0.24)] sm:h-36 sm:w-36"
-                />
-                <div><p className="text-[40px] font-black leading-none tracking-[0.08em] text-[#0F2F6B] sm:text-5xl dark:text-white">VIZZU</p><p className="mt-3 text-xs font-bold uppercase tracking-[0.2em] text-primary sm:text-sm">Visualize · Organize · Cresça</p></div>
-              </div>
-              <Badge className="mb-5 rounded-full border-primary/20 bg-white/80 px-3 py-1.5 text-primary shadow-sm hover:bg-white/80 dark:bg-white/10 dark:hover:bg-white/10">
+              <Badge className="mb-6 rounded-full border-primary/20 bg-white/80 px-3 py-1.5 text-primary shadow-sm hover:bg-white/80 dark:bg-white/10 dark:hover:bg-white/10">
                 <Zap className="mr-1.5 h-3.5 w-3.5 fill-current" /> Gestão simples para negócios de serviços
               </Badge>
               <h1 className="max-w-2xl text-4xl font-black leading-[1.04] tracking-[-0.045em] sm:text-5xl lg:text-[58px]">
-                Seu negócio organizado. <span className="bg-gradient-to-r from-[#2878ef] via-[#1557b8] to-[#0F2F6B] bg-clip-text text-transparent dark:from-blue-300 dark:to-blue-100">Seu crescimento acontecendo.</span>
+                Organize seu negócio. <span className="bg-gradient-to-r from-[#2878ef] via-[#1557b8] to-[#0F2F6B] bg-clip-text text-transparent dark:from-blue-300 dark:to-blue-100">Acelere seu crescimento.</span>
               </h1>
               <p className="mt-6 max-w-xl text-base leading-7 text-slate-600 sm:text-lg dark:text-slate-300">
                 Uma plataforma bonita, simples e completa para cuidar da agenda, clientes, equipe e financeiro — enquanto seus clientes agendam pelo celular.
               </p>
               <div className="mt-8 flex flex-col gap-3 sm:flex-row">
                 <Button size="lg" className="h-13 rounded-xl px-7 text-base shadow-lg shadow-primary/25" onClick={() => navigate('/cadastro')}>
-                  Começar agora <ArrowRight className="ml-2 h-5 w-5" />
+                  Começar agora grátis <ArrowRight className="ml-2 h-5 w-5" />
                 </Button>
                 <Button size="lg" variant="outline" className="h-13 rounded-xl border-slate-300 bg-white/70 px-7 text-base dark:border-slate-700 dark:bg-slate-900/60" asChild><a href="#planos">Conhecer os planos</a></Button>
               </div>
@@ -246,7 +256,7 @@ const SalesPage = () => {
           </motion.div>
         </section>
 
-        <section className="border-y border-slate-200/80 bg-white px-4 py-8 dark:border-slate-800 dark:bg-slate-900/50">
+        <section id="para-quem" className="scroll-mt-6 border-y border-slate-200/80 bg-white px-4 py-8 dark:border-slate-800 dark:bg-slate-900/50">
           <div className="mx-auto max-w-7xl">
             <p className="mb-5 text-center text-xs font-bold uppercase tracking-[0.18em] text-slate-400">Feito para quem vive de atender bem</p>
             <div className="flex flex-wrap justify-center gap-2.5">
