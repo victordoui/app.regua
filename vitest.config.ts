@@ -13,6 +13,7 @@ export default defineConfig({
     resolve: {
         alias: {
             '@': fileURLToPath(new URL('./src', import.meta.url)),
+            'lucide-react': fileURLToPath(new URL('./src/components/ui/icons.tsx', import.meta.url)),
         },
     },
 });

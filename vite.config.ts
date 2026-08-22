@@ -31,6 +31,8 @@ export default defineConfig(({ mode }) => ({
   resolve: {
     alias: {
       "@": path.resolve(__dirname, "./src"),
+      // Todos os ícones legados são resolvidos pelo registro Phosphor central.
+      "lucide-react": path.resolve(__dirname, "./src/components/ui/icons.tsx"),
     },
   },
 }));
