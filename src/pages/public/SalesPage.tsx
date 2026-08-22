@@ -412,15 +412,15 @@ const SalesPage = () => {
               <Badge className="mb-5 rounded-full border-primary/20 bg-white/75 px-3 py-1.5 text-primary shadow-sm backdrop-blur hover:bg-white/85 dark:border-blue-300/15 dark:bg-white/10 dark:text-blue-200 dark:hover:bg-white/10">
                 <Zap className="mr-1.5 h-3.5 w-3.5" weight="duotone" /> Gestão completa para negócios de serviços
               </Badge>
-              <div className="min-h-[104px] sm:min-h-[120px]">
-                <AnimatePresence mode="wait" initial={false}>
+              <div className="relative h-[120px] sm:h-[132px] lg:h-[150px]">
+                <AnimatePresence mode="sync" initial={false}>
                   <motion.h1
                     key={heroMessageIndex}
-                    initial={reduceMotion ? false : { opacity: 0, y: 16 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    exit={reduceMotion ? undefined : { opacity: 0, y: -12 }}
-                    transition={{ duration: 0.42, ease: [0.22, 1, 0.36, 1] }}
-                    className="max-w-2xl text-4xl font-black leading-[1.03] tracking-[-0.045em] lg:text-[48px]"
+                    initial={reduceMotion ? false : { opacity: 0 }}
+                    animate={{ opacity: 1 }}
+                    exit={reduceMotion ? undefined : { opacity: 0 }}
+                    transition={{ duration: 0.32, ease: 'easeOut' }}
+                    className="absolute inset-x-0 top-0 z-30 max-w-2xl text-4xl font-black leading-[1.03] tracking-[-0.045em] lg:text-[48px]"
                   >
                     {heroMessages[heroMessageIndex].first}{' '}
                     <span className="bg-gradient-to-r from-[#2878ef] via-[#1557b8] to-[#0F2F6B] bg-clip-text text-transparent dark:from-blue-300 dark:to-blue-100">
