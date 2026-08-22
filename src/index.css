@@ -118,18 +118,18 @@
     --hairline: 214 34% 85%;
 
     /* ── Sidebar (VIZZU blue) ── */
-    --sidebar-background: 211 77% 26%;
+    --sidebar-background: 221 70% 38%;
     --sidebar-foreground: 0 0% 100%;
     --sidebar-primary: 217 91% 60%;
     --sidebar-primary-foreground: 0 0% 100%;
-    --sidebar-accent: 211 72% 33%;
+    --sidebar-accent: 217 91% 45%;
     --sidebar-accent-foreground: 0 0% 100%;
-    --sidebar-border: 211 62% 34%;
+    --sidebar-border: 221 55% 48%;
 
     /* Sidebar dynamic width */
     --sidebar-w: 254px;
     --sidebar-ring: 217 91% 60%;
-    --sidebar-muted: 207 65% 74%;
+    --sidebar-muted: 214 60% 80%;
 
 
     /* ── System grays (light-mode friendly) ── */
@@ -235,13 +235,13 @@
     --glass-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.4);
 
     /* ── Sidebar (VIZZU blue, dark) ── */
-    --sidebar-background: 215 70% 18%;
+    --sidebar-background: 224 72% 18%;
     --sidebar-foreground: 0 0% 100%;
     --sidebar-primary: 217 91% 60%;
     --sidebar-primary-foreground: 0 0% 100%;
-    --sidebar-accent: 213 70% 28%;
+    --sidebar-accent: 217 91% 42%;
     --sidebar-accent-foreground: 0 0% 100%;
-    --sidebar-border: 214 55% 27%;
+    --sidebar-border: 224 60% 28%;
     --sidebar-ring: 217 91% 60%;
     --sidebar-muted: 214 60% 80%;
 
