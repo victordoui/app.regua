@@ -2,7 +2,8 @@ import React from 'react';
 import { motion } from 'framer-motion';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
-import { Zap, Building2, Users, Clock, CalendarClock, ArrowRight, Sparkles, Package } from 'lucide-react';
+import { Building2, Users, Clock, CalendarClock, ArrowRight, Sparkles, Package } from 'lucide-react';
+import vizzuIcon from '@/assets/vizzu-icon.png';
 
 interface OnboardingWelcomeProps {
   onStart: () => void;
@@ -30,9 +31,9 @@ export const OnboardingWelcome: React.FC<OnboardingWelcomeProps> = ({ onStart })
             initial={{ scale: 0 }}
             animate={{ scale: 1 }}
             transition={{ type: "spring", stiffness: 200, damping: 15, delay: 0.2 }}
-            className="mx-auto mb-6 flex items-center justify-center w-20 h-20 rounded-full bg-gradient-to-br from-primary to-primary/60 shadow-lg"
+            className="mx-auto mb-5 flex items-center justify-center"
           >
-            <Zap className="h-10 w-10 text-primary-foreground" />
+            <img src={vizzuIcon} alt="VIZZU" className="h-28 w-28 object-contain drop-shadow-xl sm:h-32 sm:w-32" />
           </motion.div>
 
           <motion.div

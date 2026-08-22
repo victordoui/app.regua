@@ -2,9 +2,12 @@ import React, { useMemo, useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Button } from '@/components/ui/button';
-import { ArrowLeft, ArrowRight, Check, Loader2 } from 'lucide-react';
+import { ArrowLeft, ArrowRight, Check, Loader2, PartyPopper, CalendarCheck2, Sparkles } from 'lucide-react';
 import { useOnboarding } from '@/hooks/useOnboarding';
+import { useMySubscription } from '@/hooks/useMySubscription';
+import { useAuth } from '@/contexts/AuthContext';
 import { useToast } from '@/hooks/use-toast';
+import vizzuIcon from '@/assets/vizzu-icon.png';
 
 import OnboardingWelcome from '@/components/onboarding/OnboardingWelcome';
 import OnboardingProgress from '@/components/onboarding/OnboardingProgress';
@@ -18,9 +21,12 @@ import { getCompletedOnboardingSteps } from '@/lib/onboardingProgress';
 const Onboarding: React.FC = () => {
   const navigate = useNavigate();
   const { toast } = useToast();
+  const { user } = useAuth();
+  const subscriptionData = useMySubscription();
   const [showWelcome, setShowWelcome] = useState(true);
   const [currentStep, setCurrentStep] = useState(1);
   const [isCompleting, setIsCompleting] = useState(false);
+  const [showCompletion, setShowCompletion] = useState(false);
 
   const {
     isLoading,
@@ -30,8 +36,12 @@ const Onboarding: React.FC = () => {
     saveSettings,
     services,
     addService,
+    updateService,
+    deleteService,
     barbers,
     addBarber,
+    updateBarber,
+    deleteBarber,
     businessHours,
     upsertBusinessHour,
     initializeBusinessHours,
@@ -65,10 +75,10 @@ const Onboarding: React.FC = () => {
 
   // Redirect if onboarding is already complete
   useEffect(() => {
-    if (!isLoading && isOnboardingComplete) {
+    if (!isLoading && isOnboardingComplete && !isCompleting && !showCompletion) {
       navigate('/', { replace: true });
     }
-  }, [isLoading, isOnboardingComplete, navigate]);
+  }, [isLoading, isOnboardingComplete, isCompleting, showCompletion, navigate]);
 
   // Derive progress without scheduling another state update. Some data hooks can
   // legitimately return a new empty-array reference while loading; persisting
@@ -122,11 +132,7 @@ const Onboarding: React.FC = () => {
     setIsCompleting(true);
     try {
       await completeOnboarding();
-      toast({
-        title: "🎉 Configuração concluída!",
-        description: "Sua barbearia está pronta para começar.",
-      });
-      navigate('/', { replace: true });
+      setShowCompletion(true);
     } catch (error) {
       toast({
         title: "Erro",
@@ -149,7 +155,24 @@ const Onboarding: React.FC = () => {
     });
   };
 
+  const handleUpdateService = async (id: string, service: { name: string; description?: string; price: number; duration: number }) => {
+    const currentService = services.find((item) => item.id === id);
+    await updateService({ id, formData: {
+      name: service.name,
+      description: service.description || '',
+      price: String(service.price),
+      duration_minutes: String(service.duration),
+      active: currentService?.active ?? true,
+      image_url: currentService?.image_url || '',
+    } });
+  };
+
   const handleAddBarber = async (barber: { name: string; email?: string; phone?: string }) => {
+    const maxProfessionals = subscriptionData.planConfig?.max_barbers ?? subscriptionData.subscription?.max_barbers;
+    if (typeof maxProfessionals === 'number' && barbers.length >= maxProfessionals) {
+      toast({ title: 'Limite do plano atingido', description: `Seu plano permite até ${maxProfessionals} ${maxProfessionals === 1 ? 'profissional' : 'profissionais'}.`, variant: 'destructive' });
+      return;
+    }
     await addBarber({
       full_name: barber.name,
       email: barber.email || '',
@@ -157,6 +180,17 @@ const Onboarding: React.FC = () => {
       specializations: '',
       active: true,
     });
+  };
+
+  const handleUpdateBarber = async (id: string, barber: { name: string; email?: string; phone?: string }) => {
+    const currentBarber = barbers.find((item) => item.id === id);
+    await updateBarber({ id, formData: {
+      full_name: barber.name,
+      email: barber.email || '',
+      phone: barber.phone || '',
+      specializations: Array.isArray(currentBarber?.specializations) ? currentBarber.specializations.join(', ') : '',
+      active: currentBarber?.active ?? true,
+    } });
   };
 
   const handleUpsertHour = async (data: { day_of_week: number; open_time: string | null; close_time: string | null; is_closed: boolean }) => {
@@ -212,6 +246,26 @@ const Onboarding: React.FC = () => {
     );
   }
 
+  if (showCompletion) {
+    const userName = user?.user_metadata?.full_name?.split(' ')[0];
+    return (
+      <div className="flex min-h-screen items-center justify-center bg-gradient-to-br from-blue-50 via-background to-violet-50 p-4 dark:from-slate-950 dark:via-background dark:to-blue-950/30">
+        <motion.div initial={{ opacity: 0, scale: 0.94 }} animate={{ opacity: 1, scale: 1 }} className="w-full max-w-xl rounded-3xl border bg-card p-8 text-center shadow-2xl sm:p-12">
+          <img src={vizzuIcon} alt="VIZZU" className="mx-auto mb-5 h-28 w-28 object-contain drop-shadow-xl" />
+          <div className="mx-auto mb-5 flex h-14 w-14 items-center justify-center rounded-full bg-emerald-100 text-emerald-700 dark:bg-emerald-500/15 dark:text-emerald-300"><PartyPopper className="h-7 w-7" /></div>
+          <p className="mb-2 text-sm font-bold uppercase tracking-[0.18em] text-primary">Configuração concluída</p>
+          <h1 className="text-3xl font-bold tracking-tight sm:text-4xl">{userName ? `Parabéns, ${userName}!` : 'Parabéns!'}</h1>
+          <p className="mx-auto mt-4 max-w-md text-base leading-relaxed text-muted-foreground">Seu negócio já está preparado no VIZZU. Agora você pode organizar a equipe, receber agendamentos e acompanhar seus resultados.</p>
+          <div className="my-7 grid gap-3 text-left sm:grid-cols-2">
+            <div className="flex items-center gap-3 rounded-xl bg-muted/60 p-4"><CalendarCheck2 className="h-5 w-5 text-primary" /><span className="text-sm font-medium">Agenda pronta para usar</span></div>
+            <div className="flex items-center gap-3 rounded-xl bg-muted/60 p-4"><Sparkles className="h-5 w-5 text-primary" /><span className="text-sm font-medium">Tudo em um só lugar</span></div>
+          </div>
+          <Button size="lg" className="w-full gap-2" onClick={() => navigate('/', { replace: true })}>Ir para minha visão geral <ArrowRight className="h-5 w-5" /></Button>
+        </motion.div>
+      </div>
+    );
+  }
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-background via-background to-muted">
       <div className="container max-w-2xl mx-auto py-8 px-4">
@@ -247,6 +301,8 @@ const Onboarding: React.FC = () => {
                       key="step-2"
                       services={mappedServices}
                       onAddService={handleAddService}
+                      onUpdateService={handleUpdateService}
+                      onDeleteService={deleteService}
                       isLoading={isSaving}
                     />
                   )}
@@ -255,6 +311,9 @@ const Onboarding: React.FC = () => {
                       key="step-3"
                       barbers={mappedBarbers}
                       onAddBarber={handleAddBarber}
+                      onUpdateBarber={handleUpdateBarber}
+                      onDeleteBarber={deleteBarber}
+                      maxProfessionals={subscriptionData.planConfig?.max_barbers ?? subscriptionData.subscription?.max_barbers ?? undefined}
                       isLoading={isSaving}
                     />
                   )}

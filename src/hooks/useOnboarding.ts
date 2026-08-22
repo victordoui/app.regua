@@ -23,8 +23,8 @@ export const DEFAULT_HOURS = {
 
 export function useOnboarding() {
   const { settings, isLoading: settingsLoading, saveSettings, isSaving } = useCompanySettings();
-  const { services, isLoading: servicesLoading, addService } = useServices();
-  const { barbers, isLoading: barbersLoading, addBarber } = useBarbers();
+  const { services, isLoading: servicesLoading, addService, updateService, deleteService } = useServices();
+  const { barbers, isLoading: barbersLoading, addBarber, updateBarber, deleteBarber } = useBarbers();
   const { businessHours, isLoading: hoursLoading, upsertBusinessHour, initializeBusinessHours, isInitializing } = useBusinessHours();
   const { shifts, isLoading: shiftsLoading, createShift } = useShifts();
 
@@ -105,10 +105,14 @@ export function useOnboarding() {
     // Services
     services: services || [],
     addService,
+    updateService,
+    deleteService,
     
     // Barbers
     barbers: barbers || [],
     addBarber,
+    updateBarber,
+    deleteBarber,
     
     // Business Hours
     businessHours: businessHours || [],

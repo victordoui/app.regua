@@ -5,7 +5,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Button } from '@/components/ui/button';
 import { Avatar, AvatarFallback } from '@/components/ui/avatar';
-import { Users, Plus, User } from 'lucide-react';
+import { Users, Plus, User, Pencil, Trash2, LockKeyhole } from 'lucide-react';
 import { formatPhoneBR, formatNameOnly } from '@/lib/utils';
 
 interface Barber {
@@ -18,12 +18,18 @@ interface Barber {
 interface OnboardingStepBarbersProps {
   barbers: Barber[];
   onAddBarber: (barber: Omit<Barber, 'id'>) => Promise<void>;
+  onUpdateBarber: (id: string, barber: Omit<Barber, 'id'>) => Promise<void>;
+  onDeleteBarber: (id: string) => Promise<void>;
+  maxProfessionals?: number;
   isLoading?: boolean;
 }
 
 export const OnboardingStepBarbers: React.FC<OnboardingStepBarbersProps> = ({
   barbers,
   onAddBarber,
+  onUpdateBarber,
+  onDeleteBarber,
+  maxProfessionals,
   isLoading,
 }) => {
   const [showForm, setShowForm] = useState(barbers.length === 0);
@@ -32,18 +38,37 @@ export const OnboardingStepBarbers: React.FC<OnboardingStepBarbersProps> = ({
     email: '',
     phone: '',
   });
+  const [editingId, setEditingId] = useState<string | null>(null);
+  const limitReached = typeof maxProfessionals === 'number' && barbers.length >= maxProfessionals;
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!formData.name) return;
 
-    await onAddBarber({
+    const professionalData = {
       name: formData.name,
       email: formData.email || undefined,
       phone: formData.phone || undefined,
-    });
+    };
+
+    if (editingId) await onUpdateBarber(editingId, professionalData);
+    else await onAddBarber(professionalData);
 
     setFormData({ name: '', email: '', phone: '' });
+    setShowForm(false);
+    setEditingId(null);
+  };
+
+  const handleEdit = (barber: Barber) => {
+    if (!barber.id) return;
+    setEditingId(barber.id);
+    setFormData({ name: barber.name, email: barber.email || '', phone: barber.phone || '' });
+    setShowForm(true);
+  };
+
+  const handleCancel = () => {
+    setFormData({ name: '', email: '', phone: '' });
+    setEditingId(null);
     setShowForm(false);
   };
 
@@ -101,6 +126,12 @@ export const OnboardingStepBarbers: React.FC<OnboardingStepBarbersProps> = ({
                           </p>
                         )}
                       </div>
+                      <Button type="button" variant="ghost" size="icon" className="h-8 w-8" onClick={() => handleEdit(barber)} aria-label={`Editar ${barber.name}`} disabled={isLoading}>
+                        <Pencil className="h-4 w-4" />
+                      </Button>
+                      <Button type="button" variant="ghost" size="icon" className="h-8 w-8 text-destructive hover:text-destructive" onClick={() => barber.id && onDeleteBarber(barber.id)} aria-label={`Excluir ${barber.name}`} disabled={isLoading}>
+                        <Trash2 className="h-4 w-4" />
+                      </Button>
                     </motion.div>
                   ))}
                 </AnimatePresence>
@@ -122,7 +153,7 @@ export const OnboardingStepBarbers: React.FC<OnboardingStepBarbersProps> = ({
                   <User className="h-6 w-6 text-primary" />
                 </div>
                 <div>
-                  <p className="font-medium">Novo Profissional</p>
+                  <p className="font-medium">{editingId ? 'Editar profissional' : 'Novo profissional'}</p>
                   <p className="text-xs text-muted-foreground">
                     Preencha os dados do profissional
                   </p>
@@ -167,24 +198,32 @@ export const OnboardingStepBarbers: React.FC<OnboardingStepBarbersProps> = ({
 
               <div className="flex gap-2">
                 <Button type="submit" disabled={isLoading || !formData.name}>
-                  Adicionar
+                  {editingId ? 'Salvar alterações' : 'Adicionar'}
                 </Button>
                 {barbers.length > 0 && (
-                  <Button type="button" variant="ghost" onClick={() => setShowForm(false)}>
+                  <Button type="button" variant="ghost" onClick={handleCancel}>
                     Cancelar
                   </Button>
                 )}
               </div>
             </motion.form>
           ) : (
-            <Button
-              variant="outline"
-              className="w-full gap-2"
-              onClick={() => setShowForm(true)}
-            >
-              <Plus className="h-4 w-4" />
-              Adicionar profissional
-            </Button>
+            <div className="space-y-2">
+              <Button
+                variant="outline"
+                className="w-full gap-2"
+                onClick={() => { setEditingId(null); setShowForm(true); }}
+                disabled={limitReached}
+              >
+                {limitReached ? <LockKeyhole className="h-4 w-4" /> : <Plus className="h-4 w-4" />}
+                {limitReached ? 'Limite do plano atingido' : 'Adicionar profissional'}
+              </Button>
+              {limitReached && (
+                <p className="text-center text-sm font-medium text-amber-700 dark:text-amber-300">
+                  Seu plano permite até {maxProfessionals} {maxProfessionals === 1 ? 'profissional' : 'profissionais'}. Escolha outro plano para ampliar a equipe.
+                </p>
+              )}
+            </div>
           )}
 
           {barbers.length === 0 && !showForm && (

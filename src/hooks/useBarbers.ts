@@ -155,11 +155,39 @@ export const useBarbers = () => {
     },
   });
 
+  const deleteBarberMutation = useMutation<void, Error, string>({
+    mutationFn: async (id) => {
+      if (!user) throw new Error("Usuário não autenticado.");
+
+      const { error } = await supabase
+        .from("profiles")
+        .delete()
+        .eq("id", id)
+        .eq("user_id", user.id)
+        .eq("role", "barbeiro");
+
+      if (error) throw error;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["barbers", user?.id] });
+      queryClient.invalidateQueries({ queryKey: ["subscription-usage", user?.id] });
+      toast({ title: "Profissional removido com sucesso!" });
+    },
+    onError: (err) => {
+      toast({
+        title: "Erro ao remover profissional",
+        description: err.message,
+        variant: "destructive",
+      });
+    },
+  });
+
   return {
     barbers: barbers || [],
     isLoading,
     addBarber: addBarberMutation.mutateAsync,
     updateBarber: updateBarberMutation.mutateAsync,
+    deleteBarber: deleteBarberMutation.mutateAsync,
     toggleBarberStatus: toggleBarberStatusMutation.mutateAsync,
   };
 };

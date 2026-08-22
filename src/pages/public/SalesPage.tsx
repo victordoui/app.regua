@@ -1,4 +1,4 @@
-import { useEffect, useState, type ReactNode } from 'react';
+import type { ReactNode } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
 import { motion } from 'framer-motion';
@@ -187,7 +187,6 @@ const PlanIcon = ({ type }: { type: string }): ReactNode => {
 
 const SalesPage = () => {
   const navigate = useNavigate();
-  const [showHeader, setShowHeader] = useState(false);
   const { data: plans = [], isLoading } = useQuery({
     queryKey: ['public-plans'],
     queryFn: async (): Promise<PlanConfig[]> => {
@@ -200,39 +199,8 @@ const SalesPage = () => {
     },
   });
 
-  useEffect(() => {
-    const handleScroll = () => setShowHeader(window.scrollY > 120);
-    handleScroll();
-    window.addEventListener('scroll', handleScroll, { passive: true });
-    return () => window.removeEventListener('scroll', handleScroll);
-  }, []);
-
   return (
     <div className="min-h-screen scroll-smooth overflow-x-hidden bg-[#f7f9fc] text-slate-950 dark:bg-slate-950 dark:text-white">
-      <header
-        className={cn(
-          'fixed inset-x-0 top-0 z-50 border-b border-slate-200/70 bg-white/90 backdrop-blur-xl transition-all duration-300 dark:border-slate-800 dark:bg-slate-950/90',
-          showHeader ? 'translate-y-0 opacity-100' : 'pointer-events-none -translate-y-full opacity-0',
-        )}
-        aria-hidden={!showHeader}
-      >
-        <div className="mx-auto flex h-[76px] max-w-7xl items-center justify-between px-4 sm:px-6">
-          <button className="flex items-center gap-2.5" onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })} aria-label="Voltar ao início">
-            <img src={vizzuIcon} alt="VIZZU" className="h-14 w-14 object-contain drop-shadow-md" />
-            <span className="text-xl font-black tracking-[0.04em]">VIZZU</span>
-          </button>
-          <nav className="hidden items-center gap-7 text-sm font-medium text-slate-600 md:flex dark:text-slate-300">
-            <a href="#recursos" className="rounded-md px-1 py-3 transition-colors hover:text-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary">Recursos</a>
-            <a href="#planos" className="rounded-md px-1 py-3 transition-colors hover:text-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary">Planos</a>
-            <a href="#duvidas" className="rounded-md px-1 py-3 transition-colors hover:text-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary">Dúvidas</a>
-          </nav>
-          <div className="flex items-center gap-2">
-            <Button variant="ghost" size="sm" onClick={() => navigate('/login')}>Entrar</Button>
-            <Button size="sm" className="rounded-xl px-4 shadow-md shadow-primary/20" onClick={() => navigate('/cadastro')}>Testar grátis</Button>
-          </div>
-        </div>
-      </header>
-
       <main>
         <section className="relative isolate overflow-hidden px-4 pb-16 pt-10 sm:px-6 sm:pt-16 lg:pb-24">
           <div className="pointer-events-none absolute inset-0 -z-20 bg-[linear-gradient(135deg,#f8fbff_0%,#eef5ff_48%,#f9fbff_100%)] dark:bg-[linear-gradient(135deg,#020617_0%,#071b3e_50%,#020617_100%)]" />

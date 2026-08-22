@@ -102,7 +102,7 @@ export const OnboardingStepShifts: React.FC<OnboardingStepShiftsProps> = ({
           </div>
           <CardTitle className="text-2xl">Turnos de Trabalho</CardTitle>
           <CardDescription>
-            Configure a escala semanal dos barbeiros (opcional)
+            Configure a disponibilidade semanal dos profissionais (opcional)
           </CardDescription>
         </CardHeader>
         <CardContent className="space-y-6 pt-4">
@@ -113,7 +113,7 @@ export const OnboardingStepShifts: React.FC<OnboardingStepShiftsProps> = ({
               <p className="font-medium text-foreground mb-1">Este passo é opcional</p>
               <p>
                 Você pode configurar os turnos depois na área de gestão. 
-                Os turnos definem quando cada barbeiro está disponível para atendimento.
+                Os turnos definem quando cada profissional está disponível para atendimento.
               </p>
             </div>
           </div>
@@ -192,7 +192,7 @@ export const OnboardingStepShifts: React.FC<OnboardingStepShiftsProps> = ({
             >
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div className="space-y-2">
-                  <Label>Barbeiro</Label>
+                  <Label>Profissional</Label>
                   <Select
                     value={formData.barber_id}
                     onValueChange={(value) => setFormData(prev => ({ ...prev, barber_id: value }))}

@@ -5,7 +5,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { Scissors, Plus, Trash2, Sparkles, Check } from 'lucide-react';
+import { Scissors, Plus, Trash2, Sparkles, Check, Pencil } from 'lucide-react';
 import { SERVICE_TEMPLATES } from '@/hooks/useOnboarding';
 
 interface Service {
@@ -19,12 +19,16 @@ interface Service {
 interface OnboardingStepServicesProps {
   services: Service[];
   onAddService: (service: Omit<Service, 'id'>) => Promise<void>;
+  onUpdateService: (id: string, service: Omit<Service, 'id'>) => Promise<void>;
+  onDeleteService: (id: string) => Promise<void>;
   isLoading?: boolean;
 }
 
 export const OnboardingStepServices: React.FC<OnboardingStepServicesProps> = ({
   services,
   onAddService,
+  onUpdateService,
+  onDeleteService,
   isLoading,
 }) => {
   const [showForm, setShowForm] = useState(false);
@@ -35,19 +39,42 @@ export const OnboardingStepServices: React.FC<OnboardingStepServicesProps> = ({
     duration: '30',
   });
   const [addedTemplates, setAddedTemplates] = useState<string[]>([]);
+  const [editingId, setEditingId] = useState<string | null>(null);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!formData.name || !formData.price) return;
 
-    await onAddService({
+    const serviceData = {
       name: formData.name,
       description: formData.description,
       price: parseFloat(formData.price),
       duration: parseInt(formData.duration),
-    });
+    };
+
+    if (editingId) await onUpdateService(editingId, serviceData);
+    else await onAddService(serviceData);
 
     setFormData({ name: '', description: '', price: '', duration: '30' });
+    setShowForm(false);
+    setEditingId(null);
+  };
+
+  const handleEdit = (service: Service) => {
+    if (!service.id) return;
+    setEditingId(service.id);
+    setFormData({
+      name: service.name,
+      description: service.description || '',
+      price: String(service.price),
+      duration: String(service.duration),
+    });
+    setShowForm(true);
+  };
+
+  const handleCancel = () => {
+    setFormData({ name: '', description: '', price: '', duration: '30' });
+    setEditingId(null);
     setShowForm(false);
   };
 
@@ -82,7 +109,7 @@ export const OnboardingStepServices: React.FC<OnboardingStepServicesProps> = ({
           </div>
           <CardTitle className="text-2xl">Serviços Oferecidos</CardTitle>
           <CardDescription>
-            Adicione os serviços que sua barbearia oferece
+            Adicione os serviços que seu negócio oferece
           </CardDescription>
         </CardHeader>
         <CardContent className="space-y-6 pt-4">
@@ -133,9 +160,15 @@ export const OnboardingStepServices: React.FC<OnboardingStepServicesProps> = ({
                           {service.duration}min
                         </p>
                       </div>
-                      <Badge variant="secondary">
-                        R$ {service.price.toFixed(2)}
-                      </Badge>
+                      <div className="flex items-center gap-1">
+                        <Badge variant="secondary">R$ {service.price.toFixed(2)}</Badge>
+                        <Button type="button" variant="ghost" size="icon" className="h-8 w-8" onClick={() => handleEdit(service)} aria-label={`Editar ${service.name}`} disabled={isLoading}>
+                          <Pencil className="h-4 w-4" />
+                        </Button>
+                        <Button type="button" variant="ghost" size="icon" className="h-8 w-8 text-destructive hover:text-destructive" onClick={() => service.id && onDeleteService(service.id)} aria-label={`Excluir ${service.name}`} disabled={isLoading}>
+                          <Trash2 className="h-4 w-4" />
+                        </Button>
+                      </div>
                     </motion.div>
                   ))}
                 </AnimatePresence>
@@ -186,9 +219,9 @@ export const OnboardingStepServices: React.FC<OnboardingStepServicesProps> = ({
               </div>
               <div className="flex gap-2">
                 <Button type="submit" disabled={isLoading || !formData.name || !formData.price}>
-                  Adicionar
+                  {editingId ? 'Salvar alterações' : 'Adicionar'}
                 </Button>
-                <Button type="button" variant="ghost" onClick={() => setShowForm(false)}>
+                <Button type="button" variant="ghost" onClick={handleCancel}>
                   Cancelar
                 </Button>
               </div>
@@ -197,7 +230,7 @@ export const OnboardingStepServices: React.FC<OnboardingStepServicesProps> = ({
             <Button
               variant="outline"
               className="w-full gap-2"
-              onClick={() => setShowForm(true)}
+              onClick={() => { setEditingId(null); setShowForm(true); }}
             >
               <Plus className="h-4 w-4" />
               Adicionar serviço personalizado

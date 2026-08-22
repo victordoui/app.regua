@@ -127,7 +127,7 @@ export const OnboardingStepHours: React.FC<OnboardingStepHoursProps> = ({
             </Button>
           )}
 
-          <div className="space-y-3 max-h-[350px] overflow-y-auto pr-2">
+          <div className="space-y-3 max-h-[390px] overflow-y-auto pr-2">
             {DAY_NAMES.map((dayName, index) => {
               const daySchedule = schedule[index];
               
@@ -137,34 +137,34 @@ export const OnboardingStepHours: React.FC<OnboardingStepHoursProps> = ({
                   initial={{ opacity: 0, y: 10 }}
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ delay: index * 0.05 }}
-                  className="flex items-center gap-4 p-3 rounded-lg bg-muted/50"
+                  className="flex flex-col gap-3 rounded-xl border border-slate-200 bg-slate-50 p-3 text-slate-900 sm:flex-row sm:items-center dark:border-slate-700 dark:bg-slate-900 dark:text-slate-100"
                 >
-                  <div className="w-20 flex items-center gap-2">
+                  <div className="flex w-full items-center gap-2 sm:w-24">
                     <Switch
                       checked={daySchedule?.isOpen ?? false}
                       onCheckedChange={() => handleToggleDay(index)}
                     />
-                    <span className="text-sm font-medium">{dayName.slice(0, 3)}</span>
+                    <span className="text-sm font-semibold">{dayName}</span>
                   </div>
 
                   {daySchedule?.isOpen ? (
-                    <div className="flex items-center gap-2 flex-1">
+                    <div className="flex w-full items-center gap-2 sm:flex-1">
                       <Input
                         type="time"
                         value={daySchedule.open}
                         onChange={(e) => handleTimeChange(index, 'open', e.target.value)}
-                        className="h-9 w-24"
+                        className="h-10 min-w-0 flex-1 border-slate-300 bg-white text-slate-950 sm:w-28 sm:flex-none dark:border-slate-600 dark:bg-slate-950 dark:text-white"
                       />
-                      <span className="text-muted-foreground">às</span>
+                      <span className="font-medium text-slate-600 dark:text-slate-300">às</span>
                       <Input
                         type="time"
                         value={daySchedule.close}
                         onChange={(e) => handleTimeChange(index, 'close', e.target.value)}
-                        className="h-9 w-24"
+                        className="h-10 min-w-0 flex-1 border-slate-300 bg-white text-slate-950 sm:w-28 sm:flex-none dark:border-slate-600 dark:bg-slate-950 dark:text-white"
                       />
                     </div>
                   ) : (
-                    <span className="text-sm text-muted-foreground italic">Fechado</span>
+                    <span className="text-sm font-medium text-slate-600 dark:text-slate-300">Fechado</span>
                   )}
                 </motion.div>
               );

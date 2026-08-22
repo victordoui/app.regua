@@ -17,7 +17,7 @@ interface OnboardingProgressProps {
 const STEPS: Step[] = [
   { id: 1, title: 'Empresa', icon: <Building2 className="h-5 w-5" /> },
   { id: 2, title: 'Serviços', icon: <Scissors className="h-5 w-5" /> },
-  { id: 3, title: 'Barbeiros', icon: <Users className="h-5 w-5" /> },
+  { id: 3, title: 'Profissionais', icon: <Users className="h-5 w-5" /> },
   { id: 4, title: 'Horários', icon: <Clock className="h-5 w-5" /> },
   { id: 5, title: 'Turnos', icon: <CalendarClock className="h-5 w-5" /> },
 ];
