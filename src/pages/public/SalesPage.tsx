@@ -11,12 +11,20 @@ import {
   CaretRightIcon as ChevronRight,
   ClockIcon as Clock3,
   CrownIcon as Crown,
+  FlowerLotusIcon,
+  HairDryerIcon,
+  HandPalmIcon,
   HandshakeIcon as HeartHandshake,
   ChatCircleDotsIcon as MessageCircleMore,
   MoonStarsIcon,
+  PawPrintIcon,
+  PenNibIcon,
+  ScissorsIcon,
   ShieldCheckIcon as ShieldCheck,
   SparkleIcon as Sparkles,
   StarIcon as Star,
+  StethoscopeIcon,
+  StorefrontIcon,
   SunIcon,
   TrendUpIcon as TrendingUp,
   UsersThreeIcon as Users,
@@ -63,7 +71,16 @@ const COMPARISON_ROWS = [
 const formatCurrency = (value: number) =>
   new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(value);
 
-const segments = ['Barbearias', 'Salões', 'Estética', 'Manicure', 'Tatuagem', 'Clínicas', 'Pet shops', 'Bem-estar'];
+const segments = [
+  { name: 'Barbearias', detail: 'Cortes, equipe e recorrência', icon: ScissorsIcon, iconTone: 'bg-blue-500/10 text-blue-600 dark:bg-blue-400/15 dark:text-blue-300', glow: 'bg-blue-400/20' },
+  { name: 'Salões', detail: 'Agenda, pacotes e relacionamento', icon: HairDryerIcon, iconTone: 'bg-violet-500/10 text-violet-600 dark:bg-violet-400/15 dark:text-violet-300', glow: 'bg-violet-400/20' },
+  { name: 'Estética', detail: 'Procedimentos e fidelização', icon: Sparkles, iconTone: 'bg-fuchsia-500/10 text-fuchsia-600 dark:bg-fuchsia-400/15 dark:text-fuchsia-300', glow: 'bg-fuchsia-400/20' },
+  { name: 'Manicure', detail: 'Horários, serviços e comissões', icon: HandPalmIcon, iconTone: 'bg-rose-500/10 text-rose-600 dark:bg-rose-400/15 dark:text-rose-300', glow: 'bg-rose-400/20' },
+  { name: 'Tatuagem', detail: 'Sessões, artistas e clientes', icon: PenNibIcon, iconTone: 'bg-orange-500/10 text-orange-600 dark:bg-orange-400/15 dark:text-orange-300', glow: 'bg-orange-400/20' },
+  { name: 'Clínicas', detail: 'Atendimentos e organização', icon: StethoscopeIcon, iconTone: 'bg-emerald-500/10 text-emerald-600 dark:bg-emerald-400/15 dark:text-emerald-300', glow: 'bg-emerald-400/20' },
+  { name: 'Pet shops', detail: 'Serviços, agenda e histórico', icon: PawPrintIcon, iconTone: 'bg-cyan-500/10 text-cyan-600 dark:bg-cyan-400/15 dark:text-cyan-300', glow: 'bg-cyan-400/20' },
+  { name: 'Bem-estar', detail: 'Rotina, agenda e clientes', icon: FlowerLotusIcon, iconTone: 'bg-indigo-500/10 text-indigo-600 dark:bg-indigo-400/15 dark:text-indigo-300', glow: 'bg-indigo-400/20' },
+];
 
 const Reveal = ({ children, className, delay = 0 }: { children: ReactNode; className?: string; delay?: number }) => {
   const reduceMotion = useReducedMotion();
@@ -360,11 +377,39 @@ const SalesPage = () => {
           </Reveal>
         </section>
 
-        <section id="para-quem" className="scroll-mt-6 border-y border-blue-200/70 bg-[#dfeaff] px-4 py-9 dark:border-white/10 dark:bg-[#071126]">
-          <Reveal className="mx-auto max-w-7xl">
-            <p className="mb-5 text-center text-xs font-bold uppercase tracking-[0.18em] text-slate-400">Feito para quem vive de atender bem</p>
-            <div className="flex flex-wrap justify-center gap-2.5">
-              {segments.map((segment, index) => <motion.span initial={reduceMotion ? false : { opacity: 0, scale: 0.92 }} whileInView={{ opacity: 1, scale: 1 }} viewport={{ once: true }} transition={{ delay: index * 0.04 }} whileHover={reduceMotion ? undefined : { y: -3, scale: 1.03 }} key={segment} className="rounded-full border border-blue-200/80 bg-white/65 px-4 py-2 text-sm font-semibold text-slate-600 shadow-sm backdrop-blur dark:border-white/10 dark:bg-white/[0.055] dark:text-slate-200">{segment}</motion.span>)}
+        <section id="para-quem" className="relative scroll-mt-6 overflow-hidden border-y border-blue-200/70 bg-gradient-to-br from-[#dbe9ff] via-[#e9f2ff] to-[#dceaff] px-4 py-16 dark:border-white/10 dark:from-[#071126] dark:via-[#091631] dark:to-[#050b1c] sm:px-6 lg:py-20">
+          <div className="pointer-events-none absolute -left-24 top-1/2 h-72 w-72 -translate-y-1/2 rounded-full bg-blue-400/15 blur-3xl dark:bg-blue-500/10" />
+          <div className="pointer-events-none absolute -right-20 top-0 h-64 w-64 rounded-full bg-violet-400/15 blur-3xl dark:bg-violet-500/10" />
+          <Reveal className="relative mx-auto max-w-7xl">
+            <div className="mx-auto mb-10 max-w-3xl text-center">
+              <span className="mx-auto inline-flex items-center gap-2 rounded-full border border-blue-200/80 bg-white/65 px-3.5 py-2 text-xs font-bold uppercase tracking-[0.16em] text-primary shadow-sm backdrop-blur dark:border-white/10 dark:bg-white/[0.06] dark:text-blue-300">
+                <StorefrontIcon className="h-4 w-4" weight="duotone" /> Feito para quem vive de atender bem
+              </span>
+              <h2 className="mt-5 text-3xl font-black tracking-tight text-slate-950 dark:text-white sm:text-4xl">O VIZZU se adapta ao jeito do seu negócio</h2>
+              <p className="mx-auto mt-4 max-w-2xl leading-7 text-slate-600 dark:text-slate-300">Da agenda ao relacionamento com o cliente, você organiza cada detalhe sem precisar mudar a forma como sua equipe trabalha.</p>
+            </div>
+            <div className="grid gap-3.5 sm:grid-cols-2 lg:grid-cols-4">
+              {segments.map((segment, index) => (
+                <motion.div
+                  initial={reduceMotion ? false : { opacity: 0, y: 18 }}
+                  whileInView={{ opacity: 1, y: 0 }}
+                  viewport={{ once: true, amount: 0.35 }}
+                  transition={{ delay: index * 0.055, duration: 0.5 }}
+                  whileHover={reduceMotion ? undefined : { y: -5, scale: 1.015 }}
+                  key={segment.name}
+                  className="group relative flex min-h-[96px] items-center gap-4 overflow-hidden rounded-[22px] border border-blue-200/80 bg-white/70 p-4 shadow-[0_16px_35px_-28px_rgba(15,47,107,0.75)] backdrop-blur transition-colors hover:border-blue-300 hover:bg-white/90 dark:border-white/10 dark:bg-white/[0.045] dark:hover:border-blue-400/30 dark:hover:bg-white/[0.075]"
+                >
+                  <div className={cn('absolute -right-8 -top-8 h-24 w-24 rounded-full opacity-0 blur-2xl transition-opacity group-hover:opacity-100', segment.glow)} />
+                  <span className={cn('relative flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl transition-transform duration-300 group-hover:scale-110 group-hover:-rotate-3', segment.iconTone)}>
+                    <segment.icon className="h-6 w-6" weight="duotone" />
+                  </span>
+                  <div className="relative min-w-0 flex-1">
+                    <p className="font-black text-slate-900 dark:text-white">{segment.name}</p>
+                    <p className="mt-1 text-xs leading-5 text-slate-500 dark:text-slate-400">{segment.detail}</p>
+                  </div>
+                  <ChevronRight className="relative h-4 w-4 shrink-0 -translate-x-1 text-blue-400 opacity-0 transition-all group-hover:translate-x-0 group-hover:opacity-100" weight="bold" />
+                </motion.div>
+              ))}
             </div>
           </Reveal>
         </section>
