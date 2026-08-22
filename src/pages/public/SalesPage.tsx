@@ -42,8 +42,17 @@ import { cn } from '@/lib/utils';
 import vizzuIcon from '@/assets/vizzu-icon.png';
 import salonOwnerCutout from '@/assets/vizzu-salon-owner-cutout.png';
 import barberOwnerCutout from '@/assets/vizzu-barber-owner-cutout.png';
+import salonOwnerLeftCutout from '@/assets/vizzu-salon-owner-left-cutout.png';
+import barberOwnerTattooCutout from '@/assets/vizzu-barber-owner-tattoo-cutout.png';
 import type { PlanConfig } from '@/types/superAdmin';
 import { DEFAULT_PUBLIC_PLANS } from '@/lib/publicPlans';
+
+const HERO_PROFESSIONALS = [
+  { image: salonOwnerCutout, alt: 'Profissional de beleza organizando seu negócio pelo tablet', attribution: 'Camila · Gestora de salão' },
+  { image: barberOwnerCutout, alt: 'Profissional de barbearia organizando seu negócio pelo tablet', attribution: 'Rafael · Gestor de barbearia' },
+  { image: salonOwnerLeftCutout, alt: 'Profissional de beleza consultando seu negócio pelo tablet', attribution: 'Marina · Gestora de estética' },
+  { image: barberOwnerTattooCutout, alt: 'Profissional de barbearia administrando seu negócio pelo celular', attribution: 'André · Gestor de barbearia' },
+] as const;
 
 const FEATURE_LABELS: Record<string, string> = {
   basic_scheduling: 'Agenda online inteligente',
@@ -260,15 +269,12 @@ const ProductPreview = () => {
 
 const HumanHeroVisual = () => {
   const reduceMotion = useReducedMotion();
-  const [featuredProfessional, setFeaturedProfessional] = useState<'woman' | 'man'>(() => Math.random() < 0.5 ? 'woman' : 'man');
-  const professionalImage = featuredProfessional === 'woman' ? salonOwnerCutout : barberOwnerCutout;
-  const professionalAlt = featuredProfessional === 'woman'
-    ? 'Profissional de beleza organizando seu negócio pelo tablet'
-    : 'Profissional de barbearia organizando seu negócio pelo tablet';
+  const [featuredProfessional, setFeaturedProfessional] = useState(() => Math.floor(Math.random() * HERO_PROFESSIONALS.length));
+  const professional = HERO_PROFESSIONALS[featuredProfessional];
 
   useEffect(() => {
     const rotationTimer = window.setInterval(() => {
-      setFeaturedProfessional((current) => current === 'woman' ? 'man' : 'woman');
+      setFeaturedProfessional((current) => (current + 1) % HERO_PROFESSIONALS.length);
     }, 10000);
 
     return () => window.clearInterval(rotationTimer);
@@ -278,8 +284,8 @@ const HumanHeroVisual = () => {
     <div className="relative mx-auto min-h-[900px] w-full max-w-[820px] sm:min-h-[850px] lg:min-h-[610px]">
       <motion.img
         key={featuredProfessional}
-        src={professionalImage}
-        alt={professionalAlt}
+        src={professional.image}
+        alt={professional.alt}
         initial={reduceMotion ? false : { opacity: 0, scale: 0.97, x: 24 }}
         animate={{ opacity: 1, scale: 1, x: 0 }}
         transition={{ duration: 0.9, delay: 0.08, ease: [0.22, 1, 0.36, 1] }}
@@ -308,7 +314,7 @@ const HumanHeroVisual = () => {
       >
         <div className="flex items-center gap-1 text-amber-400" aria-label="5 estrelas">{[0, 1, 2, 3, 4].map((star) => <Star key={star} className="h-4 w-4" weight="fill" />)}</div>
         <p className="mt-2 text-sm font-bold leading-5">“Agora tenho tempo para atender e clareza para crescer.”</p>
-        <p className="mt-2 text-[11px] text-slate-500 dark:text-blue-100">{featuredProfessional === 'woman' ? 'Camila · Gestora de salão' : 'Rafael · Gestor de barbearia'}</p>
+        <p className="mt-2 text-[11px] text-slate-500 dark:text-blue-100">{professional.attribution}</p>
       </motion.div>
     </div>
   );
