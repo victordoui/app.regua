@@ -1,5 +1,6 @@
-import TodayScheduleCard from "./TodayScheduleCard";
+import { useMemo, useState } from "react";
 import { useRealtimeDashboard } from "@/hooks/useRealtimeDashboard";
+import type { DashboardFilters } from "@/hooks/useRealtimeDashboard";
 import HeroSection from "./HeroSection";
 import KpiStrip from "./KpiStrip";
 import RevenueLineChart from "./RevenueLineChart";
@@ -8,9 +9,13 @@ import RecentTransactionsPanel from "./RecentTransactionsPanel";
 import { PageContainer } from "@/components/ui/page-header";
 import AnalyticsSummaryStrip from "./AnalyticsSummaryStrip";
 import ServiceDistributionChart from "./ServiceDistributionChart";
+import DashboardFilterBar from "./DashboardFilterBar";
+import BusinessInsights from "./BusinessInsights";
 
 const DashboardOverview = () => {
-  const { metrics, monthlyRevenue, analytics, serviceDistribution, isLoading } = useRealtimeDashboard();
+  const [filters, setFilters] = useState<DashboardFilters>({ periodMonths: 6, status: "all", service: "all" });
+  const { metrics, monthlyRevenue, analytics, serviceDistribution, serviceOptions, isLoading, isRefreshing, refetch } = useRealtimeDashboard(filters);
+  const periodLabel = useMemo(() => `Últimos ${filters.periodMonths} meses`, [filters.periodMonths]);
 
   if (isLoading) {
     return (
@@ -21,7 +26,7 @@ const DashboardOverview = () => {
   }
 
   return (
-    <PageContainer>
+    <PageContainer className="dashboard-overview space-y-4">
       <HeroSection todayAppointments={metrics.todayAppointments} />
 
       <KpiStrip
@@ -31,19 +36,21 @@ const DashboardOverview = () => {
         dayRevenue={metrics.todayRevenue}
       />
 
-      <AnalyticsSummaryStrip analytics={analytics} />
+      <DashboardFilterBar filters={filters} serviceOptions={serviceOptions} isRefreshing={isRefreshing} onChange={setFilters} onRefresh={refetch} />
 
-      <div className="grid grid-cols-1 gap-5 xl:grid-cols-2">
-        <RevenueLineChart data={monthlyRevenue} />
-        <ServiceDistributionChart data={serviceDistribution} />
+      <AnalyticsSummaryStrip analytics={analytics} periodLabel={periodLabel} />
+
+      <div className="grid grid-cols-1 gap-4 xl:grid-cols-2">
+        <RevenueLineChart data={monthlyRevenue} periodLabel={periodLabel} totalRevenue={analytics.totalRevenue} revenueTrend={analytics.revenueTrend} />
+        <ServiceDistributionChart data={serviceDistribution} periodLabel={periodLabel} />
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-5 items-start">
+      <BusinessInsights analytics={analytics} services={serviceDistribution} />
+
+      <div className="grid grid-cols-1 gap-4 lg:grid-cols-2 lg:items-start">
         <RecentTransactionsPanel />
         <TodayAppointmentsPanel />
       </div>
-
-      <TodayScheduleCard />
     </PageContainer>
   );
 };

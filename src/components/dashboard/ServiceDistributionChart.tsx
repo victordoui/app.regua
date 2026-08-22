@@ -3,23 +3,23 @@ import type { ServiceDistribution } from "@/hooks/useRealtimeDashboard";
 
 const COLORS = ["#3478f6", "#28b982", "#9b63db", "#f5b51b", "#38a4d8"];
 
-const ServiceDistributionChart = ({ data }: { data: ServiceDistribution[] }) => {
+const ServiceDistributionChart = ({ data, periodLabel }: { data: ServiceDistribution[]; periodLabel: string }) => {
   const total = data.reduce((sum, item) => sum + item.value, 0);
 
   return (
-    <section className="h-full rounded-2xl border border-border/70 bg-card p-5 shadow-[var(--shadow-subtle)]">
+    <section className="dashboard-surface h-full p-4">
       <div className="flex items-center justify-between gap-4">
         <h2 className="text-[15px] font-bold text-foreground">Agendamentos por serviço</h2>
-        <span className="rounded-lg border bg-background px-3 py-2 text-[11px] font-semibold text-muted-foreground">Últimos 6 meses</span>
+        <span className="rounded-lg border bg-background px-3 py-1.5 text-[11px] font-semibold text-muted-foreground">{periodLabel}</span>
       </div>
       {data.length === 0 ? (
         <div className="flex h-[230px] items-center justify-center text-sm text-muted-foreground">Nenhum atendimento no período</div>
       ) : (
-        <div className="mt-3 grid items-center gap-4 sm:grid-cols-[220px_1fr]">
-          <div className="relative h-[220px]">
+        <div className="mt-2 grid items-center gap-3 sm:grid-cols-[190px_1fr]">
+          <div className="relative h-[190px]">
             <ResponsiveContainer width="100%" height="100%">
               <PieChart>
-                <Pie data={data} dataKey="value" nameKey="name" innerRadius={58} outerRadius={86} paddingAngle={1.5} stroke="transparent">
+                <Pie data={data} dataKey="value" nameKey="name" innerRadius={50} outerRadius={75} paddingAngle={1.5} stroke="transparent">
                   {data.map((item, index) => <Cell key={item.name} fill={COLORS[index % COLORS.length]} />)}
                 </Pie>
                 <Tooltip formatter={(value: number, name: string) => [`${value} agendamentos`, name]} contentStyle={{ borderRadius: 10, border: "1px solid hsl(var(--border))", background: "hsl(var(--card))" }} />

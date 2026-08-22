@@ -25,7 +25,7 @@ const HeroSection = ({ todayAppointments }: HeroSectionProps) => {
       <div
         className="relative overflow-hidden"
         style={{
-          minHeight: 180,
+          minHeight: 160,
           background: bannerUrl
             ? `url(${bannerUrl}) center/cover no-repeat`
             : `linear-gradient(135deg, ${primaryColor} 0%, ${primaryColor}cc 60%, ${primaryColor}99 100%)`,
@@ -43,7 +43,7 @@ const HeroSection = ({ todayAppointments }: HeroSectionProps) => {
           Editar capa
         </button>
 
-        <div className="relative z-10 flex min-h-[180px] flex-col justify-end gap-5 p-5 sm:flex-row sm:items-end sm:justify-between">
+        <div className="relative z-10 flex min-h-[160px] flex-col justify-end gap-4 p-4 sm:flex-row sm:items-end sm:justify-between">
           <div className="flex min-w-0 items-center gap-4">
             {logoUrl ? (
               <img
@@ -63,7 +63,7 @@ const HeroSection = ({ todayAppointments }: HeroSectionProps) => {
               <p className="mb-1 text-sm font-semibold text-white/80">
                 {todayAppointments} agendamento{todayAppointments === 1 ? "" : "s"} hoje
               </p>
-              <h1 className="text-[26px] font-extrabold leading-tight tracking-tight text-white drop-shadow-md sm:text-[30px]">
+              <h1 className="text-2xl font-extrabold leading-tight tracking-tight text-white drop-shadow-md sm:text-[28px]">
                 Olá, {companyName} 👋
               </h1>
               <p className="mt-1 text-sm font-medium text-white/85 drop-shadow-sm sm:text-base">{subtitle}</p>

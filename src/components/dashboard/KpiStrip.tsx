@@ -30,12 +30,12 @@ const KpiStrip = ({ todayAppointments, completedRate, newClients, dayRevenue }: 
       {metrics.map((metric) => {
         const Icon = metric.icon;
         return (
-          <article key={metric.label} className="interactive-row group rounded-2xl border border-border/70 bg-card p-5 shadow-[var(--shadow-subtle)]">
+          <article key={metric.label} className="dashboard-surface interactive-row group p-4">
             <div className="flex items-start justify-between gap-4">
               <div className="min-w-0">
                 <p className="text-[12px] font-bold text-muted-foreground">{metric.label}</p>
-                <p className="mt-2 truncate text-[28px] font-black leading-none tracking-[-0.035em] text-foreground">{metric.value}</p>
-                <p className="mt-2 text-[11px] font-semibold text-muted-foreground/80">{metric.context}</p>
+                <p className="mt-1.5 truncate text-[26px] font-black leading-none tracking-[-0.035em] text-foreground">{metric.value}</p>
+                <p className="mt-1.5 text-[11px] font-semibold text-muted-foreground/80">{metric.context}</p>
               </div>
               <div className={cn("flex h-10 w-10 shrink-0 items-center justify-center rounded-xl transition-transform group-hover:scale-105", metric.tone)}>
                 <Icon className="h-[19px] w-[19px]" strokeWidth={2} />

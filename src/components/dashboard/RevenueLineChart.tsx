@@ -12,26 +12,27 @@ import {
 
 interface RevenueLineChartProps {
   data: { month: string; revenue: number }[];
+  periodLabel: string;
+  totalRevenue: number;
+  revenueTrend: number;
 }
 
-const RevenueLineChart: React.FC<RevenueLineChartProps> = ({ data }) => {
+const RevenueLineChart: React.FC<RevenueLineChartProps> = ({ data, periodLabel, totalRevenue, revenueTrend }) => {
   const formatCurrency = (value: number) => `R$ ${(value / 1000).toFixed(1)}k`;
 
   const maxRevenue = Math.max(...data.map((d) => d.revenue), 0);
   const metaValue = maxRevenue > 0 ? maxRevenue * 0.75 : 5000;
 
   return (
-    <div className="bg-card border border-border rounded-[14px] overflow-hidden h-fit">
-      <div className="flex items-center justify-between px-5 pt-4 pb-3">
+    <div className="dashboard-surface h-full overflow-hidden">
+      <div className="flex items-center justify-between px-4 pt-3 pb-2">
         <span className="font-heading text-[15px] font-bold text-foreground">
           Faturamento Mensal
         </span>
-        <button className="flex items-center gap-[5px] border border-border rounded-[7px] px-[10px] py-1 text-[11px] text-muted-foreground bg-transparent cursor-pointer hover:bg-accent/50 transition-colors">
-          Últimos 6 meses
-        </button>
+        <span className="rounded-lg border bg-background px-3 py-1.5 text-[11px] font-semibold text-muted-foreground">{periodLabel}</span>
       </div>
 
-      <div className="px-5 pb-5">
+      <div className="px-4 pb-4">
         {/* Legend */}
         <div className="flex gap-[14px] mb-3">
           <div className="flex items-center gap-[5px] text-[11px] text-muted-foreground">
@@ -45,7 +46,8 @@ const RevenueLineChart: React.FC<RevenueLineChartProps> = ({ data }) => {
         </div>
 
         {/* Chart */}
-        <div className="h-[200px]">
+        <div className="grid items-stretch gap-3 sm:grid-cols-[1fr_150px]">
+        <div className="h-[185px]">
           <ResponsiveContainer width="100%" height="100%">
             <AreaChart data={data} margin={{ top: 5, right: 5, left: -15, bottom: 0 }}>
               <defs>
@@ -109,6 +111,14 @@ const RevenueLineChart: React.FC<RevenueLineChartProps> = ({ data }) => {
               />
             </AreaChart>
           </ResponsiveContainer>
+        </div>
+        <aside className="flex flex-col justify-center rounded-xl border border-border bg-background/70 p-3">
+          <span className="text-[10px] font-bold uppercase tracking-wide text-muted-foreground">Total no período</span>
+          <strong className="mt-1 text-lg font-black tracking-tight text-foreground">{totalRevenue.toLocaleString("pt-BR", { style: "currency", currency: "BRL" })}</strong>
+          <span className={`mt-2 w-fit rounded-full px-2 py-1 text-[10px] font-extrabold ${revenueTrend >= 0 ? "bg-emerald-500/10 text-emerald-700 dark:text-emerald-400" : "bg-rose-500/10 text-rose-700 dark:text-rose-400"}`}>
+            {revenueTrend >= 0 ? "↑" : "↓"} {Math.abs(revenueTrend).toFixed(1).replace(".", ",")}% vs. anterior
+          </span>
+        </aside>
         </div>
       </div>
     </div>

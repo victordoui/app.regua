@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback, useMemo } from 'react';
+import { useState, useEffect, useCallback, useMemo, useRef } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/contexts/AuthContext';
 import { useQueryClient } from '@tanstack/react-query';
@@ -34,12 +34,22 @@ export interface DashboardAnalytics {
   averageTicket: number;
   averageRating: number;
   totalRevenue: number;
+  appointmentTrend: number;
+  attendanceTrend: number;
+  ticketTrend: number;
+  revenueTrend: number;
 }
 
 export interface ServiceDistribution {
   name: string;
   value: number;
   percentage: number;
+}
+
+export interface DashboardFilters {
+  periodMonths: 3 | 6 | 12;
+  status: 'all' | 'completed' | 'confirmed' | 'cancelled';
+  service: string;
 }
 
 interface RecentActivity {
@@ -50,7 +60,12 @@ interface RecentActivity {
   timestamp: Date;
 }
 
-export const useRealtimeDashboard = () => {
+const percentChange = (current: number, previous: number) => {
+  if (previous === 0) return current > 0 ? 100 : 0;
+  return ((current - previous) / previous) * 100;
+};
+
+export const useRealtimeDashboard = (filters: DashboardFilters = { periodMonths: 6, status: 'all', service: 'all' }) => {
   const { user } = useAuth();
   const queryClient = useQueryClient();
   const [metrics, setMetrics] = useState<DashboardMetrics>({
@@ -67,9 +82,12 @@ export const useRealtimeDashboard = () => {
   const [monthlyRevenue, setMonthlyRevenue] = useState<MonthlyRevenue[]>([]);
   const [weeklyAppointments, setWeeklyAppointments] = useState<WeeklyAppointments[]>([]);
   const [recentActivities, setRecentActivities] = useState<RecentActivity[]>([]);
-  const [analytics, setAnalytics] = useState<DashboardAnalytics>({ totalAppointments: 0, attendanceRate: 0, averageTicket: 0, averageRating: 0, totalRevenue: 0 });
+  const [analytics, setAnalytics] = useState<DashboardAnalytics>({ totalAppointments: 0, attendanceRate: 0, averageTicket: 0, averageRating: 0, totalRevenue: 0, appointmentTrend: 0, attendanceTrend: 0, ticketTrend: 0, revenueTrend: 0 });
   const [serviceDistribution, setServiceDistribution] = useState<ServiceDistribution[]>([]);
+  const [serviceOptions, setServiceOptions] = useState<string[]>([]);
   const [isLoading, setIsLoading] = useState(true);
+  const [isRefreshing, setIsRefreshing] = useState(false);
+  const hasLoaded = useRef(false);
   const [isConnected, setIsConnected] = useState(false);
   const [lastUpdate, setLastUpdate] = useState<Date | null>(null);
 
@@ -78,11 +96,15 @@ export const useRealtimeDashboard = () => {
     if (!user?.id) return;
 
     try {
-      setIsLoading(true);
+      if (!hasLoaded.current) setIsLoading(true);
+      setIsRefreshing(true);
       const now = new Date();
       const monthStart = format(startOfMonth(now), 'yyyy-MM-dd');
       const monthEnd = format(endOfMonth(now), 'yyyy-MM-dd');
       const todayStr = format(now, 'yyyy-MM-dd');
+      const periodStart = startOfMonth(subMonths(now, filters.periodMonths - 1));
+      const previousPeriodStart = startOfMonth(subMonths(periodStart, filters.periodMonths));
+      const previousPeriodEnd = subMonths(now, filters.periodMonths);
 
       // Parallel queries
       const [
@@ -126,11 +148,12 @@ export const useRealtimeDashboard = () => {
           .from('appointments')
           .select('total_price, appointment_date, status, service_id, services:service_id(name)')
           .eq('user_id', user.id)
-          .gte('appointment_date', format(startOfMonth(subMonths(now, 5)), 'yyyy-MM-dd')),
+          .gte('appointment_date', format(previousPeriodStart, 'yyyy-MM-dd'))
+          .lte('appointment_date', todayStr),
 
         supabase
           .from('reviews')
-          .select('rating')
+          .select('rating, created_at')
           .eq('user_id', user.id),
       ]);
 
@@ -139,8 +162,24 @@ export const useRealtimeDashboard = () => {
       const todayAppts = todayResult.data || [];
       const clients = clientsResult.data || [];
       const subscriptions = subscriptionsResult.data || [];
-      const revenueData = last6MonthsResult.data || [];
+      const allPeriodData = last6MonthsResult.data || [];
       const reviews = reviewsResult.data || [];
+
+      const getServiceName = (apt: (typeof allPeriodData)[number]) => {
+        const relation = apt.services as { name?: string } | { name?: string }[] | null;
+        return (Array.isArray(relation) ? relation[0]?.name : relation?.name) || 'Outros serviços';
+      };
+      const matchesStatus = (status: string) => filters.status === 'all' || status === filters.status;
+      const matchesService = (apt: (typeof allPeriodData)[number]) => filters.service === 'all' || getServiceName(apt) === filters.service;
+      const periodStartTime = periodStart.getTime();
+      const currentRawData = allPeriodData.filter((apt) => parseISO(apt.appointment_date).getTime() >= periodStartTime);
+      const currentUnfilteredByService = currentRawData.filter((apt) => matchesStatus(apt.status));
+      const revenueData = currentUnfilteredByService.filter(matchesService);
+      const previousData = allPeriodData.filter((apt) => {
+        const time = parseISO(apt.appointment_date).getTime();
+        return time < periodStartTime && time <= previousPeriodEnd.getTime() && matchesStatus(apt.status) && matchesService(apt);
+      });
+      setServiceOptions(Array.from(new Set(currentUnfilteredByService.map(getServiceName))).sort((a, b) => a.localeCompare(b, 'pt-BR')));
 
       // Month revenue (completed only)
       const monthRevenue = sumCompletedRevenue(monthAppts);
@@ -182,7 +221,7 @@ export const useRealtimeDashboard = () => {
 
       // Calculate monthly revenue for chart
       const revenueByMonth: Record<string, number> = {};
-      for (let i = 5; i >= 0; i--) {
+      for (let i = filters.periodMonths - 1; i >= 0; i--) {
         const monthDate = subMonths(now, i);
         const monthKey = format(monthDate, 'yyyy-MM');
         const monthLabel = format(monthDate, 'MMM', { locale: ptBR });
@@ -206,21 +245,31 @@ export const useRealtimeDashboard = () => {
       const completedInPeriod = revenueData.filter((apt) => apt.status === 'completed');
       const attendedInPeriod = revenueData.filter((apt) => !['cancelled', 'no_show'].includes(apt.status));
       const totalRevenue = completedInPeriod.reduce((sum, apt) => sum + Number(apt.total_price || 0), 0);
+      const previousCompleted = previousData.filter((apt) => apt.status === 'completed');
+      const previousAttended = previousData.filter((apt) => !['cancelled', 'no_show'].includes(apt.status));
+      const previousRevenue = previousCompleted.reduce((sum, apt) => sum + Number(apt.total_price || 0), 0);
+      const attendanceRate = revenueData.length ? (attendedInPeriod.length / revenueData.length) * 100 : 0;
+      const previousAttendanceRate = previousData.length ? (previousAttended.length / previousData.length) * 100 : 0;
+      const averageTicket = completedInPeriod.length ? totalRevenue / completedInPeriod.length : 0;
+      const previousAverageTicket = previousCompleted.length ? previousRevenue / previousCompleted.length : 0;
+      const currentReviews = reviews.filter((review) => parseISO(review.created_at).getTime() >= periodStartTime);
       const serviceCounts = new Map<string, number>();
 
       revenueData.forEach((apt) => {
-        const relation = apt.services as { name?: string } | { name?: string }[] | null;
-        const serviceName = Array.isArray(relation) ? relation[0]?.name : relation?.name;
-        const name = serviceName || 'Outros serviços';
+        const name = getServiceName(apt);
         serviceCounts.set(name, (serviceCounts.get(name) || 0) + 1);
       });
 
       setAnalytics({
         totalAppointments: revenueData.length,
-        attendanceRate: revenueData.length ? Math.round((attendedInPeriod.length / revenueData.length) * 100) : 0,
-        averageTicket: completedInPeriod.length ? totalRevenue / completedInPeriod.length : 0,
-        averageRating: reviews.length ? reviews.reduce((sum, review) => sum + review.rating, 0) / reviews.length : 0,
+        attendanceRate: Math.round(attendanceRate),
+        averageTicket,
+        averageRating: currentReviews.length ? currentReviews.reduce((sum, review) => sum + review.rating, 0) / currentReviews.length : 0,
         totalRevenue,
+        appointmentTrend: percentChange(revenueData.length, previousData.length),
+        attendanceTrend: attendanceRate - previousAttendanceRate,
+        ticketTrend: percentChange(averageTicket, previousAverageTicket),
+        revenueTrend: percentChange(totalRevenue, previousRevenue),
       });
 
       setServiceDistribution(
@@ -266,12 +315,14 @@ export const useRealtimeDashboard = () => {
       setRecentActivities(activities);
 
       setLastUpdate(new Date());
+      hasLoaded.current = true;
     } catch (error) {
       console.error('Error fetching dashboard data:', error);
     } finally {
       setIsLoading(false);
+      setIsRefreshing(false);
     }
-  }, [user?.id]);
+  }, [user?.id, filters.periodMonths, filters.service, filters.status]);
 
   // Handle realtime changes
   const handleRealtimeChange = useCallback((table: string, eventType: string) => {
@@ -354,7 +405,9 @@ export const useRealtimeDashboard = () => {
     recentActivities,
     analytics,
     serviceDistribution,
+    serviceOptions,
     isLoading,
+    isRefreshing,
     isConnected,
     lastUpdate,
     refetch: fetchDashboardData,

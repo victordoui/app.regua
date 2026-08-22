@@ -16,7 +16,7 @@
     --brand-100: 214 95% 93%;     /* #DBEAFE */
 
     /* ── Core semantic tokens ── */
-    --background: 0 0% 100%;       /* #FFFFFF page bg */
+    --background: 216 45% 98%;      /* cool blue-white page bg */
     --foreground: 222 47% 11%;     /* #0F172A */
 
     --card: 0 0% 100%;             /* #FFFFFF */
@@ -58,8 +58,8 @@
     --destructive-foreground: 0 0% 100%;
 
     /* ── Bordas ── */
-    --border: 214 26% 84%;
-    --input: 214 30% 96%;
+    --border: 214 34% 85%;
+    --input: 214 38% 95%;
     --ring: 217 91% 60%;               /* brand-mid */
 
     /* ── Status semânticos ── */
@@ -111,11 +111,11 @@
     --radius-xl: 1.125rem; /* 18px */
 
     /* Product surfaces */
-    --page: 214 32% 96%;
+    --page: 216 48% 97%;
     --surface: 0 0% 100%;
     --surface-raised: 0 0% 100%;
-    --surface-soft: 214 30% 94%;
-    --hairline: 214 26% 84%;
+    --surface-soft: 214 42% 95%;
+    --hairline: 214 34% 85%;
 
     /* ── Sidebar (VIZZU blue) ── */
     --sidebar-background: 221 70% 38%;
@@ -272,7 +272,8 @@
   body {
     @apply text-foreground;
     background:
-      radial-gradient(circle at 82% -8%, hsl(var(--primary) / 0.07), transparent 30rem),
+      radial-gradient(circle at 82% -8%, hsl(var(--primary) / 0.10), transparent 32rem),
+      radial-gradient(circle at 2% 35%, hsl(var(--primary) / 0.045), transparent 24rem),
       hsl(var(--page));
     font-feature-settings: "rlig" 1, "calt" 1;
     font-size: 16px;
@@ -333,6 +334,26 @@
   .surface-panel {
     @apply rounded-2xl border border-border bg-card shadow-[var(--shadow-subtle)];
   }
+
+  .dashboard-surface {
+    @apply rounded-2xl border border-border bg-card shadow-[var(--shadow-subtle)];
+  }
+
+  .dashboard-overview .dashboard-surface {
+    box-shadow: 0 8px 24px -18px rgba(30, 64, 175, 0.28), 0 1px 2px rgba(15, 47, 107, 0.08);
+  }
+
+  .insight-card {
+    border-left-width: 3px;
+  }
+  .insight-card.insight-success { border-left-color: hsl(var(--success)); }
+  .insight-card.insight-primary { border-left-color: hsl(var(--primary)); }
+  .insight-card.insight-warning { border-left-color: hsl(var(--warning)); }
+  .insight-card.insight-violet { border-left-color: hsl(var(--violet)); }
+  .insight-success .insight-icon { background: hsl(var(--success-bg)); color: hsl(var(--success)); }
+  .insight-primary .insight-icon { background: hsl(var(--primary) / 0.1); color: hsl(var(--primary)); }
+  .insight-warning .insight-icon { background: hsl(var(--warning-bg)); color: hsl(var(--warning)); }
+  .insight-violet .insight-icon { background: hsl(var(--violet-bg)); color: hsl(var(--violet)); }
 
   .surface-toolbar {
     @apply flex flex-col gap-3 rounded-2xl border border-border bg-card p-3 shadow-[var(--shadow-subtle)] sm:flex-row sm:items-center sm:justify-between;
