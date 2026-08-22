@@ -249,7 +249,7 @@ const Sidebar = () => {
 
       {/* Navigation */}
       <nav className="flex-1 space-y-0.5 overflow-y-auto px-2.5 pb-3 scrollbar-hidden-hover">
-        {menuStructure.map((category) => {
+        {menuStructure.map((category, categoryIndex) => {
           const CatIcon = category.icon;
           const isOpen = openCategories.includes(category.category);
           const hasActive = isCategoryActive(category.items);
@@ -260,7 +260,7 @@ const Sidebar = () => {
             const Icon = item.icon;
             const active = isActivePath(item.path);
             return (
-              <div key={category.category}>
+              <div key={category.category} className={categoryIndex > 0 ? "mt-2 border-t border-white/10 pt-2" : undefined}>
                 <button
                   onClick={() => navigate(item.path)}
                   title={collapsed ? item.label : undefined}
@@ -298,7 +298,7 @@ const Sidebar = () => {
           }
 
           return (
-            <div key={category.category}>
+            <div key={category.category} className={categoryIndex > 0 ? "mt-2 border-t border-white/10 pt-2" : undefined}>
               <Collapsible open={isOpen} onOpenChange={() => toggleCategory(category.category)}>
                 <CollapsibleTrigger asChild>
                   <button
