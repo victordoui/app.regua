@@ -1,7 +1,7 @@
 import { useEffect, useState, type ReactNode } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
-import { AnimatePresence, motion, useReducedMotion, useScroll, useTransform } from 'framer-motion';
+import { motion, useReducedMotion, useScroll, useTransform } from 'framer-motion';
 import { useTheme } from 'next-themes';
 import {
   ArrowRightIcon as ArrowRight,
@@ -394,6 +394,7 @@ const SalesPage = () => {
           <motion.div className="pointer-events-none absolute -right-28 top-20 -z-10 h-[420px] w-[420px] rounded-full border border-blue-300/30 dark:border-blue-400/10" animate={reduceMotion ? undefined : { scale: [1.08, 1, 1.08], y: [0, 20, 0] }} transition={{ duration: 12, repeat: Infinity, ease: 'easeInOut' }} />
           <div className="mx-auto grid max-w-[1600px] items-center gap-8 lg:grid-cols-[380px_minmax(0,1fr)] lg:gap-4 xl:grid-cols-[420px_minmax(0,1fr)]">
             <motion.div
+              className="relative z-30"
               initial={reduceMotion ? false : { opacity: 0, y: 30 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.8, ease: [0.22, 1, 0.36, 1] }}
@@ -412,22 +413,13 @@ const SalesPage = () => {
               <Badge className="mb-5 rounded-full border-primary/20 bg-white/75 px-3 py-1.5 text-primary shadow-sm backdrop-blur hover:bg-white/85 dark:border-blue-300/15 dark:bg-white/10 dark:text-blue-200 dark:hover:bg-white/10">
                 <Zap className="mr-1.5 h-3.5 w-3.5" weight="duotone" /> Gestão completa para negócios de serviços
               </Badge>
-              <div className="relative h-[120px] sm:h-[132px] lg:h-[150px]">
-                <AnimatePresence mode="sync" initial={false}>
-                  <motion.h1
-                    key={heroMessageIndex}
-                    initial={reduceMotion ? false : { opacity: 0 }}
-                    animate={{ opacity: 1 }}
-                    exit={reduceMotion ? undefined : { opacity: 0 }}
-                    transition={{ duration: 0.32, ease: 'easeOut' }}
-                    className="absolute inset-x-0 top-0 z-30 max-w-2xl text-4xl font-black leading-[1.03] tracking-[-0.045em] lg:text-[48px]"
-                  >
-                    {heroMessages[heroMessageIndex].first}{' '}
-                    <span className="bg-gradient-to-r from-[#2878ef] via-[#1557b8] to-[#0F2F6B] bg-clip-text text-transparent dark:from-blue-300 dark:to-blue-100">
-                      {heroMessages[heroMessageIndex].second}
-                    </span>
-                  </motion.h1>
-                </AnimatePresence>
+              <div className="relative h-[190px] min-[440px]:h-[150px] sm:h-[132px] lg:h-[118px] lg:w-[660px]">
+                <h1 className="absolute inset-x-0 top-0 z-40 max-w-2xl text-4xl font-black leading-[1.03] tracking-[-0.045em] [text-shadow:0_2px_14px_rgba(255,255,255,0.95)] lg:text-[48px] dark:[text-shadow:0_2px_18px_rgba(3,8,23,0.9)]">
+                  {heroMessages[heroMessageIndex].first}{' '}
+                  <span className="bg-gradient-to-r from-[#2878ef] via-[#1557b8] to-[#0F2F6B] bg-clip-text text-transparent dark:from-blue-300 dark:to-blue-100">
+                    {heroMessages[heroMessageIndex].second}
+                  </span>
+                </h1>
               </div>
               <p className="mt-5 max-w-xl text-[15px] leading-6 text-slate-600 dark:text-slate-300">
                 Centralize agendamentos, clientes, equipe e financeiro em um sistema simples de usar. Enquanto o VIZZU organiza a operação, você ganha tempo para atender melhor e crescer.
@@ -444,7 +436,7 @@ const SalesPage = () => {
                 ))}
               </div>
             </motion.div>
-            <div>
+            <div className="relative z-10">
               <HeroShowcase />
             </div>
           </div>
