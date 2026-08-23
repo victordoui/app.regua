@@ -407,14 +407,13 @@ const SalesPage = () => {
                 />
                 <div>
                   <p className="text-[42px] font-black leading-none tracking-[0.08em] text-[#0F2F6B] sm:text-[58px] dark:text-white">VIZZU</p>
-                  <p className="mt-2 text-[10px] font-bold uppercase tracking-[0.2em] text-primary sm:text-sm">Visualize · Organize · Cresça</p>
+                  <p className="mt-3 flex items-center gap-1.5 text-[10px] font-bold text-primary sm:text-xs">
+                    <Zap className="h-3.5 w-3.5 shrink-0" weight="duotone" /> Gestão completa para negócios de serviços
+                  </p>
                 </div>
               </div>
-              <Badge className="mb-5 rounded-full border-primary/20 bg-white/75 px-3 py-1.5 text-primary shadow-sm backdrop-blur hover:bg-white/85 dark:border-blue-300/15 dark:bg-white/10 dark:text-blue-200 dark:hover:bg-white/10">
-                <Zap className="mr-1.5 h-3.5 w-3.5" weight="duotone" /> Gestão completa para negócios de serviços
-              </Badge>
-              <div className="relative h-[190px] min-[440px]:h-[150px] sm:h-[132px] lg:h-[118px] lg:w-[660px]">
-                <h1 className="absolute inset-x-0 top-0 z-40 max-w-2xl text-4xl font-black leading-[1.03] tracking-[-0.045em] [text-shadow:0_2px_14px_rgba(255,255,255,0.95)] lg:text-[48px] dark:[text-shadow:0_2px_18px_rgba(3,8,23,0.9)]">
+              <div className="relative h-[190px] min-[440px]:h-[150px] sm:h-[150px] lg:h-[188px]">
+                <h1 className="absolute inset-x-0 top-0 z-40 max-w-2xl text-4xl font-black leading-[1.03] tracking-[-0.045em] lg:text-[48px]">
                   {heroMessages[heroMessageIndex].first}{' '}
                   <span className="bg-gradient-to-r from-[#2878ef] via-[#1557b8] to-[#0F2F6B] bg-clip-text text-transparent dark:from-blue-300 dark:to-blue-100">
                     {heroMessages[heroMessageIndex].second}
