@@ -119,37 +119,6 @@ const ThemeSwitch = ({ isDark, onToggle, compact = false }: { isDark: boolean; o
   </button>
 );
 
-const outcomes = [
-  {
-    icon: CalendarDays,
-    title: 'Agenda inteligente',
-    description: 'Horários, profissionais e confirmações organizados para você atender sem conflitos.',
-    tone: 'border-blue-200/70 bg-gradient-to-b from-blue-50/95 to-blue-100/65 dark:border-blue-400/15 dark:from-blue-500/15 dark:to-slate-950/80',
-    iconTone: 'bg-blue-100 text-blue-600',
-  },
-  {
-    icon: Users,
-    title: 'Clientes em um só lugar',
-    description: 'Histórico, preferências e relacionamento reunidos para cada cliente se sentir lembrado.',
-    tone: 'border-violet-200/70 bg-gradient-to-b from-violet-50/95 to-blue-100/55 dark:border-violet-400/15 dark:from-violet-500/15 dark:to-slate-950/80',
-    iconTone: 'bg-violet-100 text-violet-600',
-  },
-  {
-    icon: HeartHandshake,
-    title: 'Equipe bem coordenada',
-    description: 'Turnos, comissões e desempenho visíveis para cada profissional saber o que precisa fazer.',
-    tone: 'border-orange-200/70 bg-gradient-to-b from-orange-50/95 to-blue-100/55 dark:border-orange-400/15 dark:from-orange-500/15 dark:to-slate-950/80',
-    iconTone: 'bg-orange-100 text-orange-600',
-  },
-  {
-    icon: BarChart3,
-    title: 'Financeiro com clareza',
-    description: 'Receitas, caixa e indicadores fáceis de entender para decidir com mais segurança.',
-    tone: 'border-emerald-200/70 bg-gradient-to-b from-emerald-50/95 to-blue-100/55 dark:border-emerald-400/15 dark:from-emerald-500/15 dark:to-slate-950/80',
-    iconTone: 'bg-emerald-100 text-emerald-600',
-  },
-];
-
 const proofHighlights = [
   { icon: CalendarDays, value: 'Agenda 24h', label: 'Seus clientes agendam sozinhos', detail: 'Disponível todos os dias para gerar mais conveniência e menos ligações.', color: 'bg-blue-50 text-blue-600' },
   { icon: Check, value: '7 dias grátis', label: 'Conheça antes de assinar', detail: 'Teste os recursos do VIZZU sem compromisso e veja a diferença na rotina.', color: 'bg-emerald-50 text-emerald-600' },
@@ -165,18 +134,13 @@ const heroMessages = [
   { first: 'Sua equipe organizada.', second: 'Seus resultados visíveis.' },
 ];
 
-const organizationSteps = [
-  { number: '01', title: 'Organize a agenda', description: 'Serviços, profissionais e horários ficam conectados desde o primeiro agendamento.' },
-  { number: '02', title: 'Conheça seus clientes', description: 'Histórico e preferências ajudam sua equipe a oferecer um atendimento mais pessoal.' },
-  { number: '03', title: 'Acompanhe a operação', description: 'Equipe, caixa, comissões e rotina ficam visíveis em um único painel.' },
-  { number: '04', title: 'Decida com clareza', description: 'Indicadores mostram o que está funcionando e onde existe oportunidade de crescer.' },
-];
+const showLegacySalesSections = false;
 
-const routineComparison = [
-  { before: 'Agendamentos espalhados entre mensagens, papel e memória.', after: 'Uma agenda centralizada, disponível para toda a equipe.' },
-  { before: 'Dúvida sobre horários, profissionais e serviços disponíveis.', after: 'Disponibilidade organizada para reduzir conflito e retrabalho.' },
-  { before: 'Fim do mês sem clareza sobre receitas e comissões.', after: 'Financeiro e indicadores reunidos para acompanhar a operação.' },
-  { before: 'Clientes que deixam de voltar sem ninguém perceber.', after: 'Histórico e relacionamento para manter o cliente por perto.' },
+const productCapabilities = [
+  { icon: CalendarDays, title: 'Agendamentos online', description: 'Seus clientes escolhem serviço, profissional e horário sem precisar ligar.', color: 'bg-blue-50 text-blue-600 dark:bg-blue-500/15 dark:text-blue-300' },
+  { icon: Users, title: 'Gestão de clientes', description: 'Histórico, preferências e relacionamento reunidos em um único lugar.', color: 'bg-emerald-50 text-emerald-600 dark:bg-emerald-500/15 dark:text-emerald-300' },
+  { icon: WalletCards, title: 'Financeiro simplificado', description: 'Recebimentos, despesas e resultados organizados para decisões seguras.', color: 'bg-violet-50 text-violet-600 dark:bg-violet-500/15 dark:text-violet-300' },
+  { icon: BarChart3, title: 'Relatórios inteligentes', description: 'Indicadores claros mostram o que funciona e onde seu negócio pode crescer.', color: 'bg-orange-50 text-orange-600 dark:bg-orange-500/15 dark:text-orange-300' },
 ];
 
 const faqs = [
@@ -429,7 +393,6 @@ const SalesPage = () => {
                 <Button size="lg" className="group h-13 rounded-xl px-7 text-base shadow-lg shadow-primary/25 transition-transform hover:-translate-y-0.5" onClick={() => navigate('/cadastro?plano=trial')}>
                   Testar grátis por 7 dias <ArrowRight className="ml-2 h-5 w-5 transition-transform group-hover:translate-x-1" />
                 </Button>
-                <Button size="lg" variant="outline" className="h-13 rounded-xl border-slate-300 bg-white/70 px-7 text-base dark:border-slate-700 dark:bg-slate-900/60" asChild><a href="#recursos">Ver o VIZZU por dentro</a></Button>
               </div>
               <div className="mt-5 flex flex-wrap gap-x-4 gap-y-2 text-xs font-medium text-slate-600 dark:text-slate-300">
                 {['Sem cartão de crédito', 'Configuração guiada', 'Cancele quando quiser'].map((item) => (
@@ -441,7 +404,7 @@ const SalesPage = () => {
               <HeroShowcase />
             </div>
           </div>
-          <Reveal className="mx-auto mt-14 flex max-w-7xl flex-col gap-5 rounded-2xl border border-blue-100 bg-white px-6 py-5 shadow-[0_16px_44px_-30px_rgba(15,47,107,0.4)] dark:border-white/10 dark:bg-slate-900/70 lg:flex-row lg:items-center">
+          <Reveal className="mx-auto mt-14 flex max-w-xl flex-col gap-4 rounded-2xl border border-blue-100 bg-white px-6 py-5 shadow-[0_16px_44px_-30px_rgba(15,47,107,0.4)] dark:border-white/10 dark:bg-slate-900/70 sm:flex-row sm:items-center sm:justify-center sm:gap-8">
             <div className="flex shrink-0 flex-col gap-4 sm:flex-row sm:items-center sm:gap-7">
               <div className="flex items-start gap-2.5">
                 <Star className="mt-0.5 h-5 w-5 fill-amber-400 text-amber-400" weight="fill" />
@@ -454,14 +417,17 @@ const SalesPage = () => {
                 <p className="mt-1 text-[10px] text-slate-500 dark:text-slate-400">Baseado em 230+ avaliações</p>
               </div>
             </div>
-            <div className="hidden h-14 w-px bg-slate-200 lg:block dark:bg-slate-700" />
-            <div className="grid flex-1 grid-cols-2 items-center gap-x-5 gap-y-3 text-center text-sm font-semibold text-slate-400 sm:grid-cols-3 lg:grid-cols-5">
-              {trustedBusinesses.map((business) => <span key={business} className="whitespace-nowrap opacity-75 grayscale transition hover:opacity-100">{business}</span>)}
-            </div>
           </Reveal>
 
           <Reveal className="mx-auto mt-7 grid max-w-7xl gap-4 sm:grid-cols-2 lg:grid-cols-4">
             {proofHighlights.map((item) => <motion.div whileHover={reduceMotion ? undefined : { y: -6 }} key={item.label} className="flex min-h-[238px] flex-col rounded-2xl border border-blue-100 bg-white px-6 py-6 shadow-[0_18px_42px_-26px_rgba(15,47,107,0.45)] dark:border-white/10 dark:bg-slate-900/70"><span className={cn('flex h-12 w-12 shrink-0 items-center justify-center rounded-full shadow-sm', item.color)}><item.icon className="h-6 w-6" weight="duotone" /></span><div className="mt-5"><p className="text-lg font-black text-slate-950 dark:text-white">{item.value}</p><p className="mt-2 text-sm font-bold leading-5 text-slate-800 dark:text-slate-100">{item.label}</p><p className="mt-3 text-xs leading-5 text-slate-500 dark:text-slate-400">{item.detail}</p></div></motion.div>)}
+          </Reveal>
+
+          <Reveal className="mx-auto mt-8 max-w-7xl border-y border-slate-200/80 py-6 dark:border-slate-800">
+            <p className="text-center text-[10px] font-bold uppercase tracking-[0.2em] text-slate-400">Negócios que já organizam sua rotina com o VIZZU</p>
+            <div className="mt-5 grid grid-cols-2 items-center gap-x-6 gap-y-5 text-center text-sm font-semibold text-slate-400 sm:grid-cols-3 lg:grid-cols-5">
+              {trustedBusinesses.map((business) => <span key={business} className="whitespace-nowrap opacity-70 grayscale transition hover:opacity-100">{business}</span>)}
+            </div>
           </Reveal>
 
           <Reveal className="mx-auto mt-7 flex max-w-7xl flex-col items-start justify-between gap-5 rounded-2xl bg-gradient-to-r from-[#194fae] via-[#286fe7] to-[#17499e] px-7 py-6 text-white shadow-[0_22px_55px_-30px_rgba(29,78,216,0.75)] sm:flex-row sm:items-center">
@@ -470,7 +436,44 @@ const SalesPage = () => {
           </Reveal>
         </section>
 
-        <section id="para-quem" className="relative scroll-mt-6 overflow-hidden border-y border-blue-200/70 bg-gradient-to-br from-[#dbe9ff] via-[#e9f2ff] to-[#dceaff] px-4 py-16 dark:border-white/10 dark:from-[#071126] dark:via-[#091631] dark:to-[#050b1c] sm:px-6 lg:py-20">
+        <section id="recursos" className="relative scroll-mt-24 overflow-hidden border-y border-blue-100 bg-[#f7faff] px-4 py-16 dark:border-white/10 dark:bg-[#061024] sm:px-6 lg:py-24">
+          <div className="pointer-events-none absolute left-1/2 top-1/2 -z-0 h-[480px] w-[900px] -translate-x-1/2 -translate-y-1/2 rounded-full bg-blue-200/35 blur-3xl dark:bg-blue-600/10" />
+          <Reveal className="relative mx-auto max-w-7xl overflow-hidden rounded-[32px] border border-blue-100 bg-white shadow-[0_30px_80px_-48px_rgba(15,47,107,0.65)] dark:border-white/10 dark:bg-slate-950/75">
+            <div className="grid items-center gap-10 p-7 sm:p-10 lg:grid-cols-[0.8fr_1.25fr_0.9fr] lg:gap-8 lg:p-12">
+              <div>
+                <span className="text-xs font-bold uppercase tracking-[0.18em] text-primary">Feito para quem presta serviços</span>
+                <h2 className="mt-4 text-3xl font-black leading-tight tracking-tight text-slate-950 dark:text-white sm:text-4xl">Tudo o que você precisa para gerir e crescer seu negócio</h2>
+                <p className="mt-5 leading-7 text-slate-600 dark:text-slate-300">Do agendamento ao financeiro, o VIZZU reúne as ferramentas essenciais para sua rotina ficar mais organizada, produtiva e previsível.</p>
+                <Button className="mt-7 rounded-xl px-6 shadow-lg shadow-primary/20" onClick={() => navigate('/cadastro?plano=trial')}>Começar teste gratuito <ArrowRight className="ml-2 h-4 w-4" /></Button>
+              </div>
+
+              <motion.div whileHover={reduceMotion ? undefined : { y: -6 }} className="relative rounded-[24px] border border-blue-100 bg-[#f8fbff] p-3 shadow-[0_26px_60px_-35px_rgba(15,47,107,0.65)] dark:border-white/10 dark:bg-slate-900/70">
+                <div className="mb-3 flex items-center gap-1.5 px-1"><span className="h-2.5 w-2.5 rounded-full bg-rose-400" /><span className="h-2.5 w-2.5 rounded-full bg-amber-400" /><span className="h-2.5 w-2.5 rounded-full bg-emerald-400" /></div>
+                <img src={heroDashboard} alt="Painel completo do VIZZU com agenda, clientes e indicadores" className="w-full rounded-[16px] object-cover shadow-sm" />
+              </motion.div>
+
+              <div className="space-y-5">
+                {productCapabilities.map((item) => (
+                  <div key={item.title} className="flex gap-4">
+                    <span className={cn('flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl', item.color)}><item.icon className="h-5 w-5" weight="duotone" /></span>
+                    <div><h3 className="font-black text-slate-950 dark:text-white">{item.title}</h3><p className="mt-1 text-xs leading-5 text-slate-500 dark:text-slate-400">{item.description}</p></div>
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            <div id="para-quem" className="border-t border-slate-100 bg-slate-50/80 px-7 py-6 dark:border-slate-800 dark:bg-slate-900/45 sm:px-10 lg:px-12">
+              <p className="mb-4 text-center text-[10px] font-bold uppercase tracking-[0.18em] text-slate-400">Uma plataforma para diferentes negócios de serviços</p>
+              <div className="flex flex-wrap justify-center gap-2.5">
+                {segments.map((segment) => <span key={segment.name} className="inline-flex items-center gap-2 rounded-full border border-slate-200 bg-white px-3.5 py-2 text-xs font-bold text-slate-600 shadow-sm dark:border-slate-700 dark:bg-slate-950 dark:text-slate-300"><segment.icon className="h-4 w-4 text-primary" weight="duotone" />{segment.name}</span>)}
+              </div>
+            </div>
+          </Reveal>
+        </section>
+
+        {showLegacySalesSections && <div className="hidden" aria-hidden="true">
+
+        <section className="relative scroll-mt-6 overflow-hidden border-y border-blue-200/70 bg-gradient-to-br from-[#dbe9ff] via-[#e9f2ff] to-[#dceaff] px-4 py-16 dark:border-white/10 dark:from-[#071126] dark:via-[#091631] dark:to-[#050b1c] sm:px-6 lg:py-20">
           <div className="pointer-events-none absolute -left-24 top-1/2 h-72 w-72 -translate-y-1/2 rounded-full bg-blue-400/15 blur-3xl dark:bg-blue-500/10" />
           <div className="pointer-events-none absolute -right-20 top-0 h-64 w-64 rounded-full bg-violet-400/15 blur-3xl dark:bg-violet-500/10" />
           <Reveal className="relative mx-auto max-w-7xl">
@@ -507,7 +510,7 @@ const SalesPage = () => {
           </Reveal>
         </section>
 
-        <section id="recursos" className="relative scroll-mt-24 overflow-hidden px-4 py-20 sm:px-6 lg:py-28">
+        <section className="relative scroll-mt-24 overflow-hidden px-4 py-20 sm:px-6 lg:py-28">
           <div className="pointer-events-none absolute left-1/2 top-10 -z-10 h-[520px] w-[780px] -translate-x-1/2 rounded-full bg-blue-300/20 blur-3xl dark:bg-blue-600/10" />
           <div className="mx-auto max-w-7xl">
             <Reveal className="mx-auto mb-12 max-w-3xl text-center">
@@ -568,6 +571,8 @@ const SalesPage = () => {
             </Reveal>
           </div>
         </section>
+
+        </div>}
 
         <section className="px-4 py-20 sm:px-6 lg:py-28">
           <Reveal className="mx-auto grid max-w-7xl overflow-hidden rounded-[32px] bg-gradient-to-br from-[#2f73da] via-[#174a9e] to-[#0f2f6b] text-white shadow-[0_35px_90px_-35px_rgba(15,47,107,0.8)] lg:grid-cols-[1fr_0.9fr]">
