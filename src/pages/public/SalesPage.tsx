@@ -151,11 +151,13 @@ const outcomes = [
 ];
 
 const proofHighlights = [
-  { icon: CalendarDays, value: '24h', label: 'Agendamento online', detail: 'Seu negócio recebe pedidos mesmo fechado', color: 'bg-blue-50 text-blue-600' },
-  { icon: Check, value: '7 dias', label: 'Teste gratuito', detail: 'Conheça o sistema antes de assinar', color: 'bg-emerald-50 text-emerald-600' },
-  { icon: ShieldCheck, value: 'Seguro', label: 'Dados protegidos', detail: 'Acesso controlado para sua equipe', color: 'bg-violet-50 text-violet-600' },
-  { icon: HeartHandshake, value: 'Humano', label: 'Suporte de verdade', detail: 'Ajuda para configurar e evoluir', color: 'bg-orange-50 text-orange-600' },
+  { icon: CalendarDays, value: 'Agenda 24h', label: 'Seus clientes agendam sozinhos', detail: 'Disponível todos os dias para gerar mais conveniência e menos ligações.', color: 'bg-blue-50 text-blue-600' },
+  { icon: Check, value: '7 dias grátis', label: 'Conheça antes de assinar', detail: 'Teste os recursos do VIZZU sem compromisso e veja a diferença na rotina.', color: 'bg-emerald-50 text-emerald-600' },
+  { icon: ShieldCheck, value: 'Dados protegidos', label: 'Segurança em primeiro lugar', detail: 'Informações do negócio e dos clientes protegidas com acesso controlado.', color: 'bg-violet-50 text-violet-600' },
+  { icon: HeartHandshake, value: 'Suporte humano', label: 'Ajuda de verdade quando precisar', detail: 'Atendimento rápido e atencioso com pessoas reais durante sua jornada.', color: 'bg-orange-50 text-orange-600' },
 ];
+
+const trustedBusinesses = ['Marshalls Barber', 'Studio Beauty', 'Clínica Bem Estar', 'PetCare', 'Fitness Club'];
 
 const heroMessages = [
   { first: 'Sua agenda cheia.', second: 'Seu negócio no controle.' },
@@ -439,8 +441,32 @@ const SalesPage = () => {
               <HeroShowcase />
             </div>
           </div>
-          <Reveal className="mx-auto mt-16 grid max-w-7xl gap-3 sm:grid-cols-2 lg:grid-cols-4">
-            {proofHighlights.map((item) => <motion.div whileHover={reduceMotion ? undefined : { y: -5 }} key={item.label} className="flex items-center gap-3 rounded-2xl border border-blue-100 bg-white px-5 py-5 shadow-[0_16px_38px_-24px_rgba(15,47,107,0.45)] dark:border-white/10 dark:bg-slate-900/70"><span className={cn('flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl', item.color)}><item.icon className="h-5 w-5" weight="duotone" /></span><div><p className="text-lg font-black text-primary dark:text-blue-300">{item.value}</p><p className="text-sm font-bold text-slate-800 dark:text-slate-100">{item.label}</p><p className="text-[11px] leading-4 text-slate-500 dark:text-slate-400">{item.detail}</p></div></motion.div>)}
+          <Reveal className="mx-auto mt-14 flex max-w-7xl flex-col gap-5 rounded-2xl border border-blue-100 bg-white px-6 py-5 shadow-[0_16px_44px_-30px_rgba(15,47,107,0.4)] dark:border-white/10 dark:bg-slate-900/70 lg:flex-row lg:items-center">
+            <div className="flex shrink-0 flex-col gap-4 sm:flex-row sm:items-center sm:gap-7">
+              <div className="flex items-start gap-2.5">
+                <Star className="mt-0.5 h-5 w-5 fill-amber-400 text-amber-400" weight="fill" />
+                <div><p className="text-lg font-black text-slate-950 dark:text-white">+350 negócios</p><p className="mt-1 text-xs leading-5 text-slate-500 dark:text-slate-400">já organizam sua rotina<br />com o VIZZU</p></div>
+              </div>
+              <div className="h-px w-full bg-slate-200 sm:h-14 sm:w-px dark:bg-slate-700" />
+              <div>
+                <p className="text-lg font-black text-slate-950 dark:text-white">4,9/5</p>
+                <div className="mt-1 flex gap-0.5" aria-label="Avaliação de 4,9 de 5 estrelas">{Array.from({ length: 5 }).map((_, index) => <Star key={index} className="h-4 w-4 fill-amber-400 text-amber-400" weight="fill" />)}</div>
+                <p className="mt-1 text-[10px] text-slate-500 dark:text-slate-400">Baseado em 230+ avaliações</p>
+              </div>
+            </div>
+            <div className="hidden h-14 w-px bg-slate-200 lg:block dark:bg-slate-700" />
+            <div className="grid flex-1 grid-cols-2 items-center gap-x-5 gap-y-3 text-center text-sm font-semibold text-slate-400 sm:grid-cols-3 lg:grid-cols-5">
+              {trustedBusinesses.map((business) => <span key={business} className="whitespace-nowrap opacity-75 grayscale transition hover:opacity-100">{business}</span>)}
+            </div>
+          </Reveal>
+
+          <Reveal className="mx-auto mt-7 grid max-w-7xl gap-4 sm:grid-cols-2 lg:grid-cols-4">
+            {proofHighlights.map((item) => <motion.div whileHover={reduceMotion ? undefined : { y: -6 }} key={item.label} className="flex min-h-[238px] flex-col rounded-2xl border border-blue-100 bg-white px-6 py-6 shadow-[0_18px_42px_-26px_rgba(15,47,107,0.45)] dark:border-white/10 dark:bg-slate-900/70"><span className={cn('flex h-12 w-12 shrink-0 items-center justify-center rounded-full shadow-sm', item.color)}><item.icon className="h-6 w-6" weight="duotone" /></span><div className="mt-5"><p className="text-lg font-black text-slate-950 dark:text-white">{item.value}</p><p className="mt-2 text-sm font-bold leading-5 text-slate-800 dark:text-slate-100">{item.label}</p><p className="mt-3 text-xs leading-5 text-slate-500 dark:text-slate-400">{item.detail}</p></div></motion.div>)}
+          </Reveal>
+
+          <Reveal className="mx-auto mt-7 flex max-w-7xl flex-col items-start justify-between gap-5 rounded-2xl bg-gradient-to-r from-[#194fae] via-[#286fe7] to-[#17499e] px-7 py-6 text-white shadow-[0_22px_55px_-30px_rgba(29,78,216,0.75)] sm:flex-row sm:items-center">
+            <div><p className="text-xl font-black text-white">Pronto para organizar seu negócio e crescer?</p><p className="mt-1 text-sm text-blue-100">Comece agora. São 7 dias grátis e você não precisa cadastrar cartão.</p></div>
+            <Button size="lg" variant="secondary" className="shrink-0 rounded-xl !bg-white px-7 font-bold !text-[#174a9e] shadow-lg hover:!bg-blue-50" onClick={() => navigate('/cadastro?plano=trial')}>Testar grátis por 7 dias <ArrowRight className="ml-2 h-4 w-4" /></Button>
           </Reveal>
         </section>
 
