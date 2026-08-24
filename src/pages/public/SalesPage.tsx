@@ -5,6 +5,7 @@ import { motion, useReducedMotion, useScroll, useTransform } from 'framer-motion
 import { useTheme } from 'next-themes';
 import {
   ArrowRightIcon as ArrowRight,
+  BarbellIcon,
   ChartLineUpIcon as BarChart3,
   CalendarCheckIcon as CalendarDays,
   CheckIcon as Check,
@@ -126,7 +127,13 @@ const proofHighlights = [
   { icon: HeartHandshake, value: 'Suporte humano', label: 'Ajuda de verdade quando precisar', detail: 'Atendimento rápido e atencioso com pessoas reais durante sua jornada.', color: 'bg-orange-50 text-orange-600' },
 ];
 
-const trustedBusinesses = ['Marshalls Barber', 'Studio Beauty', 'Clínica Bem Estar', 'PetCare', 'Fitness Club'];
+const trustedBusinesses = [
+  { name: 'Marshalls', detail: 'BARBER', icon: ScissorsIcon, style: 'font-serif tracking-[0.08em]' },
+  { name: 'Studio Beauty', detail: 'BEAUTY', icon: FlowerLotusIcon, style: 'font-serif' },
+  { name: 'CLÍNICA', detail: 'BEM ESTAR', icon: StethoscopeIcon, style: 'tracking-[0.08em]' },
+  { name: 'PetCare', detail: 'CLÍNICA VETERINÁRIA', icon: PawPrintIcon, style: 'font-serif' },
+  { name: 'fitness', detail: 'CLUB', icon: BarbellIcon, style: 'tracking-[0.08em]' },
+];
 
 const heroMessages = [
   { first: 'Sua agenda cheia.', second: 'Seu negócio no controle.' },
@@ -394,9 +401,9 @@ const SalesPage = () => {
                   Testar grátis por 7 dias <ArrowRight className="ml-2 h-5 w-5 transition-transform group-hover:translate-x-1" />
                 </Button>
               </div>
-              <div className="mt-5 flex flex-wrap gap-x-4 gap-y-2 text-xs font-medium text-slate-600 dark:text-slate-300">
+              <div className="mt-5 grid grid-cols-3 items-center gap-x-2 text-[10px] font-medium text-slate-600 dark:text-slate-300 xl:text-[11px]">
                 {['Sem cartão de crédito', 'Configuração guiada', 'Cancele quando quiser'].map((item) => (
-                  <span key={item} className="flex items-center gap-1.5"><Check className="h-4 w-4 text-emerald-500" />{item}</span>
+                  <span key={item} className="flex items-center gap-1 whitespace-nowrap"><Check className="h-3.5 w-3.5 shrink-0 text-emerald-500" />{item}</span>
                 ))}
               </div>
             </motion.div>
@@ -404,7 +411,7 @@ const SalesPage = () => {
               <HeroShowcase />
             </div>
           </div>
-          <Reveal className="mx-auto mt-14 flex max-w-xl flex-col gap-4 rounded-2xl border border-blue-100 bg-white px-6 py-5 shadow-[0_16px_44px_-30px_rgba(15,47,107,0.4)] dark:border-white/10 dark:bg-slate-900/70 sm:flex-row sm:items-center sm:justify-center sm:gap-8">
+          <Reveal className="mx-auto mt-14 flex max-w-7xl flex-col gap-6 rounded-2xl border border-blue-100 bg-white px-6 py-5 shadow-[0_16px_44px_-30px_rgba(15,47,107,0.4)] dark:border-white/10 dark:bg-slate-900/70 lg:flex-row lg:items-center lg:gap-8">
             <div className="flex shrink-0 flex-col gap-4 sm:flex-row sm:items-center sm:gap-7">
               <div className="flex items-start gap-2.5">
                 <Star className="mt-0.5 h-5 w-5 fill-amber-400 text-amber-400" weight="fill" />
@@ -417,17 +424,22 @@ const SalesPage = () => {
                 <p className="mt-1 text-[10px] text-slate-500 dark:text-slate-400">Baseado em 230+ avaliações</p>
               </div>
             </div>
+            <div className="hidden h-14 w-px bg-slate-200 lg:block dark:bg-slate-700" />
+            <div className="grid flex-1 grid-cols-2 items-center gap-x-5 gap-y-5 sm:grid-cols-3 lg:grid-cols-5">
+              {trustedBusinesses.map((business) => (
+                <div key={business.name} className="group flex items-center justify-center gap-2 text-slate-400 grayscale transition duration-300 hover:text-slate-600 hover:grayscale-0 dark:hover:text-slate-200">
+                  <business.icon className="h-7 w-7 shrink-0 opacity-75" weight="duotone" />
+                  <div className="min-w-0 leading-none">
+                    <p className={cn('whitespace-nowrap text-sm font-semibold', business.style)}>{business.name}</p>
+                    <p className="mt-1 whitespace-nowrap text-[7px] font-bold tracking-[0.13em] opacity-75">{business.detail}</p>
+                  </div>
+                </div>
+              ))}
+            </div>
           </Reveal>
 
           <Reveal className="mx-auto mt-7 grid max-w-7xl gap-4 sm:grid-cols-2 lg:grid-cols-4">
             {proofHighlights.map((item) => <motion.div whileHover={reduceMotion ? undefined : { y: -6 }} key={item.label} className="flex min-h-[238px] flex-col rounded-2xl border border-blue-100 bg-white px-6 py-6 shadow-[0_18px_42px_-26px_rgba(15,47,107,0.45)] dark:border-white/10 dark:bg-slate-900/70"><span className={cn('flex h-12 w-12 shrink-0 items-center justify-center rounded-full shadow-sm', item.color)}><item.icon className="h-6 w-6" weight="duotone" /></span><div className="mt-5"><p className="text-lg font-black text-slate-950 dark:text-white">{item.value}</p><p className="mt-2 text-sm font-bold leading-5 text-slate-800 dark:text-slate-100">{item.label}</p><p className="mt-3 text-xs leading-5 text-slate-500 dark:text-slate-400">{item.detail}</p></div></motion.div>)}
-          </Reveal>
-
-          <Reveal className="mx-auto mt-8 max-w-7xl border-y border-slate-200/80 py-6 dark:border-slate-800">
-            <p className="text-center text-[10px] font-bold uppercase tracking-[0.2em] text-slate-400">Negócios que já organizam sua rotina com o VIZZU</p>
-            <div className="mt-5 grid grid-cols-2 items-center gap-x-6 gap-y-5 text-center text-sm font-semibold text-slate-400 sm:grid-cols-3 lg:grid-cols-5">
-              {trustedBusinesses.map((business) => <span key={business} className="whitespace-nowrap opacity-70 grayscale transition hover:opacity-100">{business}</span>)}
-            </div>
           </Reveal>
 
           <Reveal className="mx-auto mt-7 flex max-w-7xl flex-col items-start justify-between gap-5 rounded-2xl bg-gradient-to-r from-[#194fae] via-[#286fe7] to-[#17499e] px-7 py-6 text-white shadow-[0_22px_55px_-30px_rgba(29,78,216,0.75)] sm:flex-row sm:items-center">
