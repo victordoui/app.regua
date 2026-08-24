@@ -103,20 +103,17 @@ const Reveal = ({ children, className, delay = 0 }: { children: ReactNode; class
   );
 };
 
-const ThemeSwitch = ({ isDark, onToggle, compact = false }: { isDark: boolean; onToggle: () => void; compact?: boolean }) => (
+const ThemeSwitch = ({ isDark, onToggle }: { isDark: boolean; onToggle: () => void }) => (
   <button
     type="button"
     onClick={onToggle}
-    className={cn(
-      'group flex items-center gap-2 rounded-full border border-blue-200/70 bg-white/80 p-2 text-[#0F2F6B] shadow-[0_14px_40px_-22px_rgba(15,47,107,0.8)] backdrop-blur-xl transition hover:-translate-y-0.5 hover:border-blue-300 hover:bg-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary dark:border-white/10 dark:bg-slate-950/75 dark:text-blue-100 dark:hover:bg-slate-900',
-      !compact && 'pr-3.5',
-    )}
+    className="group flex h-11 w-11 items-center justify-center rounded-full border border-blue-200/70 bg-white/85 text-[#0F2F6B] shadow-[0_14px_40px_-22px_rgba(15,47,107,0.8)] backdrop-blur-xl transition hover:-translate-y-0.5 hover:border-blue-300 hover:bg-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary dark:border-white/10 dark:bg-slate-950/75 dark:text-blue-100 dark:hover:bg-slate-900"
     aria-label={isDark ? 'Ativar modo claro' : 'Ativar modo escuro'}
+    title={isDark ? 'Ativar modo claro' : 'Ativar modo escuro'}
   >
     <span className="flex h-8 w-8 items-center justify-center rounded-full bg-gradient-to-br from-blue-500 to-indigo-700 text-white shadow-md shadow-blue-500/20">
       {isDark ? <SunIcon className="h-4 w-4" weight="duotone" /> : <MoonStarsIcon className="h-4 w-4" weight="duotone" />}
     </span>
-    {!compact && <span className="text-xs font-bold">{isDark ? 'Modo claro' : 'Modo escuro'}</span>}
   </button>
 );
 
@@ -243,19 +240,19 @@ const HeroShowcase = () => {
   const reduceMotion = useReducedMotion();
 
   return (
-    <div className="relative mx-auto h-[340px] w-full max-w-[1180px] sm:h-[460px] xl:h-[540px]">
+    <div className="relative mx-auto h-[300px] w-full max-w-[920px] min-[440px]:h-[340px] sm:h-[460px] xl:h-[520px]">
       <div className="absolute inset-x-0 bottom-0 z-10 flex justify-center">
         <motion.img
           src={heroDashboard}
           alt="Dashboard VIZZU com agenda, indicadores e gestão financeira"
-          className="w-[94%] max-w-[980px] rounded-2xl object-contain shadow-[0_32px_70px_-38px_rgba(15,47,107,0.48)] sm:w-[88%] xl:w-[84%]"
+          className="w-[92%] max-w-[900px] rounded-xl object-contain shadow-[0_32px_70px_-38px_rgba(15,47,107,0.48)] sm:w-[88%] sm:rounded-2xl xl:w-[86%]"
           initial={reduceMotion ? false : { opacity: 0, scale: 0.97 }}
           animate={{ opacity: 1, scale: 1 }}
           transition={{ duration: 0.72, delay: 0.08, ease: [0.22, 1, 0.36, 1] }}
         />
       </div>
       <motion.div
-        className="pointer-events-none absolute bottom-0 left-[-3%] z-20 hidden h-[98%] sm:block xl:left-[-5%] xl:h-[104%]"
+        className="pointer-events-none absolute bottom-0 left-[-11%] z-20 h-[88%] sm:left-[-4%] sm:h-[98%] xl:left-[-5%] xl:h-[104%]"
         initial={reduceMotion ? false : { opacity: 0, x: -32 }}
         animate={{ opacity: 1, x: 0 }}
         transition={{ duration: 0.85, delay: 0.16, ease: [0.22, 1, 0.36, 1] }}
@@ -267,7 +264,7 @@ const HeroShowcase = () => {
         />
       </motion.div>
       <motion.div
-        className="pointer-events-none absolute bottom-0 right-[-3%] z-20 hidden h-[98%] sm:block xl:right-[-5%] xl:h-[104%]"
+        className="pointer-events-none absolute bottom-0 right-[-11%] z-20 h-[88%] sm:right-[-4%] sm:h-[98%] xl:right-[-5%] xl:h-[104%]"
         initial={reduceMotion ? false : { opacity: 0, x: 32 }}
         animate={{ opacity: 1, x: 0 }}
         transition={{ duration: 0.85, delay: 0.22, ease: [0.22, 1, 0.36, 1] }}
@@ -342,7 +339,7 @@ const SalesPage = () => {
         )}
         aria-hidden={!showHeader}
       >
-        <div className="mx-auto flex h-[70px] max-w-6xl items-center justify-between rounded-[22px] border border-white/80 bg-[#f7fbff]/90 px-4 shadow-[0_18px_45px_-28px_rgba(15,47,107,0.5)] backdrop-blur-xl dark:border-white/10 dark:bg-slate-950/85 sm:px-7">
+        <div className="mx-auto flex h-[70px] max-w-7xl items-center justify-between rounded-[22px] border border-white/80 bg-[#f7fbff]/90 px-4 shadow-[0_18px_45px_-28px_rgba(15,47,107,0.5)] backdrop-blur-xl dark:border-white/10 dark:bg-slate-950/85 sm:px-7">
           <button className="flex items-center gap-2.5 rounded-lg focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary" onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })} aria-label="Voltar ao início" tabIndex={showHeader ? 0 : -1}>
             <img src={vizzuIcon} alt="VIZZU" className="h-12 w-12 object-contain drop-shadow-sm" />
             <span className="text-2xl font-black tracking-[0.06em] text-[#0F2F6B] dark:text-white">VIZZU</span>
@@ -354,56 +351,56 @@ const SalesPage = () => {
             <a href="#duvidas" className="transition-colors hover:text-primary" tabIndex={showHeader ? 0 : -1}>Dúvidas</a>
           </nav>
           <div className="flex items-center gap-2 sm:gap-3">
-            {themeReady && <ThemeSwitch isDark={isDark} onToggle={toggleTheme} compact />}
+            {themeReady && <ThemeSwitch isDark={isDark} onToggle={toggleTheme} />}
             <Button variant="ghost" className="hidden font-semibold text-primary sm:inline-flex" onClick={() => navigate('/login')} tabIndex={showHeader ? 0 : -1}>Entrar</Button>
             <Button className="rounded-xl px-4 shadow-lg shadow-primary/25 sm:px-5" onClick={() => navigate('/cadastro?plano=trial')} tabIndex={showHeader ? 0 : -1}>Testar grátis <ArrowRight className="ml-2 h-4 w-4" /></Button>
           </div>
         </div>
       </header>
       <main>
-        <section className="relative isolate overflow-hidden px-4 pb-12 pt-8 sm:px-6 sm:pt-10 lg:min-h-[720px] lg:pb-16">
+        <section className="relative isolate overflow-hidden px-4 pb-12 pt-7 sm:px-6 sm:pt-10 lg:min-h-[720px] lg:pb-16">
           <div className="pointer-events-none absolute inset-0 -z-20 bg-white dark:bg-[radial-gradient(circle_at_16%_18%,rgba(37,99,235,0.2),transparent_34%),radial-gradient(circle_at_84%_10%,rgba(99,102,241,0.16),transparent_30%),linear-gradient(135deg,#020617_0%,#071b3e_50%,#030712_100%)]" />
           <motion.div className="pointer-events-none absolute -left-32 top-10 -z-10 h-96 w-96 rounded-full border border-blue-300/30 dark:border-blue-400/10" animate={reduceMotion ? undefined : { scale: [1, 1.08, 1], x: [0, 18, 0] }} transition={{ duration: 10, repeat: Infinity, ease: 'easeInOut' }} />
           <motion.div className="pointer-events-none absolute -right-28 top-20 -z-10 h-[420px] w-[420px] rounded-full border border-blue-300/30 dark:border-blue-400/10" animate={reduceMotion ? undefined : { scale: [1.08, 1, 1.08], y: [0, 20, 0] }} transition={{ duration: 12, repeat: Infinity, ease: 'easeInOut' }} />
-          <div className="mx-auto grid max-w-[1600px] items-center gap-8 lg:grid-cols-[380px_minmax(0,1fr)] lg:gap-4 xl:grid-cols-[420px_minmax(0,1fr)]">
+          <div className="mx-auto grid max-w-7xl items-center gap-5 sm:gap-8 lg:grid-cols-[360px_minmax(0,1fr)] lg:gap-3 xl:grid-cols-[390px_minmax(0,1fr)] xl:gap-5">
             <motion.div
               className="relative z-30"
               initial={reduceMotion ? false : { opacity: 0, y: 30 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.8, ease: [0.22, 1, 0.36, 1] }}
             >
-              <div className="mb-6 flex items-center gap-3 sm:gap-4">
+              <div className="mb-5 flex items-center gap-3 pr-12 sm:mb-6 sm:gap-4 sm:pr-0">
                 <img
                   src={vizzuIcon}
                   alt="Logo VIZZU"
-                  className="h-24 w-24 shrink-0 object-contain drop-shadow-[0_20px_25px_rgba(37,99,235,0.24)] sm:h-32 sm:w-32"
+                   className="h-20 w-20 shrink-0 object-contain drop-shadow-[0_20px_25px_rgba(37,99,235,0.24)] min-[440px]:h-24 min-[440px]:w-24 sm:h-28 sm:w-28 lg:h-24 lg:w-24 xl:h-28 xl:w-28"
                 />
                 <div>
-                  <p className="text-[42px] font-black leading-none tracking-[0.08em] text-[#0F2F6B] sm:text-[58px] dark:text-white">VIZZU</p>
-                  <p className="mt-3 flex items-center gap-1.5 text-[10px] font-bold text-primary sm:text-xs">
+                  <p className="text-[38px] font-black leading-none tracking-[0.08em] text-[#0F2F6B] min-[440px]:text-[42px] sm:text-[52px] lg:text-[44px] xl:text-[52px] dark:text-white">VIZZU</p>
+                  <p className="mt-2 flex max-w-[220px] items-center gap-1.5 text-[9px] font-bold leading-4 text-primary min-[440px]:text-[10px] sm:max-w-none sm:text-xs lg:text-[10px] xl:text-[11px]">
                     <Zap className="h-3.5 w-3.5 shrink-0" weight="duotone" /> Gestão completa para negócios de serviços
                   </p>
                 </div>
               </div>
-              <div className="relative h-[190px] min-[440px]:h-[150px] sm:h-[150px] lg:h-[188px]">
-                <h1 className="absolute inset-x-0 top-0 z-40 max-w-2xl text-4xl font-black leading-[1.03] tracking-[-0.045em] lg:text-[48px]">
+              <div className="relative h-[150px] min-[440px]:h-[125px] sm:h-[140px] lg:h-[178px]">
+                <h1 className="absolute inset-x-0 top-0 z-40 max-w-2xl text-[34px] font-black leading-[1.04] tracking-[-0.045em] min-[440px]:text-4xl sm:text-[42px] lg:text-[44px] xl:text-[48px]">
                   {heroMessages[heroMessageIndex].first}{' '}
                   <span className="bg-gradient-to-r from-[#2878ef] via-[#1557b8] to-[#0F2F6B] bg-clip-text text-transparent dark:from-blue-300 dark:to-blue-100">
                     {heroMessages[heroMessageIndex].second}
                   </span>
                 </h1>
               </div>
-              <p className="mt-5 max-w-xl text-[15px] leading-6 text-slate-600 dark:text-slate-300">
+              <p className="mt-3 max-w-xl text-sm leading-6 text-slate-600 sm:mt-5 sm:text-[15px] dark:text-slate-300">
                 Centralize agendamentos, clientes, equipe e financeiro em um sistema simples de usar. Enquanto o VIZZU organiza a operação, você ganha tempo para atender melhor e crescer.
               </p>
-              <div className="mt-6 flex flex-col gap-3 sm:flex-row">
-                <Button size="lg" className="group h-13 rounded-xl px-7 text-base shadow-lg shadow-primary/25 transition-transform hover:-translate-y-0.5" onClick={() => navigate('/cadastro?plano=trial')}>
+              <div className="mt-5 flex flex-col gap-3 sm:mt-6 sm:flex-row">
+                <Button size="lg" className="group h-13 w-full rounded-xl px-7 text-base shadow-lg shadow-primary/25 transition-transform hover:-translate-y-0.5 min-[440px]:w-auto" onClick={() => navigate('/cadastro?plano=trial')}>
                   Testar grátis por 7 dias <ArrowRight className="ml-2 h-5 w-5 transition-transform group-hover:translate-x-1" />
                 </Button>
               </div>
-              <div className="mt-5 grid grid-cols-3 items-center gap-x-2 text-[10px] font-medium text-slate-600 dark:text-slate-300 xl:text-[11px]">
+              <div className="mt-4 grid grid-cols-3 items-start gap-x-1 text-[9px] font-medium leading-4 text-slate-600 min-[440px]:gap-x-2 min-[440px]:text-[10px] sm:mt-5 dark:text-slate-300 xl:text-[11px]">
                 {['Sem cartão de crédito', 'Configuração guiada', 'Cancele quando quiser'].map((item) => (
-                  <span key={item} className="flex items-center gap-1 whitespace-nowrap"><Check className="h-3.5 w-3.5 shrink-0 text-emerald-500" />{item}</span>
+                  <span key={item} className="flex items-start gap-1"><Check className="mt-0.5 h-3.5 w-3.5 shrink-0 text-emerald-500" /><span>{item}</span></span>
                 ))}
               </div>
             </motion.div>
@@ -411,7 +408,7 @@ const SalesPage = () => {
               <HeroShowcase />
             </div>
           </div>
-          <Reveal className="mx-auto mt-14 flex max-w-7xl flex-col gap-6 rounded-2xl border border-blue-100 bg-white px-6 py-5 shadow-[0_16px_44px_-30px_rgba(15,47,107,0.4)] dark:border-white/10 dark:bg-slate-900/70 lg:flex-row lg:items-center lg:gap-8">
+          <Reveal className="mx-auto mt-8 flex max-w-7xl flex-col gap-6 rounded-2xl border border-blue-100 bg-white px-5 py-5 shadow-[0_16px_44px_-30px_rgba(15,47,107,0.4)] sm:mt-14 sm:px-6 dark:border-white/10 dark:bg-slate-900/70 lg:flex-row lg:items-center lg:gap-8">
             <div className="flex shrink-0 flex-col gap-4 sm:flex-row sm:items-center sm:gap-7">
               <div className="flex items-start gap-2.5">
                 <Star className="mt-0.5 h-5 w-5 fill-amber-400 text-amber-400" weight="fill" />
@@ -438,7 +435,7 @@ const SalesPage = () => {
             </div>
           </Reveal>
 
-          <Reveal className="mx-auto mt-7 grid max-w-7xl gap-4 sm:grid-cols-2 lg:grid-cols-4">
+          <Reveal className="mx-auto mt-5 grid max-w-7xl gap-4 sm:mt-7 sm:grid-cols-2 lg:grid-cols-4">
             {proofHighlights.map((item) => <motion.div whileHover={reduceMotion ? undefined : { y: -6 }} key={item.label} className="flex min-h-[238px] flex-col rounded-2xl border border-blue-100 bg-white px-6 py-6 shadow-[0_18px_42px_-26px_rgba(15,47,107,0.45)] dark:border-white/10 dark:bg-slate-900/70"><span className={cn('flex h-12 w-12 shrink-0 items-center justify-center rounded-full shadow-sm', item.color)}><item.icon className="h-6 w-6" weight="duotone" /></span><div className="mt-5"><p className="text-lg font-black text-slate-950 dark:text-white">{item.value}</p><p className="mt-2 text-sm font-bold leading-5 text-slate-800 dark:text-slate-100">{item.label}</p><p className="mt-3 text-xs leading-5 text-slate-500 dark:text-slate-400">{item.detail}</p></div></motion.div>)}
           </Reveal>
 
