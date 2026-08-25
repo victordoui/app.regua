@@ -5,7 +5,6 @@ import { motion, useReducedMotion, useScroll, useTransform } from 'framer-motion
 import { useTheme } from 'next-themes';
 import {
   ArrowRightIcon as ArrowRight,
-  BarbellIcon,
   ChartLineUpIcon as BarChart3,
   CalendarCheckIcon as CalendarDays,
   CheckIcon as Check,
@@ -45,6 +44,11 @@ import heroDashboard from '@/assets/sales/vizzu-sales-dashboard-barbershop.png';
 import heroWoman from '@/assets/sales/vizzu-sales-woman-left.png';
 import heroMan from '@/assets/sales/vizzu-sales-man-right.png';
 import mobileDashboard from '@/assets/sales/vizzu-mobile-dashboard.png';
+import marshallsBarberLogo from '@/assets/sales/trusted-logos/marshalls-barber.png';
+import studioBeautyLogo from '@/assets/sales/trusted-logos/studio-beauty.png';
+import clinicaBemEstarLogo from '@/assets/sales/trusted-logos/clinica-bem-estar.png';
+import petCareLogo from '@/assets/sales/trusted-logos/petcare.png';
+import fitnessClubLogo from '@/assets/sales/trusted-logos/fitness-club.png';
 import type { PlanConfig } from '@/types/superAdmin';
 import { DEFAULT_PUBLIC_PLANS } from '@/lib/publicPlans';
 
@@ -125,11 +129,11 @@ const proofHighlights = [
 ];
 
 const trustedBusinesses = [
-  { name: 'Marshalls', detail: 'BARBER', icon: ScissorsIcon, style: 'font-serif tracking-[0.08em]' },
-  { name: 'Studio Beauty', detail: 'BEAUTY', icon: FlowerLotusIcon, style: 'font-serif' },
-  { name: 'CLÍNICA', detail: 'BEM ESTAR', icon: StethoscopeIcon, style: 'tracking-[0.08em]' },
-  { name: 'PetCare', detail: 'CLÍNICA VETERINÁRIA', icon: PawPrintIcon, style: 'font-serif' },
-  { name: 'fitness', detail: 'CLUB', icon: BarbellIcon, style: 'tracking-[0.08em]' },
+  { name: 'Marshalls Barber', logo: marshallsBarberLogo },
+  { name: 'Studio Beauty', logo: studioBeautyLogo },
+  { name: 'Clínica Bem Estar', logo: clinicaBemEstarLogo },
+  { name: 'PetCare Clínica Veterinária', logo: petCareLogo },
+  { name: 'Fitness Club', logo: fitnessClubLogo },
 ];
 
 const heroMessages = [
@@ -245,7 +249,7 @@ const HeroShowcase = () => {
         <motion.img
           src={heroDashboard}
           alt="Dashboard VIZZU com agenda, indicadores e gestão financeira"
-          className="w-[92%] max-w-[900px] rounded-xl object-contain shadow-[0_32px_70px_-38px_rgba(15,47,107,0.48)] sm:w-[88%] sm:rounded-2xl xl:w-[86%]"
+          className="w-[104%] max-w-[1080px] rounded-xl object-contain shadow-[0_32px_70px_-38px_rgba(15,47,107,0.48)] sm:w-[103%] sm:rounded-2xl xl:w-[106%]"
           initial={reduceMotion ? false : { opacity: 0, scale: 0.97 }}
           animate={{ opacity: 1, scale: 1 }}
           transition={{ duration: 0.72, delay: 0.08, ease: [0.22, 1, 0.36, 1] }}
@@ -260,7 +264,7 @@ const HeroShowcase = () => {
         <img
           src={heroWoman}
           alt="Profissional utilizando o VIZZU em um tablet"
-          className="h-full w-auto -scale-x-100 object-contain"
+          className="h-full w-auto object-contain"
         />
       </motion.div>
       <motion.div
@@ -319,7 +323,7 @@ const SalesPage = () => {
     if (reduceMotion) return undefined;
     const messageTimer = window.setInterval(() => {
       setHeroMessageIndex((current) => (current + 1) % heroMessages.length);
-    }, 4200);
+    }, 7000);
     return () => window.clearInterval(messageTimer);
   }, [reduceMotion]);
 
@@ -358,7 +362,7 @@ const SalesPage = () => {
         </div>
       </header>
       <main>
-        <section className="relative isolate overflow-hidden px-4 pb-12 pt-7 sm:px-6 sm:pt-10 lg:min-h-[720px] lg:pb-16">
+        <section className="relative isolate overflow-hidden px-4 pb-6 pt-7 sm:px-6 sm:pb-8 sm:pt-10 lg:min-h-[680px] lg:pb-8">
           <div className="pointer-events-none absolute inset-0 -z-20 bg-white dark:bg-[radial-gradient(circle_at_16%_18%,rgba(37,99,235,0.2),transparent_34%),radial-gradient(circle_at_84%_10%,rgba(99,102,241,0.16),transparent_30%),linear-gradient(135deg,#020617_0%,#071b3e_50%,#030712_100%)]" />
           <motion.div className="pointer-events-none absolute -left-32 top-10 -z-10 h-96 w-96 rounded-full border border-blue-300/30 dark:border-blue-400/10" animate={reduceMotion ? undefined : { scale: [1, 1.08, 1], x: [0, 18, 0] }} transition={{ duration: 10, repeat: Infinity, ease: 'easeInOut' }} />
           <motion.div className="pointer-events-none absolute -right-28 top-20 -z-10 h-[420px] w-[420px] rounded-full border border-blue-300/30 dark:border-blue-400/10" animate={reduceMotion ? undefined : { scale: [1.08, 1, 1.08], y: [0, 20, 0] }} transition={{ duration: 12, repeat: Infinity, ease: 'easeInOut' }} />
@@ -382,8 +386,8 @@ const SalesPage = () => {
                   </p>
                 </div>
               </div>
-              <div className="relative h-[150px] min-[440px]:h-[125px] sm:h-[140px] lg:h-[178px]">
-                <h1 className="absolute inset-x-0 top-0 z-40 max-w-2xl text-[34px] font-black leading-[1.04] tracking-[-0.045em] min-[440px]:text-4xl sm:text-[42px] lg:text-[44px] xl:text-[48px]">
+              <div className="relative h-[175px] min-[440px]:h-[155px] sm:h-[170px] lg:h-[205px] xl:h-[210px]">
+                <h1 className="absolute inset-x-0 top-0 z-40 max-w-2xl text-balance text-[38px] font-black leading-[0.98] tracking-[-0.055em] min-[440px]:text-[42px] sm:text-[46px] lg:text-[48px] xl:text-[52px]">
                   {heroMessages[heroMessageIndex].first}{' '}
                   <span className="bg-gradient-to-r from-[#2878ef] via-[#1557b8] to-[#0F2F6B] bg-clip-text text-transparent dark:from-blue-300 dark:to-blue-100">
                     {heroMessages[heroMessageIndex].second}
@@ -408,7 +412,7 @@ const SalesPage = () => {
               <HeroShowcase />
             </div>
           </div>
-          <Reveal className="mx-auto mt-8 flex max-w-7xl flex-col gap-6 rounded-2xl border border-blue-100 bg-white px-5 py-5 shadow-[0_16px_44px_-30px_rgba(15,47,107,0.4)] sm:mt-14 sm:px-6 dark:border-white/10 dark:bg-slate-900/70 lg:flex-row lg:items-center lg:gap-8">
+          <Reveal className="mx-auto mt-3 flex max-w-7xl flex-col gap-6 rounded-2xl border border-blue-100 bg-white px-5 py-5 shadow-[0_16px_44px_-30px_rgba(15,47,107,0.4)] sm:mt-6 sm:px-6 dark:border-white/10 dark:bg-slate-900/70 lg:flex-row lg:items-center lg:gap-8">
             <div className="flex shrink-0 flex-col gap-4 sm:flex-row sm:items-center sm:gap-7">
               <div className="flex items-start gap-2.5">
                 <Star className="mt-0.5 h-5 w-5 fill-amber-400 text-amber-400" weight="fill" />
@@ -424,22 +428,22 @@ const SalesPage = () => {
             <div className="hidden h-14 w-px bg-slate-200 lg:block dark:bg-slate-700" />
             <div className="grid flex-1 grid-cols-2 items-center gap-x-5 gap-y-5 sm:grid-cols-3 lg:grid-cols-5">
               {trustedBusinesses.map((business) => (
-                <div key={business.name} className="group flex items-center justify-center gap-2 text-slate-400 grayscale transition duration-300 hover:text-slate-600 hover:grayscale-0 dark:hover:text-slate-200">
-                  <business.icon className="h-7 w-7 shrink-0 opacity-75" weight="duotone" />
-                  <div className="min-w-0 leading-none">
-                    <p className={cn('whitespace-nowrap text-sm font-semibold', business.style)}>{business.name}</p>
-                    <p className="mt-1 whitespace-nowrap text-[7px] font-bold tracking-[0.13em] opacity-75">{business.detail}</p>
-                  </div>
+                <div key={business.name} className="group flex h-14 items-center justify-center px-1">
+                  <img
+                    src={business.logo}
+                    alt={`Logo ${business.name}`}
+                    className="max-h-11 w-full max-w-[150px] object-contain opacity-55 grayscale transition duration-300 group-hover:opacity-85 dark:invert dark:opacity-65 dark:group-hover:opacity-90"
+                  />
                 </div>
               ))}
             </div>
           </Reveal>
 
-          <Reveal className="mx-auto mt-5 grid max-w-7xl gap-4 sm:mt-7 sm:grid-cols-2 lg:grid-cols-4">
+          <Reveal className="mx-auto mt-4 grid max-w-7xl gap-4 sm:mt-5 sm:grid-cols-2 lg:grid-cols-4">
             {proofHighlights.map((item) => <motion.div whileHover={reduceMotion ? undefined : { y: -6 }} key={item.label} className="flex min-h-[238px] flex-col rounded-2xl border border-blue-100 bg-white px-6 py-6 shadow-[0_18px_42px_-26px_rgba(15,47,107,0.45)] dark:border-white/10 dark:bg-slate-900/70"><span className={cn('flex h-12 w-12 shrink-0 items-center justify-center rounded-full shadow-sm', item.color)}><item.icon className="h-6 w-6" weight="duotone" /></span><div className="mt-5"><p className="text-lg font-black text-slate-950 dark:text-white">{item.value}</p><p className="mt-2 text-sm font-bold leading-5 text-slate-800 dark:text-slate-100">{item.label}</p><p className="mt-3 text-xs leading-5 text-slate-500 dark:text-slate-400">{item.detail}</p></div></motion.div>)}
           </Reveal>
 
-          <Reveal className="mx-auto mt-7 flex max-w-7xl flex-col items-start justify-between gap-5 rounded-2xl bg-gradient-to-r from-[#194fae] via-[#286fe7] to-[#17499e] px-7 py-6 text-white shadow-[0_22px_55px_-30px_rgba(29,78,216,0.75)] sm:flex-row sm:items-center">
+          <Reveal className="mx-auto mt-5 flex max-w-7xl flex-col items-start justify-between gap-5 rounded-2xl bg-gradient-to-r from-[#194fae] via-[#286fe7] to-[#17499e] px-7 py-6 text-white shadow-[0_22px_55px_-30px_rgba(29,78,216,0.75)] sm:flex-row sm:items-center">
             <div><p className="text-xl font-black text-white">Pronto para organizar seu negócio e crescer?</p><p className="mt-1 text-sm text-blue-100">Comece agora. São 7 dias grátis e você não precisa cadastrar cartão.</p></div>
             <Button size="lg" variant="secondary" className="shrink-0 rounded-xl !bg-white px-7 font-bold !text-[#174a9e] shadow-lg hover:!bg-blue-50" onClick={() => navigate('/cadastro?plano=trial')}>Testar grátis por 7 dias <ArrowRight className="ml-2 h-4 w-4" /></Button>
           </Reveal>
