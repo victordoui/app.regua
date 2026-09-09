@@ -24,7 +24,12 @@ Deno.serve(async (request) => {
   }
 
   const supabaseUrl = Deno.env.get("SUPABASE_URL");
-  const anonKey = Deno.env.get("SUPABASE_ANON_KEY");
+  const publishableKeys = Deno.env.get("SUPABASE_PUBLISHABLE_KEYS");
+  let defaultPublishableKey: string | undefined;
+  if (publishableKeys) {
+    try { defaultPublishableKey = JSON.parse(publishableKeys)?.default; } catch { /* optional */ }
+  }
+  const anonKey = Deno.env.get("SUPABASE_ANON_KEY") || defaultPublishableKey;
   const appUrl = Deno.env.get("PUBLIC_APP_URL");
 
   if (!supabaseUrl || !anonKey || !appUrl) {
@@ -35,7 +40,7 @@ Deno.serve(async (request) => {
   const supabase = createClient(supabaseUrl, anonKey);
   const { data: business, error } = await supabase
     .from("public_business_profile")
-    .select("company_name, slogan, logo_url, banner_url, meta_title, meta_description")
+    .select("company_name, slogan, logo_url, banner_url")
     .eq("user_id", businessId)
     .maybeSingle();
 
@@ -44,8 +49,8 @@ Deno.serve(async (request) => {
   }
 
   const bookingUrl = new URL(`/b/${businessId}/login`, appUrl).toString();
-  const title = business.meta_title || `${business.company_name} — Agendamento online`;
-  const description = business.meta_description || business.slogan || `Agende seu horário na ${business.company_name}.`;
+  const title = `${business.company_name} — Agendamento online`;
+  const description = business.slogan || `Agende seu horário na ${business.company_name}.`;
   const image = business.logo_url || business.banner_url || new URL("/pwa-icon-512.png", appUrl).toString();
 
   return htmlResponse(`<!doctype html>
