@@ -141,7 +141,7 @@ const PlanConfiguration = () => {
                     </p>
                   )}
                   <p className="text-muted-foreground">
-                    <strong className="text-foreground">{plan.max_barbers}</strong> barbeiros
+                    <strong className="text-foreground">{plan.max_barbers}</strong> profissionais
                   </p>
                   <p className="text-muted-foreground">
                     <strong className="text-foreground">{plan.max_appointments_month}</strong> agendamentos/mês
@@ -243,7 +243,7 @@ const PlanConfiguration = () => {
 
                 <div className="grid grid-cols-2 gap-4">
                   <div className="space-y-2">
-                    <label className="text-sm font-medium">Máx. Barbeiros</label>
+                    <label className="text-sm font-medium">Máx. Profissionais</label>
                     <Input
                       type="number"
                       value={formData.max_barbers}

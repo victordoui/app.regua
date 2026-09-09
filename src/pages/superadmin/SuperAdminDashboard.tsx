@@ -49,7 +49,7 @@ const ROLE_ICONS: Record<string, React.ComponentType<{ className?: string }>> = 
 const ROLE_LABELS: Record<string, string> = {
   super_admin: 'Super Admin',
   admin: 'Admin',
-  barbeiro: 'Barbeiro',
+  barbeiro: 'Profissional',
   cliente: 'Cliente',
 };
 

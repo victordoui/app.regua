@@ -1,1 +1,4 @@
 project_id = "yjuqixthmwgnzkjummaf"
+
+[functions.booking-share]
+verify_jwt = false

@@ -296,6 +296,8 @@ export type Database = {
           instagram_url: string | null
           is_public_page_enabled: boolean | null
           logo_url: string | null
+          meta_description: string | null
+          meta_title: string | null
           noshow_fee_amount: number | null
           noshow_fee_enabled: boolean | null
           onboarding_completed: boolean | null
@@ -322,6 +324,8 @@ export type Database = {
           instagram_url?: string | null
           is_public_page_enabled?: boolean | null
           logo_url?: string | null
+          meta_description?: string | null
+          meta_title?: string | null
           noshow_fee_amount?: number | null
           noshow_fee_enabled?: boolean | null
           onboarding_completed?: boolean | null
@@ -348,6 +352,8 @@ export type Database = {
           instagram_url?: string | null
           is_public_page_enabled?: boolean | null
           logo_url?: string | null
+          meta_description?: string | null
+          meta_title?: string | null
           noshow_fee_amount?: number | null
           noshow_fee_enabled?: boolean | null
           onboarding_completed?: boolean | null
@@ -2511,6 +2517,8 @@ export type Database = {
           facebook_url: string | null
           instagram_url: string | null
           logo_url: string | null
+          meta_description: string | null
+          meta_title: string | null
           phone: string | null
           primary_color_hex: string | null
           secondary_color_hex: string | null

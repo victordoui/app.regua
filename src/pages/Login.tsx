@@ -3,7 +3,7 @@ import { useNavigate, useSearchParams } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { useToast } from "@/hooks/use-toast";
-import { Eye, EyeOff, Mail, Lock, ArrowRight, Calendar, CheckCircle, BarChart3 } from "lucide-react";
+import { Eye, EyeOff, Mail, Lock, ArrowRight, Calendar, CheckCircle, BarChart3, Shield, Crown, Scissors, UserRound } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
 import { motion, AnimatePresence } from "framer-motion";
 import { useForm } from "react-hook-form";
@@ -26,6 +26,8 @@ const loginSchema = z.object({
 });
 
 type LoginFormValues = z.infer<typeof loginSchema>;
+
+const TEST_PASSWORD = "admin123456";
 
 const Login = () => {
   const [loading, setLoading] = useState(false);
@@ -113,6 +115,33 @@ const Login = () => {
     } catch (error: unknown) {
       console.error("Erro no login:", error);
       toast({ title: "Erro no login", description: "Ocorreu um erro inesperado", variant: "destructive" });
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const quickAccounts = [
+    { label: "Admin", email: "admin@naregua.com", icon: Shield },
+    { label: "Super Admin", email: "superadmin@naregua.com", icon: Crown },
+    { label: "Profissional", email: "barbeiro@naregua.com", icon: Scissors },
+    { label: "Cliente", email: "qa.cliente.e2e@naregua.com", icon: UserRound },
+  ];
+
+  const quickLogin = async (email: string) => {
+    setLoading(true);
+    try {
+      loginForm.setValue("email", email);
+      loginForm.setValue("password", TEST_PASSWORD);
+      const { error, success } = await signIn(email, TEST_PASSWORD);
+      if (error) {
+        toast({ title: "Erro no acesso rápido", description: error.message || "Credenciais inválidas", variant: "destructive" });
+      } else if (success) {
+        toast({ title: "Acesso rápido", description: `Entrando como ${email}` });
+        await redirectByRole();
+      }
+    } catch (error: unknown) {
+      console.error("Erro no acesso rápido:", error);
+      toast({ title: "Erro no acesso rápido", description: "Ocorreu um erro inesperado", variant: "destructive" });
     } finally {
       setLoading(false);
     }
@@ -336,6 +365,30 @@ const Login = () => {
                     <button type="button" onClick={requestPasswordRecovery} disabled={loading} className="font-semibold text-primary hover:underline">
                       Enviar link para recuperar acesso
                     </button>
+                  </div>
+                )}
+
+                {import.meta.env.DEV && (
+                  <div className="mt-8 rounded-2xl border border-dashed border-border bg-muted/30 p-4">
+                    <p className="mb-3 text-center text-xs font-semibold uppercase tracking-wide text-muted-foreground">
+                      Acesso rápido para testes
+                    </p>
+                    <div className="grid grid-cols-2 gap-2">
+                      {quickAccounts.map((account) => (
+                        <Button
+                          key={account.email}
+                          type="button"
+                          variant="outline"
+                          size="sm"
+                          disabled={loading}
+                          onClick={() => quickLogin(account.email)}
+                          className="h-10 justify-start gap-2 rounded-xl text-xs font-semibold"
+                        >
+                          <account.icon className="h-4 w-4 text-primary" />
+                          {account.label}
+                        </Button>
+                      ))}
+                    </div>
                   </div>
                 )}
 

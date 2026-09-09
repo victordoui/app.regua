@@ -14,7 +14,7 @@ import { ptBR } from 'date-fns/locale';
 const ROLE_LABELS: Record<string, string> = {
   super_admin: 'Super Admin',
   admin: 'Admin',
-  barbeiro: 'Barbeiro',
+  barbeiro: 'Profissional',
   cliente: 'Cliente',
 };
 
@@ -114,7 +114,7 @@ const SystemUsers = () => {
                   <SelectItem value="all">Todas as roles</SelectItem>
                   <SelectItem value="super_admin">Super Admin</SelectItem>
                   <SelectItem value="admin">Admin</SelectItem>
-                  <SelectItem value="barbeiro">Barbeiro</SelectItem>
+                  <SelectItem value="barbeiro">Profissional</SelectItem>
                   <SelectItem value="cliente">Cliente</SelectItem>
                 </SelectContent>
               </Select>

@@ -68,6 +68,8 @@ const initialFormData: CompanySettingsFormData = {
   instagram_url: "",
   facebook_url: "",
   whatsapp_number: "",
+  meta_title: "",
+  meta_description: "",
   cancellation_hours_before: 24,
   allow_online_cancellation: true,
   buffer_minutes: 0,
@@ -81,8 +83,6 @@ const CompanySettings = () => {
   const currentTab = tabAliases[rawTab] || rawTab;
   const { settings, isLoading, saveSettings, isSaving } = useCompanySettings();
   const [formData, setFormData] = useState<CompanySettingsFormData>(initialFormData);
-  const [metaTitle, setMetaTitle] = useState("");
-  const [metaDescription, setMetaDescription] = useState("");
 
   useEffect(() => {
     if (!settings) return;
@@ -100,6 +100,8 @@ const CompanySettings = () => {
       instagram_url: settings.instagram_url || "",
       facebook_url: settings.facebook_url || "",
       whatsapp_number: settings.whatsapp_number || "",
+      meta_title: settings.meta_title || "",
+      meta_description: settings.meta_description || "",
       cancellation_hours_before: settings.cancellation_hours_before ?? 24,
       allow_online_cancellation: settings.allow_online_cancellation ?? true,
       buffer_minutes: settings.buffer_minutes ?? 0,
@@ -120,11 +122,14 @@ const CompanySettings = () => {
   const clientBookingLink = settings?.user_id
     ? `${window.location.origin}/b/${settings.user_id}/login`
     : null;
+  const shareBookingLink = settings?.user_id
+    ? `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/booking-share/${settings.user_id}`
+    : null;
 
   const handleCopyClientLink = async () => {
-    if (!clientBookingLink) return;
-    await navigator.clipboard.writeText(clientBookingLink);
-    toast.success("Link copiado. Agora você já pode enviar aos clientes.");
+    if (!shareBookingLink) return;
+    await navigator.clipboard.writeText(shareBookingLink);
+    toast.success("Link compartilhável copiado. Ele exibirá a identidade do seu negócio na prévia.");
   };
 
   const handleOpenClientLink = () => {
@@ -132,8 +137,8 @@ const CompanySettings = () => {
   };
 
   const handleShareWhatsApp = () => {
-    if (!clientBookingLink) return;
-    const message = encodeURIComponent(`Agende seu horário em ${formData.company_name || "nossa barbearia"}: ${clientBookingLink}`);
+    if (!shareBookingLink) return;
+    const message = encodeURIComponent(`Agende seu horário em ${formData.company_name || "nossa barbearia"}: ${shareBookingLink}`);
     window.open(`https://wa.me/?text=${message}`, "_blank");
   };
 
@@ -281,7 +286,7 @@ const CompanySettings = () => {
                     </div>
                   </FormSection>
 
-                  <SeoMetaFields metaTitle={metaTitle} metaDescription={metaDescription} companyName={formData.company_name} onMetaTitleChange={setMetaTitle} onMetaDescriptionChange={setMetaDescription} />
+                  <SeoMetaFields metaTitle={formData.meta_title} metaDescription={formData.meta_description} companyName={formData.company_name} onMetaTitleChange={(meta_title) => setFormData((previous) => ({ ...previous, meta_title }))} onMetaDescriptionChange={(meta_description) => setFormData((previous) => ({ ...previous, meta_description }))} />
                 </TabsContent>
 
                 <TabsContent value="agendamento" className="mt-0 space-y-6">
@@ -304,9 +309,10 @@ const CompanySettings = () => {
                     title="Link para seus clientes"
                     description="Copie, abra ou envie este endereço pelo WhatsApp."
                   >
-                    {clientBookingLink ? (
+                    {clientBookingLink && shareBookingLink ? (
                       <>
-                        <div className="break-all rounded-xl border border-border bg-muted/70 p-4 font-mono text-sm font-semibold text-foreground">{clientBookingLink}</div>
+                        <div className="break-all rounded-xl border border-border bg-muted/70 p-4 font-mono text-sm font-semibold text-foreground">{shareBookingLink}</div>
+                        <p className="text-sm text-muted-foreground">Ao compartilhar este link, a prévia mostrará o nome, a descrição e o logo configurados para sua empresa.</p>
                         <div className="flex flex-wrap gap-3">
                           <Button type="button" onClick={handleCopyClientLink} className="min-h-11"><Copy className="mr-2 h-4 w-4" />Copiar link</Button>
                           <Button type="button" variant="outline" onClick={handleOpenClientLink} className="min-h-11"><ExternalLink className="mr-2 h-4 w-4" />Abrir página</Button>

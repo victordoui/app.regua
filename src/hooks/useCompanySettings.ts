@@ -20,6 +20,8 @@ export interface CompanySettings {
   instagram_url: string | null;
   facebook_url: string | null;
   whatsapp_number: string | null;
+  meta_title: string | null;
+  meta_description: string | null;
   // Cancellation settings
   cancellation_hours_before: number;
   allow_online_cancellation: boolean;
@@ -44,6 +46,8 @@ export interface CompanySettingsFormData {
   instagram_url: string;
   facebook_url: string;
   whatsapp_number: string;
+  meta_title: string;
+  meta_description: string;
   // Cancellation settings
   cancellation_hours_before: number;
   allow_online_cancellation: boolean;
@@ -110,6 +114,8 @@ export const useCompanySettings = () => {
         instagram_url: formData.instagram_url || null,
         facebook_url: formData.facebook_url || null,
         whatsapp_number: formData.whatsapp_number || null,
+        meta_title: formData.meta_title.trim() || null,
+        meta_description: formData.meta_description.trim() || null,
         // Cancellation settings
         cancellation_hours_before: formData.cancellation_hours_before ?? 24,
         allow_online_cancellation: formData.allow_online_cancellation ?? true,
