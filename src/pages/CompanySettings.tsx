@@ -123,7 +123,7 @@ const CompanySettings = () => {
     ? `${window.location.origin}/b/${settings.user_id}/login`
     : null;
   const shareBookingLink = settings?.user_id
-    ? `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/booking-share/${settings.user_id}`
+    ? `${window.location.origin}/agendamento/${settings.user_id}`
     : null;
 
   const handleCopyClientLink = async () => {
