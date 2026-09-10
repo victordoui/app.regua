@@ -12,6 +12,7 @@ import { Separator } from '@/components/ui/separator';
 import { Eye, EyeOff, Mail, Lock, User, Phone, Loader2, ArrowLeft } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { motion } from 'framer-motion';
+import { isGoogleAuthEnabled } from '@/lib/authProviders';
 
 const registerSchema = z.object({
   fullName: z.string().min(3, 'Nome completo é obrigatório'),
@@ -152,6 +153,16 @@ const ClientRegister = () => {
     }
 
     setIsGoogleLoading(true);
+
+    if (!await isGoogleAuthEnabled()) {
+      toast({
+        variant: 'destructive',
+        title: 'Cadastro com Google indisponível',
+        description: 'O acesso pelo Google ainda está sendo configurado. Crie sua conta com email e senha por enquanto.',
+      });
+      setIsGoogleLoading(false);
+      return;
+    }
     sessionStorage.setItem(`client-contact:${userId}`, JSON.stringify({
       fullName: form.getValues('fullName') || null,
       phone: form.getValues('phone'),

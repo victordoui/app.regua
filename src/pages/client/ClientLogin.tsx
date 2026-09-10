@@ -12,6 +12,7 @@ import { Separator } from '@/components/ui/separator';
 import { Eye, EyeOff, Mail, Lock, Loader2, UserPlus } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { motion } from 'framer-motion';
+import { isGoogleAuthEnabled } from '@/lib/authProviders';
 
 const loginSchema = z.object({
   email: z.string().email('Email inválido'),
@@ -117,6 +118,16 @@ const ClientLogin = () => {
 
   const handleGoogleLogin = async () => {
     setIsGoogleLoading(true);
+
+    if (!await isGoogleAuthEnabled()) {
+      toast({
+        variant: 'destructive',
+        title: 'Entrar com Google indisponível',
+        description: 'O acesso pelo Google ainda está sendo configurado. Use seu email e senha por enquanto.',
+      });
+      setIsGoogleLoading(false);
+      return;
+    }
     
     const { error } = await supabase.auth.signInWithOAuth({
       provider: 'google',
