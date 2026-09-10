@@ -298,6 +298,9 @@ export type Database = {
           logo_url: string | null
           meta_description: string | null
           meta_title: string | null
+          share_description: string | null
+          share_slug: string | null
+          share_title: string | null
           noshow_fee_amount: number | null
           noshow_fee_enabled: boolean | null
           onboarding_completed: boolean | null
@@ -326,6 +329,9 @@ export type Database = {
           logo_url?: string | null
           meta_description?: string | null
           meta_title?: string | null
+          share_description?: string | null
+          share_slug?: string | null
+          share_title?: string | null
           noshow_fee_amount?: number | null
           noshow_fee_enabled?: boolean | null
           onboarding_completed?: boolean | null
@@ -354,6 +360,9 @@ export type Database = {
           logo_url?: string | null
           meta_description?: string | null
           meta_title?: string | null
+          share_description?: string | null
+          share_slug?: string | null
+          share_title?: string | null
           noshow_fee_amount?: number | null
           noshow_fee_enabled?: boolean | null
           onboarding_completed?: boolean | null
@@ -2519,6 +2528,9 @@ export type Database = {
           logo_url: string | null
           meta_description: string | null
           meta_title: string | null
+          share_description: string | null
+          share_slug: string | null
+          share_title: string | null
           phone: string | null
           primary_color_hex: string | null
           secondary_color_hex: string | null

@@ -27,6 +27,7 @@ import { BusinessHoursEditor } from "@/components/settings/BusinessHoursEditor";
 import { ColorPaletteSelector } from "@/components/settings/ColorPaletteSelector";
 import { SeoMetaFields } from "@/components/settings/SeoMetaFields";
 import { Button } from "@/components/ui/button";
+import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { FieldHelp, FormSection } from "@/components/ui/form-section";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -70,6 +71,9 @@ const initialFormData: CompanySettingsFormData = {
   whatsapp_number: "",
   meta_title: "",
   meta_description: "",
+  share_slug: "",
+  share_title: "",
+  share_description: "",
   cancellation_hours_before: 24,
   allow_online_cancellation: true,
   buffer_minutes: 0,
@@ -83,6 +87,7 @@ const CompanySettings = () => {
   const currentTab = tabAliases[rawTab] || rawTab;
   const { settings, isLoading, saveSettings, isSaving } = useCompanySettings();
   const [formData, setFormData] = useState<CompanySettingsFormData>(initialFormData);
+  const [isShareSettingsOpen, setIsShareSettingsOpen] = useState(false);
 
   useEffect(() => {
     if (!settings) return;
@@ -102,6 +107,9 @@ const CompanySettings = () => {
       whatsapp_number: settings.whatsapp_number || "",
       meta_title: settings.meta_title || "",
       meta_description: settings.meta_description || "",
+      share_slug: settings.share_slug || "",
+      share_title: settings.share_title || "",
+      share_description: settings.share_description || "",
       cancellation_hours_before: settings.cancellation_hours_before ?? 24,
       allow_online_cancellation: settings.allow_online_cancellation ?? true,
       buffer_minutes: settings.buffer_minutes ?? 0,
@@ -119,11 +127,13 @@ const CompanySettings = () => {
     await saveSettings(formData);
   };
 
+  const slugify = (value: string) => value.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "").replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "");
+  const effectiveShareSlug = formData.share_slug || slugify(formData.company_name) || "empresa";
   const clientBookingLink = settings?.user_id
     ? `${window.location.origin}/b/${settings.user_id}/login`
     : null;
   const shareBookingLink = settings?.user_id
-    ? `${window.location.origin}/agendamento/${(formData.company_name || "empresa").toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "").replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "")}-${settings.user_id}`
+    ? `${window.location.origin}/s/${effectiveShareSlug}`
     : null;
 
   const handleCopyClientLink = async () => {
@@ -144,7 +154,7 @@ const CompanySettings = () => {
 
   const handleShareWhatsApp = () => {
     if (!shareBookingLink) return;
-    const message = encodeURIComponent(`Agende seu horário em ${formData.company_name || "nossa barbearia"}: ${shareBookingLink}`);
+    const message = encodeURIComponent(`Olá! 👋\n\nAgende seu horário na ${formData.company_name || "nossa empresa"}:\n\n${shareBookingLink}\n\nEsperamos você!`);
     window.open(`https://wa.me/?text=${message}`, "_blank");
   };
 
@@ -345,6 +355,7 @@ const CompanySettings = () => {
                             <div className="mt-3 flex flex-wrap gap-3">
                               <Button type="button" onClick={handleCopyMaskedLink} className="min-h-11"><Copy className="mr-2 h-4 w-4" />Copiar personalizado</Button>
                               <Button type="button" variant="outline" onClick={handleShareWhatsApp} className="min-h-11"><MessageCircle className="mr-2 h-4 w-4" />Enviar no WhatsApp</Button>
+                              <Button type="button" variant="outline" onClick={() => setIsShareSettingsOpen(true)} className="min-h-11"><Share2 className="mr-2 h-4 w-4" />Personalizar link</Button>
                             </div>
                           </div>
                         </div>
@@ -355,6 +366,21 @@ const CompanySettings = () => {
                       </div>
                     )}
                   </FormSection>
+                  <Dialog open={isShareSettingsOpen} onOpenChange={setIsShareSettingsOpen}>
+                    <DialogContent>
+                      <DialogHeader>
+                        <DialogTitle>Personalizar link de agendamento</DialogTitle>
+                        <DialogDescription>Defina o endereço e as informações que aparecerão na prévia de compartilhamento.</DialogDescription>
+                      </DialogHeader>
+                      <div className="space-y-4">
+                        <div><Label htmlFor="share_slug">Endereço personalizado</Label><div className="mt-1 flex items-center gap-2"><span className="text-sm text-muted-foreground">/s/</span><Input id="share_slug" value={formData.share_slug || effectiveShareSlug} onChange={(event) => setFormData((previous) => ({ ...previous, share_slug: slugify(event.target.value) }))} minLength={3} maxLength={60} /></div><p className="mt-1 text-xs text-muted-foreground">Use letras minúsculas, números e hífens.</p></div>
+                        <div><Label htmlFor="share_title">Título da prévia</Label><Input id="share_title" className="mt-1" value={formData.share_title} onChange={(event) => setFormData((previous) => ({ ...previous, share_title: event.target.value }))} maxLength={60} placeholder={`${formData.company_name || "Sua empresa"} — Agendamento online`} /></div>
+                        <div><Label htmlFor="share_description">Descrição da prévia</Label><Input id="share_description" className="mt-1" value={formData.share_description} onChange={(event) => setFormData((previous) => ({ ...previous, share_description: event.target.value }))} maxLength={160} placeholder={formData.slogan || "Agende seu horário online."} /></div>
+                        <div className="rounded-lg border border-border bg-muted/40 p-3"><p className="text-sm font-semibold">Prévia em tempo real</p><p className="mt-1 text-sm">{formData.share_title || `${formData.company_name || "Sua empresa"} — Agendamento online`}</p><p className="text-xs text-muted-foreground">{formData.share_description || formData.slogan || "Agende seu horário online."}</p><p className="mt-1 text-xs text-muted-foreground">{shareBookingLink}</p></div>
+                      </div>
+                      <DialogFooter><Button type="button" onClick={() => { setIsShareSettingsOpen(false); toast.success("Personalização pronta. Clique em Salvar alterações para aplicar."); }}>Concluir</Button></DialogFooter>
+                    </DialogContent>
+                  </Dialog>
                   {clientBookingLink && <QRCodeGenerator url={clientBookingLink} companyName={formData.company_name || "Sua empresa"} />}
                 </TabsContent>
 
