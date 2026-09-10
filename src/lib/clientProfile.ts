@@ -3,9 +3,8 @@ import { supabase } from '@/integrations/supabase/client';
 /**
  * Garante que o cliente autenticado tenha um perfil vinculado à barbearia atual.
  *
- * Necessário porque, quando a confirmação de e-mail está ativa, o cadastro não
- * gera sessão — logo o perfil só pode ser criado no primeiro login (ou no
- * retorno do login social).
+ * Também conclui o perfil no retorno do login social, usando o telefone
+ * informado imediatamente antes do redirecionamento para o provedor.
  */
 export async function ensureClientProfile(barbershopUserId: string): Promise<void> {
   if (!barbershopUserId) return;
@@ -20,11 +19,19 @@ export async function ensureClientProfile(barbershopUserId: string): Promise<voi
     .eq('barbershop_user_id', barbershopUserId)
     .maybeSingle();
 
-  if (existing) return;
+  const pendingKey = `client-contact:${barbershopUserId}`;
+  const pendingRaw = sessionStorage.getItem(pendingKey);
+  let pending: { fullName?: string | null; phone?: string | null } = {};
+  try { pending = pendingRaw ? JSON.parse(pendingRaw) : {}; } catch { pending = {}; }
+
+  if (existing) {
+    sessionStorage.removeItem(pendingKey);
+    return;
+  }
 
   const metadata = (user.user_metadata || {}) as { full_name?: string; name?: string; phone?: string };
-  const fullName = metadata.full_name || metadata.name || user.email?.split('@')[0] || 'Cliente';
-  const phone = metadata.phone || null;
+  const fullName = pending.fullName || metadata.full_name || metadata.name || user.email?.split('@')[0] || 'Cliente';
+  const phone = pending.phone || metadata.phone || null;
 
   const { error } = await supabase
     .from('client_profiles')
@@ -37,5 +44,8 @@ export async function ensureClientProfile(barbershopUserId: string): Promise<voi
 
   if (error && error.code !== '23505') {
     console.error('Erro ao criar perfil do cliente:', error);
+    return;
   }
+
+  sessionStorage.removeItem(pendingKey);
 }

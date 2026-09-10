@@ -16,7 +16,12 @@ import { motion } from 'framer-motion';
 const registerSchema = z.object({
   fullName: z.string().min(3, 'Nome completo é obrigatório'),
   email: z.string().email('Email inválido'),
-  phone: z.string().optional(),
+  phone: z.string()
+    .min(1, 'Informe seu WhatsApp ou telefone')
+    .refine((value) => {
+      const digits = value.replace(/\D/g, '');
+      return digits.length === 10 || digits.length === 11;
+    }, 'Informe um telefone válido com DDD'),
   password: z.string().min(6, 'Mínimo 6 caracteres'),
   confirmPassword: z.string().min(6, 'Confirme a senha'),
 }).refine((data) => data.password === data.confirmPassword, {
@@ -136,7 +141,21 @@ const ClientRegister = () => {
   };
 
   const handleGoogleSignup = async () => {
+    const hasValidPhone = await form.trigger('phone');
+    if (!hasValidPhone) {
+      toast({
+        variant: 'destructive',
+        title: 'Informe seu WhatsApp',
+        description: 'Precisamos do contato para vincular você à empresa e aos seus agendamentos.',
+      });
+      return;
+    }
+
     setIsGoogleLoading(true);
+    sessionStorage.setItem(`client-contact:${userId}`, JSON.stringify({
+      fullName: form.getValues('fullName') || null,
+      phone: form.getValues('phone'),
+    }));
     
     const { error } = await supabase.auth.signInWithOAuth({
       provider: 'google',
@@ -260,7 +279,7 @@ const ClientRegister = () => {
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="phone">Telefone (opcional)</Label>
+              <Label htmlFor="phone">WhatsApp ou telefone *</Label>
               <div className="relative">
                 <Phone className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground" />
                 <Input
@@ -271,6 +290,9 @@ const ClientRegister = () => {
                   {...form.register('phone')}
                 />
               </div>
+              {form.formState.errors.phone && (
+                <p className="text-xs text-destructive">{form.formState.errors.phone.message}</p>
+              )}
             </div>
 
             <div className="space-y-2">

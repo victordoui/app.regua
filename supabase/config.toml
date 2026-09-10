@@ -1,4 +1,7 @@
 project_id = "yjuqixthmwgnzkjummaf"
 
+[auth.email]
+enable_confirmations = false
+
 [functions.booking-share]
 verify_jwt = false
