@@ -9,7 +9,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Card } from '@/components/ui/card';
 import { Separator } from '@/components/ui/separator';
-import { Eye, EyeOff, Mail, Lock, Loader2 } from 'lucide-react';
+import { Eye, EyeOff, Mail, Lock, Loader2, UserPlus } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { motion } from 'framer-motion';
 
@@ -60,7 +60,8 @@ const ClientLogin = () => {
         .eq('user_id', userId)
         .single();
 
-      if (error || !data?.is_public_page_enabled) {
+      // Only enabled businesses exist in the intentionally public projection.
+      if (error || !data) {
         setError('Negócio não encontrado ou página desativada');
       } else {
         setSettings(data as BarbershopSettings);
@@ -214,7 +215,28 @@ const ClientLogin = () => {
         className="flex-1 px-6 py-8 -mt-4"
       >
         <Card className="max-w-sm mx-auto p-6 shadow-lg rounded-2xl">
-          <h2 className="text-xl font-semibold text-center mb-6">Entrar na sua conta</h2>
+          <h2 className="text-xl font-semibold text-center">Agende seu horário</h2>
+          <div className="my-5 rounded-xl border border-border bg-muted/50 p-4 text-center">
+            <p className="text-sm font-semibold">É seu primeiro agendamento?</p>
+            <p className="mb-3 mt-1 text-xs text-muted-foreground">Crie sua conta rapidamente para marcar e acompanhar seus horários.</p>
+            <Button
+              type="button"
+              className="h-11 w-full gap-2"
+              style={{ backgroundColor: settings.primary_color_hex }}
+              onClick={() => navigate(`/b/${userId}/cadastro`)}
+            >
+              <UserPlus className="h-4 w-4" />
+              Criar conta e agendar
+            </Button>
+          </div>
+
+          <div className="my-5 flex items-center gap-3">
+            <Separator className="flex-1" />
+            <span className="text-xs text-muted-foreground">já tenho conta</span>
+            <Separator className="flex-1" />
+          </div>
+
+          <h3 className="mb-4 text-center font-semibold">Entrar na sua conta</h3>
 
           <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
             <div className="space-y-2">
