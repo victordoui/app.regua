@@ -1,2 +1,2 @@
-/s/*  /.netlify/functions/booking-share?slug=:splat  200!
+/s/*  /.netlify/functions/booking-share/:splat  200!
 /agendamento/*  https://yjuqixthmwgnzkjummaf.supabase.co/functions/v1/booking-share/:splat  200!

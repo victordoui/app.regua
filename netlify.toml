@@ -4,7 +4,7 @@
 
 [[redirects]]
   from = "/s/*"
-  to = "/.netlify/functions/booking-share?slug=:splat"
+  to = "/.netlify/functions/booking-share/:splat"
   status = 200
   force = true
 
