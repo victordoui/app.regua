@@ -5,3 +5,6 @@ enable_confirmations = true
 
 [functions.booking-share]
 verify_jwt = false
+
+[functions.create-client-account]
+verify_jwt = false

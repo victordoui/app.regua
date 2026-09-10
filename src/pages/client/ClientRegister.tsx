@@ -82,39 +82,46 @@ const ClientRegister = () => {
     
     setIsSubmitting(true);
     
-    // 1. Create auth user
-    const { data: authData, error: authError } = await supabase.auth.signUp({
-      email: data.email,
-      password: data.password,
-      options: {
-        emailRedirectTo: `${window.location.origin}/b/${userId}/home`,
-        data: {
-          full_name: data.fullName,
-          phone: data.phone,
-        },
+    // O cadastro público de clientes é separado do cadastro de empresários:
+    // clientes entram imediatamente; empresários continuam confirmando e-mail.
+    const { error: createError } = await supabase.functions.invoke('create-client-account', {
+      body: {
+        email: data.email,
+        password: data.password,
+        fullName: data.fullName,
+        phone: data.phone,
+        businessId: userId,
+        website: '',
       },
     });
 
-    if (authError) {
+    if (createError) {
       toast({
         variant: 'destructive',
         title: 'Erro ao criar conta',
-        description: authError.message === 'User already registered' 
-          ? 'Este email já está cadastrado' 
-          : authError.message,
+        description: 'Não foi possível criar a conta. Se já possui cadastro, tente entrar.',
       });
       setIsSubmitting(false);
       return;
     }
 
-    // 2. Cria o perfil do cliente somente quando o cadastro já gerou sessão.
-    //    Com confirmação de email ativa não há sessão aqui — o perfil é criado
-    //    no primeiro login pelo helper ensureClientProfile.
-    if (authData.session?.user) {
+    const { data: authData, error: authError } = await supabase.auth.signInWithPassword({
+      email: data.email,
+      password: data.password,
+    });
+
+    if (authError || !authData.user) {
+      toast({ title: 'Conta criada', description: 'Entre com seu email e senha para continuar.' });
+      navigate(`/b/${userId}/login`);
+      setIsSubmitting(false);
+      return;
+    }
+
+    if (authData.user) {
       const { error: profileError } = await supabase
         .from('client_profiles')
         .insert({
-          user_id: authData.session.user.id,
+          user_id: authData.user.id,
           barbershop_user_id: userId,
           full_name: data.fullName,
           phone: data.phone || null,
@@ -129,16 +136,6 @@ const ClientRegister = () => {
       setIsSubmitting(false);
       return;
     }
-
-    toast({
-      title: 'Conta criada com sucesso!',
-      description: 'Enviamos um link de confirmação para o seu email. Confirme para acessar sua conta.',
-    });
-
-
-    // Navigate to login
-    navigate(`/b/${userId}/login`);
-    setIsSubmitting(false);
   };
 
   const handleGoogleSignup = async () => {
