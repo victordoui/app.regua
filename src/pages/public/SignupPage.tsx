@@ -172,6 +172,8 @@ const SignupPage = () => {
         description = 'Erro de configuração interna. Contate o suporte.';
       } else if (msg.includes('rate limit') || msg.includes('too many requests')) {
         description = 'Muitas tentativas. Aguarde alguns minutos.';
+      } else if (msg.includes('Email address not authorized') || msg.includes('email not authorized')) {
+        description = 'O envio de confirmação ainda não está disponível para este e-mail. Contate o suporte VIZZU.';
       }
 
       toast({ title, description, variant: 'destructive' });
