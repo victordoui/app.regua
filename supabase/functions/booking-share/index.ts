@@ -17,7 +17,8 @@ const htmlResponse = (body: string, status = 200) => new Response(body, {
 
 Deno.serve(async (request) => {
   const url = new URL(request.url);
-  const businessId = url.searchParams.get("business") || url.pathname.split("/").filter(Boolean).at(-1);
+  const rawBusiness = url.searchParams.get("business") || url.pathname.split("/").filter(Boolean).at(-1) || "";
+  const businessId = rawBusiness.match(/[0-9a-f]{8}-(?:[0-9a-f]{4}-){3}[0-9a-f]{12}/i)?.[0];
 
   if (!businessId || !/^[0-9a-f]{8}-(?:[0-9a-f]{4}-){3}[0-9a-f]{12}$/i.test(businessId)) {
     return htmlResponse("<h1>Link de agendamento inválido</h1>", 400);

@@ -123,7 +123,7 @@ const CompanySettings = () => {
     ? `${window.location.origin}/b/${settings.user_id}/login`
     : null;
   const shareBookingLink = settings?.user_id
-    ? `${window.location.origin}/agendamento/${settings.user_id}`
+    ? `${window.location.origin}/agendamento/${(formData.company_name || "empresa").toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "").replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "")}-${settings.user_id}`
     : null;
 
   const handleCopyClientLink = async () => {
