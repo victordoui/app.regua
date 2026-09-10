@@ -127,9 +127,15 @@ const CompanySettings = () => {
     : null;
 
   const handleCopyClientLink = async () => {
+    if (!clientBookingLink) return;
+    await navigator.clipboard.writeText(clientBookingLink);
+    toast.success("Link direto de agendamento copiado.");
+  };
+
+  const handleCopyMaskedLink = async () => {
     if (!shareBookingLink) return;
     await navigator.clipboard.writeText(shareBookingLink);
-    toast.success("Link compartilhável copiado. Ele exibirá a identidade do seu negócio na prévia.");
+    toast.success("Link personalizado copiado.");
   };
 
   const handleOpenClientLink = () => {
@@ -314,9 +320,23 @@ const CompanySettings = () => {
                         <div className="break-all rounded-xl border border-border bg-muted/70 p-4 font-mono text-sm font-semibold text-foreground">{shareBookingLink}</div>
                         <p className="text-sm text-muted-foreground">Ao compartilhar este link, a prévia mostrará o nome, a descrição e o logo configurados para sua empresa.</p>
                         <div className="flex flex-wrap gap-3">
-                          <Button type="button" onClick={handleCopyClientLink} className="min-h-11"><Copy className="mr-2 h-4 w-4" />Copiar link</Button>
-                          <Button type="button" variant="outline" onClick={handleOpenClientLink} className="min-h-11"><ExternalLink className="mr-2 h-4 w-4" />Abrir página</Button>
-                          <Button type="button" variant="outline" onClick={handleShareWhatsApp} className="min-h-11"><MessageCircle className="mr-2 h-4 w-4" />Enviar no WhatsApp</Button>
+                          <div className="w-full rounded-xl border border-border bg-background p-4">
+                            <p className="font-bold">Link direto para agendamento</p>
+                            <p className="mt-1 break-all font-mono text-sm text-muted-foreground">{clientBookingLink}</p>
+                            <div className="mt-3 flex flex-wrap gap-3">
+                              <Button type="button" onClick={handleCopyClientLink} className="min-h-11"><Copy className="mr-2 h-4 w-4" />Copiar direto</Button>
+                              <Button type="button" variant="outline" onClick={handleOpenClientLink} className="min-h-11"><ExternalLink className="mr-2 h-4 w-4" />Abrir página</Button>
+                            </div>
+                          </div>
+                          <div className="w-full rounded-xl border border-primary/30 bg-primary/5 p-4">
+                            <p className="font-bold">Link personalizado para compartilhar</p>
+                            <p className="mt-1 break-all font-mono text-sm text-muted-foreground">{shareBookingLink}</p>
+                            <p className="mt-2 text-sm text-muted-foreground">Mostra o nome e a logo da sua empresa na prévia do WhatsApp e redes sociais.</p>
+                            <div className="mt-3 flex flex-wrap gap-3">
+                              <Button type="button" onClick={handleCopyMaskedLink} className="min-h-11"><Copy className="mr-2 h-4 w-4" />Copiar personalizado</Button>
+                              <Button type="button" variant="outline" onClick={handleShareWhatsApp} className="min-h-11"><MessageCircle className="mr-2 h-4 w-4" />Enviar no WhatsApp</Button>
+                            </div>
+                          </div>
                         </div>
                       </>
                     ) : (
