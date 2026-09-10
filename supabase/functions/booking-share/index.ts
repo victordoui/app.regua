@@ -21,7 +21,7 @@ Deno.serve(async (request) => {
   const businessId = rawBusiness.match(/^[0-9a-f]{8}-(?:[0-9a-f]{4}-){3}[0-9a-f]{12}$/i)?.[0];
   const slug = businessId ? null : rawBusiness.toLowerCase();
 
-  if (!businessId || !/^[0-9a-f]{8}-(?:[0-9a-f]{4}-){3}[0-9a-f]{12}$/i.test(businessId)) {
+  if ((!businessId && !slug) || (businessId && !/^[0-9a-f]{8}-(?:[0-9a-f]{4}-){3}[0-9a-f]{12}$/i.test(businessId))) {
     return htmlResponse("<h1>Link de agendamento inválido</h1>", 400);
   }
 

@@ -1,10 +1,14 @@
 -- Persist the public identity used by branded booking-share URLs.
 alter table public.barbershop_settings
+  add column if not exists meta_title text,
+  add column if not exists meta_description text,
   add column if not exists share_slug text,
   add column if not exists share_title text,
   add column if not exists share_description text;
 
 alter table public.public_business_profile
+  add column if not exists meta_title text,
+  add column if not exists meta_description text,
   add column if not exists share_slug text,
   add column if not exists share_title text,
   add column if not exists share_description text;
@@ -24,6 +28,9 @@ $$;
 create unique index if not exists public_business_profile_share_slug_key
   on public.public_business_profile (share_slug)
   where share_slug is not null;
+
+drop policy if exists "Allow public read access by user_id" on public.barbershop_settings;
+revoke select on table public.barbershop_settings from anon;
 
 -- Existing companies receive a readable slug. Duplicate names get a stable
 -- short suffix rather than failing the backfill.
