@@ -323,6 +323,11 @@ const CompanySettings = () => {
                           <div className="w-full rounded-xl border border-border bg-background p-4">
                             <p className="font-bold">Link direto para agendamento</p>
                             <p className="mt-1 break-all font-mono text-sm text-muted-foreground">{clientBookingLink}</p>
+                            <div className="mt-3 flex max-w-xl overflow-hidden rounded-lg border border-border bg-emerald-950 text-white shadow-sm">
+                              <img src="/pwa-icon-192.png" alt="VIZZU" className="h-20 w-20 object-cover" />
+                              <div className="min-w-0 p-3"><p className="truncate text-sm font-bold">VIZZU — Gestão inteligente de agendamentos</p><p className="truncate text-xs text-emerald-100">Plataforma SaaS de gestão e agendamentos para profissionais de serviços.</p><p className="mt-1 text-xs text-emerald-200">vizzuapp.netlify.app</p></div>
+                            </div>
+                            <p className="mt-2 text-xs text-muted-foreground">Prévia institucional do link direto.</p>
                             <div className="mt-3 flex flex-wrap gap-3">
                               <Button type="button" onClick={handleCopyClientLink} className="min-h-11"><Copy className="mr-2 h-4 w-4" />Copiar direto</Button>
                               <Button type="button" variant="outline" onClick={handleOpenClientLink} className="min-h-11"><ExternalLink className="mr-2 h-4 w-4" />Abrir página</Button>
@@ -332,6 +337,11 @@ const CompanySettings = () => {
                             <p className="font-bold">Link personalizado para compartilhar</p>
                             <p className="mt-1 break-all font-mono text-sm text-muted-foreground">{shareBookingLink}</p>
                             <p className="mt-2 text-sm text-muted-foreground">Mostra o nome e a logo da sua empresa na prévia do WhatsApp e redes sociais.</p>
+                            <div className="mt-3 flex max-w-xl overflow-hidden rounded-lg border border-border bg-emerald-950 text-white shadow-sm">
+                              {settings?.logo_url ? <img src={settings.logo_url} alt={formData.company_name || "Sua empresa"} className="h-20 w-20 object-cover" /> : <div className="flex h-20 w-20 items-center justify-center bg-primary text-2xl font-bold">{(formData.company_name || "E").charAt(0).toUpperCase()}</div>}
+                              <div className="min-w-0 p-3"><p className="truncate text-sm font-bold">{formData.company_name || "Sua empresa"} — Agendamento online</p><p className="truncate text-xs text-emerald-100">{formData.slogan || "Agende seu horário online."}</p><p className="mt-1 text-xs text-emerald-200">vizzuapp.netlify.app</p></div>
+                            </div>
+                            <p className="mt-2 text-xs text-muted-foreground">Prévia personalizada para seus clientes.</p>
                             <div className="mt-3 flex flex-wrap gap-3">
                               <Button type="button" onClick={handleCopyMaskedLink} className="min-h-11"><Copy className="mr-2 h-4 w-4" />Copiar personalizado</Button>
                               <Button type="button" variant="outline" onClick={handleShareWhatsApp} className="min-h-11"><MessageCircle className="mr-2 h-4 w-4" />Enviar no WhatsApp</Button>
