@@ -1,6 +1,6 @@
 import Layout from "@/components/Layout";
 import BarberPerformanceContent from "@/components/dashboard/BarberPerformanceContent";
-import { PageContainer, PageHeader } from "@/components/ui/page-header";
+import { PageContainer, PageHeader } from "@/components/ui/workspace-page";
 import { Users } from "lucide-react";
 
 const DashboardPerformance = () => (

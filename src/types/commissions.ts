@@ -13,6 +13,8 @@ export interface CommissionDetail {
   appointment_time: string;
   service_price: number;
   commission_rate: number; // e.g., 0.40 for 40%
+  commission_type?: 'percentage' | 'fixed';
+  commission_value?: number;
   commission_amount: number;
   barber_name: string;
 }

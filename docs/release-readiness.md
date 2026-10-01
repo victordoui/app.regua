@@ -1,6 +1,10 @@
 # VIZZU — checklist de lançamento
 
-Última revisão técnica: 15 de agosto de 2026.
+Checklist histórico: 15 de agosto de 2026. Revisão incremental de UX/UI em
+30 de setembro de 2026: [auditoria por página](./ux-ui-audit-2026-09-30.md).
+As marcações abaixo refletem a revisão histórica e não foram todas revalidadas
+em produção nesta nova etapa. A TV foi adicionada e aplicada ao banco; o frontend
+desta etapa ainda precisa de publicação e homologação dos fluxos críticos.
 
 ## Validado no código e no Supabase
 

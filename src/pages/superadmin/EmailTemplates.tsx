@@ -109,7 +109,7 @@ const EmailTemplates = () => {
       <div className="space-y-6">
         <div className="flex items-center justify-between">
           <div>
-            <h1 className="text-3xl font-bold text-foreground">Templates de Email</h1>
+          <PageHeader eyebrow="Gestão da plataforma" title="Templates de Email" />
             <p className="text-muted-foreground">
               Gerencie templates para comunicações automáticas
             </p>
@@ -321,3 +321,4 @@ const EmailTemplates = () => {
 };
 
 export default EmailTemplates;
+import { PageHeader } from '@/components/ui/page-header';

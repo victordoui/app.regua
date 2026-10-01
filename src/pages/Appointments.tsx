@@ -122,11 +122,11 @@ const Appointments = () => {
 
   return (
     <Layout>
-      <div className="flex h-[calc(100dvh-56px)] min-h-0 flex-col bg-muted/30">
-        <header className="flex-shrink-0 border-b border-border/80 bg-card px-3 py-3 sm:px-5">
+      <div className="flex h-[calc(100dvh-56px)] min-h-0 flex-col bg-muted/20">
+        <header className="flex-shrink-0 border-b border-primary/15 bg-gradient-to-r from-card via-card to-primary/5 px-4 py-4 sm:px-6">
           <div className="flex items-center justify-between gap-3">
             <div className="flex min-w-0 items-center gap-3">
-              <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-primary/10 text-primary">
+              <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl border border-primary/15 bg-primary/10 text-primary">
                 <CalendarDays className="h-5 w-5" />
               </div>
               <div className="min-w-0">
@@ -184,8 +184,8 @@ const Appointments = () => {
               </div>
 
               <div className="flex rounded-lg bg-muted p-1" aria-label="Modo de visualização">
-                <Button variant={displayMode === 'calendar' ? 'default' : 'ghost'} size="sm" onClick={() => setDisplayMode('calendar')} className="min-h-9 gap-1.5 rounded-md px-3"><CalendarDays className="h-4 w-4" /><span className="hidden sm:inline">Calendário</span></Button>
-                <Button variant={displayMode === 'table' ? 'default' : 'ghost'} size="sm" onClick={() => setDisplayMode('table')} className="min-h-9 gap-1.5 rounded-md px-3"><Table2 className="h-4 w-4" /><span className="hidden sm:inline">Lista</span></Button>
+                <Button aria-label="Visualizar calendário" aria-pressed={displayMode === 'calendar'} variant={displayMode === 'calendar' ? 'default' : 'ghost'} size="sm" onClick={() => setDisplayMode('calendar')} className="min-h-10 gap-1.5 rounded-lg px-3"><CalendarDays className="h-4 w-4" /><span className="hidden sm:inline">Calendário</span></Button>
+                <Button aria-label="Visualizar lista" aria-pressed={displayMode === 'table'} variant={displayMode === 'table' ? 'default' : 'ghost'} size="sm" onClick={() => setDisplayMode('table')} className="min-h-10 gap-1.5 rounded-lg px-3"><Table2 className="h-4 w-4" /><span className="hidden sm:inline">Lista</span></Button>
               </div>
             </div>
 

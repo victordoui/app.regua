@@ -6,16 +6,7 @@ interface RevenueChartProps {
   data?: { month: string; revenue: number }[];
 }
 
-const defaultData = [
-  { month: 'Ago', revenue: 12500 },
-  { month: 'Set', revenue: 15800 },
-  { month: 'Out', revenue: 14200 },
-  { month: 'Nov', revenue: 18500 },
-  { month: 'Dez', revenue: 22000 },
-  { month: 'Jan', revenue: 16800 },
-];
-
-const RevenueChart: React.FC<RevenueChartProps> = ({ data = defaultData }) => {
+const RevenueChart: React.FC<RevenueChartProps> = ({ data = [] }) => {
   const formatCurrency = (value: number) => {
     return `R$ ${(value / 1000).toFixed(1)}k`;
   };

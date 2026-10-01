@@ -6,6 +6,7 @@ import { Badge } from "@/components/ui/badge";
 import { Calendar, Clock, Users, MessageCircle } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
+import { PageHeader } from '@/components/ui/page-header';
 
 const BarberDashboard = () => {
   const navigate = useNavigate();
@@ -25,10 +26,8 @@ const BarberDashboard = () => {
 
   return (
     <Layout>
-      <div className="flex-1 space-y-6 p-6">
-        <div>
-          <h1 className="text-xl md:text-2xl font-bold text-foreground">Meu Painel</h1>
-        </div>
+      <div className="page-container">
+        <PageHeader eyebrow="Meu trabalho" icon={<Calendar className="h-5 w-5" />} title="Meu Painel" subtitle="Sua agenda, seus clientes e os canais de atendimento em um só lugar." />
 
         <motion.div
           variants={container}

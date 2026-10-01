@@ -80,7 +80,7 @@ const BroadcastMessages = () => {
       <div className="space-y-6">
         <div className="flex items-center justify-between">
           <div>
-            <h1 className="text-3xl font-bold text-foreground">Mensagens em Massa</h1>
+          <PageHeader eyebrow="Gestão da plataforma" title="Mensagens em Massa" />
             <p className="text-muted-foreground">
               Envie comunicações para assinantes da plataforma
             </p>
@@ -293,3 +293,4 @@ const BroadcastMessages = () => {
 };
 
 export default BroadcastMessages;
+import { PageHeader } from '@/components/ui/page-header';

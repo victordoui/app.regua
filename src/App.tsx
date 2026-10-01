@@ -59,6 +59,8 @@ const ClientBooking = lazy(() => import("./pages/client/ClientBooking"));
 const ClientProfile = lazy(() => import("./pages/client/ClientProfile"));
 const SignupPage = lazy(() => import("./pages/public/SignupPage"));
 const SalesPage = lazy(() => import("./pages/public/SalesPage"));
+const TVDisplay = lazy(() => import('./pages/TVDisplay'));
+const TVSettings = lazy(() => import('./pages/TVSettings'));
 const PublicPageLoader = () => (
   <div className="flex min-h-screen items-center justify-center">
     <div className="h-8 w-8 animate-spin rounded-full border-2 border-primary border-t-transparent" />
@@ -128,6 +130,8 @@ function AppContent() {
         <Route path="/profile" element={<ProtectedRoute allowedRoles={['admin', 'barbeiro']}><Profile /></ProtectedRoute>} />
 
         {/* Rotas exclusivas do Admin */}
+        <Route path="/communication/tv" element={<ProtectedRoute allowedRoles={['admin']}><TVDisplay /></ProtectedRoute>} />
+        <Route path="/communication/tv/settings" element={<ProtectedRoute allowedRoles={['admin']}><TVSettings /></ProtectedRoute>} />
         <Route path="/barbers" element={<ProtectedRoute allowedRoles={['admin']}><BarberManagement /></ProtectedRoute>} />
         <Route path="/services" element={<ProtectedRoute allowedRoles={['admin']}><Services /></ProtectedRoute>} />
         <Route path="/reports" element={<ProtectedRoute allowedRoles={['admin']}><Reports /></ProtectedRoute>} />

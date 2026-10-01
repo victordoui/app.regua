@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { useNavigate } from 'react-router-dom';
 import Layout from '@/components/Layout';
+import { PageHeader } from '@/components/ui/page-header';
 import { Card, CardContent, CardHeader, CardTitle, CardFooter } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -55,18 +56,12 @@ const Upgrade = () => {
 
   return (
     <Layout>
-      <div className="max-w-5xl mx-auto space-y-6">
-        <div className="flex items-center gap-3">
+      <div className="page-container">
+        <PageHeader eyebrow="Minha assinatura" icon={<Crown className="h-5 w-5" />} title="Escolha seu plano" subtitle="Compare os recursos e escolha o plano ideal para seu negócio.">
           <Button variant="ghost" size="sm" onClick={() => navigate(-1)}>
             <ArrowLeft className="h-4 w-4 mr-1" /> Voltar
           </Button>
-          <div>
-            <h1 className="text-xl md:text-2xl font-bold text-foreground flex items-center gap-2">
-              <Crown className="h-6 w-6 text-primary" />
-              Escolha seu Plano
-            </h1>
-          </div>
-        </div>
+        </PageHeader>
 
         {isLoading ? (
           <div className="flex justify-center py-12">

@@ -81,7 +81,7 @@ const FinancialMetrics = () => {
     <SuperAdminLayout>
       <div className="space-y-6">
         <div>
-          <h1 className="text-3xl font-bold text-foreground">Métricas Financeiras</h1>
+          <PageHeader eyebrow="Gestão da plataforma" title="Métricas Financeiras" />
           <p className="text-muted-foreground">
             Acompanhe a saúde financeira da plataforma
           </p>
@@ -256,3 +256,4 @@ const FinancialMetrics = () => {
 };
 
 export default FinancialMetrics;
+import { PageHeader } from '@/components/ui/page-header';

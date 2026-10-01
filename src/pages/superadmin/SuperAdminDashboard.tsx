@@ -87,7 +87,7 @@ const SuperAdminDashboard = () => {
     <SuperAdminLayout>
       <div className="space-y-6">
         <div>
-          <h1 className="text-3xl font-bold text-foreground">Dashboard Super Admin</h1>
+          <PageHeader eyebrow="Gestão da plataforma" title="Dashboard Super Admin" />
           <p className="text-muted-foreground">Visão geral da plataforma VIZZU</p>
         </div>
 
@@ -442,3 +442,4 @@ const SuperAdminDashboard = () => {
 };
 
 export default SuperAdminDashboard;
+import { PageHeader } from '@/components/ui/page-header';

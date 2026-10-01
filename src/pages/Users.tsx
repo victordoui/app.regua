@@ -30,7 +30,8 @@ import { useAuth } from "@/contexts/AuthContext";
 import { useToast } from "@/hooks/use-toast";
 
 import Layout from "@/components/Layout";
-import { PageContainer, PageHeader } from "@/components/ui/page-header";
+import { StatusCards } from "@/components/ui/workspace-stats";
+import { PageContainer, PageHeader } from "@/components/ui/workspace-page";
 
 interface UserProfile {
   id: string;
@@ -201,15 +202,6 @@ const Users = () => {
     return active ? "Ativo" : "Inativo";
   };
 
-  const getStatColor = (color: string) => {
-    switch (color) {
-      case "blue": return "from-primary to-primary-800";
-      case "green": return "from-primary-400 to-primary-600";
-      case "orange": return "from-primary-600 to-primary-800";
-      case "purple": return "from-primary to-primary-800";
-      default: return "from-primary to-primary-800";
-    }
-  };
 
   const filteredUsers = profiles.filter(user =>
     user.display_name.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -310,33 +302,7 @@ const Users = () => {
         </Dialog>
 
         {/* Stats Cards */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-          {stats.map((stat, index) => {
-            const Icon = stat.icon;
-            return (
-              <Card key={index} className="relative overflow-hidden">
-                <CardContent className="p-6">
-                  <div className="flex items-center justify-between">
-                    <div className="space-y-2">
-                      <p className="text-sm font-medium text-muted-foreground">
-                        {stat.title}
-                      </p>
-                      <p className="text-2xl font-bold text-foreground">
-                        {stat.value}
-                      </p>
-                      <p className="text-xs text-muted-foreground">
-                        {stat.subtitle}
-                      </p>
-                    </div>
-                    <div className={`p-3 rounded-full bg-gradient-to-r ${getStatColor(stat.color)}`}>
-                      <Icon className="h-6 w-6 text-white" />
-                    </div>
-                  </div>
-                </CardContent>
-              </Card>
-            );
-          })}
-        </div>
+        <StatusCards items={stats.map(stat => ({ label: stat.title, value: stat.value, suffix: stat.subtitle, icon: <stat.icon className="h-5 w-5" />, color: 'primary' }))} />
 
         {/* Search */}
         <Card>
@@ -370,14 +336,14 @@ const Users = () => {
                 {filteredUsers.map((user) => (
                   <div key={user.id} className="flex flex-col gap-4 rounded-lg border border-border p-4 transition-colors hover:bg-muted/50 sm:flex-row sm:items-center sm:justify-between">
                     <div className="flex min-w-0 items-center gap-4">
-                      <div className="w-12 h-12 bg-muted rounded-full flex items-center justify-center">
+                      <div className="h-12 w-12 shrink-0 rounded-2xl bg-primary/10 flex items-center justify-center">
                         <span className="text-muted-foreground font-medium">
                           {getInitials(user.display_name)}
                         </span>
                       </div>
                       
-                      <div className="space-y-1">
-                        <div className="flex items-center gap-2">
+                      <div className="min-w-0 space-y-2">
+                        <div className="flex flex-wrap items-center gap-2">
                           <span className="font-medium">{user.display_name}</span>
                           <Badge className={getRoleColor(user.role)}>
                             {getRoleLabel(user.role)}
@@ -387,7 +353,7 @@ const Users = () => {
                           </Badge>
                           {!user.auth_user_id && <Badge variant="outline">Sem acesso</Badge>}
                         </div>
-                        <div className="text-sm text-muted-foreground">
+                        <div className="break-all text-sm text-muted-foreground">
                           {user.email}
                         </div>
                         <div className="text-xs text-muted-foreground">
@@ -398,7 +364,7 @@ const Users = () => {
 
                     <DropdownMenu>
                       <DropdownMenuTrigger asChild>
-                        <Button variant="ghost" size="sm">
+                        <Button aria-label={`Gerenciar acesso de ${user.display_name}`} variant="ghost" size="sm">
                           <MoreHorizontal className="h-4 w-4" />
                         </Button>
                       </DropdownMenuTrigger>

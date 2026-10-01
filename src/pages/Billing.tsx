@@ -6,16 +6,17 @@ import { useBilling } from '@/hooks/useBilling';
 import BillingFormDialog from '@/components/billing/BillingFormDialog';
 import BillingTransactionCard from '@/components/billing/BillingTransactionCard';
 import { AccountTransaction, AccountTransactionFormData, TransactionStatus, TransactionType } from '@/types/billing';
-import { PageContainer, PageHeader } from '@/components/ui/page-header';
-import { StatusCards } from '@/components/ui/status-cards';
+import { PageContainer, PageHeader, WorkspaceEmpty } from '@/components/ui/workspace-page';
+import { StatusCards } from '@/components/ui/workspace-stats';
 
 const Billing = () => {
   const { transactions, isLoading, addTransaction, updateTransaction, updateTransactionStatus, deleteTransaction } = useBilling();
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [editingTransaction, setEditingTransaction] = useState<AccountTransaction | null>(null);
+  const [newType, setNewType] = useState<TransactionType>('payable');
   const [currentTab, setCurrentTab] = useState<TransactionType | 'all'>('all');
 
-  const handleNewTransaction = (type: TransactionType) => { setEditingTransaction(null); setIsDialogOpen(true); };
+  const handleNewTransaction = (type: TransactionType) => { setNewType(type); setEditingTransaction(null); setIsDialogOpen(true); };
   const handleEditTransaction = (transaction: AccountTransaction) => { setEditingTransaction(transaction); setIsDialogOpen(true); };
   const handleSaveTransaction = async (formData: AccountTransactionFormData, id: string | null) => { if (id) await updateTransaction({ id, formData }); else await addTransaction(formData); };
   const handleDeleteTransaction = async (id: string) => { if (window.confirm("Tem certeza que deseja excluir?")) await deleteTransaction(id); };
@@ -34,7 +35,7 @@ const Billing = () => {
 
   const renderList = () => (
     isLoading ? <div className="text-center py-12 text-muted-foreground">Carregando...</div>
-    : filteredTransactions.length === 0 ? <div className="text-center py-12 text-muted-foreground"><Wallet className="h-12 w-12 mx-auto mb-4 opacity-30" /><p>Nenhum lançamento encontrado.</p></div>
+    : filteredTransactions.length === 0 ? <WorkspaceEmpty icon={<Wallet className="h-6 w-6" />} title="Organize as entradas e saídas" description="Registre receitas, despesas e vencimentos para acompanhar o que já foi realizado e o que ainda está pendente."><Button onClick={() => handleNewTransaction(currentTab === "receivable" ? "receivable" : "payable")}><Plus className="mr-2 h-4 w-4" />Adicionar lançamento</Button></WorkspaceEmpty>
     : <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">{filteredTransactions.map(t => <BillingTransactionCard key={t.id} transaction={t} onEdit={handleEditTransaction} onDelete={handleDeleteTransaction} onUpdateStatus={handleUpdateTransactionStatus} />)}</div>
   );
 
@@ -42,7 +43,7 @@ const Billing = () => {
     <Layout>
       <PageContainer>
         <PageHeader eyebrow="Financeiro" icon={<Wallet className="h-5 w-5" />} title="Contas a pagar e receber" subtitle="Veja o que precisa ser pago, o que ainda vai entrar e o saldo realizado.">
-          <Button onClick={() => handleNewTransaction('payable')}><Plus className="h-4 w-4 mr-2" />Novo Lançamento</Button>
+          <Button variant="outline" onClick={() => handleNewTransaction("payable")}><ArrowDownCircle className="h-4 w-4 mr-2" />Nova despesa</Button><Button onClick={() => handleNewTransaction("receivable")}><ArrowUpCircle className="h-4 w-4 mr-2" />Nova receita</Button>
         </PageHeader>
 
         <StatusCards
@@ -70,6 +71,7 @@ const Billing = () => {
                 type="button"
                 variant={currentTab === filter.value ? 'default' : 'ghost'}
                 size="sm"
+                aria-pressed={currentTab === filter.value}
                 onClick={() => setCurrentTab(filter.value)}
                 className="shrink-0"
               >
@@ -81,7 +83,7 @@ const Billing = () => {
 
         {renderList()}
 
-        <BillingFormDialog isOpen={isDialogOpen} setIsOpen={setIsDialogOpen} editingTransaction={editingTransaction} saveTransaction={handleSaveTransaction} initialType={currentTab === 'payable' || currentTab === 'receivable' ? currentTab : 'payable'} />
+        <BillingFormDialog isOpen={isDialogOpen} setIsOpen={setIsDialogOpen} editingTransaction={editingTransaction} saveTransaction={handleSaveTransaction} initialType={newType} />
       </PageContainer>
     </Layout>
   );

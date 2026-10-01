@@ -4,8 +4,8 @@ import { Tabs, TabsContent } from "@/components/ui/tabs";
 import { MessageSquare, Bell } from "lucide-react";
 import ConversationsContent from "@/components/communication/ConversationsContent";
 import NotificationsContent from "@/components/communication/NotificationsContent";
-import { PageContainer, PageHeader } from "@/components/ui/page-header";
-import { SectionTabsLayout } from "@/components/ui/section-tabs";
+import { PageContainer, PageHeader } from "@/components/ui/workspace-page";
+import { SectionTabsLayout } from "@/components/ui/workspace-sections";
 
 const communicationSections = [
   { value: "conversas", label: "Conversas", description: "Atendimento aos clientes", icon: MessageSquare },

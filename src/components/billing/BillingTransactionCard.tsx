@@ -68,10 +68,10 @@ const BillingTransactionCard: React.FC<BillingTransactionCardProps> = ({
     <Card className="relative overflow-hidden">
       <CardHeader className="pb-3">
         <div className="flex justify-between items-start">
-          <div className="flex items-center gap-2">
+          <div className="flex min-w-0 items-center gap-2">
             <DollarSign className={`h-5 w-5 ${transaction.type === 'payable' ? 'text-red-500' : 'text-green-500'}`} />
             <div>
-              <CardTitle className="text-lg">{transaction.description}</CardTitle>
+              <CardTitle className="break-words text-lg">{transaction.description}</CardTitle>
               <Badge variant={getStatusBadgeVariant(transaction.status)} className="mt-1">
                 {getStatusText(transaction.status)}
               </Badge>
@@ -79,7 +79,7 @@ const BillingTransactionCard: React.FC<BillingTransactionCardProps> = ({
           </div>
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
-              <Button variant="ghost" className="h-8 w-8 p-0">
+              <Button aria-label={`Gerenciar ${transaction.description}`} variant="ghost" className="h-10 w-10 shrink-0 p-0">
                 <MoreHorizontal className="h-4 w-4" />
               </Button>
             </DropdownMenuTrigger>

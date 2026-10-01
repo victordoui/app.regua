@@ -52,7 +52,7 @@ const SystemUsers = () => {
     <SuperAdminLayout>
       <div className="space-y-6">
         <div>
-          <h1 className="text-3xl font-bold text-foreground">Usuários do Sistema</h1>
+          <PageHeader eyebrow="Gestão da plataforma" title="Usuários do Sistema" />
           <p className="text-muted-foreground">
             {data?.stats.totalUsers || 0} usuários cadastrados na plataforma
           </p>
@@ -233,3 +233,4 @@ const SystemUsers = () => {
 };
 
 export default SystemUsers;
+import { PageHeader } from '@/components/ui/page-header';

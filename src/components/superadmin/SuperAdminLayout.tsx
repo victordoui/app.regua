@@ -6,5 +6,5 @@ interface SuperAdminLayoutProps {
 }
 
 export const SuperAdminLayout = ({ children }: SuperAdminLayoutProps) => {
-  return <Layout>{children}</Layout>;
+  return <Layout><div className="page-container">{children}</div></Layout>;
 };

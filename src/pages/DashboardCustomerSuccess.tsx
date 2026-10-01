@@ -1,6 +1,6 @@
 import Layout from "@/components/Layout";
 import CustomerSuccessContent from "@/components/dashboard/CustomerSuccessContent";
-import { PageContainer, PageHeader } from "@/components/ui/page-header";
+import { PageContainer, PageHeader } from "@/components/ui/workspace-page";
 import { HeartHandshake } from "lucide-react";
 
 const DashboardCustomerSuccess = () => (

@@ -15,8 +15,8 @@ import BlockedSlotsManager from '@/components/barbers/BlockedSlotsManager';
 import BarberAbsencesManager from '@/components/barbers/BarberAbsencesManager';
 import { format } from 'date-fns';
 import { formatPhoneBR } from '@/lib/utils';
-import { PageContainer, PageHeader } from '@/components/ui/page-header';
-import { StatusCards } from '@/components/ui/status-cards';
+import { PageContainer, PageHeader, WorkspaceGuide } from '@/components/ui/workspace-page';
+import { StatusCards } from '@/components/ui/workspace-stats';
 
 interface BarberFormData {
   full_name: string; email: string; phone: string; specializations: string; active: boolean;
@@ -73,6 +73,7 @@ const BarberManagement = () => {
           ]}
         />
 
+        <WorkspaceGuide title="Equipe e disponibilidade">Organize especialidades, bloqueios de horários e ausências. Para criar o acesso de um colaborador, utilize a página Usuários.</WorkspaceGuide>
         <p className="text-sm text-muted-foreground"><span className="font-medium text-foreground">{barbers.length}</span> profissional(is)</p>
 
         <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
@@ -81,9 +82,9 @@ const BarberManagement = () => {
             const isAbsentToday = isBarberAbsent(barber.id, today);
             const nextAbsence = getNextAbsence(barber.id);
             return (
-              <div key={barber.id} className={`rounded-xl border border-border/40 bg-card p-5 shadow-sm transition-all hover:shadow-md ${isAbsentToday ? 'border-l-4 border-l-amber-500' : ''}`}>
+              <div key={barber.id} className={`rounded-[20px] border border-border bg-card p-5 shadow-sm ${isAbsentToday ? 'border-l-4 border-l-amber-500' : ''}`}>
                 <div className="flex justify-between items-start mb-3">
-                  <div><h3 className="font-semibold text-base">{barber.full_name}</h3><p className="text-sm text-muted-foreground">{barber.email}</p></div>
+                  <div className="min-w-0 pr-3"><span className="mb-3 flex h-11 w-11 items-center justify-center rounded-xl bg-primary/10 font-bold text-primary">{barber.full_name.split(" ").map(part => part[0]).join("").slice(0, 2)}</span><h3 className="break-words font-bold text-base">{barber.full_name}</h3><p className="break-all text-sm text-muted-foreground">{barber.email}</p></div>
                   <div className="flex flex-col gap-1 items-end">
                     <Badge variant={barber.active ? "default" : "secondary"}>{barber.active ? "Ativo" : "Inativo"}</Badge>
                     {isAbsentToday && <Badge variant="outline" className="text-xs bg-amber-500/10 text-amber-600 border-amber-500/30"><AlertTriangle className="h-3 w-3 mr-1" />Ausente</Badge>}
@@ -101,7 +102,7 @@ const BarberManagement = () => {
                   <Button variant="outline" size="sm" onClick={() => { setEditingBarber(barber); setDialogOpen(true); }}>Editar</Button>
                   <Button variant="outline" size="sm" onClick={() => openBlockedSlotsManager(barber)}><Clock className="h-4 w-4 mr-1" />Bloqueios</Button>
                   <Button variant="outline" size="sm" onClick={() => openAbsencesManager(barber)}><Calendar className="h-4 w-4 mr-1" />Ausências</Button>
-                  <Button variant={barber.active ? "secondary" : "default"} size="sm" onClick={() => toggleBarberStatus({ id: barber.id, currentStatus: barber.active || false })}>{barber.active ? <PowerOff className="h-4 w-4" /> : <Power className="h-4 w-4" />}</Button>
+                  <Button aria-label={`${barber.active ? "Desativar" : "Ativar"} ${barber.full_name}`} variant={barber.active ? "secondary" : "default"} size="sm" onClick={() => toggleBarberStatus({ id: barber.id, currentStatus: barber.active || false })}>{barber.active ? <PowerOff className="h-4 w-4" /> : <Power className="h-4 w-4" />}</Button>
                 </div>
               </div>
             );

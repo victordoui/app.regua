@@ -178,7 +178,7 @@ const ClientProfile = () => {
   return (
     <MobileLayout settings={settings}>
       <div className="px-4 py-6 space-y-6">
-        <h1 className="text-2xl font-bold">Meu Perfil</h1>
+        <PageHeader title="Meu perfil" subtitle="Mantenha seus dados de contato atualizados." />
 
         {/* Avatar Section */}
         <motion.div
@@ -388,3 +388,4 @@ const ClientProfile = () => {
 };
 
 export default ClientProfile;
+import { PageHeader } from '@/components/ui/page-header';

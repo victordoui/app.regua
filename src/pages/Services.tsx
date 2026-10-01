@@ -11,14 +11,14 @@ import { Switch } from "@/components/ui/switch";
 import { Tabs, TabsContent } from "@/components/ui/tabs";
 import { useServices } from "@/hooks/useServices";
 import { Scissors, Plus, Edit, Trash2, Clock, DollarSign, Search, Filter, Power, PowerOff, ImageIcon, Upload, X, Loader2, Package } from "lucide-react";
-import { PageContainer, PageHeader } from "@/components/ui/page-header";
-import { StatusCards } from "@/components/ui/status-cards";
+import { PageContainer, PageHeader } from "@/components/ui/workspace-page";
+import { StatusCards } from "@/components/ui/workspace-stats";
 import Layout from "@/components/Layout";
 import { Service } from "@/types/appointments";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import CombosManager from "@/components/services/CombosManager";
-import { SectionTabsLayout } from "@/components/ui/section-tabs";
+import { SectionTabsLayout } from "@/components/ui/workspace-sections";
 
 const serviceSections = [
   { value: "services", label: "Serviços", description: "Atendimentos individuais", icon: Scissors },
@@ -381,19 +381,20 @@ const Services = () => {
         {/* Services Grid */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           {filteredServices.map((service) => (
-            <Card key={service.id} className="relative transition-all hover:shadow-lg overflow-hidden">
+            <Card key={service.id} className="relative rounded-[20px] overflow-hidden">
               {/* Imagem do serviço */}
               {service.image_url ? (
-                <div className="aspect-video overflow-hidden">
+                <div className="h-36 overflow-hidden">
                   <img 
-                    src={service.image_url} 
+                    src={service.image_url}
+                    loading="lazy"
                     alt={service.name}
                     className="w-full h-full object-cover"
                   />
                 </div>
               ) : (
-                <div className="aspect-video bg-muted flex items-center justify-center">
-                  <ImageIcon className="h-12 w-12 text-muted-foreground/50" />
+                <div className="h-28 bg-gradient-to-br from-primary/10 to-primary/[0.02] flex items-center justify-center">
+                  <Scissors className="h-9 w-9 text-primary/50" />
                 </div>
               )}
 
@@ -445,6 +446,7 @@ const Services = () => {
                     variant={service.active ? "secondary" : "default"}
                     size="sm"
                     onClick={() => toggleServiceStatus(service)}
+                    aria-label={`${service.active ? 'Desativar' : 'Ativar'} ${service.name}`}
                   >
                     {service.active ? <PowerOff className="h-3 w-3" /> : <Power className="h-3 w-3" />}
                   </Button>
@@ -452,6 +454,7 @@ const Services = () => {
                     variant="destructive"
                     size="sm"
                     onClick={() => handleDelete(service)}
+                    aria-label={`Excluir ${service.name}`}
                   >
                     <Trash2 className="h-3 w-3" />
                   </Button>

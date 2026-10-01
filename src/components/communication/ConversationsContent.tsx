@@ -216,7 +216,7 @@ const ConversationsContent = () => {
   }
 
   return (
-    <div className="min-h-[560px] overflow-hidden rounded-xl border bg-card md:h-[calc(100vh-15rem)] md:min-h-[600px]">
+    <div className="min-h-[560px] overflow-hidden rounded-[20px] border bg-card shadow-sm md:h-[calc(100vh-15rem)] md:min-h-[600px]">
       <div className="flex h-full">
         <aside className={`${selectedConversation ? "hidden md:flex" : "flex"} w-full flex-col border-r md:w-80`}>
           <div className="flex items-center justify-between gap-3 border-b p-4">
@@ -252,7 +252,7 @@ const ConversationsContent = () => {
           <ScrollArea className="flex-1 px-3 pb-3">
             <div className="space-y-2">
               {filteredConversations.map(conversation => (
-                <Card key={conversation.id} className="cursor-pointer hover:bg-muted/50" onClick={() => setSelectedConversation(conversation)}>
+                <Card key={conversation.id} role="button" tabIndex={0} aria-label={`Abrir conversa com ${conversation.contact.name}`} className={`cursor-pointer rounded-2xl border transition-colors focus-visible:outline focus-visible:outline-2 focus-visible:outline-primary ${selectedConversation?.id === conversation.id ? "border-primary/30 bg-primary/5" : "hover:bg-muted/50"}`} onKeyDown={event => { if (event.key === "Enter" || event.key === " ") { event.preventDefault(); setSelectedConversation(conversation); } }} onClick={() => setSelectedConversation(conversation)}>
                   <CardContent className="flex items-start gap-3 p-4">
                     <Avatar className="h-10 w-10"><AvatarFallback>{conversation.contact.name.charAt(0)}</AvatarFallback></Avatar>
                     <div className="min-w-0 flex-1">
@@ -305,8 +305,8 @@ const ConversationsContent = () => {
               </form>
             </>
           ) : (
-            <div className="flex flex-1 items-center justify-center p-8 text-center">
-              <div><Users className="mx-auto mb-4 h-14 w-14 text-muted-foreground" /><h2 className="text-lg font-semibold">Selecione uma conversa</h2><p className="mt-1 text-sm text-muted-foreground">As mensagens reais aparecerão aqui.</p></div>
+            <div className="flex flex-1 items-center justify-center bg-gradient-to-br from-primary/5 to-transparent p-8 text-center">
+              <div><Users className="mx-auto mb-4 h-14 w-14 text-muted-foreground" /><h2 className="text-lg font-semibold">Selecione uma conversa</h2><p className="mt-1 text-sm text-muted-foreground">Continue o relacionamento depois do atendimento. Escolha um cliente na lista para acompanhar suas mensagens.</p></div>
             </div>
           )}
         </section>

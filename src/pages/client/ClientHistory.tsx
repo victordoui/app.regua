@@ -144,8 +144,8 @@ const ClientHistory = () => {
             <ArrowLeft className="h-5 w-5" />
           </Button>
           <div>
-            <h1 className="text-2xl font-bold">Meu Histórico</h1>
-            <p className="text-muted-foreground">{appointments.length} cortes realizados</p>
+            <PageHeader title="Meu histórico" />
+            <p className="text-muted-foreground">{appointments.length} atendimentos realizados</p>
           </div>
         </div>
 
@@ -244,3 +244,4 @@ const ClientHistory = () => {
 };
 
 export default ClientHistory;
+import { PageHeader } from '@/components/ui/page-header';

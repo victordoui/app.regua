@@ -6,8 +6,8 @@ import { Tag, Gift, TrendingUp } from 'lucide-react';
 import CouponsContent from '@/components/promotions/CouponsContent';
 import GiftCardsContent from '@/components/promotions/GiftCardsContent';
 import DynamicPricingContent from '@/components/promotions/DynamicPricingContent';
-import { PageContainer, PageHeader } from '@/components/ui/page-header';
-import { SectionTabsLayout } from '@/components/ui/section-tabs';
+import { PageContainer, PageHeader, WorkspaceGuide } from '@/components/ui/workspace-page';
+import { SectionTabsLayout } from '@/components/ui/workspace-sections';
 
 const promotionSections = [
   { value: 'cupons', label: 'Cupons', description: 'Descontos promocionais', icon: Tag },
@@ -24,6 +24,7 @@ const Coupons = () => {
       <PageContainer>
         <PageHeader eyebrow="Financeiro" icon={<Tag className="h-5 w-5" />} title="Promoções" subtitle="Crie incentivos simples para atrair clientes e aumentar os agendamentos." />
 
+        <WorkspaceGuide title="Uma campanha para cada objetivo">Use cupons para incentivar uma visita, vales-presente para presentear e preços dinâmicos para valorizar ou preencher horários específicos.</WorkspaceGuide>
         <Tabs value={defaultTab} onValueChange={(v) => setSearchParams({ tab: v })}>
           <SectionTabsLayout items={promotionSections} navigationTitle="Qual promoção você quer gerenciar?">
             <TabsContent value="cupons" className="mt-0"><CouponsContent /></TabsContent>

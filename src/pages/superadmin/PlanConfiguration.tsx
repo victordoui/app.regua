@@ -94,7 +94,7 @@ const PlanConfiguration = () => {
     <SuperAdminLayout>
       <div className="space-y-6">
         <div>
-          <h1 className="text-3xl font-bold text-foreground">Planos e Preços</h1>
+          <PageHeader eyebrow="Gestão da plataforma" title="Planos e Preços" />
           <p className="text-muted-foreground">
             Configure os planos da plataforma, preços e recursos
           </p>
@@ -311,3 +311,4 @@ const PlanConfiguration = () => {
 };
 
 export default PlanConfiguration;
+import { PageHeader } from '@/components/ui/page-header';

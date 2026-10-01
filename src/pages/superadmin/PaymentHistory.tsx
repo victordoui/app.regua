@@ -83,7 +83,7 @@ const PaymentHistory = () => {
     <SuperAdminLayout>
       <div className="space-y-6">
         <div>
-          <h1 className="text-3xl font-bold text-foreground">Histórico de Pagamentos</h1>
+          <PageHeader eyebrow="Gestão da plataforma" title="Histórico de Pagamentos" />
           <p className="text-muted-foreground">
             Acompanhe todos os pagamentos da plataforma
           </p>
@@ -226,3 +226,4 @@ const PaymentHistory = () => {
 };
 
 export default PaymentHistory;
+import { PageHeader } from '@/components/ui/page-header';

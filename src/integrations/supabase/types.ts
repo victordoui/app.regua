@@ -14,6 +14,12 @@ export type Database = {
   }
   public: {
     Tables: {
+      tv_display_settings: {
+        Row: { user_id: string; config: Json; updated_at: string }
+        Insert: { user_id: string; config: Json; updated_at?: string }
+        Update: { user_id?: string; config?: Json; updated_at?: string }
+        Relationships: []
+      }
       accounts_transactions: {
         Row: {
           amount: number

@@ -15,9 +15,9 @@ import { useToast } from '@/hooks/use-toast';
 import { Crown, Gift, Plus, Star, Users, Trash2, Loader2, UserPlus, Clock, CheckCircle, Copy } from 'lucide-react';
 import { format } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
-import { PageContainer, PageHeader } from '@/components/ui/page-header';
-import { StatusCards } from '@/components/ui/status-cards';
-import { SectionTabsLayout } from '@/components/ui/section-tabs';
+import { PageContainer, PageHeader, WorkspaceGuide } from '@/components/ui/workspace-page';
+import { StatusCards } from '@/components/ui/workspace-stats';
+import { SectionTabsLayout } from '@/components/ui/workspace-sections';
 
 const loyaltySections = [
   { value: 'loyalty', label: 'Pontos e recompensas', description: 'Benefícios para clientes', icon: Star },
@@ -61,6 +61,7 @@ const Loyalty = () => {
       <PageContainer>
         <PageHeader eyebrow="Engajamento" icon={<Crown className="h-5 w-5" />} title="Fidelidade e Indicações" subtitle="Recompense clientes frequentes e acompanhe quem indica novos clientes." />
 
+        <WorkspaceGuide title="Transforme recorrência em relacionamento">Defina recompensas alcançáveis e acompanhe os pontos de cada cliente. Na aba Indicações, registre quem trouxe novos clientes para o negócio.</WorkspaceGuide>
         <Tabs defaultValue="loyalty" className="space-y-6">
           <SectionTabsLayout items={loyaltySections} navigationTitle="O que você quer acompanhar?">
           <TabsContent value="loyalty" className="mt-0 space-y-6">

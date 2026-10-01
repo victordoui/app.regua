@@ -76,7 +76,7 @@ const PlatformCoupons = () => {
       <div className="space-y-6">
         <div className="flex items-center justify-between">
           <div>
-            <h1 className="text-3xl font-bold text-foreground">Cupons da Plataforma</h1>
+          <PageHeader eyebrow="Gestão da plataforma" title="Cupons da Plataforma" />
             <p className="text-muted-foreground">
               Gerencie cupons de desconto globais para assinaturas
             </p>
@@ -294,3 +294,4 @@ const PlatformCoupons = () => {
 };
 
 export default PlatformCoupons;
+import { PageHeader } from '@/components/ui/page-header';

@@ -161,7 +161,7 @@ const ClientLoyalty = () => {
             <ArrowLeft className="h-5 w-5" />
           </Button>
           <div>
-            <h1 className="text-2xl font-bold">Fidelidade</h1>
+            <PageHeader title="Fidelidade" />
             <p className="text-muted-foreground">Seus pontos e recompensas</p>
           </div>
         </div>
@@ -288,3 +288,4 @@ const ClientLoyalty = () => {
 };
 
 export default ClientLoyalty;
+import { PageHeader } from '@/components/ui/page-header';

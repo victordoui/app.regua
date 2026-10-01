@@ -1,45 +1,41 @@
 import React from 'react';
-import { Card, CardContent } from '@/components/ui/card';
+import { StatusCards } from '@/components/ui/workspace-stats';
+import { WorkspaceGuide } from '@/components/ui/workspace-page';
+import { SectionTabsLayout } from '@/components/ui/workspace-sections';
+import { Tabs, TabsContent } from '@/components/ui/tabs';
 import { Users, DollarSign, TrendingUp, Trophy, Star } from 'lucide-react';
 import { useBarberPerformance } from '@/hooks/useBarberPerformance';
 import BarberRankingTable from '@/components/reports/BarberRankingTable';
 import CancellationAnalysis from '@/components/reports/CancellationAnalysis';
 import ReviewsContent from '@/components/dashboard/ReviewsContent';
 
-const demoSummary = {
-  totalBarbers: 5,
-  totalRevenue: 24780,
-  avgCompletionRate: 88,
-  topPerformer: 'Carlos Silva',
-};
-
 const BarberPerformanceContent = () => {
-  const { performanceData, cancellationAnalysis, summary: realSummary, isLoading } = useBarberPerformance();
+  const { performanceData, cancellationAnalysis, summary: realSummary, isLoading, error, refetch } = useBarberPerformance();
   
-  const isEmpty = realSummary.totalBarbers === 0 && realSummary.totalRevenue === 0;
-  const summary = isEmpty ? demoSummary : realSummary;
+  const summary = realSummary;
+  if (isLoading) return <p className="text-muted-foreground" role="status">Carregando desempenho dos profissionais…</p>;
+  if (error) return <div role="alert" className="rounded-2xl border border-destructive/30 p-6"><p>Não foi possível carregar o desempenho da equipe.</p><button className="mt-3 text-primary underline" onClick={() => refetch()}>Tentar novamente</button></div>;
 
   return (
     <div className="space-y-6">
-      <p className="text-muted-foreground">Acompanhe as métricas de performance de cada profissional.</p>
+      <WorkspaceGuide title="Leitura do mês atual">Compare a produtividade da equipe, entenda os cancelamentos e acompanhe a experiência de quem foi atendido.</WorkspaceGuide>
 
-      <div className="grid gap-4 md:grid-cols-4">
-        <Card><CardContent className="pt-6"><div className="flex items-center gap-2"><Users className="h-5 w-5 text-primary" /><span className="text-sm text-muted-foreground">Profissionais Ativos</span></div><p className="text-3xl font-bold mt-2">{summary.totalBarbers}</p></CardContent></Card>
-        <Card><CardContent className="pt-6"><div className="flex items-center gap-2"><DollarSign className="h-5 w-5 text-primary-400" /><span className="text-sm text-muted-foreground">Receita Total</span></div><p className="text-3xl font-bold mt-2">R$ {summary.totalRevenue.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}</p></CardContent></Card>
-        <Card><CardContent className="pt-6"><div className="flex items-center gap-2"><TrendingUp className="h-5 w-5 text-primary-600" /><span className="text-sm text-muted-foreground">Taxa Conclusão Média</span></div><p className="text-3xl font-bold mt-2">{summary.avgCompletionRate.toFixed(0)}%</p></CardContent></Card>
-        <Card><CardContent className="pt-6"><div className="flex items-center gap-2"><Trophy className="h-5 w-5 text-primary-400" /><span className="text-sm text-muted-foreground">Top Performer</span></div><p className="text-2xl font-bold mt-2 truncate">{summary.topPerformer}</p></CardContent></Card>
-      </div>
+      <StatusCards items={[
+        { label: 'Profissionais', value: summary.totalBarbers, icon: <Users className="h-5 w-5" />, suffix: 'na equipe', color: 'blue' },
+        { label: 'Receita concluída', value: summary.totalRevenue.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' }), icon: <DollarSign className="h-5 w-5" />, suffix: 'no mês atual', color: 'green' },
+        { label: 'Conclusão média', value: `${summary.avgCompletionRate.toFixed(0)}%`, icon: <TrendingUp className="h-5 w-5" />, suffix: 'dos atendimentos da equipe', color: 'primary' },
+        { label: 'Destaque em receita', value: summary.totalRevenue > 0 ? summary.topPerformer : '—', icon: <Trophy className="h-5 w-5" />, suffix: summary.totalRevenue > 0 ? 'no mês atual' : 'aguardando atendimentos concluídos', color: 'amber' },
+      ]} />
 
-      <BarberRankingTable barbers={performanceData} />
-      <CancellationAnalysis data={cancellationAnalysis} />
-
-      {/* Avaliações */}
-      <div className="space-y-6 pt-4">
-        <h2 className="text-lg font-bold text-foreground flex items-center gap-2">
-          <Star className="h-5 w-5 text-primary" /> Avaliações
-        </h2>
-        <ReviewsContent />
-      </div>
+      <Tabs defaultValue="team"><SectionTabsLayout items={[
+        { value: 'team', label: 'Equipe', description: 'Produtividade e receita', icon: Users },
+        { value: 'cancellations', label: 'Cancelamentos', description: 'Recupere oportunidades', icon: TrendingUp },
+        { value: 'reviews', label: 'Avaliações', description: 'A voz dos clientes', icon: Star },
+      ]}>
+        <TabsContent value="team"><BarberRankingTable barbers={performanceData} /></TabsContent>
+        <TabsContent value="cancellations"><CancellationAnalysis data={cancellationAnalysis} /></TabsContent>
+        <TabsContent value="reviews"><ReviewsContent /></TabsContent>
+      </SectionTabsLayout></Tabs>
     </div>
   );
 };

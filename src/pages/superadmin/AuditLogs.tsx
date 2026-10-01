@@ -43,7 +43,7 @@ const AuditLogs = () => {
     <SuperAdminLayout>
       <div className="space-y-6">
         <div>
-          <h1 className="text-3xl font-bold text-foreground">Logs de Auditoria</h1>
+          <PageHeader eyebrow="Gestão da plataforma" title="Logs de Auditoria" />
           <p className="text-muted-foreground">
             Histórico de ações realizadas pelos administradores da plataforma
           </p>
@@ -128,3 +128,4 @@ const AuditLogs = () => {
 };
 
 export default AuditLogs;
+import { PageHeader } from '@/components/ui/page-header';

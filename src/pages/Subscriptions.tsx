@@ -9,9 +9,9 @@ import SubscriptionPlanCard from '@/components/subscriptions/SubscriptionPlanCar
 import UserSubscriptionCard from '@/components/subscriptions/UserSubscriptionCard';
 import SubscriptionFormDialog from '@/components/subscriptions/SubscriptionFormDialog';
 import SubscriptionCreationDialog from '@/components/subscriptions/SubscriptionCreationDialog';
-import { PageContainer, PageHeader } from '@/components/ui/page-header';
-import { SectionTabsLayout } from '@/components/ui/section-tabs';
-import { StatusCards } from '@/components/ui/status-cards';
+import { PageContainer, PageHeader, WorkspaceGuide } from '@/components/ui/workspace-page';
+import { SectionTabsLayout } from '@/components/ui/workspace-sections';
+import { StatusCards } from '@/components/ui/workspace-stats';
 
 const subscriptionSections = [
   { value: 'plans', label: 'Planos', description: 'Opções oferecidas', icon: Crown },
@@ -72,6 +72,7 @@ const Subscriptions = () => {
           </div>
         </PageHeader>
 
+        <WorkspaceGuide title="Planos do seu estabelecimento">Estes são os planos que você oferece aos seus clientes, não a assinatura do VIZZU. Crie os benefícios e depois vincule cada cliente a uma assinatura.</WorkspaceGuide>
         <StatusCards
           items={[
             { label: 'Assinantes ativos', value: stats.activeCount, icon: <Crown className="h-5 w-5" />, color: 'purple' },

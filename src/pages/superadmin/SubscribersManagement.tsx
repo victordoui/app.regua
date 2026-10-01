@@ -101,7 +101,7 @@ const SubscribersManagement = () => {
       <div className="space-y-6">
         <div className="flex items-center justify-between">
           <div>
-            <h1 className="text-3xl font-bold text-foreground">Gestão de Assinantes</h1>
+          <PageHeader eyebrow="Gestão da plataforma" title="Gestão de Assinantes" />
             <p className="text-muted-foreground">
               Gerencie os donos de barbearias cadastrados na plataforma
             </p>
@@ -286,3 +286,4 @@ const SubscribersManagement = () => {
 };
 
 export default SubscribersManagement;
+import { PageHeader } from '@/components/ui/page-header';

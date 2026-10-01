@@ -39,7 +39,7 @@ const BarberRankingTable: React.FC<BarberRankingTableProps> = ({ barbers }) => {
       <CardHeader>
         <CardTitle className="flex items-center gap-2">
           <TrendingUp className="h-5 w-5 text-primary" />
-          Ranking de Barbeiros
+          Desempenho dos profissionais
         </CardTitle>
       </CardHeader>
       <CardContent>
@@ -48,7 +48,7 @@ const BarberRankingTable: React.FC<BarberRankingTableProps> = ({ barbers }) => {
             <TableHeader>
               <TableRow>
                 <TableHead className="w-12">#</TableHead>
-                <TableHead>Barbeiro</TableHead>
+                <TableHead>Profissional</TableHead>
                 <TableHead className="text-center">Atendimentos</TableHead>
                 <TableHead className="text-center">Receita</TableHead>
                 <TableHead className="text-center">Taxa Conclusão</TableHead>

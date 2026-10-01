@@ -22,7 +22,7 @@ import {
   HouseIcon, ImageIcon, InfoIcon, InstagramLogoIcon, KeyIcon, LightningIcon,
   LinkIcon, ListIcon, ListNumbersIcon, LockIcon, LockKeyIcon, MagnifyingGlassIcon,
   MagnifyingGlassMinusIcon, MagnifyingGlassPlusIcon, MapPinIcon, MegaphoneIcon,
-  MinusIcon, MoneyIcon, MoonIcon, NavigationArrowIcon, PackageIcon, PaletteIcon,
+  MinusIcon, MonitorIcon, MoneyIcon, MoonIcon, NavigationArrowIcon, PackageIcon, PaletteIcon,
   PaperPlaneTiltIcon, PauseIcon, PencilIcon, PencilSimpleIcon,
   PercentIcon, PhoneIcon, PlayIcon, PlusIcon, PowerIcon, ProhibitIcon, QrCodeIcon,
   QuotesIcon, ReceiptIcon, RepeatIcon, ScissorsIcon, ScrollIcon, ShareNetworkIcon,
@@ -37,6 +37,7 @@ import {
 export type LucideIcon = Icon;
 
 export {
+  MonitorIcon as Monitor,
   ActivityIcon as Activity,
   WarningCircleIcon as AlertCircle,
   WarningIcon as AlertTriangle,

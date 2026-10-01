@@ -144,6 +144,8 @@ const Sidebar = () => {
       category: "comunicacao", label: "Comunicação", icon: Megaphone, section: "Relacionamento",
       items: [
         { icon: MessageSquare, label: "Conversas", path: "/conversations" },
+        { icon: LayoutDashboard, label: "Painel TV", path: "/communication/tv" },
+        { icon: Settings, label: "Configuração da TV", path: "/communication/tv/settings" },
       ]
     },
     {
@@ -182,6 +184,7 @@ const Sidebar = () => {
     // Rotas raiz não devem capturar sub-rotas de outras seções.
     if (path === '/') return false;
     if (path === '/superadmin') return false;
+    if (path === '/communication/tv') return false;
     return location.pathname.startsWith(`${path}/`);
   };
   const isCategoryActive = (items: { path: string }[]) =>

@@ -1,4 +1,5 @@
 import { useCallback } from 'react';
+import { resolveCommissionRate, commissionAmount } from '@/lib/commissionCalculation';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/contexts/AuthContext';
@@ -45,57 +46,8 @@ export const useCommissionRules = () => {
     enabled: !!user
   });
 
-  // Get applicable commission rate for a specific barber and service
-  const getCommissionRate = useCallback((barberId: string | null, serviceId: string | null): { type: string; value: number } => {
-    // Priority: specific rule (barber+service) > barber rule > service rule > default
-    
-    // 1. Try to find specific rule for barber AND service
-    if (barberId && serviceId) {
-      const specificRule = rules.find(r => 
-        r.barber_id === barberId && r.service_id === serviceId
-      );
-      if (specificRule) {
-        return { type: specificRule.commission_type, value: specificRule.commission_value };
-      }
-    }
-
-    // 2. Try to find rule for barber only
-    if (barberId) {
-      const barberRule = rules.find(r => 
-        r.barber_id === barberId && !r.service_id
-      );
-      if (barberRule) {
-        return { type: barberRule.commission_type, value: barberRule.commission_value };
-      }
-    }
-
-    // 3. Try to find rule for service only
-    if (serviceId) {
-      const serviceRule = rules.find(r => 
-        !r.barber_id && r.service_id === serviceId
-      );
-      if (serviceRule) {
-        return { type: serviceRule.commission_type, value: serviceRule.commission_value };
-      }
-    }
-
-    // 4. Fallback to 40% if no rules exist
-    return { type: 'percentage', value: 40 };
-  }, [rules]);
-
-  // Calculate commission amount
-  const calculateCommission = useCallback((
-    barberId: string | null, 
-    serviceId: string | null, 
-    servicePrice: number
-  ): number => {
-    const rate = getCommissionRate(barberId, serviceId);
-    
-    if (rate.type === 'percentage') {
-      return (servicePrice * rate.value) / 100;
-    }
-    return rate.value;
-  }, [getCommissionRate]);
+  const getCommissionRate = useCallback((barberId: string | null, serviceId: string | null) => resolveCommissionRate(rules, barberId, serviceId), [rules]);
+  const calculateCommission = useCallback((barberId: string | null, serviceId: string | null, servicePrice: number) => commissionAmount(getCommissionRate(barberId, serviceId), servicePrice), [getCommissionRate]);
 
   const addRuleMutation = useMutation({
     mutationFn: async (formData: CommissionRuleFormData) => {

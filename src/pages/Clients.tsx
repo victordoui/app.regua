@@ -10,8 +10,8 @@ import { useClients } from "@/hooks/useClients";
 import Layout from "@/components/Layout";
 import { Client } from "@/types/appointments";
 import { formatPhoneBR, formatNameOnly } from "@/lib/utils";
-import { PageContainer, PageHeader } from "@/components/ui/page-header";
-import { StatusCards } from "@/components/ui/status-cards";
+import { PageContainer, PageHeader, WorkspaceEmpty } from "@/components/ui/workspace-page";
+import { StatusCards } from "@/components/ui/workspace-stats";
 import { SearchFilters } from "@/components/ui/search-filters";
 
 interface ClientFormData {
@@ -107,24 +107,21 @@ const Clients = () => {
           {isLoading ? (
             <div className="col-span-full flex items-center justify-center py-12 text-muted-foreground">Carregando...</div>
           ) : filteredClients.length === 0 ? (
-            <div className="col-span-full flex flex-col items-center justify-center py-12 text-muted-foreground">
-              <Users className="h-12 w-12 mb-4 opacity-30" />
-              <p>Nenhum cliente encontrado.</p>
-            </div>
+            <div className="col-span-full"><WorkspaceEmpty icon={<Users className="h-6 w-6" />} title={searchTerm ? 'Nenhum resultado para esta busca' : 'Seu relacionamento com os clientes começa aqui'} description={searchTerm ? 'Tente outro nome, telefone ou e-mail para encontrar o cadastro.' : 'Organize contatos, observações e histórico para oferecer um atendimento mais próximo.'}><Button variant={searchTerm ? 'outline' : 'default'} onClick={() => { if (searchTerm) setSearchTerm(''); else { setEditingClient(null); setIsDialogOpen(true); } }}>{searchTerm ? 'Limpar busca' : 'Cadastrar primeiro cliente'}</Button></WorkspaceEmpty></div>
           ) : (
             filteredClients.map((client) => (
-              <div key={client.id} className="rounded-xl border border-border/40 bg-card p-5 shadow-sm transition-all hover:shadow-md">
+              <div key={client.id} className="rounded-[20px] border border-border bg-card p-5 shadow-sm">
                 <div className="flex items-start justify-between gap-2 mb-3">
                   <div className="min-w-0">
-                    <h3 className="font-semibold text-base truncate">{client.name}</h3>
+                    <div className="mb-3 flex h-11 w-11 items-center justify-center rounded-2xl bg-primary/10 text-sm font-bold text-primary">{client.name.split(' ').map(n => n[0]).slice(0, 2).join('')}</div><h3 className="font-bold text-base truncate">{client.name}</h3>
                     <div className="flex items-center gap-1.5 text-sm text-muted-foreground mt-1">
                       <Phone className="h-3.5 w-3.5 shrink-0" />
                       <span className="truncate">{client.phone}</span>
                     </div>
                   </div>
                   <div className="flex gap-1 shrink-0">
-                    <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => handleEdit(client)}><Edit className="h-4 w-4" /></Button>
-                    <Button variant="ghost" size="icon" className="h-8 w-8 text-destructive hover:text-destructive" onClick={() => handleDelete(client.id)}><Trash2 className="h-4 w-4" /></Button>
+                    <Button variant="ghost" size="icon" aria-label={`Editar ${client.name}`} className="h-10 w-10" onClick={() => handleEdit(client)}><Edit className="h-4 w-4" /></Button>
+                    <Button variant="ghost" size="icon" aria-label={`Excluir ${client.name}`} className="h-10 w-10 text-destructive hover:text-destructive" onClick={() => handleDelete(client.id)}><Trash2 className="h-4 w-4" /></Button>
                   </div>
                 </div>
                 {client.email && (

@@ -5,6 +5,7 @@ import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
 import { Progress } from '@/components/ui/progress';
 import { ScrollArea } from '@/components/ui/scroll-area';
+import { WorkspaceEmpty } from '@/components/ui/workspace-page';
 import { useReviews } from '@/hooks/useReviews';
 import StarRating from '@/components/reviews/StarRating';
 import { format } from 'date-fns';
@@ -28,14 +29,14 @@ const ReviewsContent = () => {
 
       {/* Stats */}
       <div className="grid gap-4 md:grid-cols-4">
-        <Card><CardContent className="pt-6"><div className="flex items-center gap-2"><Star className="h-5 w-5 text-yellow-500" /><span className="text-sm text-muted-foreground">Nota Média</span></div><div className="flex items-center gap-2 mt-2"><span className="text-3xl font-bold">{stats.averageRating.toFixed(1)}</span><StarRating rating={stats.averageRating} size="sm" /></div></CardContent></Card>
+        <Card><CardContent className="pt-6"><div className="flex items-center gap-2"><Star className="h-5 w-5 text-yellow-500" /><span className="text-sm text-muted-foreground">Nota Média</span></div><div className="flex items-center gap-2 mt-2"><span className="text-3xl font-bold">{stats.totalReviews ? stats.averageRating.toFixed(1) : '—'}</span><StarRating rating={stats.averageRating} size="sm" /></div></CardContent></Card>
         <Card><CardContent className="pt-6"><div className="flex items-center gap-2"><MessageSquare className="h-5 w-5 text-primary" /><span className="text-sm text-muted-foreground">Total de Avaliações</span></div><p className="text-3xl font-bold mt-2">{stats.totalReviews}</p></CardContent></Card>
         <Card className="md:col-span-2"><CardContent className="pt-6"><div className="flex items-center gap-2 mb-4"><TrendingUp className="h-5 w-5 text-primary" /><span className="text-sm text-muted-foreground">Distribuição de Notas</span></div><div className="space-y-2">{stats.ratingDistribution.slice().reverse().map(({ rating, count }) => (<div key={rating} className="flex items-center gap-2"><span className="text-sm w-8">{rating}★</span><Progress value={stats.totalReviews > 0 ? (count / stats.totalReviews) * 100 : 0} className="h-2 flex-1" /><span className="text-sm text-muted-foreground w-8">{count}</span></div>))}</div></CardContent></Card>
       </div>
 
       {/* Filters */}
       <div className="flex flex-col sm:flex-row gap-4">
-        <div className="relative flex-1"><Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" /><Input placeholder="Buscar por cliente ou comentário..." value={search} onChange={(e) => setSearch(e.target.value)} className="pl-10" /></div>
+        <div className="relative flex-1"><Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" /><Input aria-label="Buscar avaliações por cliente ou comentário" placeholder="Buscar por cliente ou comentário..." value={search} onChange={(e) => setSearch(e.target.value)} className="pl-10" /></div>
         <div className="flex flex-wrap gap-2">
           <Button className="min-h-11" variant={filterRating === null ? 'default' : 'outline'} size="sm" onClick={() => setFilterRating(null)}>Todas</Button>
           {[5,4,3,2,1].map(rating => <Button className="min-h-11 min-w-11" key={rating} variant={filterRating === rating ? 'default' : 'outline'} size="sm" onClick={() => setFilterRating(filterRating === rating ? null : rating)}>{rating}★</Button>)}
@@ -54,7 +55,7 @@ const ReviewsContent = () => {
               <div><p className="font-medium">Não foi possível carregar as avaliações</p><p className="text-sm">Atualize a página e tente novamente.</p></div>
             </div>
           ) : filteredReviews.length === 0 ? (
-            <div className="text-center py-12 text-muted-foreground"><Star className="h-12 w-12 mx-auto mb-4 opacity-50" /><p>Nenhuma avaliação encontrada</p></div>
+            <WorkspaceEmpty icon={<Star className="h-6 w-6" />} title={reviews.length ? "Nenhum resultado para esses filtros" : "A experiência dos clientes começa aqui"} description={reviews.length ? "Experimente outra nota ou limpe a busca para ver todas as avaliações." : "As avaliações recebidas após os atendimentos aparecerão aqui. Use esse retorno para valorizar a equipe e melhorar a experiência."}>{(search || filterRating) && <Button variant="outline" onClick={() => { setSearch(""); setFilterRating(null); }}>Limpar filtros</Button>}</WorkspaceEmpty>
           ) : (
             <ScrollArea className="h-[500px]">
               <div className="space-y-4">
@@ -69,7 +70,7 @@ const ReviewsContent = () => {
                           </div>
                           <StarRating rating={review.rating} size="sm" />
                           {review.comment && <p className="mt-2 text-sm text-muted-foreground">"{review.comment}"</p>}
-                          {review.barber && <Badge variant="outline" className="mt-2">Barbeiro: {review.barber.display_name}</Badge>}
+                          {review.barber && <Badge variant="outline" className="mt-2">Profissional: {review.barber.display_name}</Badge>}
                         </div>
                       </div>
                     </CardContent>

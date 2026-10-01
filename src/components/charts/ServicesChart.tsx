@@ -6,14 +6,6 @@ interface ServicesChartProps {
   data?: { name: string; value: number }[];
 }
 
-const defaultData = [
-  { name: 'Corte Masculino', value: 145 },
-  { name: 'Corte + Barba', value: 98 },
-  { name: 'Barba', value: 67 },
-  { name: 'Degradê', value: 52 },
-  { name: 'Outros', value: 28 },
-];
-
 const COLORS = [
   'hsl(var(--primary))',
   'hsl(221, 83%, 65%)',
@@ -22,13 +14,14 @@ const COLORS = [
   'hsl(var(--muted))',
 ];
 
-const ServicesChart: React.FC<ServicesChartProps> = ({ data = defaultData }) => {
+const ServicesChart: React.FC<ServicesChartProps> = ({ data = [] }) => {
   return (
     <Card>
       <CardHeader className="pb-2">
         <CardTitle className="text-lg">Serviços Mais Populares</CardTitle>
       </CardHeader>
       <CardContent>
+        {!data.length && <p className="text-sm text-muted-foreground">Nenhum serviço concluído neste período.</p>}
         <div className="h-[250px]">
           <ResponsiveContainer width="100%" height="100%">
             <PieChart>

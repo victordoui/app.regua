@@ -29,6 +29,7 @@ const ImageUploadField: React.FC<ImageUploadFieldProps> = ({
   const [isCropperOpen, setIsCropperOpen] = useState(false);
   const [fileToCrop, setFileToCrop] = useState<File | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const inputId = React.useId();
 
   React.useEffect(() => {
     setPreviewUrl(currentUrl);
@@ -85,7 +86,7 @@ const ImageUploadField: React.FC<ImageUploadFieldProps> = ({
   return (
     <>
       <div className="space-y-2">
-        <Label htmlFor={`upload-${folder}`}>{label}</Label>
+        <Label htmlFor={inputId}>{label}</Label>
         
         <Card className="p-4">
           <CardContent className="p-0 space-y-3">
@@ -104,7 +105,7 @@ const ImageUploadField: React.FC<ImageUploadFieldProps> = ({
 
             {/* Hidden Input */}
             <Input
-              id={`upload-${folder}`}
+              id={inputId}
               type="file"
               accept="image/*"
               onChange={handleFileChange}

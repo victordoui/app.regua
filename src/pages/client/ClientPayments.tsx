@@ -267,7 +267,7 @@ const ClientPayments = () => {
             <ArrowLeft className="h-5 w-5" />
           </Button>
           <div>
-            <h1 className="text-xl font-bold">Meus Pagamentos</h1>
+            <PageHeader title="Meus pagamentos" />
             <p className="text-sm text-muted-foreground">{payments.length} pagamentos</p>
           </div>
         </div>
@@ -391,3 +391,4 @@ const ClientPayments = () => {
 };
 
 export default ClientPayments;
+import { PageHeader } from '@/components/ui/page-header';

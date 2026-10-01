@@ -51,7 +51,7 @@ const ExpiringSubscriptions = () => {
     <SuperAdminLayout>
       <div className="space-y-6">
         <div>
-          <h1 className="text-3xl font-bold text-foreground">Assinaturas Expirando</h1>
+          <PageHeader eyebrow="Gestão da plataforma" title="Assinaturas Expirando" />
           <p className="text-muted-foreground">
             Acompanhe e gerencie assinaturas próximas do vencimento
           </p>
@@ -187,3 +187,4 @@ const ExpiringSubscriptions = () => {
 };
 
 export default ExpiringSubscriptions;
+import { PageHeader } from '@/components/ui/page-header';

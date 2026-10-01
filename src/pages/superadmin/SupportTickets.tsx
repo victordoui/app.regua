@@ -80,7 +80,7 @@ const SupportTickets = () => {
     <SuperAdminLayout>
       <div className="space-y-6">
         <div>
-          <h1 className="text-3xl font-bold text-foreground">Tickets de Suporte</h1>
+          <PageHeader eyebrow="Gestão da plataforma" title="Tickets de Suporte" />
           <p className="text-muted-foreground">
             Gerencie solicitações de suporte dos assinantes
           </p>
@@ -297,3 +297,4 @@ const SupportTickets = () => {
 };
 
 export default SupportTickets;
+import { PageHeader } from '@/components/ui/page-header';
