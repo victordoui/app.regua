@@ -157,6 +157,7 @@ export interface AuditLog {
 export type AuditAction = 
   | 'ban_user'
   | 'unban_user'
+  | 'revoke_sessions'
   | 'suspend_subscription'
   | 'activate_subscription'
   | 'cancel_subscription'

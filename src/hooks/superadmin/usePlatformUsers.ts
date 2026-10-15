@@ -8,6 +8,8 @@ export interface PlatformUser {
   email: string | null;
   avatar_url: string | null;
   created_at: string | null;
+  active: boolean | null;
+  company_name: string | null;
   roles: string[];
   subscription?: {
     plan_type: string;
@@ -34,10 +36,11 @@ export const usePlatformUsers = () => {
     queryKey: ['platform-users'],
     queryFn: async (): Promise<{ users: PlatformUser[]; stats: PlatformUserStats }> => {
       // Fetch profiles, roles, and subscriptions in parallel
-      const [profilesRes, rolesRes, subscriptionsRes] = await Promise.all([
-        supabase.from('profiles').select('id, user_id, display_name, email, avatar_url, created_at'),
+      const [profilesRes, rolesRes, subscriptionsRes, businessesRes] = await Promise.all([
+        supabase.from('profiles').select('id, user_id, display_name, email, avatar_url, created_at, active'),
         supabase.from('user_roles').select('user_id, role'),
         supabase.from('platform_subscriptions').select('user_id, plan_type, status, payment_status, start_date, end_date'),
+        supabase.from('barbershop_settings').select('user_id, company_name'),
       ]);
 
       if (profilesRes.error) throw profilesRes.error;
@@ -45,6 +48,7 @@ export const usePlatformUsers = () => {
       const profiles = profilesRes.data || [];
       const roles = rolesRes.data || [];
       const subscriptions = subscriptionsRes.data || [];
+      const businessMap = new Map((businessesRes.data || []).map((business) => [business.user_id, business.company_name]));
 
       // Build role map
       const roleMap = new Map<string, string[]>();
@@ -68,6 +72,8 @@ export const usePlatformUsers = () => {
         email: p.email,
         avatar_url: p.avatar_url,
         created_at: p.created_at,
+        active: p.active,
+        company_name: businessMap.get(p.user_id) || null,
         roles: roleMap.get(p.user_id) || [],
         subscription: subMap.get(p.user_id) ? {
           plan_type: subMap.get(p.user_id)!.plan_type,

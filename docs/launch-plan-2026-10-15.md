@@ -39,11 +39,16 @@ jornada completa e da configuração de SMTP prevista na Fase 6.
 
 ## Fase 2 — Administração da Plataforma
 
-- Transformar a listagem de usuários em central de ações.
-- Implementar suspensão real, banimento, revogação de sessões e exclusão segura.
-- Exibir empresa, plano, situação financeira e dias de trial.
-- Auditar toda ação administrativa.
-- Remover métricas demonstrativas.
+Status: concluída em 15 de outubro de 2026, com ações destrutivas disponíveis
+somente para superadmin e protegidas por confirmação.
+
+- Listagem transformada em central de contas e ações.
+- Suspensão, banimento, revogação de sessões e exclusão segura implementados no servidor.
+- Empresa, perfil, plano, situação financeira e dias de trial exibidos.
+- Ações administrativas registradas em auditoria.
+- Métricas da central calculadas a partir dos dados reais do Supabase.
+
+Saída: [relatório da Fase 2](./phase-2-platform-administration-2026-10-15.md).
 
 ## Fase 3 — nomenclatura e equipe
 
