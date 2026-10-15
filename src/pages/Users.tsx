@@ -121,7 +121,7 @@ const Users = () => {
         title: editingProfile ? "Acesso atualizado" : "Convite enviado",
         description: editingProfile
           ? "As permissões da equipe foram atualizadas."
-          : "O profissional receberá um e-mail para definir o acesso.",
+          : "O colaborador receberá um e-mail para definir o acesso.",
       });
     },
     onError: (error: Error) => {
@@ -129,6 +129,7 @@ const Users = () => {
         EMAIL_ALREADY_REGISTERED: "Este e-mail já possui uma conta. Use outro endereço ou recupere o acesso existente.",
         EMAIL_ALREADY_IN_TEAM: "Este e-mail já faz parte da equipe.",
         INVITE_FAILED: "Não foi possível enviar o convite. Verifique a configuração de e-mail do sistema.",
+        PLAN_LIMIT_REACHED: "O limite de colaboradores do plano foi atingido. Faça upgrade para ampliar a equipe.",
       };
       toast({ title: "Não foi possível salvar o acesso", description: messages[error.message] || error.message, variant: "destructive" });
     },
@@ -184,8 +185,8 @@ const Users = () => {
 
   const getRoleLabel = (role: string) => {
     switch (role) {
-      case "admin": return "Administrador";
-      case "barbeiro": return "Profissional";
+      case "admin": return "Gestor do Negócio";
+      case "barbeiro": return "Colaborador";
       case "recepcionista": return "Recepcionista";
       case "cliente": return "Cliente";
       default: return role;
@@ -202,6 +203,12 @@ const Users = () => {
     return active ? "Ativo" : "Inativo";
   };
 
+  const hasLoginAccess = (profile: UserProfile) => Boolean(
+    profile.auth_user_id || (profile.user_id === currentUser?.id && profile.role === 'admin'),
+  );
+
+  const isBusinessOwner = (profile: UserProfile) => profile.user_id === currentUser?.id && profile.role === 'admin';
+
 
   const filteredUsers = profiles.filter(user =>
     user.display_name.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -217,14 +224,14 @@ const Users = () => {
       color: "blue"
     },
     {
-      title: "Profissionais Ativos",
+      title: "Colaboradores Ativos",
       value: profiles.filter(u => u.role === 'barbeiro' && u.active).length.toString(),
-      subtitle: "Profissionais disponíveis",
+      subtitle: "Equipe disponível",
       icon: Scissors,
       color: "green"
     },
     {
-      title: "Administradores",
+      title: "Gestores do Negócio",
       value: profiles.filter(u => u.role === 'admin').length.toString(), 
       subtitle: "Com acesso total",
       icon: Shield,
@@ -232,7 +239,7 @@ const Users = () => {
     },
     {
       title: "Acessos Ativos",
-      value: profiles.filter(u => u.auth_user_id && u.active).length.toString(),
+      value: profiles.filter(u => hasLoginAccess(u) && u.active).length.toString(),
       subtitle: "Contas aptas a entrar",
       icon: Crown,
       color: "purple"
@@ -253,10 +260,10 @@ const Users = () => {
     <Layout>
       <PageContainer>
         {/* Header */}
-        <PageHeader eyebrow="Meu negócio" icon={<UsersIcon className="h-5 w-5" />} title="Usuários" subtitle="Gerencie acessos, papéis e disponibilidade da equipe">
+        <PageHeader eyebrow="Meu negócio" icon={<UsersIcon className="h-5 w-5" />} title="Equipe e acessos" subtitle="Gerencie colaboradores, permissões e disponibilidade da equipe">
           <Button onClick={openCreateDialog}>
             <Plus className="h-4 w-4 mr-2" />
-            Novo Usuário
+            Novo Colaborador
           </Button>
         </PageHeader>
 
@@ -284,7 +291,7 @@ const Users = () => {
                 <Select value={teamForm.role} disabled>
                   <SelectTrigger><SelectValue /></SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="barbeiro">Profissional — agenda, clientes e conversas</SelectItem>
+                    <SelectItem value="barbeiro">Colaborador — agenda, clientes e conversas</SelectItem>
                   </SelectContent>
                 </Select>
               </div>
@@ -351,7 +358,7 @@ const Users = () => {
                           <Badge className={getStatusColor(user.active)}>
                             {getStatusLabel(user.active)}
                           </Badge>
-                          {!user.auth_user_id && <Badge variant="outline">Sem acesso</Badge>}
+                          {!hasLoginAccess(user) && <Badge variant="outline">Sem acesso</Badge>}
                         </div>
                         <div className="break-all text-sm text-muted-foreground">
                           {user.email}
@@ -362,21 +369,21 @@ const Users = () => {
                       </div>
                     </div>
 
-                    <DropdownMenu>
+                    {!isBusinessOwner(user) && <DropdownMenu>
                       <DropdownMenuTrigger asChild>
                         <Button aria-label={`Gerenciar acesso de ${user.display_name}`} variant="ghost" size="sm">
                           <MoreHorizontal className="h-4 w-4" />
                         </Button>
                       </DropdownMenuTrigger>
                       <DropdownMenuContent align="end">
-                        {user.auth_user_id ? <DropdownMenuItem onClick={() => openEditDialog(user)}>
+                        {hasLoginAccess(user) ? <DropdownMenuItem onClick={() => openEditDialog(user)}>
                           <Edit className="mr-2 h-4 w-4" />
                           Editar
                         </DropdownMenuItem> : <DropdownMenuItem onClick={() => openInviteDialog(user)}>
                           <UserCheck className="mr-2 h-4 w-4" />
                           Enviar convite de acesso
                         </DropdownMenuItem>}
-                        {user.auth_user_id && <DropdownMenuItem onClick={() => handleToggleStatus(user.id, user.active)}>
+                        {hasLoginAccess(user) && <DropdownMenuItem onClick={() => handleToggleStatus(user.id, user.active)}>
                           {user.active ? (
                             <>
                               <UserX className="mr-2 h-4 w-4" />
@@ -390,7 +397,7 @@ const Users = () => {
                           )}
                         </DropdownMenuItem>}
                       </DropdownMenuContent>
-                    </DropdownMenu>
+                    </DropdownMenu>}
                   </div>
                 ))}
               </div>

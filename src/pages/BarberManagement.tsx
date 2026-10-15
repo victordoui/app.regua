@@ -55,13 +55,13 @@ const BarberManagement = () => {
   const activeCount = barbers.filter(b => b.active).length;
   const absentTodayCount = barbers.filter(b => isBarberAbsent(b.id, today)).length;
 
-  if (isLoading) return <Layout><div className="flex items-center justify-center min-h-[400px] text-muted-foreground">Carregando profissionais...</div></Layout>;
+  if (isLoading) return <Layout><div className="flex items-center justify-center min-h-[400px] text-muted-foreground">Carregando equipe...</div></Layout>;
 
   return (
     <Layout>
       <PageContainer>
-        <PageHeader eyebrow="Operações" icon={<Users className="h-5 w-5" />} title="Profissionais" subtitle="Gerencie sua equipe">
-          <Button onClick={() => setDialogOpen(true)}><Plus className="h-4 w-4 mr-2" />Novo Profissional</Button>
+        <PageHeader eyebrow="Operações" icon={<Users className="h-5 w-5" />} title="Equipe de atendimento" subtitle="Gerencie colaboradores e disponibilidade">
+          <Button onClick={() => setDialogOpen(true)}><Plus className="h-4 w-4 mr-2" />Novo Colaborador</Button>
         </PageHeader>
 
         <StatusCards
@@ -74,7 +74,7 @@ const BarberManagement = () => {
         />
 
         <WorkspaceGuide title="Equipe e disponibilidade">Organize especialidades, bloqueios de horários e ausências. Para criar o acesso de um colaborador, utilize a página Usuários.</WorkspaceGuide>
-        <p className="text-sm text-muted-foreground"><span className="font-medium text-foreground">{barbers.length}</span> profissional(is)</p>
+        <p className="text-sm text-muted-foreground"><span className="font-medium text-foreground">{barbers.length}</span> colaborador(es)</p>
 
         <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
           {barbers.map((barber) => {
@@ -111,7 +111,7 @@ const BarberManagement = () => {
 
         <Dialog open={dialogOpen} onOpenChange={(open) => { setDialogOpen(open); if (!open) setEditingBarber(null); }}>
           <DialogContent className="sm:max-w-md">
-            <DialogHeader><DialogTitle>{editingBarber ? "Editar Profissional" : "Novo Profissional"}</DialogTitle></DialogHeader>
+            <DialogHeader><DialogTitle>{editingBarber ? "Editar Colaborador" : "Novo Colaborador"}</DialogTitle></DialogHeader>
             <form onSubmit={handleSubmit} className="space-y-4">
               <div><Label htmlFor="full_name">Nome Completo</Label><Input id="full_name" value={formData.full_name} onChange={(e) => setFormData(prev => ({ ...prev, full_name: e.target.value }))} required /></div>
               <div><Label htmlFor="email">Email</Label><Input id="email" type="email" value={formData.email} onChange={(e) => setFormData(prev => ({ ...prev, email: e.target.value }))} required /></div>

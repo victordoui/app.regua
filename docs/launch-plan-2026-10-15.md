@@ -52,14 +52,18 @@ Saída: [relatório da Fase 2](./phase-2-platform-administration-2026-10-15.md).
 
 ## Fase 3 — nomenclatura e equipe
 
-- Exibir `admin` como Gestor do Negócio.
-- Exibir `barbeiro` como Colaborador.
-- Exibir `super_admin` como Administrador da Plataforma.
-- Renomear Barbeiros para Equipe nas superfícies genéricas.
-- Validar convite, ativação, desativação e limites por plano.
+Status: concluída em 15 de outubro de 2026.
+
+- `admin` exibido como Gestor do Negócio.
+- `barbeiro` exibido como Colaborador nas áreas de equipe e acesso.
+- `super_admin` exibido como Administrador da Plataforma.
+- Barbeiros renomeado para Equipe nas superfícies genéricas; “profissional” foi mantido nos fluxos de atendimento ao cliente quando descreve quem presta o serviço.
+- Convite, ativação e desativação mantidos; limite do plano também validado no servidor.
 
 Os identificadores internos permanecem inalterados no primeiro lançamento para
 evitar uma migração estrutural desnecessária.
+
+Saída: [relatório da Fase 3](./phase-3-terminology-team-2026-10-15.md).
 
 ## Fase 4 — assinaturas e pagamentos
 

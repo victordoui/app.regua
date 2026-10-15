@@ -16,7 +16,7 @@ import { format } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
 
 const ROLE_LABELS: Record<string, string> = {
-  super_admin: 'Super Admin',
+  super_admin: 'Administrador da Plataforma',
   admin: 'Gestor do Negócio',
   barbeiro: 'Colaborador',
   cliente: 'Cliente',
@@ -142,9 +142,9 @@ const SystemUsers = () => {
                 </SelectTrigger>
                 <SelectContent>
                   <SelectItem value="all">Todas as roles</SelectItem>
-                  <SelectItem value="super_admin">Super Admin</SelectItem>
+                  <SelectItem value="super_admin">Administrador da Plataforma</SelectItem>
                   <SelectItem value="admin">Admin</SelectItem>
-                  <SelectItem value="barbeiro">Profissional</SelectItem>
+                  <SelectItem value="barbeiro">Colaborador</SelectItem>
                   <SelectItem value="cliente">Cliente</SelectItem>
                 </SelectContent>
               </Select>

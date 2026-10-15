@@ -47,9 +47,9 @@ const ROLE_ICONS: Record<string, React.ComponentType<{ className?: string }>> = 
 };
 
 const ROLE_LABELS: Record<string, string> = {
-  super_admin: 'Super Admin',
+  super_admin: 'Administrador da Plataforma',
   admin: 'Admin',
-  barbeiro: 'Profissional',
+  barbeiro: 'Colaborador',
   cliente: 'Cliente',
 };
 
@@ -87,7 +87,7 @@ const SuperAdminDashboard = () => {
     <SuperAdminLayout>
       <div className="space-y-6">
         <div>
-          <PageHeader eyebrow="Gestão da plataforma" title="Dashboard Super Admin" />
+          <PageHeader eyebrow="Gestão da plataforma" title="Painel do Administrador da Plataforma" />
           <p className="text-muted-foreground">Visão geral da plataforma VIZZU</p>
         </div>
 

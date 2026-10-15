@@ -103,7 +103,7 @@ const SubscribersManagement = () => {
           <div>
           <PageHeader eyebrow="Gestão da plataforma" title="Gestão de Assinantes" />
             <p className="text-muted-foreground">
-              Gerencie os donos de barbearias cadastrados na plataforma
+              Gerencie os gestores de negócios cadastrados na plataforma
             </p>
           </div>
           <Button onClick={() => setShowNewDialog(true)}>

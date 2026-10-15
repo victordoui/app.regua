@@ -53,7 +53,7 @@ const Profile = () => {
               </Avatar>
               <div>
                 <p className="text-lg font-semibold text-foreground">{userName}</p>
-                <p className="text-sm text-muted-foreground">{isBarbeiro ? "Profissional" : "Administrador"}</p>
+                <p className="text-sm text-muted-foreground">{isBarbeiro ? "Colaborador" : "Gestor do Negócio"}</p>
               </div>
             </div>
             <div className="space-y-3 pt-2">

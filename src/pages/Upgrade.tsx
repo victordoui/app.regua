@@ -106,7 +106,7 @@ const Upgrade = () => {
                   </CardHeader>
                   <CardContent className="flex-1 space-y-2">
                     <p className="text-xs text-muted-foreground">
-                      Até {plan.max_barbers} barbeiros • {plan.max_appointments_month} agend./mês
+                      Até {plan.max_barbers} colaboradores • {plan.max_appointments_month} agend./mês
                     </p>
                     {features.length > 0 && (
                       <ul className="space-y-1.5 pt-2">

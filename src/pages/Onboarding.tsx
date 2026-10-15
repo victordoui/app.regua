@@ -170,7 +170,7 @@ const Onboarding: React.FC = () => {
   const handleAddBarber = async (barber: { name: string; email?: string; phone?: string }) => {
     const maxProfessionals = subscriptionData.planConfig?.max_barbers ?? subscriptionData.subscription?.max_barbers;
     if (typeof maxProfessionals === 'number' && barbers.length >= maxProfessionals) {
-      toast({ title: 'Limite do plano atingido', description: `Seu plano permite até ${maxProfessionals} ${maxProfessionals === 1 ? 'profissional' : 'profissionais'}.`, variant: 'destructive' });
+      toast({ title: 'Limite do plano atingido', description: `Seu plano permite até ${maxProfessionals} ${maxProfessionals === 1 ? 'colaborador' : 'colaboradores'}.`, variant: 'destructive' });
       return;
     }
     await addBarber({

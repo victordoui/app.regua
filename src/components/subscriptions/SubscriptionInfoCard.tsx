@@ -146,7 +146,7 @@ const SubscriptionInfoCard = ({ data }: SubscriptionInfoCardProps) => {
           <div className="flex items-center justify-between">
             <span className="flex items-center gap-2 text-sm text-muted-foreground">
               <Users className="h-4 w-4" />
-              Barbeiros
+              Equipe
             </span>
             <span className="text-sm font-medium">
               {usage.barbersCount} / {subscription.max_barbers ?? '∞'}

@@ -93,7 +93,7 @@ export const OnboardingStepBarbers: React.FC<OnboardingStepBarbersProps> = ({
           <div className="mx-auto mb-4 flex items-center justify-center w-16 h-16 rounded-full bg-primary/10">
             <Users className="h-8 w-8 text-primary" />
           </div>
-          <CardTitle className="text-2xl">Profissionais</CardTitle>
+          <CardTitle className="text-2xl">Equipe de atendimento</CardTitle>
           <CardDescription>
             Cadastre os profissionais da sua equipe
           </CardDescription>
@@ -153,9 +153,9 @@ export const OnboardingStepBarbers: React.FC<OnboardingStepBarbersProps> = ({
                   <User className="h-6 w-6 text-primary" />
                 </div>
                 <div>
-                  <p className="font-medium">{editingId ? 'Editar profissional' : 'Novo profissional'}</p>
+                  <p className="font-medium">{editingId ? 'Editar colaborador' : 'Novo colaborador'}</p>
                   <p className="text-xs text-muted-foreground">
-                    Preencha os dados do profissional
+                    Preencha os dados do colaborador
                   </p>
                 </div>
               </div>
@@ -166,7 +166,7 @@ export const OnboardingStepBarbers: React.FC<OnboardingStepBarbersProps> = ({
                 </Label>
                 <Input
                   id="barber_name"
-                  placeholder="Nome do profissional"
+                  placeholder="Nome do colaborador"
                   value={formData.name}
                   onChange={(e) => setFormData(prev => ({ ...prev, name: formatNameOnly(e.target.value) }))}
                 />
@@ -189,7 +189,7 @@ export const OnboardingStepBarbers: React.FC<OnboardingStepBarbersProps> = ({
                   <Input
                     id="barber_email"
                     type="email"
-                    placeholder="profissional@email.com"
+                    placeholder="colaborador@email.com"
                     value={formData.email}
                     onChange={(e) => setFormData(prev => ({ ...prev, email: e.target.value }))}
                   />
@@ -216,11 +216,11 @@ export const OnboardingStepBarbers: React.FC<OnboardingStepBarbersProps> = ({
                 disabled={limitReached}
               >
                 {limitReached ? <LockKeyhole className="h-4 w-4" /> : <Plus className="h-4 w-4" />}
-                {limitReached ? 'Limite do plano atingido' : 'Adicionar profissional'}
+                {limitReached ? 'Limite do plano atingido' : 'Adicionar colaborador'}
               </Button>
               {limitReached && (
                 <p className="text-center text-sm font-medium text-amber-700 dark:text-amber-300">
-                  Seu plano permite até {maxProfessionals} {maxProfessionals === 1 ? 'profissional' : 'profissionais'}. Escolha outro plano para ampliar a equipe.
+                  Seu plano permite até {maxProfessionals} {maxProfessionals === 1 ? 'colaborador' : 'colaboradores'}. Escolha outro plano para ampliar a equipe.
                 </p>
               )}
             </div>
@@ -228,7 +228,7 @@ export const OnboardingStepBarbers: React.FC<OnboardingStepBarbersProps> = ({
 
           {barbers.length === 0 && !showForm && (
             <p className="text-center text-sm text-muted-foreground py-4">
-              Adicione pelo menos 1 profissional para continuar
+              Adicione pelo menos 1 colaborador para continuar
             </p>
           )}
         </CardContent>

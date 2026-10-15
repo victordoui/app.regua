@@ -17,7 +17,7 @@ const mainItems = [
 
 const moreItems = [
   { icon: Building, label: "Minha Empresa", path: "/settings/company" },
-  { icon: Briefcase, label: "Profissionais", path: "/barbers" },
+  { icon: Briefcase, label: "Equipe", path: "/barbers" },
   { icon: Package, label: "Serviços", path: "/services" },
   { icon: MessageSquare, label: "Conversas", path: "/conversations" },
   { icon: BarChart3, label: "Insights", path: "/reports" },
@@ -28,7 +28,7 @@ const moreItems = [
   { icon: Crown, label: "Planos", path: "/subscriptions" },
   { icon: Heart, label: "Rewards", path: "/loyalty" },
   { icon: UserCircle, label: "Meu Perfil", path: "/profile" },
-  { icon: UserCheck, label: "Usuários", path: "/users" },
+  { icon: UserCheck, label: "Acessos", path: "/users" },
   { icon: Sparkles, label: "Upgrade", path: "/upgrade" },
 ];
 
@@ -98,7 +98,7 @@ const MobileBottomNav = () => {
               {isSuperAdmin && (
                 <button onClick={() => { navigate("/superadmin"); setOpen(false); }} className="flex flex-col items-center gap-2 rounded-2xl p-2.5">
                   <div className="flex h-11 w-11 items-center justify-center rounded-2xl bg-amber-500/10 text-amber-600"><Shield className="h-5 w-5" /></div>
-                  <span className="text-center text-[10px] font-semibold text-amber-600">Super Admin</span>
+                  <span className="text-center text-[10px] font-semibold text-amber-600">Admin. da Plataforma</span>
                 </button>
               )}
               <button onClick={async () => { await signOut(); setOpen(false); navigate("/login"); }} className="flex flex-col items-center gap-2 rounded-2xl p-2.5">

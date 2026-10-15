@@ -128,7 +128,7 @@ const Sidebar = () => {
       items: [
         { icon: Building, label: "Minha Empresa", path: "/settings/company" },
         { icon: UserCircle, label: "Meu Perfil", path: "/profile" },
-        { icon: UserCheck, label: "Usuários", path: "/users" },
+        { icon: UserCheck, label: "Equipe e acessos", path: "/users" },
       ]
     },
     {
@@ -136,7 +136,7 @@ const Sidebar = () => {
       items: [
         { icon: Calendar, label: "Agenda", path: "/appointments" },
         { icon: Users, label: "Clientes", path: "/clients" },
-        { icon: Briefcase, label: "Profissionais", path: "/barbers" },
+        { icon: Briefcase, label: "Equipe de atendimento", path: "/barbers" },
         { icon: Package, label: "Serviços", path: "/services" },
       ]
     },
@@ -211,9 +211,9 @@ const Sidebar = () => {
   };
 
   const getRoleLabel = () => {
-    if (isSuperAdmin) return 'Super Admin';
-    if (isAdmin) return 'Administrador';
-    if (isBarbeiro) return 'Profissional';
+    if (isSuperAdmin) return 'Administrador da Plataforma';
+    if (isAdmin) return 'Gestor do Negócio';
+    if (isBarbeiro) return 'Colaborador';
     return 'Usuário';
   };
 

@@ -65,6 +65,18 @@ serve(async (req) => {
       return json({ error: 'INVALID_ACTION' }, 400);
     }
 
+    const ensureTeamCapacity = async () => {
+      const [{ data: subscription }, { count, error: countError }] = await Promise.all([
+        adminClient.from('platform_subscriptions').select('max_barbers').eq('user_id', ownerId).eq('status', 'active').maybeSingle(),
+        adminClient.from('profiles').select('id', { count: 'exact', head: true })
+          .eq('user_id', ownerId).eq('role', 'barbeiro').eq('active', true),
+      ]);
+      if (countError) throw countError;
+      const limit = subscription?.max_barbers ?? 0;
+      if (limit <= 0 || (count ?? 0) >= limit) return false;
+      return true;
+    };
+
     if (payload.action === 'invite') {
       const name = payload.display_name?.trim() || '';
       const email = payload.email?.trim().toLowerCase() || '';
@@ -72,6 +84,7 @@ serve(async (req) => {
       if (name.length < 2 || !/^\S+@\S+\.\S+$/.test(email) || role !== 'barbeiro') {
         return json({ error: 'INVALID_TEAM_MEMBER' }, 400);
       }
+      if (!(await ensureTeamCapacity())) return json({ error: 'PLAN_LIMIT_REACHED' }, 409);
 
       const { data: duplicate } = await adminClient
         .from('profiles')
@@ -180,6 +193,9 @@ serve(async (req) => {
     }
 
     const active = Boolean(payload.active);
+    if (active && !currentProfile.active && !(await ensureTeamCapacity())) {
+      return json({ error: 'PLAN_LIMIT_REACHED' }, 409);
+    }
     const { data: profile, error: activeError } = await adminClient
       .from('profiles')
       .update({ active })
