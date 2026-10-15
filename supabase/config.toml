@@ -11,6 +11,9 @@ verify_jwt = false
 [functions.create-client-account]
 verify_jwt = false
 
+[functions.create-checkout]
+verify_jwt = true
+
 [functions.manage-platform-user]
 enabled = true
 verify_jwt = true

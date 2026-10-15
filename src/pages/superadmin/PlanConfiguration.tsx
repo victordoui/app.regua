@@ -59,6 +59,7 @@ const PlanConfiguration = () => {
       features: plan.features,
       is_active: plan.is_active,
       trial_days: plan.trial_days,
+      stripe_price_id: plan.stripe_price_id,
     });
   };
 
@@ -141,7 +142,7 @@ const PlanConfiguration = () => {
                     </p>
                   )}
                   <p className="text-muted-foreground">
-                    <strong className="text-foreground">{plan.max_barbers}</strong> profissionais
+                    <strong className="text-foreground">{plan.max_barbers}</strong> colaboradores
                   </p>
                   <p className="text-muted-foreground">
                     <strong className="text-foreground">{plan.max_appointments_month}</strong> agendamentos/mês
@@ -241,9 +242,21 @@ const PlanConfiguration = () => {
                   </div>
                 )}
 
+                {editingPlan?.plan_type !== 'trial' && (
+                  <div className="space-y-2">
+                    <label className="text-sm font-medium">Stripe Price ID mensal</label>
+                    <Input
+                      value={formData.stripe_price_id || ''}
+                      placeholder="price_..."
+                      onChange={(e) => setFormData({ ...formData, stripe_price_id: e.target.value.trim() || null })}
+                    />
+                    <p className="text-xs text-muted-foreground">Deve corresponder a um preço mensal ativo em BRL no Stripe.</p>
+                  </div>
+                )}
+
                 <div className="grid grid-cols-2 gap-4">
                   <div className="space-y-2">
-                    <label className="text-sm font-medium">Máx. Profissionais</label>
+                    <label className="text-sm font-medium">Máx. Colaboradores</label>
                     <Input
                       type="number"
                       value={formData.max_barbers}

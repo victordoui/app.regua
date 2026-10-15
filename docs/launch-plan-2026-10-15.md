@@ -67,10 +67,16 @@ Saída: [relatório da Fase 3](./phase-3-terminology-team-2026-10-15.md).
 
 ## Fase 4 — assinaturas e pagamentos
 
-- Homologar Stripe, preços, checkout e webhook.
-- Testar pagamento aprovado, recusado, renovação, upgrade e cancelamento.
-- Calcular métricas financeiras com dados reais.
-- Garantir que o frontend nunca ative plano por conta própria.
+Status: implementação concluída em 15 de outubro de 2026; homologação do
+webhook bloqueada até a configuração do segredo do Stripe.
+
+- Stripe, preços e checkout em modo de teste homologados.
+- Webhook implementado, mas ainda sem `STRIPE_WEBHOOK_SECRET` no ambiente remoto.
+- Pagamento aprovado, recusado, renovação, upgrade e cancelamento ficam pendentes do segredo do webhook e de uma compra de teste.
+- Métricas financeiras continuam baseadas em `platform_payments` gerado pelo webhook.
+- O frontend não ativa plano; a ativação permanece exclusiva do webhook assinado.
+
+Saída: [relatório da Fase 4](./phase-4-payments-2026-10-15.md).
 
 ## Fase 5 — recursos essenciais do negócio
 

@@ -5,6 +5,8 @@ Plano ativo iniciado em 15 de outubro de 2026:
 [baseline da Fase 0](./phase-0-baseline-2026-10-15.md). A Fase 1 também foi
 concluída: [cadastro, trial e controle de acesso](./phase-1-access-trial-2026-10-15.md).
 Também foi concluída a [Administração da Plataforma](./phase-2-platform-administration-2026-10-15.md).
+O checkout do Stripe foi homologado em modo de teste; veja o
+[relatório de pagamentos](./phase-4-payments-2026-10-15.md) para o bloqueio de webhook restante.
 
 Checklist histórico: 15 de agosto de 2026. Revisão incremental de UX/UI em
 30 de setembro de 2026: [auditoria por página](./ux-ui-audit-2026-09-30.md).

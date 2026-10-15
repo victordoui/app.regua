@@ -1614,6 +1614,7 @@ export type Database = {
           price_monthly: number
           price_yearly: number | null
           sort_order: number | null
+          stripe_price_id: string | null
           trial_days: number | null
           updated_at: string | null
         }
@@ -1629,6 +1630,7 @@ export type Database = {
           price_monthly?: number
           price_yearly?: number | null
           sort_order?: number | null
+          stripe_price_id?: string | null
           trial_days?: number | null
           updated_at?: string | null
         }
@@ -1644,6 +1646,7 @@ export type Database = {
           price_monthly?: number
           price_yearly?: number | null
           sort_order?: number | null
+          stripe_price_id?: string | null
           trial_days?: number | null
           updated_at?: string | null
         }

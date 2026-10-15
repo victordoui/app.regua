@@ -100,6 +100,7 @@ export interface PlanConfig {
   features: Record<string, boolean>;
   is_active: boolean;
   sort_order: number;
+  stripe_price_id: string | null;
   trial_days: number | null;
   created_at: string;
   updated_at: string;
@@ -239,6 +240,7 @@ export interface PlanConfigFormData {
   features: Record<string, boolean>;
   is_active: boolean;
   trial_days?: number | null;
+  stripe_price_id?: string | null;
 }
 
 export interface SubscriberFilters {

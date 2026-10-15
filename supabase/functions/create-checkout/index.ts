@@ -24,12 +24,6 @@ const corsHeaders = (origin: string | null) => ({
   "Vary": "Origin",
 });
 
-const PLAN_PRICE_MAP: Record<string, string> = {
-  basic: "price_1Sxv8YLLAa7XPFh3cwA1YeWW",
-  pro: "price_1Sxv9ULLAa7XPFh3iVH7F5OQ",
-  enterprise: "price_1Sxv9iLLAa7XPFh3q4j2PU7x",
-};
-
 const logStep = (step: string, details?: unknown) => {
   const detailsStr = details ? ` - ${JSON.stringify(details)}` : '';
   console.log(`[CREATE-CHECKOUT] ${step}${detailsStr}`);
@@ -72,12 +66,40 @@ serve(async (req) => {
     const { plan_type } = await req.json();
     logStep("Requested plan", { plan_type });
 
-    const priceId = PLAN_PRICE_MAP[plan_type];
-    if (!priceId) throw new Error(`Invalid plan type: ${plan_type}`);
+    if (!['basic', 'pro', 'enterprise'].includes(plan_type)) {
+      return new Response(JSON.stringify({ error: "INVALID_PLAN" }), {
+        headers: { ...corsHeaders(origin), "Content-Type": "application/json" }, status: 400,
+      });
+    }
 
-    const stripe = new Stripe(Deno.env.get("STRIPE_SECRET_KEY") || "", {
+    const { data: plan, error: planError } = await supabaseClient
+      .from("platform_plan_config")
+      .select("plan_type, stripe_price_id, is_active")
+      .eq("plan_type", plan_type)
+      .eq("is_active", true)
+      .maybeSingle();
+    if (planError || !plan?.stripe_price_id) {
+      return new Response(JSON.stringify({ error: "PLAN_NOT_AVAILABLE" }), {
+        headers: { ...corsHeaders(origin), "Content-Type": "application/json" }, status: 409,
+      });
+    }
+    const priceId = plan.stripe_price_id;
+
+    const stripeSecretKey = Deno.env.get("STRIPE_SECRET_KEY");
+    if (!stripeSecretKey) {
+      return new Response(JSON.stringify({ error: "CHECKOUT_NOT_CONFIGURED" }), {
+        headers: { ...corsHeaders(origin), "Content-Type": "application/json" }, status: 503,
+      });
+    }
+
+    const stripe = new Stripe(stripeSecretKey, {
       apiVersion: "2025-08-27.basil",
     });
+
+    const stripePrice = await stripe.prices.retrieve(priceId);
+    if (!stripePrice.active || stripePrice.currency !== 'brl' || stripePrice.type !== 'recurring' || stripePrice.recurring?.interval !== 'month') {
+      throw new Error('Stripe price is not an active monthly BRL subscription');
+    }
 
     // Check existing customer
     const customers = await stripe.customers.list({ email: user.email, limit: 1 });
@@ -119,7 +141,7 @@ serve(async (req) => {
   } catch (error) {
     const msg = error instanceof Error ? error.message : String(error);
     logStep("ERROR", { message: msg });
-    return new Response(JSON.stringify({ error: msg }), {
+    return new Response(JSON.stringify({ error: "CHECKOUT_UNAVAILABLE" }), {
       headers: { ...corsHeaders(origin), "Content-Type": "application/json" },
       status: 500,
     });
