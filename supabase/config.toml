@@ -1,7 +1,9 @@
 project_id = "yjuqixthmwgnzkjummaf"
 
 [auth.email]
-enable_confirmations = true
+# Lançamento inicial: permitir cadastro e acesso imediato ao trial.
+# Reativar quando SMTP, templates e URLs de produção estiverem homologados.
+enable_confirmations = false
 
 [functions.booking-share]
 verify_jwt = false

@@ -1,75 +1,54 @@
-# 💈 Na Régua - Sistema de Gestão de Barbearia
+# VIZZU
 
-## 🚀 Visão Geral do Projeto
+Plataforma SaaS de gestão, organização e agendamento para negócios de serviços,
+incluindo salões, barbearias, clínicas, estética, tatuagem, pet care e operações
+semelhantes.
 
-Este é o sistema de gestão e agendamento online para a barbearia "Na Régua". O projeto é um MVP (Minimum Viable Product) de um SaaS focado em oferecer uma experiência premium tanto para o cliente final (agendamento online) quanto para a administração (dashboard, clientes, serviços e gestão de barbeiros).
+## Stack
 
-## 🛠️ Stack Tecnológica
+- React, TypeScript e Vite
+- Tailwind CSS e shadcn/ui
+- React Router e TanStack Query
+- Supabase: PostgreSQL, Auth, Storage e Edge Functions
+- Stripe para assinaturas
 
-O projeto foi construído com uma stack moderna e eficiente:
+## Desenvolvimento local
 
-*   **Frontend:** React com TypeScript.
-*   **Estilização:** Tailwind CSS para design responsivo e utilitário.
-*   **Componentes UI:** shadcn/ui para componentes acessíveis e elegantes.
-*   **Roteamento:** React Router DOM.
-*   **Backend/Database/Auth:** Supabase (PostgreSQL, Autenticação e Edge Functions).
-*   **Gerenciamento de Estado do Servidor:** TanStack Query (React Query).
-*   **Animações:** Framer Motion.
-*   **Notificações:** Sonner (Toasts).
+Requisitos: Node.js 18 ou superior e npm.
 
-## ⚙️ Configuração e Desenvolvimento Local
+```sh
+npm install
+npm run dev -- --host 127.0.0.1 --port 8080
+```
 
-Para rodar o projeto localmente, siga os passos abaixo:
+O frontend fica disponível em `http://127.0.0.1:8080`.
 
-### Pré-requisitos
+Crie um `.env` local, nunca versionado, com:
 
-*   Node.js (versão 18+)
-*   npm ou bun/yarn
+```env
+VITE_SUPABASE_PROJECT_ID="seu-project-ref"
+VITE_SUPABASE_URL="https://seu-project-ref.supabase.co"
+VITE_SUPABASE_PUBLISHABLE_KEY="sua-chave-publicavel"
+```
 
-### Instalação
+Nunca registre no repositório chaves secretas, `service_role`, credenciais SMTP
+ou segredos do Stripe.
 
-1.  **Clone o repositório:**
-    ```sh
-    git clone <YOUR_GIT_URL>
-    cd <YOUR_PROJECT_NAME>
-    ```
+## Verificação técnica
 
-2.  **Instale as dependências:**
-    ```sh
-    npm install
-    # ou bun install / yarn install
-    ```
+```sh
+npx tsc --noEmit
+npm run lint
+npm test
+npm run build
+```
 
-3.  **Configure as Variáveis de Ambiente:**
-    Certifique-se de que seu arquivo `.env` ou `.env.local` contenha as chaves do Supabase.
+## Lançamento
 
-    ```env
-    VITE_SUPABASE_URL="https://yjuqixthmwgnzkjummaf.supabase.co"
-    VITE_SUPABASE_ANON_KEY="eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InlqdXFpeHRobXdnbnpranVtbWFmIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTM0NTQ5MDgsImV4cCI6MjA2OTAzMDkwOH0.CuNBxDncwowvg4JoRNIhwIReLIKDsuwoHaUAcRI2yTM"
-    ```
+- [Plano por fases](./docs/launch-plan-2026-10-15.md)
+- [Baseline da Fase 0](./docs/phase-0-baseline-2026-10-15.md)
+- [Checklist de lançamento](./docs/release-readiness.md)
+- [Runbook de produção](./docs/production-runbook.md)
 
-4.  **Inicie o Servidor de Desenvolvimento:**
-    ```sh
-    npm run dev
-    ```
-    O aplicativo estará acessível em `http://localhost:8080`.
-
-## 📝 Como Editar o Código
-
-Existem várias maneiras de contribuir para este projeto:
-
-1.  **Usando Lovable (Recomendado):**
-    Simplesmente visite o [Projeto Lovable](https://lovable.dev/projects/60cb5668-efc4-4511-b506-a1780707aa04) e comece a solicitar alterações via chat. As alterações são commitadas automaticamente.
-
-2.  **IDE Local:**
-    Clone o repositório e use seu IDE preferido. As alterações enviadas (pushed) serão refletidas no Lovable.
-
-3.  **GitHub Codespaces:**
-    Utilize o ambiente de desenvolvimento em nuvem do GitHub para edições rápidas.
-
-## ☁️ Deploy e Publicação
-
-O deploy é gerenciado pela plataforma Lovable.
-
-*   **Publicar:** Para publicar a versão mais recente, acesse o [Projeto Lovable](https://lovable.dev/projects/60cb5668-efc4-4511-b506-a1780707aa04) e clique em `Compartilhar -> Publicar`.
-*   **Domínio Personalizado:** Você pode conectar um domínio personalizado através das configurações do projeto no Lovable.
+Não execute `supabase db push` enquanto a divergência histórica de migrations
+descrita no baseline não estiver conciliada.

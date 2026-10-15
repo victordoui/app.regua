@@ -1,5 +1,9 @@
 # VIZZU — checklist de lançamento
 
+Plano ativo iniciado em 15 de outubro de 2026:
+[plano por fases](./launch-plan-2026-10-15.md) e
+[baseline da Fase 0](./phase-0-baseline-2026-10-15.md).
+
 Checklist histórico: 15 de agosto de 2026. Revisão incremental de UX/UI em
 30 de setembro de 2026: [auditoria por página](./ux-ui-audit-2026-09-30.md).
 As marcações abaixo refletem a revisão histórica e não foram todas revalidadas
