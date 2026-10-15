@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useSearchParams } from 'react-router-dom';
 import Layout from '@/components/Layout';
 import { PageHeader } from '@/components/ui/page-header';
 import { Card, CardContent, CardHeader, CardTitle, CardFooter } from '@/components/ui/card';
@@ -8,14 +8,23 @@ import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { supabase } from '@/integrations/supabase/client';
 import { useMySubscription } from '@/hooks/useMySubscription';
-import { Crown, Check, Loader2, ArrowLeft } from 'lucide-react';
+import { Crown, Check, Loader2, ArrowLeft, AlertTriangle } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 
 const Upgrade = () => {
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
   const { toast } = useToast();
   const { subscription } = useMySubscription();
   const [loadingPlan, setLoadingPlan] = useState<string | null>(null);
+  const accessReason = searchParams.get('motivo');
+  const accessMessages: Record<string, string> = {
+    missing: 'Não encontramos uma assinatura vinculada à sua empresa.',
+    suspended: 'A assinatura da sua empresa está suspensa.',
+    cancelled: 'A assinatura da sua empresa foi cancelada.',
+    expired: 'O período de teste ou a assinatura da sua empresa terminou.',
+    pending_payment: 'Existe um pagamento pendente na assinatura da sua empresa.',
+  };
 
   const { data: plans = [], isLoading } = useQuery({
     queryKey: ['upgrade-plans'],
@@ -62,6 +71,16 @@ const Upgrade = () => {
             <ArrowLeft className="h-4 w-4 mr-1" /> Voltar
           </Button>
         </PageHeader>
+
+        {accessReason && accessMessages[accessReason] && (
+          <div className="mb-6 flex items-start gap-3 rounded-xl border border-amber-500/30 bg-amber-500/10 p-4 text-sm">
+            <AlertTriangle className="mt-0.5 h-5 w-5 shrink-0 text-amber-600" />
+            <div>
+              <p className="font-semibold">Seu acesso precisa ser regularizado</p>
+              <p className="mt-1 text-muted-foreground">{accessMessages[accessReason]} Escolha um plano para continuar usando o VIZZU.</p>
+            </div>
+          </div>
+        )}
 
         {isLoading ? (
           <div className="flex justify-center py-12">

@@ -2,7 +2,8 @@
 
 Plano ativo iniciado em 15 de outubro de 2026:
 [plano por fases](./launch-plan-2026-10-15.md) e
-[baseline da Fase 0](./phase-0-baseline-2026-10-15.md).
+[baseline da Fase 0](./phase-0-baseline-2026-10-15.md). A Fase 1 também foi
+concluída: [cadastro, trial e controle de acesso](./phase-1-access-trial-2026-10-15.md).
 
 Checklist histórico: 15 de agosto de 2026. Revisão incremental de UX/UI em
 30 de setembro de 2026: [auditoria por página](./ux-ui-audit-2026-09-30.md).
@@ -15,6 +16,8 @@ desta etapa ainda precisa de publicação e homologação dos fluxos críticos.
 - [x] Cadastro com plano **Teste gratuito** configurável e duração padrão de 7 dias.
 - [x] Perfil do proprietário criado como administrador; membros de equipe usam perfis separados.
 - [x] Fluxos de recuperação de senha, upgrade e redirecionamento de assinaturas expiradas.
+- [x] Bloqueio centralizado para assinatura suspensa, expirada, cancelada, pendente ou ausente.
+- [x] Trial suspenso e restaurado em conta de QA, com redirecionamento real validado no navegador.
 - [x] Agendamentos transacionais com verificação de conflito, horário comercial, bloqueios, serviços múltiplos e recorrência.
 - [x] Isolamento de dados entre negócios validado para o proprietário.
 - [x] Dados públicos da página do cliente separados das configurações privadas do negócio.

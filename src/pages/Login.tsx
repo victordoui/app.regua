@@ -75,8 +75,9 @@ const Login = () => {
           .limit(1)
           .maybeSingle();
 
-        if (subscription && ['expired', 'cancelled', 'pending_payment'].includes(subscription.status)) {
-          navigate('/upgrade');
+        if (subscription && ['expired', 'cancelled', 'pending_payment', 'suspended', 'paused'].includes(subscription.status)) {
+          const reason = subscription.status === 'paused' ? 'suspended' : subscription.status;
+          navigate(`/upgrade?motivo=${reason}`);
           return;
         }
       }

@@ -22,15 +22,20 @@ Saída: [baseline técnico](./phase-0-baseline-2026-10-15.md).
 
 ## Fase 1 — cadastro, trial e controle de acesso
 
-Status: próxima.
+Status: concluída em 15 de outubro de 2026, com as ressalvas registradas no
+[relatório da fase](./phase-1-access-trial-2026-10-15.md).
 
-- Completar onboarding da conta de homologação.
-- Validar cadastro, login, logout e recuperação de senha.
+- Conta de homologação criada e acesso inicial ao onboarding validado.
+- Cadastro sem confirmação de e-mail, login e criação automática do trial validados.
 - Exibir dias restantes do trial.
 - Aplicar bloqueio de assinatura em todas as rotas protegidas.
 - Tratar `suspended`, `expired`, `cancelled` e `pending_payment`.
 - Validar expiração e redirecionamento para upgrade.
 - Manter confirmação de e-mail desativada somente durante a etapa inicial.
+
+Pendências movidas para homologação final: logout, recuperação por e-mail e
+conclusão dos cinco passos do onboarding, porque dependem respectivamente da
+jornada completa e da configuração de SMTP prevista na Fase 6.
 
 ## Fase 2 — Administração da Plataforma
 
