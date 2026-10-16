@@ -28,9 +28,9 @@ Data: 16 de outubro de 2026.
    entrega nem a definição de senha.
 3. Conciliar o histórico de migrations local/remoto antes de qualquer mudança
    estrutural adicional. Não executar `supabase db push` no estado atual.
-4. Corrigir os alertas de segurança registrados na Fase 6: `search_path` de
-   `slugify_booking_business`, revisão de exposição GraphQL por tabela e o
-   índice duplicado de eventos de pagamento.
+4. Concluir a revisão de segurança registrada na Fase 6: exposição GraphQL
+   por tabela, permissões das funções `SECURITY DEFINER`, proteção contra
+   senha vazada, prazo de OTP e atualização do PostgreSQL.
 5. Executar os testes finais ainda não automatizados: conflito de horário pelo
    fluxo autenticado, duas empresas isoladas e convite/login de colaborador
    após SMTP estar ativo.
