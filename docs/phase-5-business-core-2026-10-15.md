@@ -19,6 +19,9 @@ Data: 15 de outubro de 2026.
   foi corretamente recusada pelo servidor.
 - O caixa carregou o serviço configurado no onboarding, sem catálogo
   demonstrativo; nenhuma venda financeira foi finalizada durante a revisão.
+- Cupons e fidelidade abriram em estado vazio coerente, sem dados fictícios.
+  As áreas de comissão e relatórios refletiram corretamente o agendamento
+  pendente: uma marcação, zero atendimento concluído e receita zerada.
 
 ## Correção realizada
 
@@ -30,8 +33,7 @@ aceita esses campos ausentes e os normaliza como `null`.
 ## Ainda a homologar nesta fase
 
 - Validar conflito de horário e alteração de status do agendamento.
-- Validar caixa, comissão, cupons, fidelidade e relatórios com dados reais de
-  homologação.
+- Validar caixa e comissão após concluir um atendimento de homologação.
 - Verificar permissões do colaborador com um login delegado.
 - Remover ou substituir os componentes demonstrativos que ainda não fazem
   parte das telas ativas do painel.
