@@ -90,6 +90,9 @@ homologado e a correção do salvamento está registrada no
 
 ## Fase 6 — infraestrutura e segurança
 
+Status: auditoria concluída em 16 de outubro de 2026. Veja o
+[relatório da fase](./phase-6-infrastructure-security-2026-10-16.md).
+
 - Configurar domínio, URLs, origens, SMTP, OTP e proteção de senhas.
 - Revisar Edge Functions públicas e aplicar proteção contra abuso.
 - Corrigir alertas críticos dos Supabase Advisors.
