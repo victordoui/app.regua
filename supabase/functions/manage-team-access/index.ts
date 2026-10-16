@@ -84,15 +84,20 @@ serve(async (req) => {
       if (name.length < 2 || !/^\S+@\S+\.\S+$/.test(email) || role !== 'barbeiro') {
         return json({ error: 'INVALID_TEAM_MEMBER' }, 400);
       }
-      if (!(await ensureTeamCapacity())) return json({ error: 'PLAN_LIMIT_REACHED' }, 409);
-
       const { data: duplicate } = await adminClient
         .from('profiles')
-        .select('id, auth_user_id')
+        .select('id, auth_user_id, active')
         .eq('user_id', ownerId)
         .ilike('email', email)
         .maybeSingle();
       if (duplicate?.auth_user_id) return json({ error: 'EMAIL_ALREADY_IN_TEAM' }, 409);
+
+      // A collaborator created during onboarding already occupies a plan slot.
+      // Converting that existing profile into a login must not require a second
+      // slot; only a new profile (or reactivating an inactive one) does.
+      if ((!duplicate || !duplicate.active) && !(await ensureTeamCapacity())) {
+        return json({ error: 'PLAN_LIMIT_REACHED' }, 409);
+      }
 
       const appUrl = Deno.env.get('APP_URL');
       const inviteOptions: { data: Record<string, string>; redirectTo?: string } = {
