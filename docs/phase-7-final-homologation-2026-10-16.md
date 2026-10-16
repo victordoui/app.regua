@@ -20,6 +20,10 @@ Data: 16 de outubro de 2026.
   `manage-team-access` foi publicada na versão 5.
 - A validação técnica passou: TypeScript, ESLint, 60 testes automatizados e
   build de produção.
+- A suíte pgTAP do Supabase foi tentada no projeto remoto, mas não executou
+  porque o Docker Desktop não está disponível neste ambiente. Os testes
+  autenticados de conflito e isolamento foram executados diretamente contra o
+  projeto remoto e tiveram resultado esperado.
 
 ## Itens que ainda impedem produção pública
 
@@ -36,6 +40,7 @@ Data: 16 de outubro de 2026.
    senha vazada, prazo de OTP e atualização do PostgreSQL.
 5. Executar o teste final ainda não automatizado: convite/login de colaborador
    após SMTP estar ativo.
+6. Executar a suíte pgTAP quando o Docker Desktop estiver disponível.
 
 ## Decisão
 
