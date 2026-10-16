@@ -26,6 +26,9 @@ Data: 15 de outubro de 2026.
   relatórios passaram a mostrar 1 atendimento concluído e R$ 35,00 de receita
   mensal; as comissões mostraram R$ 14,00 para o colaborador, conforme a regra
   padrão de 40%.
+- Uma segunda tentativa autenticada no mesmo horário, profissional e data foi
+  recusada pelo procedimento transacional com `SLOT_UNAVAILABLE`; nenhuma
+  marcação parcial foi criada.
 
 ## Correção realizada
 
@@ -36,7 +39,6 @@ aceita esses campos ausentes e os normaliza como `null`.
 
 ## Ainda a homologar nesta fase
 
-- Validar o bloqueio de conflito de horário pelo fluxo autenticado da agenda.
 - Definir e validar quando um atendimento concluído deve gerar lançamento no
   caixa; hoje agenda e caixa são fluxos separados.
 - Verificar permissões do colaborador com um login delegado.

@@ -12,6 +12,9 @@ Data: 16 de outubro de 2026.
   1 atendimento concluído, R$ 35,00 de receita e R$ 14,00 de comissão (40%).
 - A central de superadmin lista contas e já possui ações de suspensão,
   banimento, revogação de sessão e exclusão protegidas no servidor.
+- Uma segunda empresa de homologação criou conta e trial próprios e não
+  conseguiu ler o agendamento da primeira empresa; o isolamento retornou zero
+  registros externos.
 - O acesso da equipe reutiliza corretamente a vaga de um colaborador já
   cadastrado, sem exigir uma segunda vaga do plano. A função remota
   `manage-team-access` foi publicada na versão 5.
@@ -31,8 +34,7 @@ Data: 16 de outubro de 2026.
 4. Concluir a revisão de segurança registrada na Fase 6: exposição GraphQL
    por tabela, permissões das funções `SECURITY DEFINER`, proteção contra
    senha vazada, prazo de OTP e atualização do PostgreSQL.
-5. Executar os testes finais ainda não automatizados: conflito de horário pelo
-   fluxo autenticado, duas empresas isoladas e convite/login de colaborador
+5. Executar o teste final ainda não automatizado: convite/login de colaborador
    após SMTP estar ativo.
 
 ## Decisão
