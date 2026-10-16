@@ -80,8 +80,9 @@ Saída: [relatório da Fase 4](./phase-4-payments-2026-10-15.md).
 
 ## Fase 5 — recursos essenciais do negócio
 
-Status: em andamento em 15 de outubro de 2026. O onboarding completo já foi
-homologado e a correção do salvamento está registrada no
+Status: concluída para a homologação inicial em 16 de outubro de 2026. O
+onboarding completo, a agenda, os relatórios e as comissões foram homologados;
+a correção do salvamento está registrada no
 [relatório da fase](./phase-5-business-core-2026-10-15.md).
 
 - Homologar empresa, serviços, equipe, horários, agenda e clientes.
@@ -99,6 +100,10 @@ Status: auditoria concluída em 16 de outubro de 2026. Veja o
 - Conciliar o histórico de migrations antes de qualquer `db push`.
 
 ## Fase 7 — homologação final
+
+Status: concluída em 16 de outubro de 2026, com decisão de **go para
+homologação privada** e **no-go para produção pública paga**. Veja o
+[relatório da fase](./phase-7-final-homologation-2026-10-16.md).
 
 - Executar jornadas completas em desktop e mobile.
 - Validar isolamento entre dois negócios.
