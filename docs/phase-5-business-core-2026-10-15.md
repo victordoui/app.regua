@@ -12,6 +12,13 @@ Data: 15 de outubro de 2026.
   o primeiro cadastro.
 - O painel vazio agora orienta o primeiro agendamento e não afirma crescimento
   de receita quando não existe atendimento no período.
+- Um cliente de homologação foi criado e ficou disponível imediatamente no
+  formulário de agenda.
+- Um agendamento futuro foi salvo com cliente, serviço e colaborador reais e
+  ficou visível no calendário. A tentativa inicial em um horário já passado
+  foi corretamente recusada pelo servidor.
+- O caixa carregou o serviço configurado no onboarding, sem catálogo
+  demonstrativo; nenhuma venda financeira foi finalizada durante a revisão.
 
 ## Correção realizada
 
@@ -22,8 +29,7 @@ aceita esses campos ausentes e os normaliza como `null`.
 
 ## Ainda a homologar nesta fase
 
-- Criar cliente e agendamento, incluindo conflito de horário e alteração de
-  status.
+- Validar conflito de horário e alteração de status do agendamento.
 - Validar caixa, comissão, cupons, fidelidade e relatórios com dados reais de
   homologação.
 - Verificar permissões do colaborador com um login delegado.
