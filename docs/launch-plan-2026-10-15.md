@@ -80,6 +80,10 @@ Saída: [relatório da Fase 4](./phase-4-payments-2026-10-15.md).
 
 ## Fase 5 — recursos essenciais do negócio
 
+Status: em andamento em 15 de outubro de 2026. O onboarding completo já foi
+homologado e a correção do salvamento está registrada no
+[relatório da fase](./phase-5-business-core-2026-10-15.md).
+
 - Homologar empresa, serviços, equipe, horários, agenda e clientes.
 - Homologar caixa, comissões, relatórios, cupons e fidelidade.
 - Remover mocks, mapas demonstrativos e números fictícios.

@@ -104,6 +104,11 @@ export const useCompanySettings = () => {
   const saveSettingsMutation = useMutation<CompanySettings, Error, CompanySettingsFormData>({
     mutationFn: async (formData) => {
       if (!user) throw new Error("Usuário não autenticado.");
+
+      // These sharing/SEO fields are optional in onboarding. Keep the save
+      // boundary defensive so an older or partial form cannot stop a new
+      // business from completing its initial configuration.
+      const optionalText = (value: string | null | undefined) => value?.trim() || null;
       
       const payload = {
         user_id: user.id,
@@ -120,11 +125,11 @@ export const useCompanySettings = () => {
         instagram_url: formData.instagram_url || null,
         facebook_url: formData.facebook_url || null,
         whatsapp_number: formData.whatsapp_number || null,
-        meta_title: formData.meta_title.trim() || null,
-        meta_description: formData.meta_description.trim() || null,
-        share_slug: formData.share_slug.trim() || null,
-        share_title: formData.share_title.trim() || null,
-        share_description: formData.share_description.trim() || null,
+        meta_title: optionalText(formData.meta_title),
+        meta_description: optionalText(formData.meta_description),
+        share_slug: optionalText(formData.share_slug),
+        share_title: optionalText(formData.share_title),
+        share_description: optionalText(formData.share_description),
         // Cancellation settings
         cancellation_hours_before: formData.cancellation_hours_before ?? 24,
         allow_online_cancellation: formData.allow_online_cancellation ?? true,

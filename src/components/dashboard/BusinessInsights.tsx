@@ -5,15 +5,16 @@ const formatPercent = (value: number) => `${Math.abs(value).toFixed(1).replace("
 
 const BusinessInsights = ({ analytics, services }: { analytics: DashboardAnalytics; services: ServiceDistribution[] }) => {
   const topService = services[0];
+  const hasAppointments = analytics.totalAppointments > 0;
   const revenuePositive = analytics.revenueTrend >= 0;
   const attendanceHealthy = analytics.attendanceRate >= 85;
   const insights = [
     {
-      icon: revenuePositive ? TrendingUp : Target,
-      tone: revenuePositive ? "insight-success" : "insight-warning",
-      eyebrow: revenuePositive ? "Crescimento" : "Ponto de atenção",
-      title: revenuePositive ? `Receita avançou ${formatPercent(analytics.revenueTrend)}` : `Receita recuou ${formatPercent(analytics.revenueTrend)}`,
-      description: revenuePositive ? "Seu faturamento está acima do período anterior. Continue acompanhando o ticket médio." : "Revise horários ociosos, retorno de clientes e serviços com maior margem.",
+      icon: !hasAppointments ? Target : revenuePositive ? TrendingUp : Target,
+      tone: !hasAppointments ? "insight-primary" : revenuePositive ? "insight-success" : "insight-warning",
+      eyebrow: !hasAppointments ? "Primeiro atendimento" : revenuePositive ? "Crescimento" : "Ponto de atenção",
+      title: !hasAppointments ? "Sua agenda está pronta para receber clientes" : revenuePositive ? `Receita avançou ${formatPercent(analytics.revenueTrend)}` : `Receita recuou ${formatPercent(analytics.revenueTrend)}`,
+      description: !hasAppointments ? "Crie o primeiro agendamento para começar a acompanhar os indicadores do negócio." : revenuePositive ? "Seu faturamento está acima do período anterior. Continue acompanhando o ticket médio." : "Revise horários ociosos, retorno de clientes e serviços com maior margem.",
     },
     {
       icon: attendanceHealthy ? Trophy : Zap,
