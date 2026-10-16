@@ -24,6 +24,12 @@ Data: 16 de outubro de 2026.
 - As exposições GraphQL listadas pelo Advisor exigem revisão por tabela: os
   dados públicos de agendamento podem ser intencionais, mas dados internos
   devem ter privilégios mínimos além do RLS.
+- A triagem confirmou RLS ativo nas cinco tabelas expostas para `anon`:
+  `public_business_profile`, `professional_directory`, `business_hours` e
+  `services` alimentam a reserva pública; `platform_plan_config` alimenta a
+  página pública de planos. Revogar essas leituras agora quebraria esses
+  fluxos. A redução da superfície deve ser feita depois por uma API pública
+  limitada, com testes de allow/deny por tabela.
 - As funções `SECURITY DEFINER` que criam ou alteram agendamentos foram
   inspecionadas e validam `auth.uid()` e a relação do cliente antes de agir.
   Elas continuam exigindo revisão de permissões por fluxo antes do go-live.
