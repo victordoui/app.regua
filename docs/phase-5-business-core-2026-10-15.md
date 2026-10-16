@@ -22,6 +22,10 @@ Data: 15 de outubro de 2026.
 - Cupons e fidelidade abriram em estado vazio coerente, sem dados fictícios.
   As áreas de comissão e relatórios refletiram corretamente o agendamento
   pendente: uma marcação, zero atendimento concluído e receita zerada.
+- Na continuação da homologação, esse mesmo agendamento foi concluído. Os
+  relatórios passaram a mostrar 1 atendimento concluído e R$ 35,00 de receita
+  mensal; as comissões mostraram R$ 14,00 para o colaborador, conforme a regra
+  padrão de 40%.
 
 ## Correção realizada
 
@@ -32,8 +36,9 @@ aceita esses campos ausentes e os normaliza como `null`.
 
 ## Ainda a homologar nesta fase
 
-- Validar conflito de horário e alteração de status do agendamento.
-- Validar caixa e comissão após concluir um atendimento de homologação.
+- Validar o bloqueio de conflito de horário pelo fluxo autenticado da agenda.
+- Definir e validar quando um atendimento concluído deve gerar lançamento no
+  caixa; hoje agenda e caixa são fluxos separados.
 - Verificar permissões do colaborador com um login delegado.
 - Remover ou substituir os componentes demonstrativos que ainda não fazem
   parte das telas ativas do painel.
