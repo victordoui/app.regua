@@ -27,13 +27,12 @@ const loginSchema = z.object({
 
 type LoginFormValues = z.infer<typeof loginSchema>;
 
-const TEST_PASSWORD = "admin123456";
-
 const Login = () => {
   const [loading, setLoading] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
   const [showRecoveryOption, setShowRecoveryOption] = useState(false);
   const [activeTab, setActiveTab] = useState<"login" | "register">("login");
+  const [quickTestPassword, setQuickTestPassword] = useState("");
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
   const { toast } = useToast();
@@ -129,11 +128,15 @@ const Login = () => {
   ];
 
   const quickLogin = async (email: string) => {
+    if (!quickTestPassword) {
+      toast({ title: "Senha de teste necessária", description: "Informe a senha dos acessos de teste configurada para este ambiente.", variant: "destructive" });
+      return;
+    }
     setLoading(true);
     try {
       loginForm.setValue("email", email);
-      loginForm.setValue("password", TEST_PASSWORD);
-      const { error, success } = await signIn(email, TEST_PASSWORD);
+      loginForm.setValue("password", quickTestPassword);
+      const { error, success } = await signIn(email, quickTestPassword);
       if (error) {
         toast({ title: "Erro no acesso rápido", description: error.message || "Credenciais inválidas", variant: "destructive" });
       } else if (success) {
@@ -369,11 +372,19 @@ const Login = () => {
                   </div>
                 )}
 
-                {import.meta.env.DEV && (
-                  <div className="mt-8 rounded-2xl border border-dashed border-border bg-muted/30 p-4">
+                <div className="mt-8 rounded-2xl border border-dashed border-border bg-muted/30 p-4">
                     <p className="mb-3 text-center text-xs font-semibold uppercase tracking-wide text-muted-foreground">
                       Acesso rápido para testes
                     </p>
+                    <Input
+                      type="password"
+                      autoComplete="off"
+                      aria-label="Senha dos acessos de teste"
+                      placeholder="Senha dos acessos de teste"
+                      value={quickTestPassword}
+                      onChange={(event) => setQuickTestPassword(event.target.value)}
+                      className="mb-3"
+                    />
                     <div className="grid grid-cols-2 gap-2">
                       {quickAccounts.map((account) => (
                         <Button
@@ -390,8 +401,7 @@ const Login = () => {
                         </Button>
                       ))}
                     </div>
-                  </div>
-                )}
+                </div>
 
               </motion.div>
 
