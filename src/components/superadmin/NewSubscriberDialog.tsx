@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useMemo, useState } from 'react';
 import {
   Dialog,
   DialogContent,
@@ -19,11 +19,13 @@ import {
 } from '@/components/ui/select';
 import { useToast } from '@/hooks/use-toast';
 import { useAuth } from '@/contexts/AuthContext';
+import { usePlatformUsers } from '@/hooks/superadmin/usePlatformUsers';
 import { supabase } from '@/integrations/supabase/client';
 import { useQueryClient } from '@tanstack/react-query';
 import type { PlanType } from '@/types/superAdmin';
 import type { Json } from '@/integrations/supabase/types';
 import { UserPlus, Loader2 } from 'lucide-react';
+import { businessDateTimeToISOString, formatBusinessDateInput } from '@/lib/formatters';
 
 interface NewSubscriberDialogProps {
   open: boolean;
@@ -34,19 +36,39 @@ export const NewSubscriberDialog = ({ open, onOpenChange }: NewSubscriberDialogP
   const { toast } = useToast();
   const { user } = useAuth();
   const queryClient = useQueryClient();
+  const { data: platformUserData, isLoading: usersLoading } = usePlatformUsers(open);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [userSearch, setUserSearch] = useState('');
 
   const [formData, setFormData] = useState({
     user_id: '',
     plan_type: 'trial' as PlanType,
-    start_date: new Date().toISOString().split('T')[0],
+    start_date: formatBusinessDateInput(),
     end_date: '',
     notes: '',
   });
 
+  const selectedUser = platformUserData?.users.find((candidate) => candidate.user_id === formData.user_id);
+  const filteredUsers = useMemo(() => {
+    const term = userSearch.trim().toLowerCase();
+    if (!term || !platformUserData?.users) return [];
+    return platformUserData.users.filter((candidate) =>
+      [candidate.display_name, candidate.email, candidate.company_name]
+        .some((value) => value?.toLowerCase().includes(term)),
+    ).slice(0, 8);
+  }, [platformUserData?.users, userSearch]);
+
+  const handleDialogOpenChange = (nextOpen: boolean) => {
+    onOpenChange(nextOpen);
+    if (!nextOpen) {
+      setUserSearch('');
+      setFormData((current) => ({ ...current, user_id: '' }));
+    }
+  };
+
   const handleSubmit = async () => {
     if (!formData.user_id.trim()) {
-      toast({ title: 'Informe o ID do usuário', variant: 'destructive' });
+      toast({ title: 'Selecione o usuário ou a empresa', variant: 'destructive' });
       return;
     }
 
@@ -65,10 +87,10 @@ export const NewSubscriberDialog = ({ open, onOpenChange }: NewSubscriberDialogP
           user_id: formData.user_id,
           plan_type: formData.plan_type,
           status: 'active',
-          start_date: formData.start_date,
-          end_date: formData.end_date || null,
-          max_barbers: planConfig?.max_barbers || 3,
-          max_appointments_month: planConfig?.max_appointments_month || 100,
+          start_date: formData.start_date ? businessDateTimeToISOString(formData.start_date) : null,
+          end_date: formData.end_date ? businessDateTimeToISOString(formData.end_date, '23:59:59') : null,
+          max_barbers: planConfig?.max_barbers ?? 3,
+          max_appointments_month: planConfig?.max_appointments_month ?? 100,
           features: planConfig?.features || {},
           notes: formData.notes || null,
         });
@@ -90,10 +112,11 @@ export const NewSubscriberDialog = ({ open, onOpenChange }: NewSubscriberDialogP
       setFormData({
         user_id: '',
         plan_type: 'trial',
-        start_date: new Date().toISOString().split('T')[0],
+        start_date: formatBusinessDateInput(),
         end_date: '',
         notes: '',
       });
+      setUserSearch('');
     } catch (error: unknown) {
       toast({
         title: 'Erro ao criar assinante',
@@ -106,7 +129,7 @@ export const NewSubscriberDialog = ({ open, onOpenChange }: NewSubscriberDialogP
   };
 
   return (
-    <Dialog open={open} onOpenChange={onOpenChange}>
+    <Dialog open={open} onOpenChange={handleDialogOpenChange}>
       <DialogContent className="sm:max-w-md">
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2">
@@ -117,13 +140,41 @@ export const NewSubscriberDialog = ({ open, onOpenChange }: NewSubscriberDialogP
 
         <div className="space-y-4 py-4">
           <div className="space-y-2">
-            <Label htmlFor="user_id">ID do Usuário (UUID)</Label>
+            <Label htmlFor="user-search">Usuário ou empresa</Label>
             <Input
-              id="user_id"
-              placeholder="ex: 123e4567-e89b-12d3-a456-426614174000"
-              value={formData.user_id}
-              onChange={(e) => setFormData((f) => ({ ...f, user_id: e.target.value }))}
+              id="user-search"
+              placeholder="Buscar por nome, empresa ou e-mail"
+              value={selectedUser ? `${selectedUser.company_name || selectedUser.display_name || 'Conta'} · ${selectedUser.email || 'sem e-mail'}` : userSearch}
+              onChange={(e) => {
+                if (selectedUser) setFormData((f) => ({ ...f, user_id: '' }));
+                setUserSearch(e.target.value);
+              }}
+              autoComplete="off"
             />
+            {selectedUser ? (
+              <div className="flex items-center justify-between rounded-lg border bg-muted/40 p-3 text-sm">
+                <div className="min-w-0">
+                  <p className="truncate font-medium">{selectedUser.company_name || selectedUser.display_name || 'Conta sem nome'}</p>
+                  <p className="truncate text-xs text-muted-foreground">{selectedUser.display_name} · {selectedUser.email || 'sem e-mail'}</p>
+                </div>
+                <Button type="button" size="sm" variant="ghost" onClick={() => {
+                  setFormData((f) => ({ ...f, user_id: '' }));
+                  setUserSearch('');
+                }}>Trocar</Button>
+              </div>
+            ) : userSearch.trim() ? (
+              <div className="max-h-48 overflow-y-auto rounded-lg border bg-popover">
+                {usersLoading ? <p className="p-3 text-sm text-muted-foreground">Carregando contas…</p> : filteredUsers.length ? filteredUsers.map((candidate) => (
+                  <button key={candidate.user_id} type="button" className="block w-full border-b p-3 text-left last:border-0 hover:bg-accent" onClick={() => {
+                    setFormData((f) => ({ ...f, user_id: candidate.user_id }));
+                    setUserSearch('');
+                  }}>
+                    <span className="block truncate text-sm font-medium">{candidate.company_name || candidate.display_name || 'Conta sem nome'}</span>
+                    <span className="block truncate text-xs text-muted-foreground">{candidate.display_name} · {candidate.email || 'sem e-mail'}</span>
+                  </button>
+                )) : <p className="p-3 text-sm text-muted-foreground">Nenhuma conta encontrada.</p>}
+              </div>
+            ) : <p className="text-xs text-muted-foreground">Digite para localizar o dono da empresa e selecione uma conta.</p>}
           </div>
 
           <div className="space-y-2">
@@ -137,9 +188,9 @@ export const NewSubscriberDialog = ({ open, onOpenChange }: NewSubscriberDialogP
               </SelectTrigger>
               <SelectContent>
                 <SelectItem value="trial">Teste gratuito</SelectItem>
-                <SelectItem value="basic">Basic</SelectItem>
-                <SelectItem value="pro">Pro</SelectItem>
-                <SelectItem value="enterprise">Enterprise</SelectItem>
+                <SelectItem value="basic">Essencial</SelectItem>
+                <SelectItem value="pro">Profissional</SelectItem>
+                <SelectItem value="enterprise">Premium</SelectItem>
               </SelectContent>
             </Select>
           </div>

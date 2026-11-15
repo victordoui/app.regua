@@ -1,7 +1,7 @@
 import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import type { PlatformSubscription } from '@/types/superAdmin';
-import { addDays, isAfter, isBefore, startOfDay } from 'date-fns';
+import { addBusinessCalendarDays, businessDateKey, formatBusinessDateInput } from '@/lib/formatters';
 
 export const useExpiringSubscriptions = (daysAhead: number = 7) => {
   return useQuery({
@@ -16,14 +16,15 @@ export const useExpiringSubscriptions = (daysAhead: number = 7) => {
 
       if (error) throw error;
 
-      const today = startOfDay(new Date());
-      const futureDate = addDays(today, daysAhead);
+      const today = formatBusinessDateInput();
+      const futureDate = addBusinessCalendarDays(today, daysAhead);
 
       // Filter subscriptions expiring within the specified days
       return (data || []).filter((sub) => {
         if (!sub.end_date) return false;
         const endDate = new Date(sub.end_date);
-        return isAfter(endDate, today) && isBefore(endDate, futureDate);
+        const endDateKey = businessDateKey(sub.end_date);
+        return endDate.getTime() > Date.now() && endDateKey <= futureDate;
       }) as PlatformSubscription[];
     },
   });
@@ -41,25 +42,25 @@ export const useExpiringStats = () => {
 
       if (error) throw error;
 
-      const today = startOfDay(new Date());
-      const in7Days = addDays(today, 7);
-      const in15Days = addDays(today, 15);
-      const in30Days = addDays(today, 30);
+      const today = formatBusinessDateInput();
+      const in7Days = addBusinessCalendarDays(today, 7);
+      const in15Days = addBusinessCalendarDays(today, 15);
+      const in30Days = addBusinessCalendarDays(today, 30);
 
       const subscriptions = data || [];
 
       return {
         expiring7Days: subscriptions.filter((s) => {
           const end = new Date(s.end_date);
-          return isAfter(end, today) && isBefore(end, in7Days);
+          return end.getTime() > Date.now() && businessDateKey(s.end_date) <= in7Days;
         }).length,
         expiring15Days: subscriptions.filter((s) => {
           const end = new Date(s.end_date);
-          return isAfter(end, today) && isBefore(end, in15Days);
+          return end.getTime() > Date.now() && businessDateKey(s.end_date) <= in15Days;
         }).length,
         expiring30Days: subscriptions.filter((s) => {
           const end = new Date(s.end_date);
-          return isAfter(end, today) && isBefore(end, in30Days);
+          return end.getTime() > Date.now() && businessDateKey(s.end_date) <= in30Days;
         }).length,
       };
     },

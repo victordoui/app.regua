@@ -1,6 +1,7 @@
 import React from "react";
 import { useNavigate } from "react-router-dom";
 import { useRealtimeAppointments } from "@/hooks/useRealtimeAppointments";
+import { formatCurrency } from "@/lib/formatters";
 
 const statusConfig: Record<string, { label: string; className: string }> = {
   completed: { label: "● Pago", className: "bg-[hsl(var(--success-bg))] text-[hsl(var(--success))] border border-[hsl(var(--success-border))]" },
@@ -47,7 +48,7 @@ const RecentTransactionsPanel = () => {
                   <td className="px-5 py-3"><div className="text-sm font-semibold text-foreground">{tx.clients?.name || "Cliente"}</div><div className="text-[10px] text-muted-foreground mt-0.5">#{tx.id.slice(0, 4)}</div></td>
                   <td className="text-xs text-muted-foreground py-3">{tx.services?.name || "Serviço"}</td>
                   <td className="py-3"><span className={`inline-flex items-center gap-1 text-[11px] font-semibold px-2.5 py-1 rounded-full ${status.className}`}>{status.label}</span></td>
-                  <td className={`text-right px-5 py-3 font-heading text-sm font-bold ${isCancelled ? "text-[hsl(var(--rose))]" : "text-foreground"}`}>{isCancelled ? "–" : ""} R$ {tx.total_price || tx.services?.price || 0}</td>
+                  <td className={`text-right px-5 py-3 font-heading text-sm font-bold ${isCancelled ? "text-[hsl(var(--rose))]" : "text-foreground"}`}>{isCancelled ? "– " : ""}{formatCurrency(tx.total_price || tx.services?.price || 0)}</td>
                 </tr>
               );
             })}

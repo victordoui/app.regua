@@ -7,6 +7,7 @@ import { useSubscriptionAccess } from '@/hooks/useSubscriptionAccess';
 import { getSubscriptionAccessDecision } from '@/lib/subscriptionAccess';
 import { Button } from '@/components/ui/button';
 import { AlertTriangle } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
 
 interface ProtectedRouteProps {
   children: ReactNode;
@@ -48,7 +49,8 @@ const ClientHomeRedirect: React.FC = () => {
 };
 
 const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ children, requiredRole, allowedRoles, skipSubscriptionCheck = false }) => {
-  const { user, loading: authLoading } = useAuth();
+  const { user, loading: authLoading, signOut } = useAuth();
+  const navigate = useNavigate();
   const { userRole, businessId, hasRole, loading: roleLoading } = useRole();
   const location = useLocation();
   const isBusinessAccount = userRole === 'admin' || userRole === 'barbeiro';
@@ -98,8 +100,12 @@ const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ children, requiredRole,
           <div className="flex min-h-screen items-center justify-center bg-background p-6">
             <div className="w-full max-w-md rounded-2xl border bg-card p-8 text-center shadow-sm">
               <AlertTriangle className="mx-auto mb-4 h-10 w-10 text-amber-500" />
-              <h1 className="text-xl font-bold">Acesso temporariamente indisponível</h1>
-              <p className="mt-2 text-sm text-muted-foreground">A assinatura deste negócio precisa ser regularizada pelo gestor.</p>
+              <h1 className="text-xl font-bold">Acesso pausado</h1>
+              <p className="mt-2 text-sm text-muted-foreground">O acesso está pausado. Fale com o dono da barbearia.</p>
+              <div className="mt-6 flex flex-col justify-center gap-3 sm:flex-row">
+                <Button variant="outline" onClick={() => { void signOut().finally(() => navigate('/login', { replace: true })); }}>Sair</Button>
+                <Button onClick={() => { void signOut().finally(() => navigate('/login', { replace: true })); }}>Voltar ao login</Button>
+              </div>
             </div>
           </div>
         );
@@ -109,7 +115,8 @@ const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ children, requiredRole,
 
   // Check legacy requiredRole prop (used for super_admin routes)
   if (requiredRole && !hasRole(requiredRole)) {
-    return <Navigate to="/" replace />;
+    const fallbackPath = userRole === 'admin' ? '/dashboard' : userRole === 'barbeiro' ? '/appointments' : '/login';
+    return <Navigate to={fallbackPath} replace />;
   }
 
   // Check allowedRoles list

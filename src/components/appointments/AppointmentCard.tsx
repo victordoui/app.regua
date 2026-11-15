@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { Edit, Trash2, Check, X, User, Clock, Calendar as CalendarIcon, DollarSign, CalendarPlus, Sparkles } from 'lucide-react';
 import { Appointment } from '@/types/appointments';
 import { Button } from '@/components/ui/button';
@@ -7,15 +7,24 @@ import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigge
 import { format, parseISO, formatDistanceToNow, differenceInHours } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
 import { getAppointmentAttendeeName, parseGroupBookingNotes } from '@/lib/groupBooking';
+import { formatDateOnlyBR } from '@/lib/formatters';
+import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import { parseTipAmount } from '@/lib/tipAmount';
 
 interface AppointmentCardProps {
   appointment: Appointment;
   onEdit: (appointment: Appointment) => void;
   onDelete: (id: string) => void;
-  onUpdateStatus: (id: string, newStatus: 'pending' | 'confirmed' | 'completed' | 'cancelled') => void;
+  onUpdateStatus: (id: string, newStatus: 'pending' | 'confirmed' | 'completed' | 'cancelled', tipAmount?: number) => void | Promise<void>;
 }
 
 const AppointmentCard: React.FC<AppointmentCardProps> = ({ appointment, onEdit, onDelete, onUpdateStatus }) => {
+  const [tipDialogOpen, setTipDialogOpen] = useState(false);
+  const [tipInput, setTipInput] = useState('');
+  const [tipError, setTipError] = useState('');
+  const [savingCompletion, setSavingCompletion] = useState(false);
   const attendeeName = getAppointmentAttendeeName(appointment);
   const groupMetadata = parseGroupBookingNotes(appointment.notes);
   const getStatusBadgeVariant = (status: string) => {
@@ -68,7 +77,34 @@ const AppointmentCard: React.FC<AppointmentCardProps> = ({ appointment, onEdit, 
     return format(parseISO(appointment.created_at), "dd/MM/yyyy 'às' HH:mm", { locale: ptBR });
   };
 
+  const openTipDialog = (editExisting = false) => {
+    setTipError('');
+    setTipInput(editExisting && appointment.tip_amount ? String(appointment.tip_amount).replace('.', ',') : '');
+    setTipDialogOpen(true);
+  };
+
+  const completeAppointment = async () => {
+    const tipAmount = parseTipAmount(tipInput);
+    if (tipAmount === null) {
+      setTipError('Informe um valor válido, com até duas casas decimais.');
+      return;
+    }
+
+    setSavingCompletion(true);
+    setTipError('');
+    try {
+      await onUpdateStatus(appointment.id, 'completed', tipAmount);
+      setTipDialogOpen(false);
+      setTipInput('');
+    } catch {
+      setTipError('Não foi possível concluir o atendimento. Tente novamente.');
+    } finally {
+      setSavingCompletion(false);
+    }
+  };
+
   return (
+    <>
     <div className="border rounded-lg p-4 space-y-3 shadow-sm hover:shadow-md transition-shadow relative">
       {/* New Badge */}
       {isNew && (
@@ -102,8 +138,13 @@ const AppointmentCard: React.FC<AppointmentCardProps> = ({ appointment, onEdit, 
               <Edit className="mr-2 h-4 w-4" /> Editar
             </DropdownMenuItem>
             {appointment.status !== 'completed' && appointment.status !== 'cancelled' && (
-              <DropdownMenuItem onClick={() => onUpdateStatus(appointment.id, 'completed')}>
+              <DropdownMenuItem onClick={() => openTipDialog()}>
                 <Check className="mr-2 h-4 w-4" /> Marcar como Concluído
+              </DropdownMenuItem>
+            )}
+            {appointment.status === 'completed' && (
+              <DropdownMenuItem onClick={() => openTipDialog(true)}>
+                <DollarSign className="mr-2 h-4 w-4" /> {Number(appointment.tip_amount || 0) > 0 ? 'Editar gorjeta' : 'Registrar gorjeta'}
               </DropdownMenuItem>
             )}
             {appointment.status !== 'cancelled' && (
@@ -121,7 +162,7 @@ const AppointmentCard: React.FC<AppointmentCardProps> = ({ appointment, onEdit, 
       <div className="grid grid-cols-2 gap-2 text-sm text-muted-foreground">
         <div className="flex items-center gap-2">
           <CalendarIcon className="h-4 w-4" />
-          <span>{format(new Date(appointment.appointment_date), 'dd/MM/yyyy', { locale: ptBR })}</span>
+          <span>{formatDateOnlyBR(appointment.appointment_date)}</span>
         </div>
         <div className="flex items-center gap-2">
           <Clock className="h-4 w-4" />
@@ -133,7 +174,7 @@ const AppointmentCard: React.FC<AppointmentCardProps> = ({ appointment, onEdit, 
         </div>
         <div className="flex items-center gap-2">
           <DollarSign className="h-4 w-4" />
-          <span>{formatCurrency(appointment.total_price)}</span>
+          <span>{formatCurrency(appointment.total_price)}{appointment.status === 'completed' && Number(appointment.tip_amount || 0) > 0 && <span className="ml-2 text-xs text-muted-foreground">+ {formatCurrency(appointment.tip_amount)} gorjeta</span>}</span>
         </div>
       </div>
 
@@ -154,6 +195,29 @@ const AppointmentCard: React.FC<AppointmentCardProps> = ({ appointment, onEdit, 
         </p>
       )}
     </div>
+    <Dialog open={tipDialogOpen} onOpenChange={(open) => { if (!savingCompletion) setTipDialogOpen(open); }}>
+      <DialogContent>
+        <DialogHeader>
+          <DialogTitle>{appointment.status === 'completed' ? 'Registrar gorjeta' : 'Concluir atendimento'}</DialogTitle>
+          <DialogDescription>Informe a gorjeta, se o cliente deixou alguma. Esse valor fica separado do preço do serviço e da comissão.</DialogDescription>
+        </DialogHeader>
+        <div className="space-y-2">
+          <Label htmlFor={`appointment-tip-${appointment.id}`}>Gorjeta (opcional)</Label>
+          <div className="relative">
+            <span className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-sm text-muted-foreground">R$</span>
+            <Input id={`appointment-tip-${appointment.id}`} inputMode="decimal" autoComplete="off" className="pl-10" value={tipInput} onChange={(event) => { setTipInput(event.target.value); setTipError(''); }} placeholder="0,00" aria-invalid={Boolean(tipError)} aria-describedby={tipError ? `appointment-tip-error-${appointment.id}` : undefined} />
+          </div>
+          {tipError && <p id={`appointment-tip-error-${appointment.id}`} className="text-sm text-destructive" role="alert">{tipError}</p>}
+        </div>
+        <DialogFooter>
+          <Button type="button" variant="outline" onClick={() => setTipDialogOpen(false)} disabled={savingCompletion}>Voltar</Button>
+          <Button type="button" onClick={() => void completeAppointment()} disabled={savingCompletion}>
+            <Check className="mr-2 h-4 w-4" />{savingCompletion ? 'Salvando…' : appointment.status === 'completed' ? 'Salvar gorjeta' : 'Concluir atendimento'}
+          </Button>
+        </DialogFooter>
+      </DialogContent>
+    </Dialog>
+    </>
   );
 };
 

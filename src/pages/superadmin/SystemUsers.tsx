@@ -1,4 +1,5 @@
-import { useState, useMemo } from 'react';
+import { useState, useMemo, useEffect } from 'react';
+import { useSearchParams } from 'react-router-dom';
 import { PageHeader } from '@/components/ui/page-header';
 import { SuperAdminLayout } from '@/components/superadmin/SuperAdminLayout';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -14,12 +15,24 @@ import { usePlatformUserActions, PlatformUserAction } from '@/hooks/superadmin/u
 import { Search, Users, AlertTriangle, MoreVertical, Ban, UserCheck, Pause, Play, LogOut, Trash2 } from 'lucide-react';
 import { format } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
+import { getEffectiveSubscriptionStatus } from '@/lib/platformSubscriptionStatus';
 
 const ROLE_LABELS: Record<string, string> = {
   super_admin: 'Administrador da Plataforma',
   admin: 'Gestor do Negócio',
   barbeiro: 'Colaborador',
   cliente: 'Cliente',
+};
+
+const ROLE_FILTER_ALIASES: Record<string, string> = {
+  owner: 'admin', business_owner: 'admin', gestor: 'admin', 'gestor do negócio': 'admin',
+  professional: 'barbeiro', employee: 'barbeiro', staff: 'barbeiro', barber: 'barbeiro', colaborador: 'barbeiro',
+  client: 'cliente', customer: 'cliente', superadmin: 'super_admin',
+};
+
+const normalizeRoleForFilter = (role: string) => {
+  const normalized = role.trim().toLowerCase();
+  return ROLE_FILTER_ALIASES[normalized] || normalized;
 };
 
 const STATUS_COLORS: Record<string, string> = {
@@ -32,10 +45,15 @@ const STATUS_COLORS: Record<string, string> = {
 
 const SystemUsers = () => {
   const { data, isLoading } = usePlatformUsers();
-  const [search, setSearch] = useState('');
+  const [searchParams] = useSearchParams();
+  const [search, setSearch] = useState(() => searchParams.get('search') || '');
   const [roleFilter, setRoleFilter] = useState('all');
   const [statusFilter, setStatusFilter] = useState('all');
   const { runAction, isUpdating } = usePlatformUserActions();
+
+  useEffect(() => {
+    setSearch(searchParams.get('search') || '');
+  }, [searchParams]);
 
   const confirmAction = async (user: NonNullable<typeof data>['users'][number], action: PlatformUserAction) => {
     if (action === 'delete') {
@@ -67,13 +85,18 @@ const SystemUsers = () => {
       const matchesSearch =
         !search ||
         u.display_name?.toLowerCase().includes(search.toLowerCase()) ||
-        u.email?.toLowerCase().includes(search.toLowerCase());
-      const matchesRole = roleFilter === 'all' || u.roles.includes(roleFilter);
+        u.email?.toLowerCase().includes(search.toLowerCase()) ||
+        u.company_name?.toLowerCase().includes(search.toLowerCase()) ||
+        u.subscription?.plan_type.toLowerCase().includes(search.toLowerCase()) ||
+        u.subscription?.status.toLowerCase().includes(search.toLowerCase()) ||
+        u.subscription?.payment_status?.toLowerCase().includes(search.toLowerCase());
+      const matchesRole = roleFilter === 'all' || u.roles.some((role) => normalizeRoleForFilter(role) === roleFilter);
+      const effectiveStatus = getEffectiveSubscriptionStatus(u.subscription);
       const matchesStatus =
         statusFilter === 'all' ||
         (statusFilter === 'banned' && u.active === false) ||
         (statusFilter === 'orphan' && u.roles.length === 0) ||
-        u.subscription?.status === statusFilter;
+        effectiveStatus === statusFilter;
       return matchesSearch && matchesRole && matchesStatus;
     });
   }, [data?.users, search, roleFilter, statusFilter]);
@@ -155,6 +178,7 @@ const SystemUsers = () => {
                 <SelectContent>
                   <SelectItem value="all">Todos os status</SelectItem>
                   <SelectItem value="active">Ativo</SelectItem>
+                  <SelectItem value="expired">Expirado</SelectItem>
                   <SelectItem value="pending_payment">Pagamento Pendente</SelectItem>
                   <SelectItem value="suspended">Suspenso</SelectItem>
                   <SelectItem value="banned">Banido</SelectItem>
@@ -263,12 +287,13 @@ const SystemUsers = () => {
                             {user.subscription ? (
                               <Badge
                                 variant="outline"
-                                className={`text-xs ${STATUS_COLORS[user.subscription.status] || ''}`}
+                                className={`text-xs ${STATUS_COLORS[getEffectiveSubscriptionStatus(user.subscription) || user.subscription.status] || ''}`}
                               >
-                                {user.subscription.status === 'active' ? 'Ativo' :
-                                 user.subscription.status === 'pending_payment' ? 'Pgto Pendente' :
-                                 user.subscription.status === 'suspended' ? 'Suspenso' :
-                                 user.subscription.status}
+                                {getEffectiveSubscriptionStatus(user.subscription) === 'active' ? 'Ativo' :
+                                 getEffectiveSubscriptionStatus(user.subscription) === 'expired' ? 'Expirado' :
+                                 getEffectiveSubscriptionStatus(user.subscription) === 'pending_payment' ? 'Pgto Pendente' :
+                                 getEffectiveSubscriptionStatus(user.subscription) === 'suspended' ? 'Suspenso' :
+                                 getEffectiveSubscriptionStatus(user.subscription)}
                               </Badge>
                             ) : (
                               <span className="text-xs text-muted-foreground">—</span>

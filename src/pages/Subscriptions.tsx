@@ -12,6 +12,7 @@ import SubscriptionCreationDialog from '@/components/subscriptions/SubscriptionC
 import { PageContainer, PageHeader, WorkspaceGuide } from '@/components/ui/workspace-page';
 import { SectionTabsLayout } from '@/components/ui/workspace-sections';
 import { StatusCards } from '@/components/ui/workspace-stats';
+import { formatCurrency } from '@/lib/formatters';
 
 const subscriptionSections = [
   { value: 'plans', label: 'Planos', description: 'Opções oferecidas', icon: Crown },
@@ -76,7 +77,7 @@ const Subscriptions = () => {
         <StatusCards
           items={[
             { label: 'Assinantes ativos', value: stats.activeCount, icon: <Crown className="h-5 w-5" />, color: 'purple' },
-            { label: 'Receita mensal', value: `R$ ${stats.mrr.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}`, icon: <DollarSign className="h-5 w-5" />, color: 'green' },
+            { label: 'Receita mensal', value: formatCurrency(stats.mrr), icon: <DollarSign className="h-5 w-5" />, color: 'green' },
             { label: 'Taxa de retenção', value: `${stats.retention}%`, icon: <TrendingUp className="h-5 w-5" />, color: 'blue' },
             { label: 'Clientes disponíveis', value: clients.length, icon: <Users className="h-5 w-5" />, color: 'amber' },
           ]}

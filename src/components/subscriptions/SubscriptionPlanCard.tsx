@@ -1,3 +1,4 @@
+import { formatCurrency } from '@/lib/formatters';
 import React from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -25,7 +26,7 @@ const SubscriptionPlanCard: React.FC<SubscriptionPlanCardProps> = ({ plan, onEdi
       <CardContent>
         <p className="text-sm text-muted-foreground mb-4">{plan.description}</p>
         <div className="text-2xl font-bold mb-4">
-          R$ {plan.price.toFixed(2)}
+          {formatCurrency(plan.price)}
           <span className="text-sm font-normal text-muted-foreground">/{plan.billing_cycle === 'monthly' ? 'mês' : 'ano'}</span>
         </div>
         <div className="space-y-2 mb-4">

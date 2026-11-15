@@ -14,6 +14,7 @@ import type { PlanConfig } from '@/types/superAdmin';
 import { useAuth } from '@/contexts/AuthContext';
 import { DEFAULT_PUBLIC_PLANS } from '@/lib/publicPlans';
 import { formatCurrency } from '@/lib/pixUtils';
+import { getSignupDeviceId } from '@/lib/signupDeviceId';
 
 type Step = 1 | 2 | 3 | 4;
 
@@ -32,6 +33,7 @@ const SignupPage = () => {
   const [plans, setPlans] = useState<PlanConfig[]>(DEFAULT_PUBLIC_PLANS);
   const [confirmationEmailSent, setConfirmationEmailSent] = useState(false);
   const [emailConfirmed, setEmailConfirmed] = useState(false);
+  const [billingCycle, setBillingCycle] = useState<'monthly' | 'yearly'>('monthly');
 
   const [formData, setFormData] = useState({
     fullName: '',
@@ -61,9 +63,11 @@ const SignupPage = () => {
   useEffect(() => {
     const searchParams = new URLSearchParams(window.location.search);
     const preSelectedPlan = searchParams.get('plano');
+    const requestedCycle = searchParams.get('ciclo');
     if (preSelectedPlan) {
       setFormData(f => ({ ...f, selectedPlan: preSelectedPlan }));
     }
+    if (requestedCycle === 'yearly') setBillingCycle('yearly');
 
     if (searchParams.get('confirmado') === '1' && user) {
       setEmailConfirmed(true);
@@ -126,6 +130,11 @@ const SignupPage = () => {
         if (authError) throw authError;
         if (!authData.user) throw new Error('Erro ao criar conta');
 
+        // Coleta sinais de risco com hash no servidor; falhas aqui não impedem o cadastro.
+        await supabase.functions.invoke('record-signup-signal', {
+          body: { user_id: authData.user.id, email: formData.email, full_name: formData.fullName, phone: formData.phone, device_id: getSignupDeviceId() },
+        }).catch(() => undefined);
+
         // Com confirmação de e-mail ativa não existe sessão ainda. A conta só
         // pode ganhar papel, negócio e assinatura após o clique no e-mail.
         if (!authData.session) {
@@ -166,8 +175,8 @@ const SignupPage = () => {
         description = 'Este email já está cadastrado. Tente fazer login.';
       } else if (msg.includes('invalid email') || msg.includes('Unable to validate email')) {
         description = 'O email informado não é válido.';
-      } else if (msg.includes('Password should be at least 6') || msg.includes('at least 6')) {
-        description = 'A senha deve ter pelo menos 6 caracteres.';
+      } else if (msg.includes('Password should be at least 8') || msg.includes('at least 8')) {
+        description = 'A senha deve ter pelo menos 8 caracteres.';
       } else if (code === '42P10' || msg.includes('ON CONFLICT') || msg.includes('unique constraint')) {
         description = 'Erro de configuração interna. Contate o suporte.';
       } else if (msg.includes('rate limit') || msg.includes('too many requests')) {
@@ -186,7 +195,7 @@ const SignupPage = () => {
     setIsLoading(true);
     try {
       const { data, error } = await supabase.functions.invoke('create-checkout', {
-        body: { plan_type: formData.selectedPlan },
+        body: { plan_type: formData.selectedPlan, billing_cycle: billingCycle },
       });
 
       if (error) throw error;
@@ -209,8 +218,14 @@ const SignupPage = () => {
   const canProceedStep1 =
     formData.fullName.trim() &&
     formData.companyName.trim() &&
-    formData.email.trim() &&
+    /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.email.trim()) &&
     (isCompletingRegistration || formData.password.length >= 8);
+  const pendingStep1Fields = [
+    !formData.fullName.trim() && 'nome completo',
+    !formData.companyName.trim() && 'nome do negócio',
+    !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.email.trim()) && 'e-mail válido',
+    !isCompletingRegistration && formData.password.length < 8 && 'senha com pelo menos 8 caracteres',
+  ].filter((field): field is string => Boolean(field));
 
   const planIcons: Record<string, React.ReactNode> = {
     trial: <Zap className="h-6 w-6" />,
@@ -277,7 +292,7 @@ const SignupPage = () => {
 
   if (confirmationEmailSent) {
     return (
-      <div className="flex min-h-screen items-center justify-center bg-gradient-to-br from-background via-muted/30 to-background p-4">
+      <main className="flex min-h-screen items-center justify-center bg-gradient-to-br from-background via-muted/30 to-background p-4">
         <Card className="w-full max-w-md text-center">
           <CardHeader>
             <div className="mx-auto mb-3 flex h-14 w-14 items-center justify-center rounded-2xl bg-primary/10 text-primary"><Mail className="h-7 w-7" /></div>
@@ -295,12 +310,12 @@ const SignupPage = () => {
             <p className="text-xs text-muted-foreground">Não encontrou? Verifique a caixa de spam e aguarde alguns minutos antes de reenviar.</p>
           </CardContent>
         </Card>
-      </div>
+      </main>
     );
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-background via-muted/30 to-background flex items-center justify-center p-4">
+    <main className="min-h-screen bg-gradient-to-br from-background via-muted/30 to-background flex items-center justify-center p-4">
       <div className="w-full max-w-2xl">
         {/* Header */}
         <div className="text-center mb-8">
@@ -334,6 +349,7 @@ const SignupPage = () => {
         {step === 1 && (
           <Card>
             <CardHeader>
+              <h2 className="sr-only">Cadastro da conta e do negócio</h2>
               <CardTitle>{isCompletingRegistration ? 'Conclua seu cadastro' : 'Dados da Conta'}</CardTitle>
               <CardDescription>{isCompletingRegistration ? 'Escolha um plano e informe os dados do negócio para liberar o acesso.' : 'Preencha seus dados para criar sua conta'}</CardDescription>
             </CardHeader>
@@ -348,6 +364,8 @@ const SignupPage = () => {
                   <Label htmlFor="fullName">Nome completo</Label>
                   <Input
                     id="fullName"
+                    autoComplete="name"
+                    required
                     placeholder="Seu nome"
                     value={formData.fullName}
                     onChange={(e) => setFormData((f) => ({ ...f, fullName: formatNameOnly(e.target.value) }))}
@@ -357,6 +375,7 @@ const SignupPage = () => {
                   <Label htmlFor="companyName">Nome do negócio</Label>
                   <Input
                     id="companyName"
+                    required
                     placeholder="Ex: Salão da Maria"
                     value={formData.companyName}
                     onChange={(e) => setFormData((f) => ({ ...f, companyName: e.target.value }))}
@@ -368,6 +387,8 @@ const SignupPage = () => {
                 <Input
                   id="email"
                   type="email"
+                  autoComplete="email"
+                  required
                   placeholder="seu@email.com"
                   value={formData.email}
                   onChange={(e) => setFormData((f) => ({ ...f, email: e.target.value }))}
@@ -378,6 +399,9 @@ const SignupPage = () => {
                 <Input
                   id="password"
                   type="password"
+                  autoComplete="new-password"
+                  minLength={8}
+                  required
                   placeholder="••••••••"
                   value={formData.password}
                   onChange={(e) => setFormData((f) => ({ ...f, password: e.target.value }))}
@@ -401,9 +425,14 @@ const SignupPage = () => {
               >
                 Próximo <ArrowRight className="h-4 w-4 ml-2" />
               </Button>
+              {pendingStep1Fields.length > 0 && (
+                <p className="text-center text-xs text-muted-foreground" role="status">
+                  Para continuar, informe: {pendingStep1Fields.join(', ')}.
+                </p>
+              )}
               <p className="text-center text-sm text-muted-foreground">
                 Já tem conta?{' '}
-                <button onClick={() => navigate('/login')} className="text-primary hover:underline">
+                <button onClick={() => navigate('/login')} className="text-[#1f4fa3] dark:text-blue-300 hover:underline">
                   Fazer login
                 </button>
               </p>
@@ -420,6 +449,10 @@ const SignupPage = () => {
                 <CardDescription>Selecione o plano ideal para seu negócio</CardDescription>
               </CardHeader>
               <CardContent>
+                <div className="mb-5 flex w-fit gap-1 rounded-xl border bg-muted/50 p-1">
+                  <Button type="button" size="sm" variant={billingCycle === 'monthly' ? 'default' : 'ghost'} onClick={() => setBillingCycle('monthly')}>Mensal</Button>
+                  <Button type="button" size="sm" variant={billingCycle === 'yearly' ? 'default' : 'ghost'} onClick={() => setBillingCycle('yearly')}>Anual · 2 meses grátis</Button>
+                </div>
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                   {plans.map((plan) => (
                     <button
@@ -435,7 +468,7 @@ const SignupPage = () => {
                     >
                       {plan.plan_type === 'pro' && (
                         <Badge className="absolute right-3 top-3 bg-gradient-to-r from-primary to-primary-600 text-primary-foreground">
-                          Popular
+                          Mais escolhido
                         </Badge>
                       )}
                       <div className={cn('mb-3 flex items-center gap-3', plan.plan_type === 'pro' && 'pr-16')}>
@@ -448,17 +481,19 @@ const SignupPage = () => {
                         <div>
                           <h3 className="font-semibold text-foreground">{plan.display_name}</h3>
                           <p className="text-sm text-muted-foreground">
-                            {plan.plan_type === 'trial' ? `Teste gratuito por ${plan.trial_days || 7} dias` : `${formatCurrency(Number(plan.price_monthly))}/mês`}
+                            {plan.plan_type === 'trial' ? `Teste gratuito por ${plan.trial_days || 7} dias, sem cartão` : `${formatCurrency(Number(billingCycle === 'yearly' ? plan.price_yearly : plan.price_monthly))}/${billingCycle === 'yearly' ? 'ano' : 'mês'}`}
                           </p>
                         </div>
                       </div>
                       <div className="text-xs text-muted-foreground space-y-1">
                         <p>• Até {plan.max_barbers} profissiona{plan.max_barbers > 1 ? 'is' : 'l'}</p>
-                        <p>• {plan.max_appointments_month} agendamentos/mês</p>
+                        <p>• Agendamentos ilimitados</p>
+                        {plan.plan_type === 'pro' && <p className="font-semibold text-primary">• Mais escolhido</p>}
                       </div>
                     </button>
                   ))}
                 </div>
+                <p className="mt-4 text-xs text-muted-foreground">Profissional adicional: R$ 12,00 por mês. Clube de assinatura, marca própria e múltiplas unidades estão em breve.</p>
               </CardContent>
             </Card>
             <div className="flex gap-3">
@@ -503,7 +538,7 @@ const SignupPage = () => {
                   {isPaidPlan && selectedPlanConfig && (
                     <div className="flex justify-between pt-2 border-t border-border">
                       <span className="text-muted-foreground font-medium">Valor:</span>
-                      <span className="font-bold text-primary">{formatCurrency(Number(selectedPlanConfig.price_monthly))}/mês</span>
+                      <span className="font-bold text-primary">{formatCurrency(Number(billingCycle === 'yearly' ? selectedPlanConfig.price_yearly : selectedPlanConfig.price_monthly))}/{billingCycle === 'yearly' ? 'ano' : 'mês'}</span>
                     </div>
                   )}
                 </div>
@@ -551,7 +586,7 @@ const SignupPage = () => {
                   <p className="text-sm text-muted-foreground">Plano selecionado</p>
                   <p className="text-lg font-bold text-foreground">{selectedPlanConfig?.display_name}</p>
                   <p className="text-2xl font-bold text-primary mt-1">
-                    {formatCurrency(Number(selectedPlanConfig?.price_monthly || 0))}<span className="text-sm font-normal text-muted-foreground">/mês</span>
+                    {formatCurrency(Number((billingCycle === 'yearly' ? selectedPlanConfig?.price_yearly : selectedPlanConfig?.price_monthly) || 0))}<span className="text-sm font-normal text-muted-foreground">/{billingCycle === 'yearly' ? 'ano' : 'mês'}</span>
                   </p>
                 </div>
 
@@ -585,7 +620,7 @@ const SignupPage = () => {
           </div>
         )}
       </div>
-    </div>
+    </main>
   );
 };
 

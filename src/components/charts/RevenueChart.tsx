@@ -1,16 +1,13 @@
 import React from 'react';
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { formatCompactCurrency, formatCurrency } from '@/lib/formatters';
 
 interface RevenueChartProps {
   data?: { month: string; revenue: number }[];
 }
 
 const RevenueChart: React.FC<RevenueChartProps> = ({ data = [] }) => {
-  const formatCurrency = (value: number) => {
-    return `R$ ${(value / 1000).toFixed(1)}k`;
-  };
-
   return (
     <Card>
       <CardHeader className="pb-2">
@@ -27,12 +24,12 @@ const RevenueChart: React.FC<RevenueChartProps> = ({ data = [] }) => {
                 axisLine={{ stroke: 'hsl(var(--border))' }}
               />
               <YAxis 
-                tickFormatter={formatCurrency}
+                tickFormatter={formatCompactCurrency}
                 tick={{ fill: 'hsl(var(--muted-foreground))', fontSize: 12 }}
                 axisLine={{ stroke: 'hsl(var(--border))' }}
               />
               <Tooltip 
-                formatter={(value: number) => [`R$ ${value.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}`, 'Receita']}
+                formatter={(value: number) => [formatCurrency(value), 'Receita']}
                 contentStyle={{ 
                   backgroundColor: 'hsl(var(--card))',
                   border: '1px solid hsl(var(--border))',

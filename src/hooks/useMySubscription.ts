@@ -1,8 +1,8 @@
 import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/contexts/AuthContext';
-import { differenceInDays, startOfMonth, endOfMonth } from 'date-fns';
 import type { Database } from '@/integrations/supabase/types';
+import { differenceInBusinessDays, getBusinessMonthDateRange } from '@/lib/formatters';
 
 type PlatformSubscription = Database['public']['Tables']['platform_subscriptions']['Row'];
 type PlatformPlanConfig = Database['public']['Tables']['platform_plan_config']['Row'];
@@ -65,9 +65,7 @@ export function useMySubscription(targetUserId?: string) {
     queryFn: async () => {
       if (!userId) return { barbersCount: 0, appointmentsThisMonth: 0 };
 
-      const now = new Date();
-      const monthStart = startOfMonth(now).toISOString().split('T')[0];
-      const monthEnd = endOfMonth(now).toISOString().split('T')[0];
+      const { start: monthStart, end: monthEnd } = getBusinessMonthDateRange();
 
       const [barbersRes, appointmentsRes] = await Promise.all([
         supabase
@@ -99,9 +97,9 @@ export function useMySubscription(targetUserId?: string) {
     const start = new Date(sub.start_date);
     const end = new Date(sub.end_date);
     const now = new Date();
-    const totalDays = differenceInDays(end, start);
-    const elapsed = differenceInDays(now, start);
-    daysRemaining = Math.max(0, differenceInDays(end, now));
+    const totalDays = differenceInBusinessDays(sub.end_date, start);
+    const elapsed = differenceInBusinessDays(now.toISOString(), start);
+    daysRemaining = Math.max(0, differenceInBusinessDays(sub.end_date, now));
     progressPercent = totalDays > 0 ? Math.min(100, Math.round((elapsed / totalDays) * 100)) : 0;
   }
 

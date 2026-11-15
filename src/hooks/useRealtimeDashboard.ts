@@ -4,12 +4,14 @@ import { useAuth } from '@/contexts/AuthContext';
 import { useQueryClient } from '@tanstack/react-query';
 import { format, startOfMonth, endOfMonth, subMonths, isToday, parseISO, subDays, differenceInDays } from 'date-fns';
 import { sumCompletedRevenue } from '@/lib/revenue';
+import { calculateAttendanceRate, calculateCompletionRate } from '@/lib/dashboardAttendance';
 import { ptBR } from 'date-fns/locale';
 
 interface DashboardMetrics {
   todayAppointments: number;
   monthAppointments: number;
   monthRevenue: number;
+  monthlyGoal: number;
   todayRevenue: number;
   totalClients: number;
   newClientsThisMonth: number;
@@ -72,6 +74,7 @@ export const useRealtimeDashboard = (filters: DashboardFilters = { periodMonths:
     todayAppointments: 0,
     monthAppointments: 0,
     monthRevenue: 0,
+    monthlyGoal: 0,
     todayRevenue: 0,
     totalClients: 0,
     newClientsThisMonth: 0,
@@ -114,6 +117,7 @@ export const useRealtimeDashboard = (filters: DashboardFilters = { periodMonths:
         subscriptionsResult,
         last6MonthsResult,
         reviewsResult,
+        monthlyGoalResult,
       ] = await Promise.all([
         // Month appointments
         supabase
@@ -155,6 +159,12 @@ export const useRealtimeDashboard = (filters: DashboardFilters = { periodMonths:
           .from('reviews')
           .select('rating, created_at')
           .eq('user_id', user.id),
+        supabase
+          .from('business_monthly_goals')
+          .select('revenue_target')
+          .eq('user_id', user.id)
+          .eq('month_start', monthStart)
+          .maybeSingle(),
       ]);
 
       // Calculate metrics
@@ -186,10 +196,7 @@ export const useRealtimeDashboard = (filters: DashboardFilters = { periodMonths:
 
 
       // Completed rate
-      const completedAppts = monthAppts.filter(a => a.status === 'completed').length;
-      const completedRate = monthAppts.length > 0 
-        ? Math.round((completedAppts / monthAppts.length) * 100) 
-        : 0;
+      const completedRate = calculateCompletionRate(monthAppts);
 
       // New clients this month
       const newClients = clients.filter(c => {
@@ -211,6 +218,7 @@ export const useRealtimeDashboard = (filters: DashboardFilters = { periodMonths:
         todayAppointments: todayAppts.length,
         monthAppointments: monthAppts.length,
         monthRevenue,
+        monthlyGoal: Number(monthlyGoalResult.data?.revenue_target || 0),
         todayRevenue,
         totalClients: clients.length,
         newClientsThisMonth: newClients,
@@ -243,13 +251,11 @@ export const useRealtimeDashboard = (filters: DashboardFilters = { periodMonths:
       setMonthlyRevenue(monthlyRevenueData);
 
       const completedInPeriod = revenueData.filter((apt) => apt.status === 'completed');
-      const attendedInPeriod = revenueData.filter((apt) => !['cancelled', 'no_show'].includes(apt.status));
       const totalRevenue = completedInPeriod.reduce((sum, apt) => sum + Number(apt.total_price || 0), 0);
       const previousCompleted = previousData.filter((apt) => apt.status === 'completed');
-      const previousAttended = previousData.filter((apt) => !['cancelled', 'no_show'].includes(apt.status));
       const previousRevenue = previousCompleted.reduce((sum, apt) => sum + Number(apt.total_price || 0), 0);
-      const attendanceRate = revenueData.length ? (attendedInPeriod.length / revenueData.length) * 100 : 0;
-      const previousAttendanceRate = previousData.length ? (previousAttended.length / previousData.length) * 100 : 0;
+      const attendanceRate = calculateAttendanceRate(revenueData);
+      const previousAttendanceRate = calculateAttendanceRate(previousData);
       const averageTicket = completedInPeriod.length ? totalRevenue / completedInPeriod.length : 0;
       const previousAverageTicket = previousCompleted.length ? previousRevenue / previousCompleted.length : 0;
       const currentReviews = reviews.filter((review) => parseISO(review.created_at).getTime() >= periodStartTime);

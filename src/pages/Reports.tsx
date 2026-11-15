@@ -1,3 +1,4 @@
+import { formatCurrency } from '@/lib/formatters';
 import { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Progress } from '@/components/ui/progress';
@@ -82,7 +83,7 @@ const Reports = () => {
         <StatusCards
           className="grid-cols-1 sm:grid-cols-2 lg:grid-cols-4"
           items={[
-            { label: "Receita Mensal", value: `R$ ${reportData.monthlyRevenue.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}`, icon: <DollarSign className="h-5 w-5" />, color: "green" },
+            { label: "Receita Mensal", value: formatCurrency(reportData.monthlyRevenue), icon: <DollarSign className="h-5 w-5" />, color: "green" },
             { label: "Agendamentos", value: reportData.totalAppointments, icon: <Calendar className="h-5 w-5" />, color: "blue", suffix: `(${reportData.completedAppointments} concluídos)` },
             { label: "Novos Clientes", value: reportData.newClients, icon: <Users className="h-5 w-5" />, color: "purple" },
             { label: "Retenção", value: `${reportData.clientRetention}%`, icon: <TrendingUp className="h-5 w-5" />, color: "amber" },
@@ -107,21 +108,21 @@ const Reports = () => {
             <StatusCards
               className="grid-cols-1 sm:grid-cols-2 lg:grid-cols-4"
               items={[
-                { label: "Receita Total", value: `R$ ${summary.totalRevenue.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}`, icon: <DollarSign className="h-5 w-5" />, color: "green" },
+                { label: "Receita Total", value: formatCurrency(summary.totalRevenue), icon: <DollarSign className="h-5 w-5" />, color: "green" },
                 { label: "Atendimentos", value: summary.totalAppointments, icon: <ShoppingCart className="h-5 w-5" />, color: "blue" },
-                { label: "Ticket Médio", value: `R$ ${summary.ticketMedio.toFixed(2)}`, icon: <BarChart3 className="h-5 w-5" />, color: "purple" },
-                { label: "Período Anterior", value: `R$ ${summary.prevTotalRevenue.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}`, icon: <DollarSign className="h-5 w-5" />, color: "amber" },
+                { label: "Ticket Médio", value: `${formatCurrency(summary.ticketMedio)}`, icon: <BarChart3 className="h-5 w-5" />, color: "purple" },
+                { label: "Período Anterior", value: formatCurrency(summary.prevTotalRevenue), icon: <DollarSign className="h-5 w-5" />, color: "amber" },
               ]}
             />
             <SalesChart data={salesData} />
             <div className="grid gap-6 lg:grid-cols-2">
               <div className="rounded-[20px] border border-border bg-card shadow-sm">
                 <div className="p-5 border-b border-border/40"><h3 className="font-semibold">Serviços Mais Vendidos</h3></div>
-                <div className="p-5 h-[250px]"><ResponsiveContainer width="100%" height="100%"><PieChart><Pie data={serviceSales.slice(0, 5)} cx="50%" cy="50%" outerRadius={80} dataKey="revenue" nameKey="name" label={({ name, percent }) => `${name} (${(percent * 100).toFixed(0)}%)`}>{serviceSales.slice(0, 5).map((_, i) => <Cell key={i} fill={COLORS[i % COLORS.length]} />)}</Pie><Tooltip formatter={(v: number) => `R$ ${v.toFixed(2)}`} /></PieChart></ResponsiveContainer></div>
+                <div className="p-5 h-[250px]"><ResponsiveContainer width="100%" height="100%"><PieChart><Pie data={serviceSales.slice(0, 5)} cx="50%" cy="50%" outerRadius={80} dataKey="revenue" nameKey="name" label={({ name, percent }) => `${name} (${(percent * 100).toFixed(0)}%)`}>{serviceSales.slice(0, 5).map((_, i) => <Cell key={i} fill={COLORS[i % COLORS.length]} />)}</Pie><Tooltip formatter={(v: number) => `${formatCurrency(v)}`} /></PieChart></ResponsiveContainer></div>
               </div>
               <div className="rounded-[20px] border border-border bg-card shadow-sm">
                 <div className="p-5 border-b border-border/40"><h3 className="font-semibold">Ranking de Serviços</h3></div>
-                <div className="p-5 space-y-3">{serviceSales.slice(0, 5).map((s, i) => <div key={s.id} className="flex items-center justify-between p-3 rounded-lg bg-muted/50"><div className="flex items-center gap-3"><span className="font-bold text-primary">{i + 1}º</span><div><p className="font-medium">{s.name}</p><p className="text-xs text-muted-foreground">{s.count} atendimentos</p></div></div><span className="font-bold text-green-600 dark:text-green-400">R$ {s.revenue.toFixed(2)}</span></div>)}</div>
+                <div className="p-5 space-y-3">{serviceSales.slice(0, 5).map((s, i) => <div key={s.id} className="flex items-center justify-between p-3 rounded-lg bg-muted/50"><div className="flex items-center gap-3"><span className="font-bold text-primary">{i + 1}º</span><div><p className="font-medium">{s.name}</p><p className="text-xs text-muted-foreground">{s.count} atendimentos</p></div></div><span className="font-bold text-green-600 dark:text-green-400">{formatCurrency(s.revenue)}</span></div>)}</div>
               </div>
             </div>
           </TabsContent>
@@ -141,7 +142,7 @@ const Reports = () => {
               </div>
               <div className="rounded-[20px] border border-border bg-card p-5 shadow-sm">
                 <h3 className="font-semibold mb-4">Ticket Médio</h3>
-                <div className="text-4xl font-bold text-primary">R$ {reportData.completedAppointments > 0 ? (reportData.monthlyRevenue / reportData.completedAppointments).toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) : '0,00'}</div>
+                <div className="text-4xl font-bold text-primary">{formatCurrency(reportData.completedAppointments > 0 ? reportData.monthlyRevenue / reportData.completedAppointments : 0)}</div>
                 <p className="text-sm text-muted-foreground mt-2">Valor médio por atendimento</p>
               </div>
             </div>

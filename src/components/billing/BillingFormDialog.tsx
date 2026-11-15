@@ -6,7 +6,7 @@ import { Textarea } from '@/components/ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Button } from '@/components/ui/button';
 import { AccountTransaction, AccountTransactionFormData, TransactionType } from '@/types/billing';
-import { format } from 'date-fns';
+import { formatBusinessDateInput } from '@/lib/formatters';
 
 interface BillingFormDialogProps {
   isOpen: boolean;
@@ -27,7 +27,7 @@ const BillingFormDialog: React.FC<BillingFormDialogProps> = ({
     description: "",
     amount: "",
     type: initialType,
-    due_date: format(new Date(), 'yyyy-MM-dd'),
+    due_date: formatBusinessDateInput(),
     category: "",
   }), [initialType]);
 
@@ -47,7 +47,7 @@ const BillingFormDialog: React.FC<BillingFormDialogProps> = ({
       setFormData({
         ...defaultFormData,
         type: initialType,
-        due_date: format(new Date(), 'yyyy-MM-dd'),
+        due_date: formatBusinessDateInput(),
       });
     }
   }, [editingTransaction, isOpen, initialType, defaultFormData]);

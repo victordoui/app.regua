@@ -1,3 +1,4 @@
+import { formatCurrency } from '@/lib/formatters';
 import React, { useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -45,7 +46,7 @@ const DynamicPricingContent = () => {
   const inactiveRules = pricingRules.filter(r => !r.active);
 
   const getRuleTypeInfo = (type: string) => RULE_TYPES.find(t => t.value === type);
-  const getModifier = (rule: PricingRule) => { const sign = rule.price_modifier_value >= 0 ? '+' : ''; return rule.price_modifier_type === 'percentage' ? `${sign}${rule.price_modifier_value}%` : `${sign}R$ ${Math.abs(rule.price_modifier_value).toFixed(2)}`; };
+  const getModifier = (rule: PricingRule) => { const sign = rule.price_modifier_value >= 0 ? '+' : ''; return rule.price_modifier_type === 'percentage' ? `${sign}${rule.price_modifier_value}%` : `${sign}${formatCurrency(Math.abs(rule.price_modifier_value))}`; };
 
   return (
     <div className="space-y-6">

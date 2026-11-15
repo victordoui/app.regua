@@ -10,7 +10,7 @@ import { useRole } from "@/contexts/RoleContext";
 import { useAuth } from "@/contexts/AuthContext";
 
 const mainItems = [
-  { icon: Home, label: "Painel", path: "/" },
+  { icon: Home, label: "Painel", path: "/dashboard" },
   { icon: Calendar, label: "Agenda", path: "/appointments" },
   { icon: Users, label: "Clientes", path: "/clients" },
 ];

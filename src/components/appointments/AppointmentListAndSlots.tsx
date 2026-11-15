@@ -11,7 +11,7 @@ interface AppointmentListAndSlotsProps {
   appointments: Appointment[];
   onEdit: (appointment: Appointment) => void;
   onDelete: (id: string) => void;
-  onUpdateStatus: (id: string, newStatus: 'pending' | 'confirmed' | 'completed' | 'cancelled') => void;
+  onUpdateStatus: (id: string, newStatus: 'pending' | 'confirmed' | 'completed' | 'cancelled', tipAmount?: number) => void | Promise<void>;
   selectedDate: Date | undefined;
   onTimeSlotClick: (time: string) => void;
   barbers: Barber[];

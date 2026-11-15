@@ -76,7 +76,7 @@ const Onboarding: React.FC = () => {
   // Redirect if onboarding is already complete
   useEffect(() => {
     if (!isLoading && isOnboardingComplete && !isCompleting && !showCompletion) {
-      navigate('/', { replace: true });
+      navigate('/dashboard', { replace: true });
     }
   }, [isLoading, isOnboardingComplete, isCompleting, showCompletion, navigate]);
 
@@ -108,6 +108,11 @@ const Onboarding: React.FC = () => {
         instagram_url: settings?.instagram_url || '',
         facebook_url: settings?.facebook_url || '',
         whatsapp_number: settings?.whatsapp_number || '',
+        meta_title: settings?.meta_title || '',
+        meta_description: settings?.meta_description || '',
+        share_slug: settings?.share_slug || '',
+        share_title: settings?.share_title || '',
+        share_description: settings?.share_description || '',
         cancellation_hours_before: settings?.cancellation_hours_before ?? 24,
         allow_online_cancellation: settings?.allow_online_cancellation ?? true,
         buffer_minutes: settings?.buffer_minutes ?? 0,
@@ -260,7 +265,7 @@ const Onboarding: React.FC = () => {
             <div className="flex items-center gap-3 rounded-xl bg-muted/60 p-4"><CalendarCheck2 className="h-5 w-5 text-primary" /><span className="text-sm font-medium">Agenda pronta para usar</span></div>
             <div className="flex items-center gap-3 rounded-xl bg-muted/60 p-4"><Sparkles className="h-5 w-5 text-primary" /><span className="text-sm font-medium">Tudo em um só lugar</span></div>
           </div>
-          <Button size="lg" className="w-full gap-2" onClick={() => navigate('/', { replace: true })}>Ir para minha visão geral <ArrowRight className="h-5 w-5" /></Button>
+          <Button size="lg" className="w-full gap-2" onClick={() => navigate('/dashboard', { replace: true })}>Ir para minha visão geral <ArrowRight className="h-5 w-5" /></Button>
         </motion.div>
       </div>
     );

@@ -1,4 +1,5 @@
-import { useMemo, useState } from "react";
+import { useCallback, useMemo, useState } from "react";
+import { useQueryClient } from "@tanstack/react-query";
 import { useRealtimeDashboard } from "@/hooks/useRealtimeDashboard";
 import type { DashboardFilters } from "@/hooks/useRealtimeDashboard";
 import HeroSection from "./HeroSection";
@@ -11,10 +12,18 @@ import AnalyticsSummaryStrip from "./AnalyticsSummaryStrip";
 import ServiceDistributionChart from "./ServiceDistributionChart";
 import DashboardFilterBar from "./DashboardFilterBar";
 import BusinessInsights from "./BusinessInsights";
+import BusinessPulse from "./BusinessPulse";
 
 const DashboardOverview = () => {
   const [filters, setFilters] = useState<DashboardFilters>({ periodMonths: 6, status: "all", service: "all" });
   const { metrics, monthlyRevenue, analytics, serviceDistribution, serviceOptions, isLoading, isRefreshing, refetch } = useRealtimeDashboard(filters);
+  const queryClient = useQueryClient();
+  const refreshDashboard = useCallback(async () => {
+    await Promise.all([
+      refetch(),
+      queryClient.invalidateQueries({ queryKey: ["owner-dashboard-pulse"] }),
+    ]);
+  }, [queryClient, refetch]);
   const periodLabel = useMemo(() => `Últimos ${filters.periodMonths} meses`, [filters.periodMonths]);
 
   if (isLoading) {
@@ -37,7 +46,7 @@ const DashboardOverview = () => {
       />
 
       <section className="dashboard-surface overflow-hidden">
-        <DashboardFilterBar embedded filters={filters} serviceOptions={serviceOptions} isRefreshing={isRefreshing} onChange={setFilters} onRefresh={refetch} />
+        <DashboardFilterBar embedded filters={filters} serviceOptions={serviceOptions} isRefreshing={isRefreshing} onChange={setFilters} onRefresh={refreshDashboard} />
         <AnalyticsSummaryStrip embedded analytics={analytics} periodLabel={periodLabel} />
       </section>
 
@@ -47,6 +56,8 @@ const DashboardOverview = () => {
       </div>
 
       <BusinessInsights analytics={analytics} services={serviceDistribution} />
+
+      <BusinessPulse periodMonths={filters.periodMonths} />
 
       <div className="grid grid-cols-1 gap-4 lg:grid-cols-2 lg:items-start">
         <RecentTransactionsPanel />

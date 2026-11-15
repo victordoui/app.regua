@@ -1,15 +1,20 @@
 project_id = "yjuqixthmwgnzkjummaf"
 
 [auth.email]
-# Lançamento inicial: permitir cadastro e acesso imediato ao trial.
-# Reativar quando SMTP, templates e URLs de produção estiverem homologados.
-enable_confirmations = false
+# Contas de empresários só recebem papel e assinatura após confirmar o e-mail.
+# O cadastro de cliente usa create-client-account e confirma a conta no servidor.
+enable_confirmations = true
 
 [functions.booking-share]
 verify_jwt = false
 
 [functions.create-client-account]
 verify_jwt = false
+
+[functions.send-appointment-reminders]
+enabled = true
+verify_jwt = true
+entrypoint = "./functions/send-appointment-reminders/index.ts"
 
 [functions.create-checkout]
 verify_jwt = true
@@ -19,3 +24,33 @@ enabled = true
 verify_jwt = true
 import_map = "./functions/manage-platform-user/deno.json"
 entrypoint = "./functions/manage-platform-user/index.ts"
+
+[functions.list-platform-users]
+enabled = true
+verify_jwt = true
+entrypoint = "./functions/list-platform-users/index.ts"
+
+[functions.list-platform-businesses]
+enabled = true
+verify_jwt = true
+entrypoint = "./functions/list-platform-businesses/index.ts"
+
+[functions.platform-impersonation]
+enabled = true
+verify_jwt = true
+entrypoint = "./functions/platform-impersonation/index.ts"
+
+[functions.record-signup-signal]
+enabled = true
+verify_jwt = false
+entrypoint = "./functions/record-signup-signal/index.ts"
+
+[functions.list-platform-fraud-alerts]
+enabled = true
+verify_jwt = true
+entrypoint = "./functions/list-platform-fraud-alerts/index.ts"
+
+[functions.public-booking]
+enabled = true
+verify_jwt = false
+entrypoint = "./functions/public-booking/index.ts"

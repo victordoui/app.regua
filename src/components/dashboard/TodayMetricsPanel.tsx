@@ -2,6 +2,7 @@ import React from 'react';
 import { Card, CardContent } from '@/components/ui/card';
 import { motion } from 'framer-motion';
 import { Calendar, DollarSign, Users, Clock, TrendingUp, CheckCircle } from 'lucide-react';
+import { formatCurrency } from '@/lib/formatters';
 
 interface TodayMetricsPanelProps {
   todayAppointments: number;
@@ -28,7 +29,7 @@ const TodayMetricsPanel: React.FC<TodayMetricsPanelProps> = ({
     },
     {
       label: 'Receita do Dia',
-      value: `R$ ${todayRevenue.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}`,
+      value: formatCurrency(todayRevenue),
       icon: DollarSign,
       color: 'from-primary-400 to-primary-600',
       bgColor: 'bg-primary-50 dark:bg-primary/10'

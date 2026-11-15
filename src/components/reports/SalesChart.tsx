@@ -1,3 +1,4 @@
+import { formatCompactCurrency } from '@/lib/formatters';
 import React from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, BarChart, Bar } from 'recharts';
@@ -9,12 +10,7 @@ interface SalesChartProps {
 }
 
 const SalesChart: React.FC<SalesChartProps> = ({ data }) => {
-  const formatCurrency = (value: number) => {
-    if (value >= 1000) {
-      return `R$ ${(value / 1000).toFixed(1)}k`;
-    }
-    return `R$ ${value.toFixed(0)}`;
-  };
+  const formatCurrency = formatCompactCurrency;
 
   return (
     <Card>

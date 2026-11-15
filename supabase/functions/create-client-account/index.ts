@@ -24,7 +24,7 @@ Deno.serve(async (request) => {
     const normalizedBusinessId = String(businessId || "").trim();
 
     if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(normalizedEmail)
-      || String(password || "").length < 6
+      || String(password || "").length < 8
       || normalizedName.length < 3
       || !/^\d{10,11}$/.test(normalizedPhone)
       || !/^[0-9a-f]{8}-(?:[0-9a-f]{4}-){3}[0-9a-f]{12}$/i.test(normalizedBusinessId)) {
@@ -45,7 +45,7 @@ Deno.serve(async (request) => {
     if (!business) return json({ error: "Página de agendamento indisponível." }, 404);
 
     const adminClient = createClient(supabaseUrl, serviceRoleKey, { auth: { persistSession: false } });
-    const { error } = await adminClient.auth.admin.createUser({
+    const { data: createdUser, error } = await adminClient.auth.admin.createUser({
       email: normalizedEmail,
       password: String(password),
       email_confirm: true,
@@ -56,6 +56,24 @@ Deno.serve(async (request) => {
     if (error) {
       console.error("create-client-account failed", error.message);
       return json({ error: "Não foi possível criar a conta. Se já possui cadastro, tente entrar." }, 400);
+    }
+
+    if (!createdUser.user) return json({ error: "Não foi possível concluir o cadastro." }, 500);
+
+    const { error: profileError } = await adminClient.from("client_profiles").insert({
+      user_id: createdUser.user.id,
+      barbershop_user_id: normalizedBusinessId,
+      full_name: normalizedName,
+      phone: normalizedPhone,
+    });
+
+    if (profileError) {
+      const { error: cleanupError } = await adminClient.auth.admin.deleteUser(createdUser.user.id);
+      console.error("create-client-account profile insert failed", {
+        message: profileError.message,
+        accountCleanupFailed: Boolean(cleanupError),
+      });
+      return json({ error: "Não foi possível vincular a conta à empresa. Confira os dados e tente novamente." }, 500);
     }
 
     return json({ created: true });

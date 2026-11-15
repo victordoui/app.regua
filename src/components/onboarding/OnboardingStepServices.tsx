@@ -1,3 +1,4 @@
+import { formatCurrency } from '@/lib/formatters';
 import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
@@ -133,7 +134,7 @@ export const OnboardingStepServices: React.FC<OnboardingStepServicesProps> = ({
                   >
                     {added ? <Check className="h-3 w-3" /> : <Plus className="h-3 w-3" />}
                     {template.name}
-                    <span className="text-muted-foreground ml-1">R${template.price}</span>
+                    <span className="text-muted-foreground ml-1">{formatCurrency(template.price)}</span>
                   </Button>
                 );
               })}
@@ -161,7 +162,7 @@ export const OnboardingStepServices: React.FC<OnboardingStepServicesProps> = ({
                         </p>
                       </div>
                       <div className="flex items-center gap-1">
-                        <Badge variant="secondary">R$ {service.price.toFixed(2)}</Badge>
+                        <Badge variant="secondary">{formatCurrency(service.price)}</Badge>
                         <Button type="button" variant="ghost" size="icon" className="h-8 w-8" onClick={() => handleEdit(service)} aria-label={`Editar ${service.name}`} disabled={isLoading}>
                           <Pencil className="h-4 w-4" />
                         </Button>

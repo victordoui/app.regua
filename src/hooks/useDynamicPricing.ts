@@ -1,4 +1,5 @@
 import { useState, useCallback } from 'react';
+import { formatBusinessDateInput } from '@/lib/formatters';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
@@ -199,7 +200,8 @@ export function useDynamicPricing(barbershopUserId?: string) {
       return { finalPrice: basePrice, appliedRules: [] };
     }
 
-    const dayOfWeek = date.getDay();
+    const dateKey = formatBusinessDateInput(date);
+    const dayOfWeek = new Date(`${dateKey}T12:00:00Z`).getUTCDay();
     const now = new Date();
 
     // Filter applicable rules
@@ -214,14 +216,10 @@ export function useDynamicPricing(barbershopUserId?: string) {
       })
       .filter(rule => {
         if (!rule.valid_from && !rule.valid_until) return true;
-        const ruleStart = rule.valid_from ? new Date(rule.valid_from) : null;
-        const ruleEnd = rule.valid_until ? new Date(rule.valid_until) : null;
-        const checkDate = new Date(date);
-        checkDate.setHours(0, 0, 0, 0);
-        if (ruleStart) ruleStart.setHours(0, 0, 0, 0);
-        if (ruleEnd) ruleEnd.setHours(23, 59, 59, 999);
-        if (ruleStart && checkDate < ruleStart) return false;
-        if (ruleEnd && checkDate > ruleEnd) return false;
+        const ruleStart = rule.valid_from?.slice(0, 10);
+        const ruleEnd = rule.valid_until?.slice(0, 10);
+        if (ruleStart && dateKey < ruleStart) return false;
+        if (ruleEnd && dateKey > ruleEnd) return false;
         return true;
       })
       .sort((a, b) => b.priority - a.priority);

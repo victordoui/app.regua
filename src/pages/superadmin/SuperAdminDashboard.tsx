@@ -1,11 +1,15 @@
+import { useState } from 'react';
+import { PageHeader } from '@/components/ui/page-header';
+import { Button } from '@/components/ui/button';
 import { SuperAdminLayout } from '@/components/superadmin/SuperAdminLayout';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
-import { usePlatformStats } from '@/hooks/useSuperAdmin';
+import { usePlatformStats, type PlatformStatsPeriod } from '@/hooks/useSuperAdmin';
 import { usePlatformUsers } from '@/hooks/superadmin/usePlatformUsers';
 import { usePlanConfig } from '@/hooks/superadmin/usePlanConfig';
+import FraudAlertsCard from '@/components/superadmin/FraudAlertsCard';
 import {
   Users,
   UserCheck,
@@ -19,8 +23,16 @@ import {
   UserCircle,
   CreditCard,
   UserPlus,
+  TrendingDown,
 } from 'lucide-react';
 import {
+  Bar,
+  BarChart,
+  CartesianGrid,
+  Line,
+  LineChart,
+  XAxis,
+  YAxis,
   PieChart,
   Pie,
   Cell,
@@ -31,6 +43,8 @@ import {
 import { format } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
 import { Link } from 'react-router-dom';
+
+const formatCurrency = (value: number) => new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(value);
 
 const PLAN_COLORS = {
   trial: '#94a3b8',
@@ -54,7 +68,8 @@ const ROLE_LABELS: Record<string, string> = {
 };
 
 const SuperAdminDashboard = () => {
-  const { data: stats, isLoading: statsLoading } = usePlatformStats();
+  const [period, setPeriod] = useState<PlatformStatsPeriod>('month');
+  const { data: stats, isLoading: statsLoading } = usePlatformStats(period);
   const { data: usersData, isLoading: usersLoading } = usePlatformUsers();
   const { plans } = usePlanConfig();
 
@@ -77,9 +92,9 @@ const SuperAdminDashboard = () => {
   const pieData = stats
     ? [
         { name: 'Teste gratuito', value: stats.by_plan.trial, color: PLAN_COLORS.trial },
-        { name: 'Basic', value: stats.by_plan.basic, color: PLAN_COLORS.basic },
-        { name: 'Pro', value: stats.by_plan.pro, color: PLAN_COLORS.pro },
-        { name: 'Enterprise', value: stats.by_plan.enterprise, color: PLAN_COLORS.enterprise },
+        { name: 'Essencial', value: stats.by_plan.basic, color: PLAN_COLORS.basic },
+        { name: 'Profissional', value: stats.by_plan.pro, color: PLAN_COLORS.pro },
+        { name: 'Premium', value: stats.by_plan.enterprise, color: PLAN_COLORS.enterprise },
       ].filter(item => item.value > 0)
     : [];
 
@@ -89,6 +104,15 @@ const SuperAdminDashboard = () => {
         <div>
           <PageHeader eyebrow="Gestão da plataforma" title="Painel do Administrador da Plataforma" />
           <p className="text-muted-foreground">Visão geral da plataforma VIZZU</p>
+        </div>
+
+        <div className="flex flex-wrap items-center justify-between gap-3 rounded-xl border bg-card p-3">
+          <p className="text-sm text-muted-foreground">Compare cadastros e movimentações por período.</p>
+          <div className="flex flex-wrap gap-2" role="group" aria-label="Filtrar indicadores por período">
+            {([{ key: 'today', label: 'Hoje' }, { key: 'week', label: 'Esta semana' }, { key: 'month', label: 'Este mês' }] as const).map((option) => (
+              <Button key={option.key} size="sm" variant={period === option.key ? 'default' : 'outline'} onClick={() => setPeriod(option.key)} aria-pressed={period === option.key}>{option.label}</Button>
+            ))}
+          </div>
         </div>
 
         {/* Subscription Stats Cards */}
@@ -104,9 +128,13 @@ const SuperAdminDashboard = () => {
               <div className="text-3xl font-bold text-foreground">
                 {stats?.total_subscribers || 0}
               </div>
-              <p className="text-xs text-muted-foreground mt-1">
-                +{stats?.new_this_month || 0} este mês
-              </p>
+              <div className="mt-1 flex flex-wrap items-center gap-2 text-xs">
+                <span className="text-muted-foreground">+{stats?.new_this_month || 0} {stats?.period_label || 'neste mês'}</span>
+                <span className={`inline-flex items-center ${Number(stats?.new_change_percent || 0) >= 0 ? 'text-emerald-600' : 'text-destructive'}`} title="Variação de novos assinantes em relação ao período anterior">
+                  {Number(stats?.new_change_percent || 0) >= 0 ? <TrendingUp className="mr-0.5 h-3.5 w-3.5" /> : <TrendingDown className="mr-0.5 h-3.5 w-3.5" />}
+                  {Math.abs(Number(stats?.new_change_percent || 0)).toFixed(1)}% vs. período anterior
+                </span>
+              </div>
             </CardContent>
           </Card>
 
@@ -122,7 +150,7 @@ const SuperAdminDashboard = () => {
                 {stats?.active_subscribers || 0}
               </div>
               <p className="text-xs text-muted-foreground mt-1">
-                {stats?.trial_subscribers || 0} em trial
+                {stats?.trial_subscribers || 0} em teste gratuito
               </p>
             </CardContent>
           </Card>
@@ -130,16 +158,16 @@ const SuperAdminDashboard = () => {
           <Card>
             <CardHeader className="flex flex-row items-center justify-between pb-2">
               <CardTitle className="text-sm font-medium text-muted-foreground">
-                Suspensos
+                Cancelamentos {stats?.period_label || 'neste mês'}
               </CardTitle>
               <UserX className="h-5 w-5 text-destructive" />
             </CardHeader>
             <CardContent>
               <div className="text-3xl font-bold text-foreground">
-                {stats?.suspended_subscribers || 0}
+                {stats?.cancellations_in_period || 0}
               </div>
               <p className="text-xs text-muted-foreground mt-1">
-                {stats?.cancelled_subscribers || 0} cancelados
+                {stats?.suspended_subscribers || 0} suspensos · {stats?.expired_subscribers || 0} expirados
               </p>
             </CardContent>
           </Card>
@@ -147,19 +175,27 @@ const SuperAdminDashboard = () => {
           <Card>
             <CardHeader className="flex flex-row items-center justify-between pb-2">
               <CardTitle className="text-sm font-medium text-muted-foreground">
-                Taxa de Churn
+                <span title="Churn: percentual de assinantes ativos no início do período que cancelaram durante o período.">Churn ⓘ</span>
               </CardTitle>
               <TrendingUp className="h-5 w-5 text-amber-500" />
             </CardHeader>
             <CardContent>
               <div className="text-3xl font-bold text-foreground">
-                {(stats?.churn_rate || 0).toFixed(1)}%
+                {stats?.churn_rate == null ? '—' : `${stats.churn_rate.toFixed(1)}%`}
               </div>
               <p className="text-xs text-muted-foreground mt-1">
-                Taxa de cancelamento
+                {stats?.churn_rate == null
+                  ? 'Histórico do período ainda incompleto; taxa não calculada.'
+                  : 'Cancelamentos sobre assinantes ativos no início do período'}
               </p>
             </CardContent>
           </Card>
+        </div>
+
+        <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
+          <Card><CardHeader className="pb-2"><CardTitle className="text-sm text-muted-foreground" title="MRR é a receita mensal recorrente estimada das assinaturas ativas pagas.">MRR · receita mensal recorrente ⓘ</CardTitle></CardHeader><CardContent><p className="text-2xl font-bold">{formatCurrency(stats?.monthly_revenue || 0)}</p><p className="mt-1 text-xs text-muted-foreground">Estimativa com os preços atuais dos planos pagos ativos</p></CardContent></Card>
+          <Card><CardHeader className="pb-2"><CardTitle className="text-sm text-muted-foreground" title="LTV médio: receita paga acumulada dividida pelo número de empresas que já pagaram.">LTV médio ⓘ</CardTitle></CardHeader><CardContent><p className="text-2xl font-bold">{formatCurrency(stats?.ltv || 0)}</p><p className="mt-1 text-xs text-muted-foreground">Receita paga histórica por empresa pagante</p></CardContent></Card>
+          <Card><CardHeader className="pb-2"><CardTitle className="text-sm text-muted-foreground" title="Conversão por coorte: empresas que iniciaram o teste no período selecionado e já mudaram para um plano pago.">Conversão do teste para plano pago ⓘ</CardTitle></CardHeader><CardContent><p className="text-2xl font-bold">{(stats?.trial_conversion_percent || 0).toFixed(1)}%</p><p className="mt-1 text-xs text-muted-foreground">{stats?.trial_conversion_count || 0} convertidos entre testes iniciados {stats?.period_label || 'neste mês'} · registro a partir de hoje</p></CardContent></Card>
         </div>
 
         {/* User Metrics Cards */}
@@ -333,7 +369,7 @@ const SuperAdminDashboard = () => {
                   </div>
                 ) : null}
 
-                {stats?.churn_rate && stats.churn_rate > 10 ? (
+                {stats?.churn_rate != null && stats.churn_rate > 10 ? (
                   <div className="flex items-center gap-3 p-3 bg-destructive/10 border border-destructive/20 rounded-lg">
                     <TrendingUp className="h-5 w-5 text-destructive" />
                     <div>
@@ -349,7 +385,7 @@ const SuperAdminDashboard = () => {
 
                 {(!userStats?.orphanUsers || userStats.orphanUsers === 0) &&
                   (!stats?.suspended_subscribers || stats.suspended_subscribers === 0) &&
-                  (!stats?.churn_rate || stats.churn_rate <= 10) && (
+                  (stats?.churn_rate != null && stats.churn_rate <= 10) && (
                     <div className="flex items-center justify-center h-[200px] text-muted-foreground">
                       <div className="text-center">
                         <UserCheck className="h-12 w-12 mx-auto mb-4 text-green-500 opacity-50" />
@@ -361,6 +397,39 @@ const SuperAdminDashboard = () => {
             </CardContent>
           </Card>
         </div>
+
+        <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
+          <Card>
+            <CardHeader><CardTitle>Crescimento de assinantes · últimos 6 meses</CardTitle></CardHeader>
+            <CardContent>
+              <ResponsiveContainer width="100%" height={280}>
+                <LineChart data={stats?.growth_by_month || []} margin={{ top: 10, right: 12, left: 0, bottom: 0 }}>
+                  <CartesianGrid strokeDasharray="3 3" className="stroke-border" />
+                  <XAxis dataKey="month" tick={{ fontSize: 12 }} />
+                  <YAxis allowDecimals={false} tick={{ fontSize: 12 }} />
+                  <Tooltip />
+                  <Line type="monotone" dataKey="assinantes" name="Novos assinantes" stroke="#2E6FD3" strokeWidth={3} dot={{ r: 4 }} activeDot={{ r: 6 }} />
+                </LineChart>
+              </ResponsiveContainer>
+            </CardContent>
+          </Card>
+          <Card>
+            <CardHeader><CardTitle>Receita mensal recorrente por plano</CardTitle></CardHeader>
+            <CardContent>
+              <ResponsiveContainer width="100%" height={280}>
+                <BarChart data={stats?.revenue_by_plan || []} margin={{ top: 10, right: 12, left: 12, bottom: 0 }}>
+                  <CartesianGrid strokeDasharray="3 3" className="stroke-border" />
+                  <XAxis dataKey="label" tick={{ fontSize: 12 }} />
+                  <YAxis tick={{ fontSize: 11 }} tickFormatter={(value: number) => new Intl.NumberFormat('pt-BR', { notation: 'compact', maximumFractionDigits: 1 }).format(value)} />
+                  <Tooltip formatter={(value: number) => formatCurrency(value)} />
+                  <Bar dataKey="revenue" name="MRR" fill="#2E6FD3" radius={[6, 6, 0, 0]} />
+                </BarChart>
+              </ResponsiveContainer>
+            </CardContent>
+          </Card>
+        </div>
+
+        <FraudAlertsCard />
 
         {/* Recent Users Table */}
         <Card>
@@ -442,4 +511,3 @@ const SuperAdminDashboard = () => {
 };
 
 export default SuperAdminDashboard;
-import { PageHeader } from '@/components/ui/page-header';

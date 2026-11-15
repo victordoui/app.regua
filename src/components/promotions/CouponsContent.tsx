@@ -1,3 +1,4 @@
+import { formatCurrency, formatDateOnlyBR, isBusinessDateBeforeToday } from '@/lib/formatters';
 import { useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -8,8 +9,6 @@ import { Switch } from '@/components/ui/switch';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { useCoupons } from '@/hooks/useCoupons';
-import { format } from 'date-fns';
-import { ptBR } from 'date-fns/locale';
 import { Tag, Plus, Trash2, Loader2, Edit, Percent, DollarSign, Calendar, CheckCircle, XCircle, Copy } from 'lucide-react';
 import { toast } from 'sonner';
 
@@ -35,7 +34,7 @@ const CouponsContent = () => {
 
   const handleCopyCode = (code: string) => { navigator.clipboard.writeText(code); toast.success('Código copiado!'); };
   const generateRandomCode = () => { setFormData(prev => ({ ...prev, code: Math.random().toString(36).substring(2, 8).toUpperCase() })); };
-  const isExpired = (validUntil: string | null) => validUntil ? new Date(validUntil) < new Date() : false;
+  const isExpired = (validUntil: string | null) => isBusinessDateBeforeToday(validUntil);
 
   const activeCoupons = coupons.filter(c => c.active && !isExpired(c.valid_until));
   const inactiveCoupons = coupons.filter(c => !c.active || isExpired(c.valid_until));
@@ -54,7 +53,7 @@ const CouponsContent = () => {
                 <div><Label>Valor *</Label><Input type="number" step="0.01" value={formData.discount_value} onChange={e => setFormData(prev => ({ ...prev, discount_value: e.target.value }))} /></div>
               </div>
               <div className="grid grid-cols-2 gap-4">
-                <div><Label>Compra Mínima</Label><Input type="number" step="0.01" value={formData.min_purchase} onChange={e => setFormData(prev => ({ ...prev, min_purchase: e.target.value }))} placeholder="R$ 0.00" /></div>
+                <div><Label>Compra Mínima</Label><Input type="number" step="0.01" value={formData.min_purchase} onChange={e => setFormData(prev => ({ ...prev, min_purchase: e.target.value }))} placeholder="0,00" /></div>
                 <div><Label>Limite de Usos</Label><Input type="number" value={formData.max_uses} onChange={e => setFormData(prev => ({ ...prev, max_uses: e.target.value }))} placeholder="Ilimitado" /></div>
               </div>
               <div className="grid grid-cols-2 gap-4">
@@ -90,13 +89,13 @@ const CouponsContent = () => {
               </CardHeader>
               <CardContent className="space-y-3">
                 <div className="flex items-center gap-2">
-                  {coupon.discount_type === 'percent' ? <Badge className="bg-blue-500"><Percent className="h-3 w-3 mr-1" />{coupon.discount_value}% OFF</Badge> : <Badge className="bg-green-500"><DollarSign className="h-3 w-3 mr-1" />R$ {coupon.discount_value.toFixed(2)} OFF</Badge>}
+                  {coupon.discount_type === 'percent' ? <Badge className="bg-blue-500"><Percent className="h-3 w-3 mr-1" />{coupon.discount_value}% OFF</Badge> : <Badge className="bg-green-500"><DollarSign className="h-3 w-3 mr-1" />{formatCurrency(coupon.discount_value)} OFF</Badge>}
                   {coupon.active && !isExpired(coupon.valid_until) ? <Badge variant="outline" className="text-green-500 border-green-500"><CheckCircle className="h-3 w-3 mr-1" />Ativo</Badge> : <Badge variant="outline" className="text-muted-foreground"><XCircle className="h-3 w-3 mr-1" />{isExpired(coupon.valid_until) ? 'Expirado' : 'Inativo'}</Badge>}
                 </div>
                 <div className="text-sm text-muted-foreground space-y-1">
-                  {coupon.min_purchase > 0 && <p>Mínimo: R$ {coupon.min_purchase.toFixed(2)}</p>}
+                  {coupon.min_purchase > 0 && <p>Mínimo: {formatCurrency(coupon.min_purchase)}</p>}
                   <p>Usos: {coupon.current_uses}{coupon.max_uses ? ` / ${coupon.max_uses}` : ''}</p>
-                  {(coupon.valid_from || coupon.valid_until) && <p className="flex items-center gap-1"><Calendar className="h-3 w-3" />{coupon.valid_from && format(new Date(coupon.valid_from), 'dd/MM/yy', { locale: ptBR })}{coupon.valid_from && coupon.valid_until && ' - '}{coupon.valid_until && format(new Date(coupon.valid_until), 'dd/MM/yy', { locale: ptBR })}</p>}
+                  {(coupon.valid_from || coupon.valid_until) && <p className="flex items-center gap-1"><Calendar className="h-3 w-3" />{coupon.valid_from && formatDateOnlyBR(coupon.valid_from, { day: '2-digit', month: '2-digit', year: '2-digit' })}{coupon.valid_from && coupon.valid_until && ' - '}{coupon.valid_until && formatDateOnlyBR(coupon.valid_until, { day: '2-digit', month: '2-digit', year: '2-digit' })}</p>}
                 </div>
                 <div className="flex items-center justify-between pt-2 border-t"><span className="text-sm">Status</span><Switch checked={coupon.active} onCheckedChange={() => updateCoupon({ id: coupon.id, active: !coupon.active })} disabled={isUpdating} /></div>
               </CardContent>

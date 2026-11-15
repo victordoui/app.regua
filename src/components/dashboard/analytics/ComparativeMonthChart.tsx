@@ -10,6 +10,7 @@ import {
   Legend,
 } from "recharts";
 import { TrendingUp } from "lucide-react";
+import { formatCompactCurrency, formatCurrency } from "@/lib/formatters";
 
 const data = [
   { metric: "Receita", atual: 24780, anterior: 21350 },
@@ -47,8 +48,8 @@ const ComparativeMonthChart: React.FC = () => {
               <div key={item.metric} className="bg-muted/40 rounded-lg p-2.5 text-center">
                 <div className="text-[10px] text-muted-foreground mb-0.5">{item.metric}</div>
                 <div className="font-heading text-sm font-bold text-foreground">
-                  {item.metric === "Receita" ? `R$ ${(item.atual / 1000).toFixed(1)}k` :
-                   item.metric === "Ticket Médio" ? `R$ ${item.atual}` : item.atual}
+                  {item.metric === "Receita" ? formatCompactCurrency(item.atual) :
+                   item.metric === "Ticket Médio" ? formatCurrency(item.atual) : item.atual}
                 </div>
                 <span className={`text-[9px] font-semibold ${isPositive ? "text-[hsl(var(--success))]" : "text-[hsl(var(--rose))]"}`}>
                   {isPositive ? "▲" : "▼"} {growth}%

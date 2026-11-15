@@ -10,6 +10,7 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
 import { supabase } from "@/integrations/supabase/client";
+import { getSubscriptionAccessDecision } from "@/lib/subscriptionAccess";
 import vizzuIcon from "@/assets/vizzu-icon.png";
 import {
   Form,
@@ -22,17 +23,17 @@ import {
 
 const loginSchema = z.object({
   email: z.string().email("E-mail inválido"),
-  password: z.string().min(6, "A senha deve ter no mínimo 6 caracteres"),
+  password: z.string().min(8, "A senha deve ter no mínimo 8 caracteres"),
 });
 
 type LoginFormValues = z.infer<typeof loginSchema>;
 
-const TEST_ACCESS_PASSWORD = "admin123456";
+const testAccessPassword = import.meta.env.DEV ? __VIZZU_TEST_LOGIN_PASSWORD__.trim() : "";
+const testLoginsEnabled = import.meta.env.DEV && __VIZZU_TEST_LOGIN_ENABLED__;
 
 const Login = () => {
   const [loading, setLoading] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
-  const [showRecoveryOption, setShowRecoveryOption] = useState(false);
   const [activeTab, setActiveTab] = useState<"login" | "register">("login");
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
@@ -69,19 +70,19 @@ const Login = () => {
       if (roleList.includes('admin')) {
         const { data: subscription } = await supabase
           .from('platform_subscriptions')
-          .select('status')
+          .select('status, end_date')
           .eq('user_id', user.id)
           .order('created_at', { ascending: false })
           .limit(1)
           .maybeSingle();
 
-        if (subscription && ['expired', 'cancelled', 'pending_payment', 'suspended', 'paused'].includes(subscription.status)) {
-          const reason = subscription.status === 'paused' ? 'suspended' : subscription.status;
-          navigate(`/upgrade?motivo=${reason}`);
+        const access = getSubscriptionAccessDecision(subscription);
+        if (!access.allowed) {
+          navigate(`/upgrade?motivo=${access.reason}`, { replace: true });
           return;
         }
       }
-        navigate(roleList.includes('admin') ? "/" : "/appointments", { replace: true });
+        navigate(roleList.includes('admin') ? "/dashboard" : "/appointments", { replace: true });
         return;
       }
       if (roleList.includes('cliente')) {
@@ -107,7 +108,6 @@ const Login = () => {
     try {
       const { error, success } = await signIn(data.email, data.password);
       if (error) {
-        setShowRecoveryOption(true);
         toast({ title: "Erro no login", description: error.message || "Credenciais inválidas", variant: "destructive" });
       } else if (success) {
         toast({ title: "Login realizado com sucesso!", description: "Bem-vindo ao sistema!" });
@@ -129,11 +129,20 @@ const Login = () => {
   ];
 
   const quickLogin = async (email: string) => {
+    if (!testLoginsEnabled || !testAccessPassword) {
+      toast({
+        title: "Acesso rápido indisponível",
+        description: "Ative VITE_ENABLE_TEST_LOGIN e configure VITE_TEST_LOGIN_PASSWORD neste ambiente.",
+        variant: "destructive",
+      });
+      return;
+    }
+
     setLoading(true);
     try {
       loginForm.setValue("email", email);
-      loginForm.setValue("password", TEST_ACCESS_PASSWORD);
-      const { error, success } = await signIn(email, TEST_ACCESS_PASSWORD);
+      loginForm.setValue("password", testAccessPassword);
+      const { error, success } = await signIn(email, testAccessPassword);
       if (error) {
         toast({ title: "Erro no acesso rápido", description: error.message || "Credenciais inválidas", variant: "destructive" });
       } else if (success) {
@@ -180,7 +189,7 @@ const Login = () => {
   ];
 
   return (
-    <div className="min-h-screen flex flex-col bg-[hsl(var(--page))] lg:flex-row">
+    <main className="min-h-screen flex flex-col bg-[hsl(var(--page))] lg:flex-row">
       {/* Left Panel - Branding */}
       <div
         className="relative hidden overflow-hidden lg:flex lg:w-[46%] lg:flex-col lg:items-center lg:justify-center lg:p-12"
@@ -227,7 +236,7 @@ const Login = () => {
         style={{ background: "linear-gradient(135deg, #4FA3FF, #1F4FA3, #0F2F6B)" }}
       >
         <img src={vizzuIcon} alt="VIZZU" className="mx-auto mb-2 h-24 w-24 object-contain drop-shadow-xl" />
-        <h1 className="text-2xl font-extrabold text-white ">VIZZU</h1>
+        <p className="text-2xl font-extrabold text-white ">VIZZU</p>
         <p className="text-white/70 text-sm ">Visualize · Organize · Cresça</p>
       </div>
 
@@ -260,7 +269,7 @@ const Login = () => {
               onClick={() => setActiveTab("login")}
               className={`flex-1 py-2.5 text-sm font-semibold rounded-lg transition-all duration-300  ${
                 activeTab === "login"
-                  ? "bg-card text-primary shadow-sm"
+                  ? "bg-card text-[#1f4fa3] dark:text-blue-300 shadow-sm"
                   : "text-muted-foreground hover:text-foreground"
               }`}
             >
@@ -270,7 +279,7 @@ const Login = () => {
               onClick={() => setActiveTab("register")}
               className={`flex-1 py-2.5 text-sm font-semibold rounded-lg transition-all duration-300  ${
                 activeTab === "register"
-                  ? "bg-card text-primary shadow-sm"
+                  ? "bg-card text-[#1f4fa3] dark:text-blue-300 shadow-sm"
                   : "text-muted-foreground hover:text-foreground"
               }`}
             >
@@ -288,23 +297,26 @@ const Login = () => {
                 transition={{ duration: 0.3 }}
               >
                 <Form {...loginForm}>
-                  <form onSubmit={loginForm.handleSubmit(onLoginSubmit)} className="space-y-5">
+                  <form noValidate onSubmit={loginForm.handleSubmit(onLoginSubmit)} className="space-y-5">
                     <FormField
                       control={loginForm.control}
                       name="email"
                       render={({ field }) => (
                         <FormItem>
-                          <FormLabel className="text-foreground ">E-mail</FormLabel>
-                          <FormControl>
-                            <div className="relative">
-                              <Mail className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                          <FormLabel htmlFor="login-email" className="text-foreground ">E-mail</FormLabel>
+                          <div className="relative">
+                            <Mail className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                            <FormControl>
                               <Input
                                 {...field}
+                                id="login-email"
+                                type="email"
+                                autoComplete="email"
                                 placeholder="seu@email.com"
                                 className="pl-10 h-12 border-[#1F4FA3]/20 focus:border-[#1F4FA3] focus:ring-[#1F4FA3]/20 bg-card rounded-xl"
                               />
-                            </div>
-                          </FormControl>
+                            </FormControl>
+                          </div>
                           <FormMessage />
                         </FormItem>
                       )}
@@ -315,16 +327,19 @@ const Login = () => {
                       name="password"
                       render={({ field }) => (
                         <FormItem>
-                          <FormLabel className="text-foreground ">Senha</FormLabel>
-                          <FormControl>
-                            <div className="relative">
-                              <Lock className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                          <FormLabel htmlFor="login-password" className="text-foreground ">Senha</FormLabel>
+                          <div className="relative">
+                            <Lock className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                            <FormControl>
                               <Input
                                 {...field}
+                                id="login-password"
                                 type={showPassword ? "text" : "password"}
+                                autoComplete="current-password"
                                 placeholder="Sua senha"
                                 className="pl-10 pr-12 h-12 border-[#1F4FA3]/20 focus:border-[#1F4FA3] focus:ring-[#1F4FA3]/20 bg-card rounded-xl"
                               />
+                            </FormControl>
                               <button
                                 type="button"
                                 className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground"
@@ -333,8 +348,7 @@ const Login = () => {
                               >
                                 {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
                               </button>
-                            </div>
-                          </FormControl>
+                          </div>
                           <FormMessage />
                         </FormItem>
                       )}
@@ -360,19 +374,23 @@ const Login = () => {
                   </form>
                 </Form>
 
-                {showRecoveryOption && (
-                  <div className="mt-4 rounded-xl border border-primary/15 bg-primary/5 p-3 text-center text-sm text-muted-foreground">
-                    Já possui cadastro ou não lembra a senha?{' '}
-                    <button type="button" onClick={requestPasswordRecovery} disabled={loading} className="font-semibold text-primary hover:underline">
-                      Enviar link para recuperar acesso
-                    </button>
-                  </div>
-                )}
+                <div className="mt-4 rounded-xl border border-primary/15 bg-primary/5 p-3 text-center text-sm text-muted-foreground">
+                  Esqueceu sua senha?{' '}
+                  <button type="button" onClick={requestPasswordRecovery} disabled={loading} className="font-semibold text-[#1f4fa3] dark:text-blue-300 hover:underline">
+                    Enviar link para recuperar acesso
+                  </button>
+                </div>
 
+                {testLoginsEnabled && (
                 <div className="mt-8 rounded-2xl border border-dashed border-border bg-muted/30 p-4">
                     <p className="mb-3 text-center text-xs font-semibold uppercase tracking-wide text-muted-foreground">
                       Acesso rápido para testes
                     </p>
+                    {!testAccessPassword && (
+                      <p className="mb-3 text-center text-xs text-destructive">
+                        Configure VITE_TEST_LOGIN_PASSWORD para habilitar os acessos.
+                      </p>
+                    )}
                     <div className="grid grid-cols-2 gap-2">
                       {quickAccounts.map((account) => (
                         <Button
@@ -380,7 +398,7 @@ const Login = () => {
                           type="button"
                           variant="outline"
                           size="sm"
-                          disabled={loading}
+                          disabled={loading || !testAccessPassword}
                           onClick={() => quickLogin(account.email)}
                           className="h-10 justify-start gap-2 rounded-xl text-xs font-semibold"
                         >
@@ -390,6 +408,7 @@ const Login = () => {
                       ))}
                     </div>
                 </div>
+                )}
 
               </motion.div>
 
@@ -429,11 +448,11 @@ const Login = () => {
             >
               Conheça nossos planos →
             </button>
-            <p className="text-muted-foreground text-xs ">© 2025 VIZZU - Todos os direitos reservados</p>
+            <p className="text-muted-foreground text-xs ">© {new Date().getFullYear()} VIZZU - Todos os direitos reservados</p>
           </div>
         </motion.div>
       </div>
-    </div>
+    </main>
   );
 };
 

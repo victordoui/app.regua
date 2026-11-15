@@ -13,7 +13,7 @@ import { useBarberAbsences } from '@/hooks/useBarberAbsences';
 import { Barber } from '@/types/appointments';
 import BlockedSlotsManager from '@/components/barbers/BlockedSlotsManager';
 import BarberAbsencesManager from '@/components/barbers/BarberAbsencesManager';
-import { format } from 'date-fns';
+import { formatBusinessDateInput, formatDateOnlyBR } from '@/lib/formatters';
 import { formatPhoneBR } from '@/lib/utils';
 import { PageContainer, PageHeader, WorkspaceGuide } from '@/components/ui/workspace-page';
 import { StatusCards } from '@/components/ui/workspace-stats';
@@ -32,7 +32,7 @@ const BarberManagement = () => {
   const [blockedSlotsDialogOpen, setBlockedSlotsDialogOpen] = useState(false);
   const [absencesDialogOpen, setAbsencesDialogOpen] = useState(false);
   const [selectedBarberForManager, setSelectedBarberForManager] = useState<Barber | null>(null);
-  const today = format(new Date(), 'yyyy-MM-dd');
+  const today = formatBusinessDateInput();
 
   const openBlockedSlotsManager = (barber: Barber) => { setSelectedBarberForManager(barber); setBlockedSlotsDialogOpen(true); };
   const openAbsencesManager = (barber: Barber) => { setSelectedBarberForManager(barber); setAbsencesDialogOpen(true); };
@@ -95,7 +95,7 @@ const BarberManagement = () => {
                   <div className="flex flex-wrap gap-1">{barber.specialties?.map((spec, i) => <Badge key={i} variant="outline" className="text-xs">{spec}</Badge>) || <span className="text-muted-foreground">Sem especializações</span>}</div>
                   <div className="flex gap-2 mt-1">
                     {barberBlockedSlots.length > 0 && <Badge variant="secondary" className="text-xs"><Clock className="h-3 w-3 mr-1" />{barberBlockedSlots.length} bloqueio(s)</Badge>}
-                    {nextAbsence && <Badge variant="secondary" className="text-xs"><Calendar className="h-3 w-3 mr-1" />Ausência: {format(new Date(nextAbsence.start_date), 'dd/MM')}</Badge>}
+                    {nextAbsence && <Badge variant="secondary" className="text-xs"><Calendar className="h-3 w-3 mr-1" />Ausência: {formatDateOnlyBR(nextAbsence.start_date, { day: '2-digit', month: '2-digit' })}</Badge>}
                   </div>
                 </div>
                 <div className="flex flex-wrap gap-2 mt-4 pt-3 border-t border-border/40">

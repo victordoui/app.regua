@@ -1,3 +1,4 @@
+import { formatCurrency } from '@/lib/formatters';
 import React, { useState, useEffect, useMemo } from 'react';
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogFooter } from '@/components/ui/dialog';
 import { Label } from '@/components/ui/label';
@@ -46,6 +47,7 @@ const AppointmentFormDialog: React.FC<AppointmentFormDialogProps> = ({
     appointment_date: initialDate ? format(initialDate, 'yyyy-MM-dd') : "",
     appointment_time: initialTime || "",
     notes: "",
+    booking_source: 'balcao',
     recurrence_type: null,
     recurrence_end_date: null,
   }), [initialDate, initialTime]);
@@ -96,6 +98,7 @@ const AppointmentFormDialog: React.FC<AppointmentFormDialogProps> = ({
         appointment_date: editingAppointment.appointment_date,
         appointment_time: editingAppointment.appointment_time,
         notes: editingAppointment.notes || "",
+        booking_source: editingAppointment.booking_source ?? null,
         recurrence_type: editingAppointment.recurrence_type || null,
         recurrence_end_date: editingAppointment.recurrence_end_date || null,
       });
@@ -191,7 +194,7 @@ const AppointmentFormDialog: React.FC<AppointmentFormDialogProps> = ({
                 <SelectContent>
                   {services.map(service => (
                     <SelectItem key={service.id} value={service.id}>
-                      {service.name} - R$ {service.price.toFixed(2)}
+                      {service.name} - {formatCurrency(service.price)}
                     </SelectItem>
                   ))}
                 </SelectContent>
@@ -241,7 +244,7 @@ const AppointmentFormDialog: React.FC<AppointmentFormDialogProps> = ({
                               {service.duration_minutes}min
                             </span>
                           </div>
-                          <span className="text-sm font-medium">R$ {service.price.toFixed(2)}</span>
+                          <span className="text-sm font-medium">{formatCurrency(service.price)}</span>
                         </div>
                       );
                     })}
@@ -256,7 +259,7 @@ const AppointmentFormDialog: React.FC<AppointmentFormDialogProps> = ({
                       <span>Duração: {selectedServicesData.totalDuration}min</span>
                     </div>
                     <span className="font-semibold">
-                      Total: R$ {selectedServicesData.totalPrice.toFixed(2)}
+                      Total: {formatCurrency(selectedServicesData.totalPrice)}
                     </span>
                   </div>
                 )}
@@ -297,6 +300,28 @@ const AppointmentFormDialog: React.FC<AppointmentFormDialogProps> = ({
                 Cada agendamento mantém sua data original
               </p>
             )}
+          </div>
+          <div>
+            <Label htmlFor="booking_source">Origem do agendamento</Label>
+            <Select
+              value={formData.booking_source ?? (editingAppointment ? 'sem-registro' : 'balcao')}
+              onValueChange={(value) => setFormData((prev) => ({
+                ...prev,
+                booking_source: value === 'sem-registro' ? null : value as 'link' | 'whatsapp' | 'balcao',
+              }))}
+            >
+              <SelectTrigger id="booking_source">
+                <SelectValue placeholder="Selecione a origem" />
+              </SelectTrigger>
+              <SelectContent>
+                {editingAppointment && !editingAppointment.booking_source && (
+                  <SelectItem value="sem-registro">Sem informação (histórico)</SelectItem>
+                )}
+                <SelectItem value="link">Link de agendamento</SelectItem>
+                <SelectItem value="whatsapp">WhatsApp</SelectItem>
+                <SelectItem value="balcao">Balcão</SelectItem>
+              </SelectContent>
+            </Select>
           </div>
           <div>
             <Label htmlFor="appointment_time">Hora</Label>

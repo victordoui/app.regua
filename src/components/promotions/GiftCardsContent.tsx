@@ -1,3 +1,4 @@
+import { formatBusinessDateInput, formatCurrency, formatDateInBusinessTimeZone } from '@/lib/formatters';
 import React, { useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -7,8 +8,6 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from 
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Gift, Plus, Search, CreditCard, DollarSign, QrCode, Copy, Check } from 'lucide-react';
 import { useGiftCards, GiftCard, CreateGiftCardInput } from '@/hooks/useGiftCards';
-import { format } from 'date-fns';
-import { ptBR } from 'date-fns/locale';
 import { QRCodeSVG } from 'qrcode.react';
 import { useToast } from '@/hooks/use-toast';
 
@@ -21,7 +20,7 @@ const GiftCardForm = ({ onSubmit, onClose }: { onSubmit: (data: CreateGiftCardIn
       <div className="grid grid-cols-2 gap-4"><div><label className="text-sm font-medium">Comprador</label><Input value={formData.buyer_name} onChange={(e) => setFormData({ ...formData, buyer_name: e.target.value })} /></div><div><label className="text-sm font-medium">Email Comprador</label><Input type="email" value={formData.buyer_email} onChange={(e) => setFormData({ ...formData, buyer_email: e.target.value })} /></div></div>
       <div className="grid grid-cols-2 gap-4"><div><label className="text-sm font-medium">Presenteado</label><Input value={formData.recipient_name} onChange={(e) => setFormData({ ...formData, recipient_name: e.target.value })} /></div><div><label className="text-sm font-medium">Email Presenteado</label><Input type="email" value={formData.recipient_email} onChange={(e) => setFormData({ ...formData, recipient_email: e.target.value })} /></div></div>
       <div><label className="text-sm font-medium">Mensagem</label><Input value={formData.message} onChange={(e) => setFormData({ ...formData, message: e.target.value })} /></div>
-      <div><label className="text-sm font-medium">Validade</label><Input type="date" value={formData.expires_at} onChange={(e) => setFormData({ ...formData, expires_at: e.target.value })} min={new Date().toISOString().split('T')[0]} /></div>
+      <div><label className="text-sm font-medium">Validade</label><Input type="date" value={formData.expires_at} onChange={(e) => setFormData({ ...formData, expires_at: e.target.value })} min={formatBusinessDateInput()} /></div>
       <div className="flex justify-end gap-2 pt-4"><Button type="button" variant="outline" onClick={onClose}>Cancelar</Button><Button type="submit">Criar Gift Card</Button></div>
     </form>
   );
@@ -39,7 +38,7 @@ const RedeemDialog = ({ onRedeem }: { onRedeem: (code: string, amount: number) =
         <DialogHeader><DialogTitle>Resgatar Gift Card</DialogTitle></DialogHeader>
         <div className="space-y-4">
           <div><label className="text-sm font-medium">Código</label><div className="flex gap-2"><Input value={code} onChange={(e) => setCode(e.target.value.toUpperCase())} placeholder="GC-XXXX" /><Button type="button" onClick={handleValidate}>Validar</Button></div></div>
-          {validation && <div className={`p-4 rounded-lg ${validation.valid ? 'bg-green-50 border-green-200' : 'bg-red-50 border-red-200'} border`}>{validation.valid && validation.giftCard ? <div><p className="text-green-800 font-medium">✓ Válido!</p><p className="text-sm">Saldo: R$ {Number(validation.giftCard.current_balance).toFixed(2)}</p></div> : <p className="text-red-800">{validation.error}</p>}</div>}
+          {validation && <div className={`p-4 rounded-lg ${validation.valid ? 'bg-green-50 border-green-200' : 'bg-red-50 border-red-200'} border`}>{validation.valid && validation.giftCard ? <div><p className="text-green-800 font-medium">✓ Válido!</p><p className="text-sm">Saldo: {formatCurrency(Number(validation.giftCard.current_balance))}</p></div> : <p className="text-red-800">{validation.error}</p>}</div>}
           {validation?.valid && <div><label className="text-sm font-medium">Valor (R$)</label><Input type="number" min="0.01" max={validation.giftCard?.current_balance} step="0.01" value={amount} onChange={(e) => setAmount(e.target.value)} /></div>}
           <div className="flex justify-end gap-2"><Button variant="outline" onClick={() => setIsOpen(false)}>Cancelar</Button><Button onClick={handleRedeem} disabled={!validation?.valid || !amount}>Confirmar</Button></div>
         </div>
@@ -57,13 +56,13 @@ const GiftCardCard = ({ giftCard }: { giftCard: GiftCard }) => {
     <Card className="overflow-hidden">
       <div className="bg-gradient-to-r from-primary to-primary/80 p-4 text-white">
         <div className="flex items-center justify-between"><Gift className="h-8 w-8" /><Badge className={statusColors[giftCard.status]}>{statusLabels[giftCard.status]}</Badge></div>
-        <p className="text-2xl font-bold mt-2">R$ {Number(giftCard.current_balance).toFixed(2)}</p>
-        {Number(giftCard.current_balance) !== Number(giftCard.original_value) && <p className="text-sm opacity-80">de R$ {Number(giftCard.original_value).toFixed(2)}</p>}
+        <p className="text-2xl font-bold mt-2">{formatCurrency(Number(giftCard.current_balance))}</p>
+        {Number(giftCard.current_balance) !== Number(giftCard.original_value) && <p className="text-sm opacity-80">de {formatCurrency(Number(giftCard.original_value))}</p>}
       </div>
       <CardContent className="p-4 space-y-3">
         <div className="flex items-center justify-between"><code className="bg-muted px-3 py-1 rounded font-mono text-sm">{giftCard.code}</code><Button variant="ghost" size="sm" onClick={copyCode}>{copied ? <Check className="h-4 w-4" /> : <Copy className="h-4 w-4" />}</Button></div>
-        <Dialog><DialogTrigger asChild><Button variant="outline" size="sm" className="w-full"><QrCode className="h-4 w-4 mr-2" />Ver QR Code</Button></DialogTrigger><DialogContent className="max-w-sm"><DialogHeader><DialogTitle>QR Code - {giftCard.code}</DialogTitle></DialogHeader><div className="flex flex-col items-center gap-4 p-4"><QRCodeSVG value={giftCard.code} size={200} /><p className="text-2xl font-bold">R$ {Number(giftCard.current_balance).toFixed(2)}</p></div></DialogContent></Dialog>
-        <div className="text-sm text-muted-foreground space-y-1">{giftCard.recipient_name && <p>Para: {giftCard.recipient_name}</p>}{giftCard.buyer_name && <p>De: {giftCard.buyer_name}</p>}{giftCard.expires_at && <p>Validade: {format(new Date(giftCard.expires_at), 'dd/MM/yyyy', { locale: ptBR })}</p>}</div>
+        <Dialog><DialogTrigger asChild><Button variant="outline" size="sm" className="w-full"><QrCode className="h-4 w-4 mr-2" />Ver QR Code</Button></DialogTrigger><DialogContent className="max-w-sm"><DialogHeader><DialogTitle>QR Code - {giftCard.code}</DialogTitle></DialogHeader><div className="flex flex-col items-center gap-4 p-4"><QRCodeSVG value={giftCard.code} size={200} /><p className="text-2xl font-bold">{formatCurrency(Number(giftCard.current_balance))}</p></div></DialogContent></Dialog>
+        <div className="text-sm text-muted-foreground space-y-1">{giftCard.recipient_name && <p>Para: {giftCard.recipient_name}</p>}{giftCard.buyer_name && <p>De: {giftCard.buyer_name}</p>}{giftCard.expires_at && <p>Validade: {formatDateInBusinessTimeZone(giftCard.expires_at)}</p>}</div>
         {giftCard.message && <div className="bg-muted p-3 rounded-lg text-sm italic">"{giftCard.message}"</div>}
       </CardContent>
     </Card>
@@ -90,9 +89,9 @@ const GiftCardsContent = () => {
 
       <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
         <Card><CardContent className="p-4"><div className="flex items-center gap-4"><div className="p-3 bg-green-100 rounded-full"><CreditCard className="h-6 w-6 text-green-600" /></div><div><p className="text-sm text-muted-foreground">Ativos</p><p className="text-2xl font-bold">{stats.totalActive}</p></div></div></CardContent></Card>
-        <Card><CardContent className="p-4"><div className="flex items-center gap-4"><div className="p-3 bg-blue-100 rounded-full"><DollarSign className="h-6 w-6 text-blue-600" /></div><div><p className="text-sm text-muted-foreground">Saldo</p><p className="text-2xl font-bold">R$ {stats.totalValue.toFixed(2)}</p></div></div></CardContent></Card>
+        <Card><CardContent className="p-4"><div className="flex items-center gap-4"><div className="p-3 bg-blue-100 rounded-full"><DollarSign className="h-6 w-6 text-blue-600" /></div><div><p className="text-sm text-muted-foreground">Saldo</p><p className="text-2xl font-bold">{formatCurrency(stats.totalValue)}</p></div></div></CardContent></Card>
         <Card><CardContent className="p-4"><div className="flex items-center gap-4"><div className="p-3 bg-purple-100 rounded-full"><Gift className="h-6 w-6 text-purple-600" /></div><div><p className="text-sm text-muted-foreground">Utilizados</p><p className="text-2xl font-bold">{stats.totalRedeemed}</p></div></div></CardContent></Card>
-        <Card><CardContent className="p-4"><div className="flex items-center gap-4"><div className="p-3 bg-orange-100 rounded-full"><DollarSign className="h-6 w-6 text-orange-600" /></div><div><p className="text-sm text-muted-foreground">Receita</p><p className="text-2xl font-bold">R$ {stats.totalRevenue.toFixed(2)}</p></div></div></CardContent></Card>
+        <Card><CardContent className="p-4"><div className="flex items-center gap-4"><div className="p-3 bg-orange-100 rounded-full"><DollarSign className="h-6 w-6 text-orange-600" /></div><div><p className="text-sm text-muted-foreground">Receita</p><p className="text-2xl font-bold">{formatCurrency(stats.totalRevenue)}</p></div></div></CardContent></Card>
       </div>
 
       <div className="flex gap-4">

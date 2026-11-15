@@ -1,5 +1,5 @@
 import { useQuery } from '@tanstack/react-query';
-import { addDays, startOfDay } from 'date-fns';
+import { addBusinessCalendarDays, businessDateKey, formatBusinessDateInput } from '@/lib/formatters';
 import { supabase } from '@/integrations/supabase/client';
 
 /**
@@ -33,11 +33,12 @@ export const useSuperAdminBadges = (enabled: boolean) => {
         .not('end_date', 'is', null);
       if (error) throw error;
 
-      const today = startOfDay(new Date());
-      const in7Days = addDays(today, 7);
+      const today = formatBusinessDateInput();
+      const in7Days = addBusinessCalendarDays(today, 7);
       return (data || []).filter((s) => {
         const end = new Date(s.end_date);
-        return end >= today && end <= in7Days;
+        const endDate = businessDateKey(s.end_date);
+        return end > new Date() && endDate >= today && endDate <= in7Days;
       }).length;
     },
   });

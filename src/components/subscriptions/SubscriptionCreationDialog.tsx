@@ -1,3 +1,4 @@
+import { formatCurrency } from '@/lib/formatters';
 import React, { useState, useEffect } from 'react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '@/components/ui/dialog';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
@@ -5,7 +6,7 @@ import { Button } from '@/components/ui/button';
 import { Label } from '@/components/ui/label';
 import { Input } from '@/components/ui/input';
 import { SubscriptionFormData, Client, SubscriptionPlan, UserSubscription } from '@/types/subscriptions';
-import { format } from 'date-fns';
+import { formatBusinessDateInput } from '@/lib/formatters';
 
 interface SubscriptionCreationDialogProps {
   isOpen: boolean;
@@ -19,7 +20,7 @@ const SubscriptionCreationDialog: React.FC<SubscriptionCreationDialogProps> = ({
   const [formData, setFormData] = useState<SubscriptionFormData>({
     client_id: "",
     plan_id: "",
-    start_date: format(new Date(), 'yyyy-MM-dd')
+    start_date: formatBusinessDateInput()
   });
   const [submitting, setSubmitting] = useState(false);
 
@@ -28,7 +29,7 @@ const SubscriptionCreationDialog: React.FC<SubscriptionCreationDialogProps> = ({
       setFormData({
         client_id: "",
         plan_id: "",
-        start_date: format(new Date(), 'yyyy-MM-dd')
+        start_date: formatBusinessDateInput()
       });
     }
   }, [isOpen]);
@@ -75,7 +76,7 @@ const SubscriptionCreationDialog: React.FC<SubscriptionCreationDialogProps> = ({
               <SelectContent>
                 {plans.filter(plan => plan.active).map(plan => (
                   <SelectItem key={plan.id} value={plan.id}>
-                    {plan.name} (R$ {plan.price.toFixed(2)}/{plan.billing_cycle === 'monthly' ? 'mês' : 'ano'})
+                    {plan.name} ({formatCurrency(plan.price)}/{plan.billing_cycle === 'monthly' ? 'mês' : 'ano'})
                   </SelectItem>
                 ))}
               </SelectContent>

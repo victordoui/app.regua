@@ -1,7 +1,7 @@
 import { useEffect, useState, type ReactNode } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
-import { motion, useReducedMotion, useScroll, useTransform } from 'framer-motion';
+import { LazyMotion, domAnimation, m, useReducedMotion, useScroll, useTransform } from 'framer-motion';
 import { useTheme } from 'next-themes';
 import {
   ArrowRightIcon as ArrowRight,
@@ -40,10 +40,9 @@ import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/
 import { LoadingSpinner } from '@/components/ui/loading-spinner';
 import { cn } from '@/lib/utils';
 import vizzuIcon from '@/assets/vizzu-icon.png';
-import heroDashboard from '@/assets/sales/vizzu-sales-dashboard-barbershop.png';
-import heroWoman from '@/assets/sales/vizzu-sales-woman-left.png';
-import heroMan from '@/assets/sales/vizzu-sales-man-right.png';
-import mobileDashboard from '@/assets/sales/vizzu-mobile-dashboard.png';
+import heroWoman from '@/assets/sales/vizzu-sales-woman-left.webp';
+import heroMan from '@/assets/sales/vizzu-sales-man-right.webp';
+import mobileDashboard from '@/assets/sales/vizzu-mobile-dashboard.webp';
 import marshallsBarberLogo from '@/assets/sales/trusted-logos/marshalls-barber.png';
 import studioBeautyLogo from '@/assets/sales/trusted-logos/studio-beauty.png';
 import clinicaBemEstarLogo from '@/assets/sales/trusted-logos/clinica-bem-estar.png';
@@ -52,17 +51,30 @@ import fitnessClubLogo from '@/assets/sales/trusted-logos/fitness-club.png';
 import type { PlanConfig } from '@/types/superAdmin';
 import { DEFAULT_PUBLIC_PLANS } from '@/lib/publicPlans';
 
+const heroDashboard = '/images/sales/vizzu-sales-dashboard-barbershop.webp';
+
 const FEATURE_LABELS: Record<string, string> = {
   basic_scheduling: 'Agenda online inteligente',
   client_management: 'Gestão de clientes',
-  reports: 'Relatórios e indicadores',
+  services: 'Cadastro de serviços',
+  public_booking: 'Link público de agendamento',
+  reminders_150: '150 lembretes por mês',
+  reminders_600: '600 lembretes por mês',
+  reminders_2000: '2.000 lembretes por mês',
+  basic_reports: 'Relatórios básicos',
+  complete_reports: 'Relatórios completos',
+  commissions: 'Comissões',
+  pix_deposit: 'Sinal por Pix',
   loyalty: 'Programa de fidelidade',
   campaigns: 'Campanhas de marketing',
-  api_access: 'Acesso à API',
+  stock: 'Controle de estoque',
+  client_subscription_club: 'Clube de assinatura para clientes',
   priority_support: 'Suporte prioritário',
   white_label: 'Marca própria',
-  multi_location: 'Múltiplas unidades',
+  multi_location: 'Até 2 unidades',
 };
+
+const COMING_SOON_FEATURES = new Set(['client_subscription_club', 'white_label', 'multi_location']);
 
 const COMPARISON_ROWS = [
   { key: 'price', label: 'Investimento mensal' },
@@ -71,9 +83,21 @@ const COMPARISON_ROWS = [
   { key: 'appointments', label: 'Agendamentos por mês' },
   { key: 'basic_scheduling', label: 'Agenda online inteligente' },
   { key: 'client_management', label: 'Gestão de clientes' },
-  { key: 'reports', label: 'Relatórios e indicadores' },
+  { key: 'services', label: 'Cadastro de serviços' },
+  { key: 'public_booking', label: 'Link público de agendamento' },
+  { key: 'basic_reports', label: 'Relatórios básicos' },
+  { key: 'complete_reports', label: 'Relatórios completos' },
+  { key: 'commissions', label: 'Comissões' },
+  { key: 'pix_deposit', label: 'Sinal por Pix' },
   { key: 'loyalty', label: 'Programa de fidelidade' },
   { key: 'campaigns', label: 'Campanhas de marketing' },
+  { key: 'stock', label: 'Controle de estoque' },
+  { key: 'reminders_150', label: 'Lembretes (Essencial)' },
+  { key: 'reminders_600', label: 'Lembretes (Profissional)' },
+  { key: 'reminders_2000', label: 'Lembretes (Premium)' },
+  { key: 'client_subscription_club', label: 'Clube de assinatura para clientes' },
+  { key: 'white_label', label: 'Marca própria' },
+  { key: 'multi_location', label: 'Até 2 unidades' },
   { key: 'priority_support', label: 'Suporte prioritário' },
 ] as const;
 
@@ -95,7 +119,7 @@ const Reveal = ({ children, className, delay = 0 }: { children: ReactNode; class
   const reduceMotion = useReducedMotion();
 
   return (
-    <motion.div
+    <m.div
       className={className}
       initial={reduceMotion ? false : { opacity: 0, y: 28 }}
       whileInView={reduceMotion ? undefined : { opacity: 1, y: 0 }}
@@ -103,7 +127,7 @@ const Reveal = ({ children, className, delay = 0 }: { children: ReactNode; class
       transition={{ duration: 0.7, delay, ease: [0.22, 1, 0.36, 1] }}
     >
       {children}
-    </motion.div>
+    </m.div>
   );
 };
 
@@ -144,6 +168,26 @@ const heroMessages = [
 
 const showLegacySalesSections = false;
 
+const outcomes = [
+  { icon: CalendarDays, title: 'Agenda centralizada', description: 'Organize horários, serviços e profissionais em um fluxo simples.', tone: 'border-blue-200 bg-blue-50/50 dark:border-blue-900 dark:bg-blue-950/20', iconTone: 'bg-blue-100 text-blue-700 dark:bg-blue-900 dark:text-blue-200' },
+  { icon: Users, title: 'Relacionamento com clientes', description: 'Consulte histórico e mantenha as informações importantes por perto.', tone: 'border-violet-200 bg-violet-50/50 dark:border-violet-900 dark:bg-violet-950/20', iconTone: 'bg-violet-100 text-violet-700 dark:bg-violet-900 dark:text-violet-200' },
+  { icon: WalletCards, title: 'Visão financeira', description: 'Acompanhe recebimentos e resultados da operação.', tone: 'border-emerald-200 bg-emerald-50/50 dark:border-emerald-900 dark:bg-emerald-950/20', iconTone: 'bg-emerald-100 text-emerald-700 dark:bg-emerald-900 dark:text-emerald-200' },
+  { icon: BarChart3, title: 'Decisões com dados', description: 'Entenda o movimento do negócio com indicadores claros.', tone: 'border-orange-200 bg-orange-50/50 dark:border-orange-900 dark:bg-orange-950/20', iconTone: 'bg-orange-100 text-orange-700 dark:bg-orange-900 dark:text-orange-200' },
+];
+
+const organizationSteps = [
+  { number: '01', title: 'Configure seu negócio', description: 'Cadastre serviços, horários e profissionais.' },
+  { number: '02', title: 'Compartilhe seu link', description: 'Deixe clientes escolherem um horário online.' },
+  { number: '03', title: 'Organize os atendimentos', description: 'Acompanhe a agenda e o histórico em um só lugar.' },
+  { number: '04', title: 'Acompanhe resultados', description: 'Use indicadores para orientar os próximos passos.' },
+];
+
+const routineComparison = [
+  { before: 'Horários espalhados entre mensagens e anotações.', after: 'Agenda e disponibilidade reunidas em um só lugar.' },
+  { before: 'Dificuldade para localizar dados e histórico do cliente.', after: 'Cadastro e atendimentos disponíveis para consulta.' },
+  { before: 'Controles financeiros feitos sem uma visão consolidada.', after: 'Resumo financeiro para acompanhar a operação.' },
+];
+
 const productCapabilities = [
   { icon: CalendarDays, title: 'Agendamentos online', description: 'Seus clientes escolhem serviço, profissional e horário sem precisar ligar.', color: 'bg-blue-50 text-blue-600 dark:bg-blue-500/15 dark:text-blue-300' },
   { icon: Users, title: 'Gestão de clientes', description: 'Histórico, preferências e relacionamento reunidos em um único lugar.', color: 'bg-emerald-50 text-emerald-600 dark:bg-emerald-500/15 dark:text-emerald-300' },
@@ -165,29 +209,29 @@ const ProductPreview = () => {
   const parallaxY = useTransform(scrollYProgress, [0, 0.35], [0, reduceMotion ? 0 : 38]);
 
   return (
-  <motion.div style={{ y: parallaxY }} className="relative mx-auto min-h-[630px] w-full max-w-[720px] sm:min-h-[540px]">
-    <motion.div
+  <m.div style={{ y: parallaxY }} className="relative mx-auto min-h-[630px] w-full max-w-[720px] sm:min-h-[540px]">
+    <m.div
       className="absolute -inset-10 -z-10 rounded-full bg-gradient-to-br from-blue-400/35 via-violet-300/25 to-transparent blur-3xl dark:from-blue-500/20 dark:via-violet-500/15"
       animate={reduceMotion ? undefined : { scale: [1, 1.08, 1], opacity: [0.72, 1, 0.72] }}
       transition={{ duration: 7, repeat: Infinity, ease: 'easeInOut' }}
     />
-    <motion.div
+    <m.div
       className="absolute -right-5 bottom-12 -z-10 h-36 w-36 rounded-full bg-gradient-to-br from-blue-500 to-violet-500 opacity-90 shadow-[0_25px_70px_rgba(71,77,229,0.3)] sm:h-44 sm:w-44"
       animate={reduceMotion ? undefined : { y: [0, -14, 0], rotate: [0, 8, 0] }}
       transition={{ duration: 6, repeat: Infinity, ease: 'easeInOut' }}
     />
-    <motion.div
+    <m.div
       className="absolute left-5 top-5 h-9 w-9 rotate-45 rounded-lg bg-gradient-to-br from-blue-500 to-violet-500 shadow-lg shadow-blue-500/20 sm:left-12"
       animate={reduceMotion ? undefined : { rotate: [45, 90, 45], y: [0, 8, 0] }}
       transition={{ duration: 8, repeat: Infinity, ease: 'easeInOut' }}
     />
-    <motion.div
+    <m.div
       className="absolute right-16 top-3"
       animate={reduceMotion ? undefined : { rotate: [0, 18, 0], scale: [1, 1.12, 1] }}
       transition={{ duration: 4, repeat: Infinity, ease: 'easeInOut' }}
-    ><Sparkles className="h-8 w-8 text-amber-400 drop-shadow-sm" weight="duotone" /></motion.div>
+    ><Sparkles className="h-8 w-8 text-amber-400 drop-shadow-sm" weight="duotone" /></m.div>
 
-    <motion.div
+    <m.div
       className="absolute inset-x-0 top-12 z-10 overflow-hidden rounded-[26px] border border-white/90 bg-white shadow-[0_38px_100px_-34px_rgba(15,47,107,0.55)] dark:border-white/10 dark:bg-[#08152f] dark:shadow-[0_42px_110px_-34px_rgba(37,99,235,0.38)] sm:left-10 sm:right-3"
       initial={reduceMotion ? false : { opacity: 0, y: 30, rotateX: 8, rotateY: -6 }}
       animate={{ opacity: 1, y: 0, rotateX: 0, rotateY: 0 }}
@@ -204,7 +248,7 @@ const ProductPreview = () => {
         <div className="mb-4 flex items-end justify-between"><div><p className="text-sm font-black text-slate-900 dark:text-white sm:text-base">Visão geral</p><p className="text-[9px] text-slate-400">Hoje, sua operação em um só lugar</p></div><span className="rounded-lg border border-slate-200 bg-white px-2.5 py-1.5 text-[9px] font-semibold text-slate-500 dark:border-white/10 dark:bg-white/[0.06] dark:text-slate-300">Este mês</span></div>
 
         <div className="grid grid-cols-3 gap-2.5">
-          {[{ label: 'Agendamentos', value: '214', change: '+14%', color: 'text-blue-600 bg-blue-50' }, { label: 'Conclusão', value: '92%', change: '+5%', color: 'text-emerald-600 bg-emerald-50' }, { label: 'Novos clientes', value: '38', change: '+31%', color: 'text-violet-600 bg-violet-50' }].map((item, index) => <motion.div key={item.label} className="rounded-2xl border border-slate-100 bg-white p-3 shadow-sm dark:border-white/10 dark:bg-white/[0.055]" initial={reduceMotion ? false : { opacity: 0, y: 14 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.4 + index * 0.08 }}><div className={cn('mb-3 flex h-7 w-7 items-center justify-center rounded-lg', item.color)}><TrendingUp className="h-3.5 w-3.5" weight="duotone" /></div><div className="flex items-end justify-between gap-1"><p className="text-base font-black text-slate-900 dark:text-white sm:text-lg">{item.value}</p><span className="text-[8px] font-bold text-emerald-500">{item.change}</span></div><p className="mt-0.5 text-[8px] text-slate-400 sm:text-[9px]">{item.label}</p></motion.div>)}
+          {[{ label: 'Agendamentos', value: '214', change: '+14%', color: 'text-blue-600 bg-blue-50' }, { label: 'Conclusão', value: '92%', change: '+5%', color: 'text-emerald-600 bg-emerald-50' }, { label: 'Novos clientes', value: '38', change: '+31%', color: 'text-violet-600 bg-violet-50' }].map((item, index) => <m.div key={item.label} className="rounded-2xl border border-slate-100 bg-white p-3 shadow-sm dark:border-white/10 dark:bg-white/[0.055]" initial={reduceMotion ? false : { opacity: 0, y: 14 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.4 + index * 0.08 }}><div className={cn('mb-3 flex h-7 w-7 items-center justify-center rounded-lg', item.color)}><TrendingUp className="h-3.5 w-3.5" weight="duotone" /></div><div className="flex items-end justify-between gap-1"><p className="text-base font-black text-slate-900 dark:text-white sm:text-lg">{item.value}</p><span className="text-[8px] font-bold text-emerald-500">{item.change}</span></div><p className="mt-0.5 text-[8px] text-slate-400 sm:text-[9px]">{item.label}</p></m.div>)}
         </div>
 
         <div className="mt-3 grid gap-3 sm:grid-cols-[1.05fr_0.95fr]">
@@ -218,25 +262,25 @@ const ProductPreview = () => {
           </div>
         </div>
       </div>
-    </motion.div>
+    </m.div>
 
-    <motion.div animate={reduceMotion ? undefined : { y: [0, -8, 0] }} transition={{ duration: 5.5, repeat: Infinity, ease: 'easeInOut' }} className="absolute left-0 top-28 z-20 hidden w-14 flex-col items-center gap-4 rounded-2xl border border-white/90 bg-white py-4 shadow-[0_20px_50px_-20px_rgba(37,99,235,0.45)] dark:border-white/10 dark:bg-[#0a1935] sm:flex">
+    <m.div animate={reduceMotion ? undefined : { y: [0, -8, 0] }} transition={{ duration: 5.5, repeat: Infinity, ease: 'easeInOut' }} className="absolute left-0 top-28 z-20 hidden w-14 flex-col items-center gap-4 rounded-2xl border border-white/90 bg-white py-4 shadow-[0_20px_50px_-20px_rgba(37,99,235,0.45)] dark:border-white/10 dark:bg-[#0a1935] sm:flex">
       <img src={vizzuIcon} alt="" className="h-8 w-8 object-contain" />
       {[BarChart3, CalendarDays, Users, WalletCards].map((Icon, index) => <span key={index} className={cn('flex h-8 w-8 items-center justify-center rounded-xl', index === 0 ? 'bg-primary text-white shadow-md shadow-primary/25' : 'text-slate-400')}><Icon className="h-4 w-4" /></span>)}
-    </motion.div>
+    </m.div>
 
-    <motion.div animate={reduceMotion ? undefined : { y: [0, 9, 0] }} transition={{ duration: 6.5, repeat: Infinity, ease: 'easeInOut' }} className="absolute -right-2 top-24 z-20 hidden w-36 rounded-2xl border border-white/90 bg-white p-3.5 shadow-[0_22px_55px_-22px_rgba(42,91,190,0.5)] dark:border-white/10 dark:bg-[#0a1935] sm:block">
+    <m.div animate={reduceMotion ? undefined : { y: [0, 9, 0] }} transition={{ duration: 6.5, repeat: Infinity, ease: 'easeInOut' }} className="absolute -right-2 top-24 z-20 hidden w-36 rounded-2xl border border-white/90 bg-white p-3.5 shadow-[0_22px_55px_-22px_rgba(42,91,190,0.5)] dark:border-white/10 dark:bg-[#0a1935] sm:block">
       <span className="flex h-8 w-8 items-center justify-center rounded-xl bg-blue-100 text-primary"><CalendarDays className="h-4 w-4" weight="duotone" /></span><p className="mt-3 text-[10px] font-black text-slate-800 dark:text-white">Agenda inteligente</p><p className="mt-1 text-[8px] leading-4 text-slate-400">Horários organizados sem conflito.</p><div className="mt-3 h-1.5 overflow-hidden rounded-full bg-slate-100 dark:bg-white/10"><div className="h-full w-[84%] rounded-full bg-primary" /></div>
-    </motion.div>
+    </m.div>
 
-    <motion.div animate={reduceMotion ? undefined : { y: [0, -7, 0] }} transition={{ duration: 7, repeat: Infinity, ease: 'easeInOut' }} className="absolute bottom-0 right-8 z-20 hidden w-36 rounded-2xl border border-white/90 bg-white p-3.5 shadow-[0_22px_55px_-22px_rgba(75,65,210,0.5)] dark:border-white/10 dark:bg-[#0a1935] sm:block">
+    <m.div animate={reduceMotion ? undefined : { y: [0, -7, 0] }} transition={{ duration: 7, repeat: Infinity, ease: 'easeInOut' }} className="absolute bottom-0 right-8 z-20 hidden w-36 rounded-2xl border border-white/90 bg-white p-3.5 shadow-[0_22px_55px_-22px_rgba(75,65,210,0.5)] dark:border-white/10 dark:bg-[#0a1935] sm:block">
       <p className="text-[9px] font-bold text-slate-800 dark:text-white">Desempenho</p><div className="mx-auto mt-2 flex h-20 w-20 items-center justify-center rounded-full bg-[conic-gradient(#4f46e5_0_84%,#e9e9ff_84%_100%)]"><div className="flex h-14 w-14 flex-col items-center justify-center rounded-full bg-white dark:bg-[#0a1935]"><span className="text-base font-black text-slate-900 dark:text-white">84%</span><span className="text-[7px] text-emerald-500">+12%</span></div></div><p className="mt-2 text-center text-[8px] text-slate-400">Agenda ocupada</p>
-    </motion.div>
+    </m.div>
 
-    <motion.div animate={reduceMotion ? undefined : { x: [0, 6, 0] }} transition={{ duration: 6, repeat: Infinity, ease: 'easeInOut' }} className="absolute bottom-8 left-6 z-20 hidden items-center gap-2 rounded-2xl border border-white/90 bg-white px-3.5 py-3 shadow-[0_22px_55px_-22px_rgba(42,91,190,0.5)] dark:border-white/10 dark:bg-[#0a1935] sm:left-16 sm:flex">
+    <m.div animate={reduceMotion ? undefined : { x: [0, 6, 0] }} transition={{ duration: 6, repeat: Infinity, ease: 'easeInOut' }} className="absolute bottom-8 left-6 z-20 hidden items-center gap-2 rounded-2xl border border-white/90 bg-white px-3.5 py-3 shadow-[0_22px_55px_-22px_rgba(42,91,190,0.5)] dark:border-white/10 dark:bg-[#0a1935] sm:left-16 sm:flex">
       <span className="flex h-8 w-8 items-center justify-center rounded-xl bg-emerald-100 text-emerald-600"><Check className="h-4 w-4" weight="bold" /></span><div><p className="text-[9px] font-black text-slate-800 dark:text-white">Operação organizada</p><p className="text-[8px] text-slate-400">Tudo conectado no VIZZU</p></div>
-    </motion.div>
-  </motion.div>
+    </m.div>
+  </m.div>
   );
 };
 
@@ -246,16 +290,18 @@ const HeroShowcase = () => {
   return (
     <div className="relative mx-auto h-[300px] w-full max-w-[920px] min-[440px]:h-[340px] sm:h-[460px] xl:h-[520px]">
       <div className="absolute inset-x-0 bottom-0 z-10 flex justify-center">
-        <motion.img
+        <m.img
           src={heroDashboard}
           alt="Dashboard VIZZU com agenda, indicadores e gestão financeira"
+          loading="eager"
+          fetchPriority="high"
           className="w-[104%] max-w-[1080px] rounded-xl object-contain shadow-[0_32px_70px_-38px_rgba(15,47,107,0.48)] sm:w-[103%] sm:rounded-2xl xl:w-[106%]"
           initial={reduceMotion ? false : { opacity: 0, scale: 0.97 }}
           animate={{ opacity: 1, scale: 1 }}
           transition={{ duration: 0.72, delay: 0.08, ease: [0.22, 1, 0.36, 1] }}
         />
       </div>
-      <motion.div
+      <m.div
         className="pointer-events-none absolute bottom-0 left-[-11%] z-20 h-[88%] sm:left-[-4%] sm:h-[98%] xl:left-[-5%] xl:h-[104%]"
         initial={reduceMotion ? false : { opacity: 0, x: -32 }}
         animate={{ opacity: 1, x: 0 }}
@@ -264,10 +310,11 @@ const HeroShowcase = () => {
         <img
           src={heroWoman}
           alt="Profissional utilizando o VIZZU em um tablet"
+          loading="eager"
           className="h-full w-auto object-contain"
         />
-      </motion.div>
-      <motion.div
+      </m.div>
+      <m.div
         className="pointer-events-none absolute bottom-0 right-[-11%] z-20 h-[88%] sm:right-[-4%] sm:h-[98%] xl:right-[-5%] xl:h-[104%]"
         initial={reduceMotion ? false : { opacity: 0, x: 32 }}
         animate={{ opacity: 1, x: 0 }}
@@ -276,9 +323,10 @@ const HeroShowcase = () => {
         <img
           src={heroMan}
           alt="Profissional utilizando o VIZZU no celular"
+          loading="eager"
           className="h-full w-auto object-contain"
         />
-      </motion.div>
+      </m.div>
     </div>
   );
 };
@@ -294,8 +342,8 @@ const SalesPage = () => {
   const navigate = useNavigate();
   const { resolvedTheme, setTheme } = useTheme();
   const reduceMotion = useReducedMotion();
-  const [showHeader, setShowHeader] = useState(false);
   const [themeReady, setThemeReady] = useState(false);
+  const [billingCycle, setBillingCycle] = useState<'monthly' | 'yearly'>('monthly');
   const [heroMessageIndex, setHeroMessageIndex] = useState(0);
   const isDark = themeReady && resolvedTheme === 'dark';
   const { data: plans = [], isLoading } = useQuery({
@@ -312,11 +360,6 @@ const SalesPage = () => {
 
   useEffect(() => {
     setThemeReady(true);
-    const updateHeaderVisibility = () => setShowHeader(window.scrollY > 120);
-
-    updateHeaderVisibility();
-    window.addEventListener('scroll', updateHeaderVisibility, { passive: true });
-    return () => window.removeEventListener('scroll', updateHeaderVisibility);
   }, []);
 
   useEffect(() => {
@@ -330,44 +373,36 @@ const SalesPage = () => {
   const toggleTheme = () => setTheme(isDark ? 'light' : 'dark');
 
   return (
+    <LazyMotion features={domAnimation}>
     <div className="min-h-screen scroll-smooth overflow-x-hidden bg-white text-slate-950 transition-colors duration-500 dark:bg-[#030817] dark:text-white">
-      {!showHeader && themeReady && (
-        <div className="fixed right-4 top-4 z-50 sm:right-6 sm:top-6">
-          <ThemeSwitch isDark={isDark} onToggle={toggleTheme} />
-        </div>
-      )}
       <header
-        className={cn(
-          'fixed inset-x-0 top-0 z-50 px-4 pt-4 transition-all duration-300 sm:px-6',
-          showHeader ? 'translate-y-0 opacity-100' : 'pointer-events-none -translate-y-5 opacity-0',
-        )}
-        aria-hidden={!showHeader}
+        className="fixed inset-x-0 top-0 z-50 px-3 pt-3 sm:px-6 sm:pt-4"
       >
-        <div className="mx-auto flex h-[70px] max-w-7xl items-center justify-between rounded-[22px] border border-white/80 bg-[#f7fbff]/90 px-4 shadow-[0_18px_45px_-28px_rgba(15,47,107,0.5)] backdrop-blur-xl dark:border-white/10 dark:bg-slate-950/85 sm:px-7">
-          <button className="flex items-center gap-2.5 rounded-lg focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary" onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })} aria-label="Voltar ao início" tabIndex={showHeader ? 0 : -1}>
-            <img src={vizzuIcon} alt="VIZZU" className="h-12 w-12 object-contain drop-shadow-sm" />
-            <span className="text-2xl font-black tracking-[0.06em] text-[#0F2F6B] dark:text-white">VIZZU</span>
+        <div className="mx-auto flex h-[64px] max-w-7xl items-center justify-between rounded-[20px] border border-white/80 bg-[#f7fbff]/95 px-3 shadow-[0_18px_45px_-28px_rgba(15,47,107,0.5)] backdrop-blur-xl dark:border-white/10 dark:bg-slate-950/90 sm:h-[70px] sm:px-7">
+          <button className="flex items-center gap-1.5 rounded-lg focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary sm:gap-2.5" onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })} aria-label="Voltar ao início">
+            <img src={vizzuIcon} alt="VIZZU" className="h-9 w-9 object-contain drop-shadow-sm sm:h-12 sm:w-12" />
+            <span className="text-lg font-black tracking-[0.06em] text-[#0F2F6B] sm:text-2xl dark:text-white">VIZZU</span>
           </button>
           <nav className="hidden items-center gap-8 text-sm font-semibold text-slate-700 lg:flex dark:text-slate-200">
-            <a href="#recursos" className="transition-colors hover:text-primary" tabIndex={showHeader ? 0 : -1}>Recursos</a>
-            <a href="#para-quem" className="transition-colors hover:text-primary" tabIndex={showHeader ? 0 : -1}>Para quem é</a>
-            <a href="#planos" className="transition-colors hover:text-primary" tabIndex={showHeader ? 0 : -1}>Preços</a>
-            <a href="#duvidas" className="transition-colors hover:text-primary" tabIndex={showHeader ? 0 : -1}>Dúvidas</a>
+            <a href="#recursos" className="transition-colors hover:text-primary">Recursos</a>
+            <a href="#para-quem" className="transition-colors hover:text-primary">Para quem é</a>
+            <a href="#planos" className="transition-colors hover:text-primary">Preços</a>
+            <a href="#duvidas" className="transition-colors hover:text-primary">Dúvidas</a>
           </nav>
-          <div className="flex items-center gap-2 sm:gap-3">
+          <div className="flex items-center gap-1 sm:gap-3">
             {themeReady && <ThemeSwitch isDark={isDark} onToggle={toggleTheme} />}
-            <Button variant="ghost" className="hidden font-semibold text-primary sm:inline-flex" onClick={() => navigate('/login')} tabIndex={showHeader ? 0 : -1}>Entrar</Button>
-            <Button className="rounded-xl px-4 shadow-lg shadow-primary/25 sm:px-5" onClick={() => navigate('/cadastro?plano=trial')} tabIndex={showHeader ? 0 : -1}>Testar grátis <ArrowRight className="ml-2 h-4 w-4" /></Button>
+            <Button variant="ghost" className="h-9 px-2 text-xs font-semibold text-primary sm:h-10 sm:px-4 sm:text-sm" onClick={() => navigate('/login')}>Entrar</Button>
+            <Button className="h-9 rounded-xl px-2.5 text-xs shadow-lg shadow-primary/25 sm:h-10 sm:px-5 sm:text-sm" onClick={() => navigate('/cadastro?plano=trial')}>Testar grátis <ArrowRight className="ml-1 h-3.5 w-3.5 sm:ml-2 sm:h-4 sm:w-4" /></Button>
           </div>
         </div>
       </header>
       <main>
-        <section className="relative isolate overflow-hidden px-4 pb-6 pt-7 sm:px-6 sm:pb-8 sm:pt-10 lg:min-h-[680px] lg:pb-8">
+        <section className="relative isolate overflow-hidden px-4 pb-6 pt-24 sm:px-6 sm:pb-8 sm:pt-28 lg:min-h-[680px] lg:pb-8">
           <div className="pointer-events-none absolute inset-0 -z-20 bg-white dark:bg-[radial-gradient(circle_at_16%_18%,rgba(37,99,235,0.2),transparent_34%),radial-gradient(circle_at_84%_10%,rgba(99,102,241,0.16),transparent_30%),linear-gradient(135deg,#020617_0%,#071b3e_50%,#030712_100%)]" />
-          <motion.div className="pointer-events-none absolute -left-32 top-10 -z-10 h-96 w-96 rounded-full border border-blue-300/30 dark:border-blue-400/10" animate={reduceMotion ? undefined : { scale: [1, 1.08, 1], x: [0, 18, 0] }} transition={{ duration: 10, repeat: Infinity, ease: 'easeInOut' }} />
-          <motion.div className="pointer-events-none absolute -right-28 top-20 -z-10 h-[420px] w-[420px] rounded-full border border-blue-300/30 dark:border-blue-400/10" animate={reduceMotion ? undefined : { scale: [1.08, 1, 1.08], y: [0, 20, 0] }} transition={{ duration: 12, repeat: Infinity, ease: 'easeInOut' }} />
+          <m.div className="pointer-events-none absolute -left-32 top-10 -z-10 h-96 w-96 rounded-full border border-blue-300/30 dark:border-blue-400/10" animate={reduceMotion ? undefined : { scale: [1, 1.08, 1], x: [0, 18, 0] }} transition={{ duration: 10, repeat: Infinity, ease: 'easeInOut' }} />
+          <m.div className="pointer-events-none absolute -right-28 top-20 -z-10 h-[420px] w-[420px] rounded-full border border-blue-300/30 dark:border-blue-400/10" animate={reduceMotion ? undefined : { scale: [1.08, 1, 1.08], y: [0, 20, 0] }} transition={{ duration: 12, repeat: Infinity, ease: 'easeInOut' }} />
           <div className="mx-auto grid max-w-7xl items-center gap-5 sm:gap-8 lg:grid-cols-[360px_minmax(0,1fr)] lg:gap-3 xl:grid-cols-[390px_minmax(0,1fr)] xl:gap-5">
-            <motion.div
+            <m.div
               className="relative z-30"
               initial={reduceMotion ? false : { opacity: 0, y: 30 }}
               animate={{ opacity: 1, y: 0 }}
@@ -386,7 +421,7 @@ const SalesPage = () => {
                   </p>
                 </div>
               </div>
-              <div className="relative h-[175px] min-[440px]:h-[155px] sm:h-[170px] lg:h-[205px] xl:h-[210px]">
+              <div className="relative h-[142px] min-[440px]:h-[145px] sm:h-[155px] lg:h-[205px] xl:h-[210px]">
                 <h1 className="absolute inset-x-0 top-0 z-40 max-w-2xl text-balance text-[38px] font-black leading-[0.98] tracking-[-0.055em] min-[440px]:text-[42px] sm:text-[46px] lg:text-[48px] xl:text-[52px]">
                   {heroMessages[heroMessageIndex].first}{' '}
                   <span className="bg-gradient-to-r from-[#2878ef] via-[#1557b8] to-[#0F2F6B] bg-clip-text text-transparent dark:from-blue-300 dark:to-blue-100">
@@ -407,7 +442,7 @@ const SalesPage = () => {
                   <span key={item} className="flex items-start gap-1"><Check className="mt-0.5 h-3.5 w-3.5 shrink-0 text-emerald-500" /><span>{item}</span></span>
                 ))}
               </div>
-            </motion.div>
+            </m.div>
             <div className="relative z-10">
               <HeroShowcase />
             </div>
@@ -432,6 +467,7 @@ const SalesPage = () => {
                   <img
                     src={business.logo}
                     alt={`Logo ${business.name}`}
+                    loading="lazy"
                     className="max-h-11 w-full max-w-[150px] object-contain opacity-55 grayscale transition duration-300 group-hover:opacity-85 dark:invert dark:opacity-65 dark:group-hover:opacity-90"
                   />
                 </div>
@@ -440,7 +476,7 @@ const SalesPage = () => {
           </Reveal>
 
           <Reveal className="mx-auto mt-4 grid max-w-7xl gap-4 sm:mt-5 sm:grid-cols-2 lg:grid-cols-4">
-            {proofHighlights.map((item) => <motion.div whileHover={reduceMotion ? undefined : { y: -6 }} key={item.label} className="flex min-h-[238px] flex-col rounded-2xl border border-blue-100 bg-white px-6 py-6 shadow-[0_18px_42px_-26px_rgba(15,47,107,0.45)] dark:border-white/10 dark:bg-slate-900/70"><span className={cn('flex h-12 w-12 shrink-0 items-center justify-center rounded-full shadow-sm', item.color)}><item.icon className="h-6 w-6" weight="duotone" /></span><div className="mt-5"><p className="text-lg font-black text-slate-950 dark:text-white">{item.value}</p><p className="mt-2 text-sm font-bold leading-5 text-slate-800 dark:text-slate-100">{item.label}</p><p className="mt-3 text-xs leading-5 text-slate-500 dark:text-slate-400">{item.detail}</p></div></motion.div>)}
+            {proofHighlights.map((item) => <m.div whileHover={reduceMotion ? undefined : { y: -6 }} key={item.label} className="flex min-h-[238px] flex-col rounded-2xl border border-blue-100 bg-white px-6 py-6 shadow-[0_18px_42px_-26px_rgba(15,47,107,0.45)] dark:border-white/10 dark:bg-slate-900/70"><span className={cn('flex h-12 w-12 shrink-0 items-center justify-center rounded-full shadow-sm', item.color)}><item.icon className="h-6 w-6" weight="duotone" /></span><div className="mt-5"><p className="text-lg font-black text-slate-950 dark:text-white">{item.value}</p><p className="mt-2 text-sm font-bold leading-5 text-slate-800 dark:text-slate-100">{item.label}</p><p className="mt-3 text-xs leading-5 text-slate-500 dark:text-slate-400">{item.detail}</p></div></m.div>)}
           </Reveal>
 
           <Reveal className="mx-auto mt-5 flex max-w-7xl flex-col items-start justify-between gap-5 rounded-2xl bg-gradient-to-r from-[#194fae] via-[#286fe7] to-[#17499e] px-7 py-6 text-white shadow-[0_22px_55px_-30px_rgba(29,78,216,0.75)] sm:flex-row sm:items-center">
@@ -460,10 +496,10 @@ const SalesPage = () => {
                 <Button className="mt-7 rounded-xl px-6 shadow-lg shadow-primary/20" onClick={() => navigate('/cadastro?plano=trial')}>Começar teste gratuito <ArrowRight className="ml-2 h-4 w-4" /></Button>
               </div>
 
-              <motion.div whileHover={reduceMotion ? undefined : { y: -6 }} className="relative rounded-[24px] border border-blue-100 bg-[#f8fbff] p-3 shadow-[0_26px_60px_-35px_rgba(15,47,107,0.65)] dark:border-white/10 dark:bg-slate-900/70">
+              <m.div whileHover={reduceMotion ? undefined : { y: -6 }} className="relative rounded-[24px] border border-blue-100 bg-[#f8fbff] p-3 shadow-[0_26px_60px_-35px_rgba(15,47,107,0.65)] dark:border-white/10 dark:bg-slate-900/70">
                 <div className="mb-3 flex items-center gap-1.5 px-1"><span className="h-2.5 w-2.5 rounded-full bg-rose-400" /><span className="h-2.5 w-2.5 rounded-full bg-amber-400" /><span className="h-2.5 w-2.5 rounded-full bg-emerald-400" /></div>
-                <img src={heroDashboard} alt="Painel completo do VIZZU com agenda, clientes e indicadores" className="w-full rounded-[16px] object-cover shadow-sm" />
-              </motion.div>
+                <img src={heroDashboard} alt="Painel completo do VIZZU com agenda, clientes e indicadores" loading="lazy" className="w-full rounded-[16px] object-cover shadow-sm" />
+              </m.div>
 
               <div className="space-y-5">
                 {productCapabilities.map((item) => (
@@ -499,7 +535,7 @@ const SalesPage = () => {
             </div>
             <div className="grid gap-3.5 sm:grid-cols-2 lg:grid-cols-4">
               {segments.map((segment, index) => (
-                <motion.div
+                <m.div
                   initial={reduceMotion ? false : { opacity: 0, y: 18 }}
                   whileInView={{ opacity: 1, y: 0 }}
                   viewport={{ once: true, amount: 0.35 }}
@@ -517,7 +553,7 @@ const SalesPage = () => {
                     <p className="mt-1 text-xs leading-5 text-slate-500 dark:text-slate-400">{segment.detail}</p>
                   </div>
                   <ChevronRight className="relative h-4 w-4 shrink-0 -translate-x-1 text-blue-400 opacity-0 transition-all group-hover:translate-x-0 group-hover:opacity-100" weight="bold" />
-                </motion.div>
+                </m.div>
               ))}
             </div>
           </Reveal>
@@ -534,7 +570,7 @@ const SalesPage = () => {
             <div className="grid gap-5 md:grid-cols-2 lg:grid-cols-4">
               {outcomes.map((outcome, index) => (
                 <Reveal key={outcome.title} delay={index * 0.08}>
-                  <motion.div whileHover={reduceMotion ? undefined : { y: -8, rotateX: 2, rotateY: index % 2 ? -2 : 2 }} transition={{ type: 'spring', stiffness: 260, damping: 22 }} style={{ transformPerspective: 900 }}>
+                  <m.div whileHover={reduceMotion ? undefined : { y: -8, rotateX: 2, rotateY: index % 2 ? -2 : 2 }} transition={{ type: 'spring', stiffness: 260, damping: 22 }} style={{ transformPerspective: 900 }}>
                   <Card className={cn('group h-full overflow-hidden rounded-3xl shadow-sm transition-shadow hover:shadow-xl', outcome.tone)}>
                     <CardContent className="p-7">
                       <div className={cn('mb-7 flex h-12 w-12 items-center justify-center rounded-2xl transition-transform group-hover:scale-110 group-hover:rotate-3', outcome.iconTone)}><outcome.icon className="h-6 w-6" weight="duotone" /></div>
@@ -543,7 +579,7 @@ const SalesPage = () => {
                       <div className="mt-6 flex items-center gap-1 text-sm font-bold text-primary">Tudo conectado <ChevronRight className="h-4 w-4" /></div>
                     </CardContent>
                   </Card>
-                  </motion.div>
+                  </m.div>
                 </Reveal>
               ))}
             </div>
@@ -561,11 +597,11 @@ const SalesPage = () => {
             <div className="relative grid gap-4 md:grid-cols-2 lg:grid-cols-4">
               <div className="pointer-events-none absolute left-[12%] right-[12%] top-7 hidden h-px bg-gradient-to-r from-transparent via-blue-200 to-transparent lg:block" />
               {organizationSteps.map((step, index) => (
-                <motion.div initial={reduceMotion ? false : { opacity: 0, y: 24 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true, amount: 0.4 }} transition={{ delay: index * 0.1, duration: 0.6 }} whileHover={reduceMotion ? undefined : { y: -6 }} key={step.number} className="relative rounded-3xl border border-blue-200/80 bg-white/65 p-6 shadow-sm backdrop-blur dark:border-white/10 dark:bg-white/[0.045]">
+                <m.div initial={reduceMotion ? false : { opacity: 0, y: 24 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true, amount: 0.4 }} transition={{ delay: index * 0.1, duration: 0.6 }} whileHover={reduceMotion ? undefined : { y: -6 }} key={step.number} className="relative rounded-3xl border border-blue-200/80 bg-white/65 p-6 shadow-sm backdrop-blur dark:border-white/10 dark:bg-white/[0.045]">
                   <span className="relative z-10 flex h-14 w-14 items-center justify-center rounded-2xl bg-gradient-to-br from-[#387ff1] to-[#174a9e] text-sm font-black text-white shadow-lg shadow-blue-500/20">{step.number}</span>
                   <h3 className="mt-6 text-lg font-black text-slate-900 dark:text-white">{step.title}</h3>
                   <p className="mt-2 text-sm leading-6 text-slate-600 dark:text-slate-300">{step.description}</p>
-                </motion.div>
+                </m.div>
               ))}
             </div>
 
@@ -601,9 +637,10 @@ const SalesPage = () => {
             </div>
             <div className="relative flex min-h-[420px] items-end justify-center overflow-hidden bg-gradient-to-br from-blue-500/20 to-violet-400/15 px-5 pt-8 sm:min-h-[520px]">
               <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_50%_45%,rgba(96,165,250,0.32),transparent_48%)]" />
-              <motion.img
+              <m.img
                 src={mobileDashboard}
                 alt="VIZZU funcionando no celular com indicadores, atalhos e próximos agendamentos"
+                loading="lazy"
                 initial={reduceMotion ? false : { opacity: 0, y: 36, scale: 0.96 }}
                 whileInView={{ opacity: 1, y: 0, scale: 1 }}
                 viewport={{ once: true, amount: 0.25 }}
@@ -622,39 +659,58 @@ const SalesPage = () => {
               <h2 className="mt-3 text-3xl font-black tracking-tight sm:text-4xl">Comece no seu ritmo. Cresça sem trocar de sistema.</h2>
               <p className="mt-4 text-slate-600 dark:text-slate-300">Escolha o plano que acompanha o momento atual do seu negócio.</p>
             </Reveal>
+            <div className="mx-auto mb-8 flex w-fit gap-1 rounded-xl border border-blue-200 bg-white p-1 shadow-sm dark:border-white/10 dark:bg-slate-900">
+              <Button size="sm" variant={billingCycle === 'monthly' ? 'default' : 'ghost'} onClick={() => setBillingCycle('monthly')}>Mensal</Button>
+              <Button size="sm" variant={billingCycle === 'yearly' ? 'default' : 'ghost'} onClick={() => setBillingCycle('yearly')}>Anual · 2 meses grátis</Button>
+            </div>
             {isLoading ? <LoadingSpinner className="py-20" size={32} /> : (
               <><div className={cn('mx-auto grid items-stretch gap-5', plans.length <= 2 ? 'max-w-3xl md:grid-cols-2' : plans.length === 3 ? 'max-w-5xl md:grid-cols-3' : 'sm:grid-cols-2 xl:grid-cols-4')}>
                 {plans.map((plan) => {
                   const popular = plan.plan_type === 'pro';
+                  const annualPrice = billingCycle === 'yearly' ? plan.price_yearly : null;
+                  const shownFeatures = Object.entries(plan.features || {}).filter(([key, enabled]) => enabled || COMING_SOON_FEATURES.has(key));
                   return (
-                    <motion.div initial={reduceMotion ? false : { opacity: 0, y: 28 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true, amount: 0.2 }} whileHover={reduceMotion ? undefined : { y: -7 }} transition={{ duration: 0.55 }} key={plan.id} className="relative pt-3">
+                    <m.div initial={reduceMotion ? false : { opacity: 0, y: 28 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true, amount: 0.2 }} whileHover={reduceMotion ? undefined : { y: -7 }} transition={{ duration: 0.55 }} key={plan.id} className="relative pt-3">
                       {popular && <div className="absolute inset-x-0 top-0 z-10 mx-auto w-fit rounded-full bg-primary px-4 py-1 text-xs font-bold text-white shadow-lg">Mais escolhido</div>}
                       <Card className={cn('flex h-full flex-col rounded-3xl border-blue-200/80 bg-white/75 shadow-sm backdrop-blur dark:border-white/10 dark:bg-white/[0.045]', popular && 'border-primary shadow-xl shadow-primary/10 ring-1 ring-primary')}>
                         <CardHeader className="p-6 pb-3">
                           <div className={cn('mb-4 flex h-10 w-10 items-center justify-center rounded-xl', popular ? 'bg-primary text-white' : 'bg-slate-100 text-slate-700 dark:bg-slate-800 dark:text-slate-200')}><PlanIcon type={plan.plan_type} /></div>
                           <CardTitle className="text-xl">{plan.display_name}</CardTitle>
-                          <div className="pt-2">{plan.plan_type === 'trial' ? <><span className="text-3xl font-black">Grátis</span><p className="mt-1 text-sm text-slate-500">por {plan.trial_days || 7} dias para conhecer o VIZZU</p></> : <><span className="text-3xl font-black">{formatCurrency(plan.price_monthly)}</span><span className="text-sm text-slate-500">/mês</span>{plan.price_yearly ? <p className="mt-1 text-xs text-slate-500">{formatCurrency(plan.price_yearly)} no plano anual</p> : null}</>}</div>
+                          <div className="pt-2">{plan.plan_type === 'trial' ? <><span className="text-3xl font-black">Grátis</span><p className="mt-1 text-sm text-slate-500">por {plan.trial_days || 7} dias · sem cartão</p></> : <><span className="text-3xl font-black">{formatCurrency(annualPrice ?? plan.price_monthly)}</span><span className="text-sm text-slate-500">/{billingCycle === 'yearly' ? 'ano' : 'mês'}</span>{plan.price_yearly ? <p className="mt-1 text-xs text-slate-500">{billingCycle === 'yearly' ? 'Dois meses grátis no pagamento anual' : `${formatCurrency(plan.price_yearly)} por ano · 2 meses grátis`}</p> : null}</>}</div>
                         </CardHeader>
                         <CardContent className="flex flex-1 flex-col p-6 pt-3">
-                          <div className="mb-5 rounded-2xl bg-slate-50 p-3 text-sm text-slate-600 dark:bg-slate-900 dark:text-slate-300"><strong className="text-slate-950 dark:text-white">{plan.max_barbers}</strong> profissionais · <strong className="text-slate-950 dark:text-white">{plan.max_appointments_month}</strong> agendamentos/mês</div>
-                          <div className="flex-1 space-y-2.5">{Object.entries(plan.features || {}).map(([feature, enabled]) => <div key={feature} className="flex items-start gap-2 text-sm">{enabled ? <Check className="mt-0.5 h-4 w-4 shrink-0 text-emerald-500" /> : <X className="mt-0.5 h-4 w-4 shrink-0 text-slate-300" />}<span className={enabled ? 'text-slate-700 dark:text-slate-200' : 'text-slate-400 line-through'}>{FEATURE_LABELS[feature] || feature}</span></div>)}</div>
-                          <Button className="mt-7 w-full rounded-xl" variant={popular ? 'default' : 'outline'} onClick={() => navigate(`/cadastro?plano=${plan.plan_type}`)}>{plan.plan_type === 'trial' ? 'Testar gratuitamente' : 'Escolher este plano'}<ArrowRight className="ml-2 h-4 w-4" /></Button>
+                          <div className="mb-5 rounded-2xl bg-slate-50 p-3 text-sm text-slate-600 dark:bg-slate-900 dark:text-slate-300"><strong className="text-slate-950 dark:text-white">Até {plan.max_barbers}</strong> profissionais · <strong className="text-slate-950 dark:text-white">agendamentos ilimitados</strong></div>
+                          <div className="flex-1 space-y-2.5">{shownFeatures.map(([feature]) => <div key={feature} className="flex items-start gap-2 text-sm">{COMING_SOON_FEATURES.has(feature) ? <span className="mt-1 h-3 w-3 shrink-0 rounded-full border border-amber-500" /> : <Check className="mt-0.5 h-4 w-4 shrink-0 text-emerald-500" />}<span className="text-slate-700 dark:text-slate-200">{FEATURE_LABELS[feature] || feature}{COMING_SOON_FEATURES.has(feature) && <span className="ml-1 text-xs text-amber-600">Em breve</span>}</span></div>)}</div>
+                          <Button className="mt-7 w-full rounded-xl" variant={popular ? 'default' : 'outline'} onClick={() => navigate(`/cadastro?plano=${plan.plan_type}&ciclo=${billingCycle}`)}>{plan.plan_type === 'trial' ? 'Testar gratuitamente' : 'Escolher este plano'}<ArrowRight className="ml-2 h-4 w-4" /></Button>
                         </CardContent>
                       </Card>
-                    </motion.div>
+                    </m.div>
                   );
                 })}
               </div>
+              <p className="mx-auto mt-5 max-w-5xl text-center text-xs text-slate-500">Profissional adicional: R$ 12,00 por mês. Recursos identificados como “Em breve” ainda estão em desenvolvimento.</p>
               <Reveal className="mt-16 overflow-hidden rounded-[28px] border border-blue-200/80 bg-[#f8fbff]/80 shadow-sm backdrop-blur dark:border-white/10 dark:bg-slate-950/75">
                 <div className="flex flex-col gap-3 border-b border-slate-200 px-6 py-6 sm:flex-row sm:items-end sm:justify-between dark:border-slate-800">
                   <div><Badge className="mb-3 border-primary/15 bg-primary/10 text-primary hover:bg-primary/10">Comparativo completo</Badge><h3 className="text-2xl font-black tracking-tight">Compare antes de escolher</h3><p className="mt-1 text-sm text-slate-500">Veja preços, limites e recursos de cada plano lado a lado.</p></div>
-                  <p className="text-xs font-medium text-slate-400">Deslize para o lado no celular</p>
+                  <p className="text-xs font-medium text-slate-400">Os cards acima ficam empilhados no celular.</p>
                 </div>
-                <div className="overflow-x-auto">
+                <div className="hidden overflow-x-auto md:block">
                   <table className="w-full min-w-[820px] border-collapse text-left">
                     <thead><tr className="bg-slate-50/80 dark:bg-slate-900/70"><th className="sticky left-0 z-10 min-w-[220px] bg-slate-50 px-6 py-5 text-xs font-bold uppercase tracking-wider text-slate-500 dark:bg-slate-900">O que está incluído</th>{plans.map((plan) => <th key={plan.id} className={cn('min-w-[150px] px-4 py-5 text-center', plan.plan_type === 'pro' && 'bg-primary/5')}><div className="font-black text-slate-950 dark:text-white">{plan.display_name}</div>{plan.plan_type === 'pro' && <span className="mt-1 inline-flex rounded-full bg-primary px-2 py-0.5 text-[10px] font-bold text-white">Recomendado</span>}</th>)}</tr></thead>
                     <tbody>{COMPARISON_ROWS.map((row, rowIndex) => <tr key={row.key} className={cn('border-t border-slate-100 dark:border-slate-800', rowIndex % 2 === 1 && 'bg-slate-50/40 dark:bg-slate-900/30')}><th className="sticky left-0 z-10 bg-inherit px-6 py-4 text-sm font-semibold text-slate-700 dark:text-slate-200">{row.label}</th>{plans.map((plan) => { let value: ReactNode; if (row.key === 'price') value = plan.plan_type === 'trial' ? 'Grátis' : `${formatCurrency(plan.price_monthly)}/mês`; else if (row.key === 'yearly') value = plan.plan_type === 'trial' ? '—' : plan.price_yearly ? formatCurrency(plan.price_yearly) : '—'; else if (row.key === 'barbers') value = plan.max_barbers; else if (row.key === 'appointments') value = plan.max_appointments_month.toLocaleString('pt-BR'); else value = plan.features?.[row.key] ? <Check className="mx-auto h-5 w-5 text-emerald-500" /> : <span className="text-slate-300">—</span>; return <td key={`${plan.id}-${row.key}`} className={cn('px-4 py-4 text-center text-sm font-semibold text-slate-700 dark:text-slate-200', plan.plan_type === 'pro' && 'bg-primary/[0.025]')}>{value}</td>; })}</tr>)}</tbody>
                   </table>
+                </div>
+                <div className="grid gap-3 p-4 md:hidden">
+                  {plans.map((plan) => <article key={`mobile-${plan.id}`} className="rounded-2xl border border-blue-200/70 bg-white p-4 dark:border-white/10 dark:bg-slate-900">
+                    <h4 className="font-bold">{plan.display_name}</h4>
+                    <p className="mt-1 text-sm text-slate-600 dark:text-slate-300">Até {plan.max_barbers} profissionais · agendamentos ilimitados</p>
+                    <ul className="mt-3 grid gap-1.5 text-sm text-slate-600 dark:text-slate-300">{COMPARISON_ROWS.filter((row) => row.key !== 'price' && row.key !== 'yearly' && row.key !== 'barbers' && row.key !== 'appointments').map((row) => {
+                      const enabled = Boolean(plan.features?.[row.key]);
+                      const comingSoon = COMING_SOON_FEATURES.has(row.key);
+                      if (!enabled && !comingSoon) return null;
+                      return <li key={row.key} className="flex items-start justify-between gap-3"><span>{row.label}</span><span className={comingSoon ? 'text-amber-600' : 'font-medium text-emerald-700 dark:text-emerald-400'}>{comingSoon ? 'Em breve' : 'Incluído'}</span></li>;
+                    })}</ul>
+                  </article>)}
                 </div>
               </Reveal></>
             )}
@@ -679,8 +735,8 @@ const SalesPage = () => {
 
         <section className="px-4 pb-20 sm:px-6">
           <Reveal className="relative mx-auto max-w-7xl overflow-hidden rounded-[32px] bg-gradient-to-r from-[#2E6FD3] via-[#2257b3] to-[#0F2F6B] px-6 py-12 text-center text-white shadow-2xl sm:px-12 sm:py-16">
-            <motion.div className="absolute -left-16 -top-16 h-48 w-48 rounded-full border border-white/10" animate={reduceMotion ? undefined : { scale: [1, 1.14, 1] }} transition={{ duration: 7, repeat: Infinity }} />
-            <motion.div animate={reduceMotion ? undefined : { rotate: [0, 15, 0], scale: [1, 1.08, 1] }} transition={{ duration: 4, repeat: Infinity }}><Sparkles className="mx-auto h-8 w-8 text-blue-200" weight="duotone" /></motion.div>
+            <m.div className="absolute -left-16 -top-16 h-48 w-48 rounded-full border border-white/10" animate={reduceMotion ? undefined : { scale: [1, 1.14, 1] }} transition={{ duration: 7, repeat: Infinity }} />
+            <m.div animate={reduceMotion ? undefined : { rotate: [0, 15, 0], scale: [1, 1.08, 1] }} transition={{ duration: 4, repeat: Infinity }}><Sparkles className="mx-auto h-8 w-8 text-blue-200" weight="duotone" /></m.div>
             <h2 className="mx-auto mt-4 max-w-3xl text-3xl font-black tracking-tight sm:text-4xl">Seu negócio pode ser mais organizado já no próximo atendimento.</h2>
             <p className="mx-auto mt-4 max-w-2xl text-blue-100">Crie sua conta, configure seus serviços e compartilhe sua página de agendamento.</p>
             <Button size="lg" className="group mt-8 rounded-xl !bg-white px-8 !text-[#0F2F6B] shadow-lg shadow-slate-950/15 transition-transform hover:-translate-y-0.5 hover:!bg-blue-50" onClick={() => navigate('/cadastro?plano=trial')}>Começar teste gratuito <ArrowRight className="ml-2 h-5 w-5 transition-transform group-hover:translate-x-1" /></Button>
@@ -696,6 +752,7 @@ const SalesPage = () => {
         </div>
       </footer>
     </div>
+    </LazyMotion>
   );
 };
 

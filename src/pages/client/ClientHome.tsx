@@ -3,7 +3,7 @@ import { useParams, useNavigate } from 'react-router-dom';
 import { supabase } from '@/integrations/supabase/client';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { CalendarPlus, Clock, Scissors, MapPin, Phone, ChevronRight, Loader2, Wallet, RotateCcw } from 'lucide-react';
+import { Bell, CalendarPlus, Clock, Scissors, MapPin, Phone, ChevronRight, Loader2, Wallet, RotateCcw, Star, Receipt } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { format, parseISO } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
@@ -11,6 +11,9 @@ import MobileLayout from '@/components/mobile/MobileLayout';
 import { DigitalWallet } from '@/components/client/DigitalWallet';
 import { WhatsAppButton } from '@/components/client/WhatsAppButton';
 import { ensureClientProfile } from '@/lib/clientProfile';
+import { Textarea } from '@/components/ui/textarea';
+import { addBusinessCalendarDays, businessDateTimeToISOString, formatBusinessDateInput, getBusinessMonthDateRange } from '@/lib/formatters';
+import { buildAppointmentReminderCalendar } from '@/lib/appointmentReminder';
 
 
 interface BarbershopSettings {
@@ -31,11 +34,13 @@ interface Appointment {
   appointment_time: string;
   status: string;
   service: { name: string; price: number } | null;
+  duration_minutes: number;
   barber: { display_name: string } | null;
 }
 
 interface LastAppointment {
   id: string;
+  client_id: string;
   appointment_date: string;
   service_id: string;
   barber_id: string | null;
@@ -46,6 +51,32 @@ interface WalletData {
   loyaltyPoints: number;
   giftCardBalance: number;
   availableCoupons: number;
+  nextRewardAt: number | null;
+  monthlySpend: number;
+}
+
+interface ClientReminderNotification {
+  id: string;
+  title: string;
+  message: string;
+  created_at: string;
+}
+
+function downloadAppointmentReminder(appointment: Appointment, companyName: string) {
+  const calendar = buildAppointmentReminderCalendar({
+    id: appointment.id,
+    appointment_date: appointment.appointment_date,
+    appointment_time: appointment.appointment_time,
+    duration_minutes: appointment.duration_minutes,
+    service_name: appointment.service?.name || null,
+  }, companyName);
+  const blob = new Blob([calendar], { type: 'text/calendar;charset=utf-8' });
+  const url = URL.createObjectURL(blob);
+  const link = document.createElement('a');
+  link.href = url;
+  link.download = `vizzu-lembrete-${appointment.appointment_date}.ics`;
+  link.click();
+  URL.revokeObjectURL(url);
 }
 
 const ClientHome = () => {
@@ -56,12 +87,26 @@ const ClientHome = () => {
   const [nextAppointment, setNextAppointment] = useState<Appointment | null>(null);
   const [lastAppointment, setLastAppointment] = useState<LastAppointment | null>(null);
   const [loading, setLoading] = useState(true);
+  const [loadError, setLoadError] = useState<string | null>(null);
   const [userName, setUserName] = useState<string>('');
-  const [walletData, setWalletData] = useState<WalletData>({ loyaltyPoints: 0, giftCardBalance: 0, availableCoupons: 0 });
+  const [walletData, setWalletData] = useState<WalletData>({ loyaltyPoints: 0, giftCardBalance: 0, availableCoupons: 0, nextRewardAt: null, monthlySpend: 0 });
+  const [reviewedLastAppointment, setReviewedLastAppointment] = useState(false);
+  const [reviewRating, setReviewRating] = useState(5);
+  const [reviewComment, setReviewComment] = useState('');
+  const [submittingReview, setSubmittingReview] = useState(false);
+  const [reviewFeedback, setReviewFeedback] = useState<string | null>(null);
+  const [reminderNotifications, setReminderNotifications] = useState<ClientReminderNotification[]>([]);
+  const [reminderFeedback, setReminderFeedback] = useState<string | null>(null);
 
   useEffect(() => {
     const fetchData = async () => {
-      if (!userId) return;
+      if (!userId) {
+        setLoading(false);
+        return;
+      }
+
+      try {
+        setLoadError(null);
 
       // Get current user
       const { data: { user } } = await supabase.auth.getUser();
@@ -74,10 +119,21 @@ const ClientHome = () => {
       // Garante o perfil do cliente (cadastro com confirmação de email ou login social).
       await ensureClientProfile(userId);
 
+      const { data: clientReminders, error: clientRemindersError } = await supabase
+        .from('client_notifications')
+        .select('id, title, message, created_at')
+        .eq('user_id', user.id)
+        .eq('business_user_id', userId)
+        .is('read_at', null)
+        .order('created_at', { ascending: false })
+        .limit(5);
+      if (clientRemindersError) throw clientRemindersError;
+      setReminderNotifications(clientReminders || []);
+
       // Get client profile name
       const { data: clientProfile } = await supabase
         .from('client_profiles')
-        .select('full_name, phone')
+        .select('full_name, phone, client_id')
         .eq('user_id', user.id)
         .eq('barbershop_user_id', userId)
         .maybeSingle();
@@ -101,9 +157,11 @@ const ClientHome = () => {
         setSettings(settingsData as BarbershopSettings);
       }
 
-      // Vincula a área do cliente somente ao cadastro comercial do titular autenticado.
+      // Prioriza o vínculo autenticado e mantém um fallback legado protegido por RLS.
       let clientQuery = supabase.from('clients').select('id').eq('user_id', userId);
-      if (user.email) {
+      if (clientProfile?.client_id) {
+        clientQuery = clientQuery.eq('id', clientProfile.client_id);
+      } else if (user.email) {
         clientQuery = clientQuery.eq('email', user.email.toLowerCase());
       } else if (clientProfile?.phone) {
         clientQuery = clientQuery.eq('phone', clientProfile.phone.replace(/\D/g, ''));
@@ -111,8 +169,12 @@ const ClientHome = () => {
       const { data: clientRecord } = await clientQuery.maybeSingle();
 
       if (clientRecord) {
-        const today = format(new Date(), 'yyyy-MM-dd');
-        const [appointmentResult, loyaltyResult, giftCardsResult, couponsResult] = await Promise.all([
+        const now = new Date();
+        const today = formatBusinessDateInput(now);
+        const monthRange = getBusinessMonthDateRange(now);
+        const monthStart = businessDateTimeToISOString(monthRange.start);
+        const nextMonthStart = businessDateTimeToISOString(addBusinessCalendarDays(monthRange.end, 1));
+        const [appointmentResult, lastAppointmentResult, loyaltyResult, giftCardsResult, couponsResult, rewardResult, paymentsResult] = await Promise.all([
           supabase
             .from('appointments')
             .select('id, appointment_date, appointment_time, status, service_id, barbeiro_id')
@@ -124,17 +186,30 @@ const ClientHome = () => {
             .order('appointment_time', { ascending: true })
             .limit(1)
             .maybeSingle(),
+          supabase
+            .from('appointments')
+            .select('id, client_id, appointment_date, service_id, barbeiro_id')
+            .eq('user_id', userId)
+            .eq('client_id', clientRecord.id)
+            .eq('status', 'completed')
+            .lte('appointment_date', today)
+            .order('appointment_date', { ascending: false })
+            .order('appointment_time', { ascending: false })
+            .limit(1)
+            .maybeSingle(),
           supabase.from('loyalty_points').select('points').eq('user_id', userId).eq('client_id', clientRecord.id).maybeSingle(),
           user.email
             ? supabase.from('gift_cards').select('current_balance').eq('user_id', userId).eq('recipient_email', user.email.toLowerCase()).eq('status', 'active')
             : Promise.resolve({ data: [], error: null }),
           supabase.from('discount_coupons').select('id', { count: 'exact', head: true }).eq('user_id', userId).eq('active', true),
+          supabase.from('loyalty_rewards').select('points_required').eq('user_id', userId).eq('active', true).order('points_required', { ascending: true }).limit(1).maybeSingle(),
+          supabase.from('payments').select('amount').eq('user_id', userId).eq('status', 'completed').gte('created_at', monthStart).lt('created_at', nextMonthStart),
         ]);
 
         const next = appointmentResult.data;
         if (next) {
           const [serviceResult, professionalResult] = await Promise.all([
-            supabase.from('services').select('name, price').eq('id', next.service_id).maybeSingle(),
+            supabase.from('services').select('name, price, duration_minutes').eq('id', next.service_id).maybeSingle(),
             next.barbeiro_id
               ? supabase.from('professional_directory').select('display_name').eq('id', next.barbeiro_id).maybeSingle()
               : Promise.resolve({ data: null, error: null }),
@@ -145,30 +220,119 @@ const ClientHome = () => {
             appointment_time: next.appointment_time,
             status: next.status,
             service: serviceResult.data ? { name: serviceResult.data.name, price: Number(serviceResult.data.price) } : null,
+            duration_minutes: Number(serviceResult.data?.duration_minutes || 30),
             barber: professionalResult.data,
           });
         } else {
           setNextAppointment(null);
         }
 
+        const last = lastAppointmentResult.data;
+        if (last) {
+          const [serviceResult, reviewResult] = await Promise.all([
+            supabase.from('services').select('name').eq('id', last.service_id).maybeSingle(),
+            supabase.from('reviews').select('id').eq('appointment_id', last.id).eq('client_id', clientRecord.id).maybeSingle(),
+          ]);
+          setLastAppointment({
+            id: last.id,
+            client_id: last.client_id,
+            appointment_date: last.appointment_date,
+            service_id: last.service_id,
+            barber_id: last.barbeiro_id,
+            service_name: serviceResult.data?.name || 'último serviço',
+          });
+          setReviewedLastAppointment(Boolean(reviewResult.data));
+        } else {
+          setLastAppointment(null);
+          setReviewedLastAppointment(false);
+        }
+
         setWalletData({
           loyaltyPoints: loyaltyResult.data?.points || 0,
           giftCardBalance: (giftCardsResult.data || []).reduce((total, card) => total + Number(card.current_balance), 0),
           availableCoupons: couponsResult.count || 0,
+          nextRewardAt: rewardResult.data?.points_required ?? null,
+          monthlySpend: (paymentsResult.data || []).reduce((total, payment) => total + Number(payment.amount || 0), 0),
         });
+      } else {
+        setNextAppointment(null);
+        setLastAppointment(null);
+        setReviewedLastAppointment(false);
+        setWalletData({ loyaltyPoints: 0, giftCardBalance: 0, availableCoupons: 0, nextRewardAt: null, monthlySpend: 0 });
       }
 
       setLoading(false);
+      } catch (error) {
+        console.error('Não foi possível carregar o início do cliente:', error);
+        setLoadError('Não foi possível carregar seus dados agora. Tente novamente.');
+      } finally {
+        setLoading(false);
+      }
     };
 
     fetchData();
   }, [userId, navigate]);
+
+  const markReminderAsRead = async (notificationId: string) => {
+    const { data: { user } } = await supabase.auth.getUser();
+    if (!user) return;
+    const { error } = await supabase
+      .from('client_notifications')
+      .update({ read_at: new Date().toISOString() })
+      .eq('id', notificationId)
+      .eq('user_id', user.id);
+    if (error) {
+      setReminderFeedback('Não foi possível dispensar este lembrete. Tente novamente.');
+      return;
+    }
+    setReminderNotifications((current) => current.filter((item) => item.id !== notificationId));
+    setReminderFeedback(null);
+  };
+
+  const submitLastReview = async () => {
+    if (!lastAppointment || !userId || submittingReview || reviewedLastAppointment) return;
+    setSubmittingReview(true);
+    setReviewFeedback(null);
+    try {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) throw new Error('Entre na sua conta para avaliar o atendimento.');
+      const { error } = await supabase.from('reviews').insert({
+        user_id: userId,
+        appointment_id: lastAppointment.id,
+        client_id: lastAppointment.client_id,
+        barber_id: lastAppointment.barber_id,
+        rating: reviewRating,
+        comment: reviewComment.trim() || null,
+      });
+      if (error) throw error;
+      setReviewedLastAppointment(true);
+      setReviewFeedback('Obrigado! Sua avaliação foi enviada para a barbearia.');
+    } catch (error) {
+      setReviewFeedback(error instanceof Error ? error.message : 'Não foi possível enviar sua avaliação agora.');
+    } finally {
+      setSubmittingReview(false);
+    }
+  };
 
   if (loading) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-background">
         <Loader2 className="h-8 w-8 animate-spin text-primary" />
       </div>
+    );
+  }
+
+  if (loadError) {
+    return (
+      <MobileLayout settings={settings || undefined}>
+        <div className="flex min-h-[60vh] items-center justify-center p-4">
+          <Card className="w-full max-w-md space-y-4 p-6 text-center" role="alert">
+            <h1 className="text-xl font-bold">Não conseguimos carregar seu início</h1>
+            <p className="text-sm text-muted-foreground">{loadError}</p>
+            <Button onClick={() => window.location.reload()}>Tentar novamente</Button>
+          </Card>
+        </div>
+      </MobileLayout>
     );
   }
 
@@ -227,6 +391,29 @@ const ClientHome = () => {
           </Card>
         </motion.div>
 
+        {reminderNotifications.length > 0 && (
+          <Card className="order-2 border-primary/20 bg-primary/5 p-4 shadow-sm" aria-label="Lembretes de atendimento">
+            <div className="mb-3 flex items-center gap-2">
+              <Bell className="h-4 w-4 text-primary" />
+              <h2 className="text-sm font-bold">Lembretes de atendimento</h2>
+            </div>
+            <div className="space-y-3">
+              {reminderNotifications.map((reminder) => (
+                <div key={reminder.id} className="flex items-start justify-between gap-3 border-t border-primary/10 pt-3 first:border-0 first:pt-0">
+                  <div className="min-w-0">
+                    <p className="text-sm font-semibold">{reminder.title}</p>
+                    <p className="text-sm text-muted-foreground">{reminder.message}</p>
+                  </div>
+                  <Button variant="ghost" size="sm" className="shrink-0" onClick={() => void markReminderAsRead(reminder.id)}>
+                    Dispensar
+                  </Button>
+                </div>
+              ))}
+            </div>
+            {reminderFeedback && <p role="status" className="mt-2 text-xs text-destructive">{reminderFeedback}</p>}
+          </Card>
+        )}
+
         {/* Digital Wallet */}
         <motion.div
           initial={{ opacity: 0, y: 20 }}
@@ -238,10 +425,21 @@ const ClientHome = () => {
             loyaltyPoints={walletData.loyaltyPoints}
             giftCardBalance={walletData.giftCardBalance}
             availableCoupons={walletData.availableCoupons}
-            nextRewardAt={100}
+            nextRewardAt={walletData.nextRewardAt}
             onViewDetails={() => navigate(`/b/${userId}/pagamentos`)}
           />
         </motion.div>
+
+        <Card className="order-5 rounded-2xl shadow-sm">
+          <div className="flex items-center gap-3 p-4">
+            <div className="rounded-xl bg-primary/10 p-2.5 text-primary"><Receipt className="h-5 w-5" /></div>
+            <div className="min-w-0 flex-1">
+              <p className="text-sm text-muted-foreground">Gastos no mês</p>
+              <p className="text-xl font-bold">{new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(walletData.monthlySpend)}</p>
+              <p className="text-xs text-muted-foreground">Pagamentos confirmados neste mês</p>
+            </div>
+          </div>
+        </Card>
 
         {/* Next Appointment */}
         <motion.div
@@ -286,6 +484,10 @@ const ClientHome = () => {
                   <p className="text-sm text-muted-foreground">{nextAppointment.appointment_time.slice(0, 5)}</p>
                 </div>
               </div>
+              <div className="mt-4 flex flex-col gap-2 border-t border-border pt-3 sm:flex-row sm:items-center sm:justify-between">
+                <p className="flex items-center gap-2 text-xs text-muted-foreground"><Bell className="h-4 w-4 shrink-0" />Baixe o lembrete para receber avisos 24h e 2h antes no seu calendário.</p>
+                <Button variant="outline" size="sm" className="shrink-0" onClick={() => downloadAppointmentReminder(nextAppointment, settings.company_name)}>Baixar lembrete</Button>
+              </div>
             </Card>
           ) : (
             <Card className="rounded-2xl border-dashed p-5">
@@ -301,6 +503,37 @@ const ClientHome = () => {
             </Card>
           )}
         </motion.div>
+
+        {lastAppointment && (
+          <Card className="order-3 rounded-2xl shadow-sm">
+            <div className="space-y-4 p-5">
+              <div>
+                <p className="text-xs font-bold uppercase tracking-wider text-muted-foreground">Atendimento concluído</p>
+                <h2 className="mt-1 text-lg font-bold">Como foi seu último serviço?</h2>
+                <p className="text-sm text-muted-foreground">{lastAppointment.service_name} · {format(parseISO(lastAppointment.appointment_date), 'dd/MM/yyyy')}</p>
+              </div>
+              {reviewedLastAppointment ? (
+                <p className="rounded-xl bg-primary/5 p-3 text-sm text-primary">Obrigado por avaliar este atendimento.</p>
+              ) : (
+                <>
+                  <div className="flex items-center gap-1" role="group" aria-label="Escolha uma nota de 1 a 5 estrelas">
+                    {[1, 2, 3, 4, 5].map((rating) => (
+                      <Button key={rating} type="button" variant="ghost" size="icon" aria-label={`${rating} ${rating === 1 ? 'estrela' : 'estrelas'}`} aria-pressed={reviewRating === rating} onClick={() => setReviewRating(rating)}>
+                        <Star className={`h-6 w-6 ${rating <= reviewRating ? 'fill-amber-400 text-amber-500' : 'text-muted-foreground'}`} />
+                      </Button>
+                    ))}
+                  </div>
+                  <Textarea value={reviewComment} onChange={(event) => setReviewComment(event.target.value.slice(0, 500))} maxLength={500} placeholder="Conte como foi (opcional)" aria-label="Comentário da avaliação" />
+                  <div className="flex items-center justify-between gap-3">
+                    <span className="text-xs text-muted-foreground">{reviewComment.length}/500 caracteres</span>
+                    <Button onClick={() => void submitLastReview()} disabled={submittingReview}>{submittingReview ? 'Enviando…' : 'Enviar avaliação'}</Button>
+                  </div>
+                </>
+              )}
+              {reviewFeedback && <p role="status" aria-live="polite" className="text-sm text-muted-foreground">{reviewFeedback}</p>}
+            </div>
+          </Card>
+        )}
 
         {/* Quick Actions */}
         <motion.div
@@ -323,14 +556,14 @@ const ClientHome = () => {
               onClick={() => navigate(`/b/${userId}/agendamentos`)}
             >
               <Clock className="mb-2 h-6 w-6" style={{ color: settings.primary_color_hex }} />
-              <p className="text-xs font-bold leading-tight">Meus horários</p>
+              <p className="text-xs font-bold leading-tight">Meus agendamentos</p>
             </Card>
             <Card 
               className="flex min-h-[92px] cursor-pointer flex-col items-center justify-center rounded-2xl p-3 text-center shadow-sm transition-colors hover:bg-muted"
               onClick={() => navigate(`/b/${userId}/pagamentos`)}
             >
               <Wallet className="mb-2 h-6 w-6" style={{ color: settings.primary_color_hex }} />
-              <p className="text-xs font-bold">Carteira</p>
+              <p className="text-xs font-bold">Meus pagamentos</p>
             </Card>
             {lastAppointment && (
               <Card 

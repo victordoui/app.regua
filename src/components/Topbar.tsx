@@ -1,16 +1,25 @@
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { Bell, Calendar, Command, PanelLeftClose, PanelLeftOpen, Search } from "lucide-react";
 import { format } from "date-fns";
 import { ptBR } from "date-fns/locale";
 import { useNavigate } from "react-router-dom";
+import { useRole } from "@/contexts/RoleContext";
 import { useAuth } from "@/contexts/AuthContext";
 import { ThemeToggle } from "@/components/ui/theme-toggle";
 import { useSidebarCollapsed } from "@/hooks/useSidebarCollapsed";
 
 const Topbar = () => {
   const { user } = useAuth();
+  const { userRole } = useRole();
   const navigate = useNavigate();
   const { collapsed, toggle } = useSidebarCollapsed();
+  const [searchTerm, setSearchTerm] = useState("");
+
+  const handleSearchKeyDown = (event: React.KeyboardEvent<HTMLInputElement>) => {
+    if (event.key !== "Enter" || userRole !== "super_admin" || !searchTerm.trim()) return;
+    event.preventDefault();
+    navigate(`/superadmin/users?search=${encodeURIComponent(searchTerm.trim())}`);
+  };
 
   useEffect(() => {
     const handler = (event: KeyboardEvent) => {
@@ -48,7 +57,10 @@ const Topbar = () => {
           <input
             id="topbar-search-input"
             type="search"
-            placeholder="Buscar clientes, agendamentos ou serviços..."
+            placeholder={userRole === "super_admin" ? "Buscar usuários, empresas ou assinaturas..." : "Buscar clientes, agendamentos ou serviços..."}
+            value={searchTerm}
+            onChange={(event) => setSearchTerm(event.target.value)}
+            onKeyDown={handleSearchKeyDown}
             className="w-full border-none bg-transparent text-sm text-foreground outline-none placeholder:text-muted-foreground"
           />
           <kbd className="flex flex-shrink-0 items-center gap-1 rounded-md border border-border bg-muted/70 px-1.5 py-0.5 text-[10px] text-muted-foreground">

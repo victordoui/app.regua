@@ -1,3 +1,4 @@
+import { formatCurrency } from '@/lib/formatters';
 import React from "react";
 import {
   BarChart,
@@ -33,7 +34,7 @@ const ServiceAnalysisChart: React.FC = () => {
           </span>
         </div>
         <span className="text-[11px] text-muted-foreground">
-          Total: <strong className="text-foreground">R$ {totalRevenue.toLocaleString("pt-BR")}</strong>
+          Total: <strong className="text-foreground">{formatCurrency(totalRevenue)}</strong>
         </span>
       </div>
 
@@ -47,7 +48,7 @@ const ServiceAnalysisChart: React.FC = () => {
                 <div className="flex items-center justify-between mb-1">
                   <span className="text-[12px] font-medium text-foreground truncate">{svc.name}</span>
                   <span className="font-heading text-[12px] font-bold text-foreground ml-2">
-                    R$ {svc.revenue.toLocaleString("pt-BR")}
+                    {formatCurrency(svc.revenue)}
                   </span>
                 </div>
                 <div className="h-1.5 bg-muted rounded-full overflow-hidden">
@@ -61,7 +62,7 @@ const ServiceAnalysisChart: React.FC = () => {
                 </div>
                 <div className="flex justify-between mt-0.5">
                   <span className="text-[9px] text-muted-foreground">{svc.count} atendimentos</span>
-                  <span className="text-[9px] text-muted-foreground">Ticket: R$ {svc.ticket}</span>
+                  <span className="text-[9px] text-muted-foreground">Ticket: {formatCurrency(svc.ticket)}</span>
                 </div>
               </div>
             </div>
@@ -82,7 +83,7 @@ const ServiceAnalysisChart: React.FC = () => {
                 tick={{ fill: "hsl(var(--muted-foreground))", fontSize: 10 }}
                 axisLine={false}
                 tickLine={false}
-                tickFormatter={(v) => `R$${(v / 1000).toFixed(0)}k`}
+                tickFormatter={(v) => `${formatCurrency((v / 1000))}k`}
               />
               <YAxis
                 type="category"
@@ -94,7 +95,7 @@ const ServiceAnalysisChart: React.FC = () => {
               />
               <Tooltip
                 formatter={(value: number) => [
-                  `R$ ${value.toLocaleString("pt-BR")}`,
+                  formatCurrency(value),
                   "Receita",
                 ]}
                 contentStyle={{

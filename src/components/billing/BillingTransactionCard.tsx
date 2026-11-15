@@ -5,8 +5,7 @@ import { Badge } from '@/components/ui/badge';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
 import { Edit, Trash2, CheckCircle, XCircle, MoreHorizontal, Clock, DollarSign } from 'lucide-react';
 import { AccountTransaction, TransactionStatus } from '@/types/billing';
-import { format, isPast } from 'date-fns';
-import { ptBR } from 'date-fns/locale';
+import { formatDateOnlyBR, isBusinessDateBeforeToday } from '@/lib/formatters';
 
 interface BillingTransactionCardProps {
   transaction: AccountTransaction;
@@ -21,7 +20,7 @@ const BillingTransactionCard: React.FC<BillingTransactionCardProps> = ({
   onDelete,
   onUpdateStatus,
 }) => {
-  const isOverdue = transaction.status === 'pending' && isPast(new Date(transaction.due_date));
+  const isOverdue = transaction.status === 'pending' && isBusinessDateBeforeToday(transaction.due_date);
   const isPaidOrReceived = transaction.status === 'paid' || transaction.status === 'received';
 
   const getStatusBadgeVariant = (status: TransactionStatus) => {
@@ -113,7 +112,7 @@ const BillingTransactionCard: React.FC<BillingTransactionCardProps> = ({
         </div>
         <div className="flex items-center justify-between text-sm text-muted-foreground">
           <span className="font-medium">Vencimento:</span>
-          <span>{format(new Date(transaction.due_date), 'dd/MM/yyyy', { locale: ptBR })}</span>
+          <span>{formatDateOnlyBR(transaction.due_date)}</span>
         </div>
         {transaction.category && (
           <div className="flex items-center justify-between text-sm text-muted-foreground">

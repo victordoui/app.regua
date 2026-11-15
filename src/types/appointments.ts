@@ -39,6 +39,7 @@ export interface TimeSlot {
 }
 
 export type RecurrenceType = 'weekly' | 'biweekly' | 'monthly' | null;
+export type BookingSource = 'link' | 'whatsapp' | 'balcao';
 
 export interface Appointment {
   id: string;
@@ -50,13 +51,17 @@ export interface Appointment {
   status: 'pending' | 'confirmed' | 'completed' | 'cancelled' | 'no_show';
   notes?: string;
   total_price?: number;
+  tip_amount?: number;
   user_id: string;
   created_at: string;
   updated_at: string;
   recurrence_type?: RecurrenceType;
   recurrence_end_date?: string | null;
   parent_appointment_id?: string | null;
+  reminder_24h_sent_at?: string | null;
+  reminder_2h_sent_at?: string | null;
   reminder_sent_at?: string | null;
+  booking_source?: BookingSource | null;
   clients?: Client; // Populated via join
   services?: Service; // Populated via join
   barbers?: Barber; // Populated via join (assuming 'barbers' is the alias for the joined profile)
@@ -71,6 +76,7 @@ export interface AppointmentFormData {
   appointment_date: string;
   appointment_time: string;
   notes: string;
+  booking_source?: BookingSource | null;
   recurrence_type?: RecurrenceType;
   recurrence_end_date?: string | null;
 }

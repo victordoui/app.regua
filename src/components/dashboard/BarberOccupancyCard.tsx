@@ -1,3 +1,4 @@
+import { formatCurrency } from '@/lib/formatters';
 import React from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Progress } from '@/components/ui/progress';
@@ -84,7 +85,7 @@ const BarberOccupancyCard: React.FC<BarberOccupancyCardProps> = ({ barbers }) =>
                       {barber.completedToday}/{barber.appointmentsToday} atendimentos
                     </span>
                     <span className="text-xs font-medium text-primary">
-                      R$ {barber.revenue.toFixed(0)}
+                      {formatCurrency(barber.revenue)}
                     </span>
                   </div>
                 </div>

@@ -67,11 +67,11 @@ const ResetPassword = () => {
             <>
               <div className="space-y-2">
                 <label className="text-sm font-medium" htmlFor="new-password">Nova senha (mín. 8 caracteres)</label>
-                <Input id="new-password" type="password" value={password} onChange={(event) => setPassword(event.target.value)} autoComplete="new-password" />
+                <Input id="new-password" type="password" value={password} onChange={(event) => setPassword(event.target.value)} autoComplete="new-password" minLength={8} required />
               </div>
               <div className="space-y-2">
                 <label className="text-sm font-medium" htmlFor="confirm-password">Confirmar nova senha</label>
-                <Input id="confirm-password" type="password" value={confirmPassword} onChange={(event) => setConfirmPassword(event.target.value)} autoComplete="new-password" />
+                <Input id="confirm-password" type="password" value={confirmPassword} onChange={(event) => setConfirmPassword(event.target.value)} autoComplete="new-password" minLength={8} required />
               </div>
               <Button className="w-full" onClick={handleSubmit} disabled={isLoading}>
                 {isLoading ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <KeyRound className="mr-2 h-4 w-4" />}

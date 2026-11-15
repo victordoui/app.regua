@@ -1,256 +1,378 @@
 import { serve } from "https://deno.land/std@0.190.0/http/server.ts";
-import { createClient } from 'https://esm.sh/@supabase/supabase-js@2';
-// Note: Resend integration requires RESEND_API_KEY secret
+import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
+import {
+  dueReminderLeads,
+  formatAppointmentInSaoPaulo,
+} from "../_shared/appointmentReminderWindows.ts";
 
 const corsHeaders = {
-  'Access-Control-Allow-Origin': '*',
-  'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
+  "Access-Control-Allow-Origin": "*",
+  "Access-Control-Allow-Headers":
+    "authorization, x-client-info, apikey, content-type, x-cron-secret",
+  "Content-Type": "application/json; charset=utf-8",
 };
 
-interface NotificationPreferences {
-  system_enabled: boolean;
-  email_enabled: boolean;
+type Preferences = {
+  system_enabled: boolean | null;
+  email_enabled: boolean | null;
   email_address: string | null;
-  whatsapp_enabled: boolean;
-  whatsapp_number: string | null;
-  reminder_hours_before: number;
+};
+
+type AppointmentRow = {
+  id: string;
+  appointment_date: string;
+  appointment_time: string;
+  user_id: string;
+  client_id: string;
+  status: string;
+  reminder_24h_sent_at: string | null;
+  reminder_2h_sent_at: string | null;
+  clients:
+    | { name: string | null; email: string | null; phone: string | null }
+    | { name: string | null; email: string | null; phone: string | null }[]
+    | null;
+  services: { name: string | null } | { name: string | null }[] | null;
+};
+
+function constantTimeEquals(left: string, right: string) {
+  const encoder = new TextEncoder();
+  const a = encoder.encode(left);
+  const b = encoder.encode(right);
+  if (a.length !== b.length) return false;
+  let difference = 0;
+  for (let index = 0; index < a.length; index += 1) {
+    difference |= a[index] ^ b[index];
+  }
+  return difference === 0;
 }
 
-serve(async (req) => {
-  // Handle CORS preflight requests
-  if (req.method === 'OPTIONS') {
+function localDateRange(now: Date) {
+  const parts = new Intl.DateTimeFormat("en-CA", {
+    timeZone: "America/Sao_Paulo",
+    year: "numeric",
+    month: "2-digit",
+    day: "2-digit",
+  }).formatToParts(now);
+  const values = Object.fromEntries(
+    parts.map((part) => [part.type, part.value]),
+  );
+  const today = values.year + "-" + values.month + "-" + values.day;
+  const tomorrowDate = new Date(today + "T12:00:00Z");
+  tomorrowDate.setUTCDate(tomorrowDate.getUTCDate() + 1);
+  return { today, tomorrow: tomorrowDate.toISOString().slice(0, 10) };
+}
+
+function escapeHtml(value: string) {
+  return value.replace(/[&<>"']/g, (character) =>
+    ({
+      "&": "&amp;",
+      "<": "&lt;",
+      ">": "&gt;",
+      '"': "&quot;",
+      "'": "&#39;",
+    })[character] || character);
+}
+
+function jsonResponse(body: unknown, status = 200) {
+  return new Response(JSON.stringify(body), { status, headers: corsHeaders });
+}
+
+serve(async (request) => {
+  if (request.method === "OPTIONS") {
     return new Response(null, { headers: corsHeaders });
   }
+  if (request.method !== "POST") {
+    return jsonResponse({ success: false, error: "Method not allowed" }, 405);
+  }
 
-  try {
-    const cronSecret = Deno.env.get('REMINDER_CRON_SECRET');
-    const suppliedSecret = req.headers.get('x-cron-secret');
-    if (!cronSecret) {
-      throw new Error('REMINDER_CRON_SECRET not configured');
-    }
-    if (!suppliedSecret || suppliedSecret !== cronSecret) {
-      return new Response(JSON.stringify({ success: false, error: 'Unauthorized' }), {
-        status: 401,
-        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-      });
-    }
+  const expectedSecret = Deno.env.get("REMINDER_CRON_SECRET");
+  const suppliedSecret = request.headers.get("x-cron-secret") || "";
+  if (!expectedSecret) {
+    return jsonResponse({
+      success: false,
+      error: "Reminder job is not configured",
+    }, 503);
+  }
+  if (!constantTimeEquals(suppliedSecret, expectedSecret)) {
+    return jsonResponse({ success: false, error: "Unauthorized" }, 401);
+  }
 
-    const supabaseUrl = Deno.env.get('SUPABASE_URL')!;
-    const supabaseServiceKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!;
-    const resendApiKey = Deno.env.get('RESEND_API_KEY');
-    
-    const supabase = createClient(supabaseUrl, supabaseServiceKey);
+  const supabaseUrl = Deno.env.get("SUPABASE_URL");
+  const serviceRoleKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY");
+  if (!supabaseUrl || !serviceRoleKey) {
+    return jsonResponse({
+      success: false,
+      error: "Reminder service is not configured",
+    }, 503);
+  }
 
-    // Get current date and time
-    const now = new Date();
-    const tomorrow = new Date(now);
-    tomorrow.setDate(tomorrow.getDate() + 1);
-    
-    const todayStr = now.toISOString().split('T')[0];
-    const tomorrowStr = tomorrow.toISOString().split('T')[0];
+  const supabase = createClient(supabaseUrl, serviceRoleKey, {
+    auth: { persistSession: false, autoRefreshToken: false },
+  });
+  const now = new Date();
+  const { today, tomorrow } = localDateRange(now);
+  const { data: appointments, error: appointmentError } = await supabase
+    .from("appointments")
+    .select(
+      "id, appointment_date, appointment_time, user_id, client_id, status, reminder_24h_sent_at, reminder_2h_sent_at, clients(name, email, phone), services(name)",
+    )
+    .gte("appointment_date", today)
+    .lte("appointment_date", tomorrow)
+    .eq("status", "confirmed")
+    .not("user_id", "is", null);
 
-    console.log(`[${now.toISOString()}] Checking appointments for ${todayStr} and ${tomorrowStr}`);
-    console.log(`Email service available: ${!!resendApiKey}`);
+  if (appointmentError) {
+    console.error(
+      "Unable to load reminder appointments:",
+      appointmentError.message,
+    );
+    return jsonResponse({
+      success: false,
+      error: "Unable to load appointments",
+    }, 500);
+  }
 
-    // Fetch appointments for today and tomorrow that haven't been reminded
-    const { data: appointments, error: fetchError } = await supabase
-      .from('appointments')
-      .select(`
-        id,
-        appointment_date,
-        appointment_time,
-        user_id,
-        status,
-        reminder_sent_at,
-        clients (name, email, phone),
-        services (name)
-      `)
-      .in('appointment_date', [todayStr, tomorrowStr])
-      .is('reminder_sent_at', null)
-      .in('status', ['pending', 'confirmed']);
+  const candidates = (appointments || []) as AppointmentRow[];
+  const dueAppointments = candidates.flatMap((appointment) =>
+    dueReminderLeads(
+      appointment.appointment_date,
+      appointment.appointment_time,
+      now,
+    )
+      .filter((leadHours) =>
+        leadHours === 24
+          ? !appointment.reminder_24h_sent_at
+          : !appointment.reminder_2h_sent_at
+      )
+      .map((leadHours) => ({ appointment, leadHours }))
+  );
 
-    if (fetchError) {
-      console.error('Error fetching appointments:', fetchError);
-      throw fetchError;
-    }
-
-    console.log(`Found ${appointments?.length || 0} appointments to remind`);
-
-    if (!appointments || appointments.length === 0) {
-      return new Response(JSON.stringify({ 
-        success: true, 
-        message: 'No appointments to remind',
-        notificationsSent: 0 
-      }), {
-        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-      });
-    }
-
-    let systemNotificationsSent = 0;
-    let emailsSent = 0;
-    const errors: string[] = [];
-
-    // Process each appointment
-    for (const appointment of appointments) {
-      try {
-        const isToday = appointment.appointment_date === todayStr;
-        const client = appointment.clients as { name: string | null; email: string | null } | null;
-        const clientName = client?.name || 'Cliente';
-        const clientEmail = client?.email;
-        const serviceName = (appointment.services as { name: string | null } | null)?.name || 'Serviço';
-        
-        const title = isToday 
-          ? 'Agendamento Hoje!' 
-          : 'Lembrete de Agendamento';
-        
-        const message = isToday
-          ? `${clientName} tem agendamento hoje às ${appointment.appointment_time} - ${serviceName}`
-          : `${clientName} tem agendamento amanhã às ${appointment.appointment_time} - ${serviceName}`;
-
-        // Get user notification preferences
-        const { data: prefs } = await supabase
-          .from('notification_preferences')
-          .select('*')
-          .eq('user_id', appointment.user_id)
-          .single();
-
-        const preferences: NotificationPreferences = prefs || {
-          system_enabled: true,
-          email_enabled: false,
-          email_address: null,
-          whatsapp_enabled: false,
-          whatsapp_number: null,
-          reminder_hours_before: 24,
-        };
-
-        // 1. Create system notification (always, unless disabled)
-        if (preferences.system_enabled !== false) {
-          const { error: notifError } = await supabase
-            .from('notifications')
-            .insert({
-              user_id: appointment.user_id,
-              title,
-              message,
-              type: 'reminder',
-              action_url: '/appointments',
-            });
-
-          if (notifError) {
-            console.error(`Error creating notification for appointment ${appointment.id}:`, notifError);
-            errors.push(`System notification ${appointment.id}: ${notifError.message}`);
-          } else {
-            systemNotificationsSent++;
-            console.log(`System notification sent for appointment ${appointment.id}`);
-          }
-        }
-
-        // 2. Send email notification if enabled (using Resend REST API)
-        if (preferences.email_enabled && resendApiKey) {
-          const emailTo = preferences.email_address || clientEmail;
-          
-          if (emailTo) {
-            try {
-              const dateFormatted = isToday ? 'hoje' : 'amanhã';
-              const emailResponse = await fetch('https://api.resend.com/emails', {
-                method: 'POST',
-                headers: {
-                  'Authorization': `Bearer ${resendApiKey}`,
-                  'Content-Type': 'application/json',
-                },
-                body: JSON.stringify({
-                  from: 'Barbearia <onboarding@resend.dev>',
-                  to: [emailTo],
-                  subject: title,
-                  html: `
-                    <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px;">
-                      <h1 style="color: #333; border-bottom: 2px solid #0ea5e9; padding-bottom: 10px;">
-                        ${title}
-                      </h1>
-                      <div style="padding: 20px 0;">
-                        <p style="font-size: 16px; color: #555;">
-                          Olá <strong>${clientName}</strong>,
-                        </p>
-                        <p style="font-size: 16px; color: #555;">
-                          Este é um lembrete do seu agendamento:
-                        </p>
-                        <div style="background: #f8fafc; border-left: 4px solid #0ea5e9; padding: 15px; margin: 20px 0;">
-                          <p style="margin: 5px 0;"><strong>📅 Data:</strong> ${dateFormatted}</p>
-                          <p style="margin: 5px 0;"><strong>🕐 Horário:</strong> ${appointment.appointment_time}</p>
-                          <p style="margin: 5px 0;"><strong>✂️ Serviço:</strong> ${serviceName}</p>
-                        </div>
-                        <p style="font-size: 14px; color: #888;">
-                          Em caso de dúvidas, entre em contato conosco.
-                        </p>
-                      </div>
-                      <div style="border-top: 1px solid #eee; padding-top: 15px; text-align: center; color: #888; font-size: 12px;">
-                        Este é um email automático, por favor não responda.
-                      </div>
-                    </div>
-                  `,
-                }),
-              });
-
-              if (!emailResponse.ok) {
-                const errorData = await emailResponse.text();
-                console.error(`Error sending email for appointment ${appointment.id}:`, errorData);
-                errors.push(`Email ${appointment.id}: ${errorData}`);
-              } else {
-                emailsSent++;
-                console.log(`Email sent to ${emailTo} for appointment ${appointment.id}`);
-              }
-            } catch (emailErr) {
-              console.error(`Email error for appointment ${appointment.id}:`, emailErr);
-              errors.push(`Email ${appointment.id}: ${String(emailErr)}`);
-            }
-          } else {
-            console.log(`No email address available for appointment ${appointment.id}`);
-          }
-        }
-
-        // 3. WhatsApp notification (placeholder - requires external API like Twilio/Z-API)
-        if (preferences.whatsapp_enabled && preferences.whatsapp_number) {
-          // TODO: Implement WhatsApp integration
-          console.log(`WhatsApp notification would be sent to ${preferences.whatsapp_number} for appointment ${appointment.id}`);
-        }
-
-        // Mark appointment as reminded
-        const { error: updateError } = await supabase
-          .from('appointments')
-          .update({ reminder_sent_at: now.toISOString() })
-          .eq('id', appointment.id);
-
-        if (updateError) {
-          console.error(`Error updating reminder_sent_at for appointment ${appointment.id}:`, updateError);
-          errors.push(`Update ${appointment.id}: ${updateError.message}`);
-        }
-
-      } catch (err) {
-        console.error(`Error processing appointment ${appointment.id}:`, err);
-        errors.push(`Appointment ${appointment.id}: ${String(err)}`);
-      }
-    }
-
-    console.log(`Summary: ${systemNotificationsSent} system notifications, ${emailsSent} emails sent`);
-
-    return new Response(JSON.stringify({ 
-      success: true, 
-      systemNotificationsSent,
-      emailsSent,
-      totalAppointments: appointments.length,
-      errors: errors.length > 0 ? errors : undefined
-    }), {
-      headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-    });
-
-  } catch (error: unknown) {
-    console.error('Error in send-appointment-reminders:', error);
-    const errorMessage = error instanceof Error ? error.message : 'Unknown error';
-    return new Response(JSON.stringify({ 
-      success: false, 
-      error: errorMessage 
-    }), {
-      status: 500,
-      headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+  if (dueAppointments.length === 0) {
+    return jsonResponse({
+      success: true,
+      checked: candidates.length,
+      remindersSent: 0,
+      skipped: 0,
     });
   }
+
+  const clientIds = [
+    ...new Set(dueAppointments.map(({ appointment }) => appointment.client_id)),
+  ];
+  const businessIds = [
+    ...new Set(dueAppointments.map(({ appointment }) => appointment.user_id)),
+  ];
+  const { data: clientProfiles, error: profilesError } = await supabase
+    .from("client_profiles")
+    .select("user_id, client_id, barbershop_user_id")
+    .in("client_id", clientIds)
+    .in("barbershop_user_id", businessIds);
+
+  if (profilesError) {
+    console.error("Unable to load reminder recipients:", profilesError.message);
+    return jsonResponse({
+      success: false,
+      error: "Unable to load reminder recipients",
+    }, 500);
+  }
+
+  const profileByClientAndBusiness = new Map(
+    (clientProfiles || []).map((profile) => [
+      profile.client_id + ":" + profile.barbershop_user_id,
+      profile.user_id,
+    ]),
+  );
+  const preferenceUserIds = [
+    ...new Set([
+      ...businessIds,
+      ...(clientProfiles || []).map((profile) => profile.user_id),
+    ]),
+  ];
+  const { data: preferences, error: preferencesError } = await supabase
+    .from("notification_preferences")
+    .select(
+      "user_id, system_enabled, email_enabled, email_address",
+    )
+    .in("user_id", preferenceUserIds);
+
+  if (preferencesError) {
+    console.error(
+      "Unable to load reminder preferences:",
+      preferencesError.message,
+    );
+    return jsonResponse({
+      success: false,
+      error: "Unable to load reminder preferences",
+    }, 500);
+  }
+
+  const preferencesByUser = new Map<string, Preferences>(
+    (preferences || []).map((item) => [item.user_id, item as Preferences]),
+  );
+  const resendApiKey = Deno.env.get("RESEND_API_KEY");
+  const resendFromEmail = Deno.env.get("RESEND_FROM_EMAIL");
+  let notificationsSent = 0;
+  let emailsSent = 0;
+  let skipped = 0;
+  const errors: string[] = [];
+
+  for (const { appointment, leadHours } of dueAppointments) {
+    const marker = leadHours === 24
+      ? "reminder_24h_sent_at"
+      : "reminder_2h_sent_at";
+    const { data: claimedAppointment, error: claimError } = await supabase.from(
+      "appointments",
+    )
+      .update({ [marker]: now.toISOString() })
+      .eq("id", appointment.id)
+      .is(marker, null)
+      .select("id")
+      .maybeSingle();
+    if (claimError) {
+      console.error(
+        "Unable to claim appointment reminder:",
+        claimError.message,
+      );
+      errors.push("claim:" + appointment.id + ":" + leadHours);
+      continue;
+    }
+    if (!claimedAppointment) {
+      skipped += 1;
+      continue;
+    }
+
+    let clientDelivered = false;
+    try {
+      const clientAuthId = profileByClientAndBusiness.get(
+        appointment.client_id + ":" + appointment.user_id,
+      );
+      const client = Array.isArray(appointment.clients)
+        ? appointment.clients[0]
+        : appointment.clients;
+      const clientName = client?.name || "Cliente";
+      const service = Array.isArray(appointment.services)
+        ? appointment.services[0]
+        : appointment.services;
+      const serviceName = service?.name || "Atendimento";
+      const appointmentLabel = formatAppointmentInSaoPaulo(
+        appointment.appointment_date,
+        appointment.appointment_time,
+      );
+      const title = leadHours === 24
+        ? "Seu atendimento é amanhã"
+        : "Seu atendimento começa em 2 horas";
+      const clientMessage = serviceName + " em " + appointmentLabel +
+        ". Esperamos por você!";
+      const clientPreferences = clientAuthId
+        ? preferencesByUser.get(clientAuthId)
+        : null;
+      if (clientAuthId && clientPreferences?.system_enabled !== false) {
+        const { error } = await supabase.from("client_notifications").insert({
+          user_id: clientAuthId,
+          business_user_id: appointment.user_id,
+          appointment_id: appointment.id,
+          lead_hours_before: leadHours,
+          title,
+          message: clientMessage,
+          action_url: "/b/" + appointment.user_id + "/home",
+        });
+
+        if (error && error.code !== "23505") {
+          console.error("Unable to create client reminder:", error.message);
+          errors.push(
+            "client-notification:" + appointment.id + ":" + leadHours,
+          );
+        } else {
+          clientDelivered = true;
+          if (!error) notificationsSent += 1;
+        }
+      }
+
+      const businessPreferences = preferencesByUser.get(appointment.user_id);
+      const clientEmail = businessPreferences?.email_address || client?.email;
+      if (
+        businessPreferences?.email_enabled && clientEmail && resendApiKey &&
+        resendFromEmail
+      ) {
+        try {
+          const emailResponse = await fetch("https://api.resend.com/emails", {
+            method: "POST",
+            headers: {
+              Authorization: "Bearer " + resendApiKey,
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify({
+              from: resendFromEmail,
+              to: [clientEmail],
+              subject: title,
+              html: "<p>Olá " + escapeHtml(clientName) +
+                ",</p><p>Seu atendimento de <strong>" +
+                escapeHtml(serviceName) + "</strong> está marcado para " +
+                escapeHtml(appointmentLabel) + ".</p>",
+            }),
+          });
+          if (!emailResponse.ok) {
+            console.error(
+              "Unable to send appointment reminder email:",
+              emailResponse.status,
+            );
+            errors.push("client-email:" + appointment.id + ":" + leadHours);
+          } else {
+            emailsSent += 1;
+            clientDelivered = true;
+          }
+        } catch (error) {
+          console.error(
+            "Appointment reminder email request failed:",
+            error instanceof Error ? error.message : "unknown error",
+          );
+          errors.push("client-email:" + appointment.id + ":" + leadHours);
+        }
+      }
+
+      if (!clientDelivered) {
+        const { error } = await supabase.from("appointments")
+          .update({ [marker]: null })
+          .eq("id", appointment.id)
+          .eq(marker, now.toISOString());
+        if (error) {
+          console.error(
+            "Unable to release appointment reminder:",
+            error.message,
+          );
+          errors.push("release:" + appointment.id + ":" + leadHours);
+        }
+        skipped += 1;
+      }
+    } catch (error) {
+      console.error(
+        "Unable to process appointment reminder:",
+        error instanceof Error ? error.message : "unknown error",
+      );
+      errors.push("process:" + appointment.id + ":" + leadHours);
+      if (!clientDelivered) {
+        const { error: releaseError } = await supabase.from("appointments")
+          .update({ [marker]: null })
+          .eq("id", appointment.id)
+          .eq(marker, now.toISOString());
+        if (releaseError) {
+          console.error(
+            "Unable to release failed appointment reminder:",
+            releaseError.message,
+          );
+          errors.push("release:" + appointment.id + ":" + leadHours);
+        }
+      }
+    }
+  }
+
+  return jsonResponse({
+    success: errors.length === 0,
+    checked: candidates.length,
+    due: dueAppointments.length,
+    notificationsSent,
+    emailsSent,
+    skipped,
+    errors: errors.length ? errors : undefined,
+  });
 });

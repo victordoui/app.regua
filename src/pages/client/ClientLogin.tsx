@@ -16,7 +16,7 @@ import { isGoogleAuthEnabled } from '@/lib/authProviders';
 
 const loginSchema = z.object({
   email: z.string().email('Email inválido'),
-  password: z.string().min(6, 'Mínimo 6 caracteres'),
+  password: z.string().min(8, 'Mínimo 8 caracteres'),
 });
 
 type LoginFormValues = z.infer<typeof loginSchema>;
@@ -249,7 +249,7 @@ const ClientLogin = () => {
 
           <h3 className="mb-4 text-center font-semibold">Entrar na sua conta</h3>
 
-          <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
+          <form noValidate onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
             <div className="space-y-2">
               <Label htmlFor="email">Email</Label>
               <div className="relative">
@@ -257,6 +257,7 @@ const ClientLogin = () => {
                 <Input
                   id="email"
                   type="email"
+                  autoComplete="email"
                   placeholder="seu@email.com"
                   className="pl-10 h-12"
                   {...form.register('email')}
@@ -274,6 +275,7 @@ const ClientLogin = () => {
                 <Input
                   id="password"
                   type={showPassword ? 'text' : 'password'}
+                  autoComplete="current-password"
                   placeholder="••••••"
                   className="pl-10 pr-10 h-12"
                   {...form.register('password')}

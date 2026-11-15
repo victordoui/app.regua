@@ -14,6 +14,21 @@ import type {
   AuditAction,
 } from '@/types/superAdmin';
 import type { Json } from '@/integrations/supabase/types';
+import { getEffectiveSubscriptionStatus } from '@/lib/platformSubscriptionStatus';
+import { calculatePlatformChurn } from '@/lib/platformSubscriptionChurn';
+import { buildMonthlyPlatformRevenue } from '@/lib/platformRevenue';
+import { calculatePlatformTrialConversion } from '@/lib/platformTrialConversion';
+
+const readAllPages = async <T>(loadPage: (from: number, to: number) => PromiseLike<{ data: T[] | null; error: { message: string } | null }>) => {
+  const rows: T[] = [];
+  for (let from = 0; ; from += 1000) {
+    const { data, error } = await loadPage(from, from + 999);
+    if (error) throw error;
+    const page = data || [];
+    rows.push(...page);
+    if (page.length < 1000) return rows;
+  }
+};
 
 // Hook for managing platform subscriptions
 export const useSubscribers = (filters?: SubscriberFilters) => {
@@ -29,16 +44,19 @@ export const useSubscribers = (filters?: SubscriberFilters) => {
         .select('*')
         .order('created_at', { ascending: false });
 
-      if (filters?.status) {
-        query = query.eq('status', filters.status);
-      }
       if (filters?.plan) {
         query = query.eq('plan_type', filters.plan);
       }
 
       const { data, error } = await query;
       if (error) throw error;
-      return (data || []) as PlatformSubscription[];
+      const subscriptions = (data || []).map((subscription) => ({
+        ...subscription,
+        status: getEffectiveSubscriptionStatus(subscription) as SubscriptionStatus,
+      })) as PlatformSubscription[];
+      return filters?.status
+        ? subscriptions.filter((subscription) => subscription.status === filters.status)
+        : subscriptions;
     },
   });
 
@@ -139,38 +157,99 @@ export const useSubscribers = (filters?: SubscriberFilters) => {
 };
 
 // Hook for platform statistics
-export const usePlatformStats = () => {
+export type PlatformStatsPeriod = 'today' | 'week' | 'month';
+
+const periodBounds = (period: PlatformStatsPeriod, now: Date) => {
+  const start = new Date(now);
+  if (period === 'today') start.setHours(0, 0, 0, 0);
+  if (period === 'week') {
+    start.setHours(0, 0, 0, 0);
+    start.setDate(start.getDate() - ((start.getDay() + 6) % 7));
+  }
+  if (period === 'month') {
+    start.setDate(1);
+    start.setHours(0, 0, 0, 0);
+  }
+  const previousStart = new Date(start);
+  if (period === 'today') previousStart.setDate(previousStart.getDate() - 1);
+  if (period === 'week') previousStart.setDate(previousStart.getDate() - 7);
+  if (period === 'month') previousStart.setMonth(previousStart.getMonth() - 1);
+  return { start, previousStart, end: now };
+};
+
+export const usePlatformStats = (period: PlatformStatsPeriod = 'month') => {
   return useQuery({
-    queryKey: ['platform-stats'],
+    queryKey: ['platform-stats', period],
     queryFn: async (): Promise<SubscriptionStats> => {
-      const { data, error } = await supabase
-        .from('platform_subscriptions')
-        .select('*');
+      const [subscriptionResult, planResult, paymentResult, eventResult] = await Promise.all([
+        readAllPages((from, to) => supabase.from('platform_subscriptions').select('*').range(from, to)),
+        supabase.from('platform_plan_config').select('plan_type,display_name,price_monthly'),
+        readAllPages((from, to) => supabase.from('platform_payments').select('user_id,amount,status,created_at').range(from, to)),
+        readAllPages((from, to) => supabase.from('platform_subscription_events').select('user_id,event_type,previous_plan_type,plan_type,previous_status,status,end_date,created_at').order('created_at', { ascending: true }).range(from, to)),
+      ]);
+      if (planResult.error) throw planResult.error;
 
-      if (error) throw error;
-
-      const subscriptions = data || [];
+      const subscriptions = subscriptionResult;
+      const plans = planResult.data || [];
+      const payments = paymentResult;
+      const events = eventResult;
       const now = new Date();
-      const monthStart = new Date(now.getFullYear(), now.getMonth(), 1);
+      const { start: periodStart, previousStart } = periodBounds(period, now);
+      const previousEnd = new Date(periodStart);
+      const activeSubscriptions = subscriptions.filter((subscription) =>
+        getEffectiveSubscriptionStatus(subscription) === 'active'
+      );
+      const isBetween = (date: string | null, from: Date, to: Date) => Boolean(date && Date.parse(date) >= from.getTime() && Date.parse(date) < to.getTime());
+      const currentNew = subscriptions.filter((subscription) => isBetween(subscription.created_at, periodStart, now)).length;
+      const previousNew = subscriptions.filter((subscription) => isBetween(subscription.created_at, previousStart, previousEnd)).length;
+      const trialConversion = calculatePlatformTrialConversion(events, periodStart, now);
+      const cancellationUsers = new Set(events.filter((event) => event.event_type === 'status_changed' && event.previous_status === 'active' && event.status === 'cancelled' && isBetween(event.created_at, periodStart, now)).map((event) => event.user_id));
+      const churn = calculatePlatformChurn(subscriptions, events, periodStart, now);
+      const planConfigs = new Map(plans.map((plan) => [plan.plan_type, plan]));
+      const revenueByPlan = (['basic', 'pro', 'enterprise'] as const).map((planType) => {
+        const plan = planConfigs.get(planType);
+        const subscribers = activeSubscriptions.filter((subscription) => subscription.plan_type === planType).length;
+        return { plan_type: planType, label: plan?.display_name || planType, subscribers, revenue: subscribers * Number(plan?.price_monthly || 0) };
+      });
+      const mrr = revenueByPlan.reduce((sum, plan) => sum + plan.revenue, 0);
+      const paidPayments = payments.filter((payment) => payment.status === 'paid');
+      const totalPaidRevenue = paidPayments.reduce((sum, payment) => sum + Number(payment.amount || 0), 0);
+      const ltvPayers = new Set(paidPayments.map((payment) => payment.user_id)).size;
+      const growthByMonth = Array.from({ length: 6 }, (_, index) => {
+        const monthStart = new Date(now.getFullYear(), now.getMonth() - 5 + index, 1);
+        const nextMonth = new Date(monthStart.getFullYear(), monthStart.getMonth() + 1, 1);
+        return {
+          month: new Intl.DateTimeFormat('pt-BR', { month: 'short' }).format(monthStart).replace('.', ''),
+          assinantes: subscriptions.filter((subscription) => isBetween(subscription.created_at, monthStart, nextMonth)).length,
+        };
+      });
+      const revenueByMonth = buildMonthlyPlatformRevenue(payments, now);
 
       const stats: SubscriptionStats = {
         total_subscribers: subscriptions.length,
-        active_subscribers: subscriptions.filter(s => s.status === 'active').length,
-        trial_subscribers: subscriptions.filter(s => s.plan_type === 'trial').length,
+        active_subscribers: activeSubscriptions.length,
+        trial_subscribers: activeSubscriptions.filter(s => s.plan_type === 'trial').length,
         suspended_subscribers: subscriptions.filter(s => s.status === 'suspended').length,
         cancelled_subscribers: subscriptions.filter(s => s.status === 'cancelled').length,
-        monthly_revenue: 0, // Would need pricing table to calculate
-        new_this_month: subscriptions.filter(
-          s => new Date(s.created_at) >= monthStart
-        ).length,
-        churn_rate: subscriptions.length > 0
-          ? (subscriptions.filter(s => s.status === 'cancelled').length / subscriptions.length) * 100
-          : 0,
+        expired_subscribers: subscriptions.filter(s => getEffectiveSubscriptionStatus(s) === 'expired').length,
+        monthly_revenue: mrr,
+        new_this_month: currentNew,
+        previous_period_new: previousNew,
+        new_change_percent: previousNew ? ((currentNew - previousNew) / previousNew) * 100 : currentNew ? 100 : 0,
+        cancellations_in_period: cancellationUsers.size,
+        trial_conversion_count: trialConversion.converted,
+        trial_conversion_percent: trialConversion.percent,
+        ltv: ltvPayers ? totalPaidRevenue / ltvPayers : 0,
+        period_label: period === 'today' ? 'hoje' : period === 'week' ? 'nesta semana' : 'neste mês',
+        growth_by_month: growthByMonth,
+        revenue_by_month: revenueByMonth,
+        revenue_by_plan: revenueByPlan,
+        churn_rate: churn.rate,
         by_plan: {
-          trial: subscriptions.filter(s => s.plan_type === 'trial').length,
-          basic: subscriptions.filter(s => s.plan_type === 'basic').length,
-          pro: subscriptions.filter(s => s.plan_type === 'pro').length,
-          enterprise: subscriptions.filter(s => s.plan_type === 'enterprise').length,
+          trial: activeSubscriptions.filter(s => s.plan_type === 'trial').length,
+          basic: activeSubscriptions.filter(s => s.plan_type === 'basic').length,
+          pro: activeSubscriptions.filter(s => s.plan_type === 'pro').length,
+          enterprise: activeSubscriptions.filter(s => s.plan_type === 'enterprise').length,
         },
       };
 
@@ -211,7 +290,7 @@ export const usePlatformCoupons = () => {
       await supabase.from('platform_audit_logs').insert([{
         super_admin_id: user?.id || '',
         action: 'create_coupon',
-        details: couponData as Json,
+        details: { ...couponData } as Json,
       }]);
     },
     onSuccess: () => {

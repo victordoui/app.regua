@@ -11,6 +11,7 @@ import { Calendar, Plus, Trash2, X, Palmtree, Stethoscope, User } from 'lucide-r
 import { useBarberAbsences, BarberAbsenceFormData, ABSENCE_TYPES } from '@/hooks/useBarberAbsences';
 import { format, parseISO, differenceInDays } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
+import { formatBusinessDateInput } from '@/lib/formatters';
 
 interface BarberAbsencesManagerProps {
   isOpen: boolean;
@@ -107,7 +108,7 @@ const BarberAbsencesManager: React.FC<BarberAbsencesManagerProps> = ({
     }
   };
 
-  const today = format(new Date(), 'yyyy-MM-dd');
+  const today = formatBusinessDateInput();
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>

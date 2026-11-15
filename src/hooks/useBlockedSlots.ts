@@ -3,6 +3,7 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/contexts/AuthContext';
 import { useToast } from '@/hooks/use-toast';
+import { businessDateKey } from '@/lib/formatters';
 
 export interface BlockedSlot {
   id: string;
@@ -99,7 +100,7 @@ export const useBlockedSlots = () => {
       const matchesBarber = slot.barber_id === barberId;
       if (!date) return matchesBarber;
       
-      const slotDate = new Date(slot.start_datetime).toISOString().split('T')[0];
+      const slotDate = businessDateKey(slot.start_datetime);
       return matchesBarber && slotDate === date;
     });
   };

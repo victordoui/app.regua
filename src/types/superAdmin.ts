@@ -49,6 +49,25 @@ export interface PlatformPayment {
   };
 }
 
+export interface PlatformBusiness {
+  user_id: string;
+  company_name: string;
+  logo_url: string | null;
+  owner_name: string | null;
+  owner_email: string | null;
+  phone: string | null;
+  email: string | null;
+  plan_type: string | null;
+  subscription_id: string | null;
+  status: string;
+  end_date: string | null;
+  payment_status: string | null;
+  professional_count: number;
+  public_booking_url: string;
+  public_page_enabled: boolean;
+  linked_users: Array<{ user_id: string; name: string; email: string | null; roles: string[] }>;
+}
+
 export interface PlatformCoupon {
   id: string;
   code: string;
@@ -101,6 +120,7 @@ export interface PlanConfig {
   is_active: boolean;
   sort_order: number;
   stripe_price_id: string | null;
+  stripe_price_yearly_id: string | null;
   trial_days: number | null;
   created_at: string;
   updated_at: string;
@@ -174,7 +194,9 @@ export type AuditAction =
   | 'delete_template'
   | 'update_plan_config'
   | 'resolve_ticket'
-  | 'assign_ticket';
+  | 'assign_ticket'
+  | 'impersonation_started'
+  | 'impersonation_ended';
 
 export interface SubscriptionStats {
   total_subscribers: number;
@@ -182,9 +204,20 @@ export interface SubscriptionStats {
   trial_subscribers: number;
   suspended_subscribers: number;
   cancelled_subscribers: number;
+  expired_subscribers: number;
   monthly_revenue: number;
   new_this_month: number;
-  churn_rate: number;
+  previous_period_new: number;
+  new_change_percent: number;
+  cancellations_in_period: number;
+  trial_conversion_count: number;
+  trial_conversion_percent: number;
+  ltv: number;
+  period_label: string;
+  growth_by_month: Array<{ month: string; assinantes: number }>;
+  revenue_by_month: Array<{ month: string; revenue: number }>;
+  revenue_by_plan: Array<{ plan_type: PlanType; label: string; revenue: number; subscribers: number }>;
+  churn_rate: number | null;
   by_plan: {
     trial: number;
     basic: number;
@@ -241,6 +274,7 @@ export interface PlanConfigFormData {
   is_active: boolean;
   trial_days?: number | null;
   stripe_price_id?: string | null;
+  stripe_price_yearly_id?: string | null;
 }
 
 export interface SubscriberFilters {

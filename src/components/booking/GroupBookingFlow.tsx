@@ -126,6 +126,8 @@ const GroupBookingFlow: React.FC<GroupBookingFlowProps> = ({ userId }) => {
   const [loadingSlots, setLoadingSlots] = useState(false);
   const [submitting, setSubmitting] = useState(false);
   const [completed, setCompleted] = useState(false);
+  const [hasAccount, setHasAccount] = useState(false);
+  const [guestBooking, setGuestBooking] = useState(false);
   const [notes, setNotes] = useState('');
   const [contact, setContact] = useState({ name: '', phone: '', email: '' });
   const [savedContact, setSavedContact] = useState({ name: '', phone: '', email: '' });
@@ -155,6 +157,8 @@ const GroupBookingFlow: React.FC<GroupBookingFlowProps> = ({ userId }) => {
         if (professionalsResult.error) throw professionalsResult.error;
         if (hoursResult.error) throw hoursResult.error;
         if (profileResult.error) throw profileResult.error;
+        setHasAccount(Boolean(user));
+        setContactSource(user ? 'account' : 'manual');
         setBufferMinutes(settingsResult.data?.buffer_minutes || 0);
         setServices((servicesResult.data || []).map(service => ({
           ...service,
@@ -169,18 +173,18 @@ const GroupBookingFlow: React.FC<GroupBookingFlowProps> = ({ userId }) => {
         })));
         setBusinessHours(hoursResult.data || []);
 
-        const emailFallbackName = user?.email?.split('@')[0] || 'Cliente';
+        const emailFallbackName = user?.email?.split('@')[0] || '';
         const responsibleName = profileResult.data?.full_name
           || user?.user_metadata?.full_name
-          || `${emailFallbackName.charAt(0).toUpperCase()}${emailFallbackName.slice(1)}`;
-        const accountContact = {
+          || (emailFallbackName ? `${emailFallbackName.charAt(0).toUpperCase()}${emailFallbackName.slice(1)}` : '');
+        const accountContact = user ? {
           name: responsibleName,
-          phone: profileResult.data?.phone || user?.user_metadata?.phone || '',
-          email: user?.email || '',
-        };
+          phone: profileResult.data?.phone || user.user_metadata?.phone || '',
+          email: user.email || '',
+        } : { name: '', phone: '', email: '' };
         setSavedContact(accountContact);
         setContact(accountContact);
-        if (responsibleName) {
+        if (user && responsibleName) {
           setParticipants(current => current.map((participant, index) =>
             index === 0 && participant.name === 'Você' ? { ...participant, name: responsibleName } : participant
           ));
@@ -211,6 +215,15 @@ const GroupBookingFlow: React.FC<GroupBookingFlowProps> = ({ userId }) => {
 
   const updateParticipant = (id: string, changes: Partial<BookingParticipant>) => {
     setParticipants(current => current.map(participant => participant.id === id ? { ...participant, ...changes } : participant));
+  };
+
+  const updateResponsibleName = (name: string) => {
+    setContact(current => ({ ...current, name }));
+    setParticipants(current => current.map((participant, index) =>
+      index === 0 && participant.relationship === 'Eu' && participant.name === 'Você'
+        ? { ...participant, name }
+        : participant
+    ));
   };
 
   const addParticipant = () => {
@@ -342,8 +355,9 @@ const GroupBookingFlow: React.FC<GroupBookingFlowProps> = ({ userId }) => {
 
   const finalizeBooking = async () => {
     if (submitting) return;
-    if (!contact.name.trim() || !contact.phone.trim() || !contact.email.trim()) {
-      toast({ title: 'Informe os dados do responsável', description: 'Nome, telefone e email são obrigatórios.', variant: 'destructive' });
+    const phoneDigits = contact.phone.replace(/\D/g, '');
+    if (contact.name.trim().length < 2 || phoneDigits.length < 10 || phoneDigits.length > 15) {
+      toast({ title: 'Confira seus dados', description: 'Informe seu nome e um número de WhatsApp válido para receber o contato da barbearia.', variant: 'destructive' });
       return;
     }
     if (!validatePeople() || !validateSchedules()) return;
@@ -351,18 +365,13 @@ const GroupBookingFlow: React.FC<GroupBookingFlowProps> = ({ userId }) => {
     setSubmitting(true);
     try {
       const { data: { user } } = await supabase.auth.getUser();
-      if (!user) throw new Error('Sua sessão expirou. Entre novamente para agendar.');
-
       const bookingGroupId = crypto.randomUUID();
-      const { error: bookingError } = await supabase.rpc('book_group_appointments', {
-        _barbershop_user_id: userId,
-        _responsible: {
-          name: contact.name.trim(),
-          phone: contact.phone,
-          email: contact.email.trim().toLowerCase(),
-        },
-        _participants: participants.map(participant => ({
-          name: participant.name.trim(),
+      const bookingParticipants = participants.map((participant, index) => {
+        const participantName = index === 0 && participant.relationship === 'Eu' && participant.name === 'Você'
+          ? contact.name.trim()
+          : participant.name.trim();
+        return {
+          name: participantName,
           relationship: participant.relationship,
           professionalId: participant.professionalId,
           date: format(participant.date!, 'yyyy-MM-dd'),
@@ -370,22 +379,60 @@ const GroupBookingFlow: React.FC<GroupBookingFlowProps> = ({ userId }) => {
           serviceIds: participant.serviceIds,
           notes: buildGroupBookingNotes({
             groupId: bookingGroupId,
-            attendeeName: participant.name,
+            attendeeName: participantName,
             relationship: participant.relationship,
             responsibleName: contact.name,
             notes,
           }),
-        })),
-        _notes: notes || null,
+        };
       });
 
-      if (bookingError) {
-        const friendly = translateBookingError(bookingError.message);
-        if (friendly.refreshSlots && scheduledParticipant) {
-          fetchSlotsFor(scheduledParticipant);
-          setStep(2);
+      if (user) {
+        const { error: bookingError } = await supabase.rpc('book_group_appointments', {
+          _barbershop_user_id: userId,
+          _responsible: {
+            name: contact.name.trim(),
+            phone: phoneDigits,
+            email: (contact.email || user.email || '').trim().toLowerCase(),
+          },
+          _participants: bookingParticipants,
+          _notes: notes || null,
+        });
+        if (bookingError) {
+          const friendly = translateBookingError(bookingError.message);
+          if (friendly.refreshSlots && scheduledParticipant) {
+            fetchSlotsFor(scheduledParticipant);
+            setStep(2);
+          }
+          throw new Error(friendly.message);
         }
-        throw new Error(friendly.message);
+      } else {
+        const { error: bookingError } = await supabase.functions.invoke('public-booking', {
+          body: {
+            businessUserId: userId,
+            responsible: { name: contact.name.trim(), phone: phoneDigits },
+            participants: bookingParticipants,
+            notes: notes || null,
+          },
+        });
+        if (bookingError) {
+          let code = '';
+          try {
+            const context = (bookingError as { context?: unknown }).context;
+            if (context instanceof Response) code = (await context.json())?.error || '';
+          } catch {
+            // The function may return a non-JSON gateway error.
+          }
+          if (code === 'SLOT_UNAVAILABLE' || code === 'PROFESSIONAL_BLOCKED') {
+            if (scheduledParticipant) fetchSlotsFor(scheduledParticipant);
+            setStep(2);
+            throw new Error('Esse horário acabou de ficar indisponível. Escolha outro horário.');
+          }
+          if (code === 'RATE_LIMITED') throw new Error('Muitas tentativas de agendamento. Aguarde um pouco e tente novamente.');
+          if (code === 'BUSINESS_NOT_AVAILABLE') throw new Error('Esta barbearia não está aceitando agendamentos online no momento.');
+          throw new Error('Não foi possível concluir o pedido. Confira seus dados e tente novamente.');
+        }
+        setGuestBooking(true);
       }
 
       setCompleted(true);
@@ -411,8 +458,8 @@ const GroupBookingFlow: React.FC<GroupBookingFlowProps> = ({ userId }) => {
             <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-emerald-100 text-emerald-600">
               <CheckCircle2 className="h-9 w-9" />
             </div>
-            <h1 className="text-2xl font-extrabold">Horários solicitados</h1>
-            <p className="mt-2 text-sm text-muted-foreground">Cada pessoa ganhou um atendimento próprio na agenda.</p>
+            <h1 className="text-2xl font-extrabold">Pedido enviado!</h1>
+            <p className="mt-2 text-sm text-muted-foreground">Aguarde a confirmação da barbearia.</p>
           </CardContent>
         </Card>
         <div className="space-y-3">
@@ -434,8 +481,8 @@ const GroupBookingFlow: React.FC<GroupBookingFlowProps> = ({ userId }) => {
           <span className="font-semibold">Total do grupo</span>
           <span className="text-xl font-extrabold text-primary">{currency.format(groupTotal)}</span>
         </div>
-        <Button className="h-12 w-full rounded-xl font-bold" onClick={() => { window.location.href = `/b/${userId}/agendamentos`; }}>
-          Ver meus horários
+        <Button className="h-12 w-full rounded-xl font-bold" onClick={() => { window.location.href = guestBooking ? `/b/${userId}/agendar` : `/b/${userId}/agendamentos`; }}>
+          {guestBooking ? 'Voltar para a barbearia' : 'Ver meus horários'}
         </Button>
       </div>
     );
@@ -444,9 +491,9 @@ const GroupBookingFlow: React.FC<GroupBookingFlowProps> = ({ userId }) => {
   return (
     <div className="mx-auto w-full max-w-lg space-y-5 pb-28">
       <header>
-        <p className="text-xs font-bold uppercase tracking-[0.16em] text-primary">Agendamento para uma ou mais pessoas</p>
-        <h1 className="mt-1 text-2xl font-extrabold tracking-tight">Monte sua agenda em grupo</h1>
-        <p className="mt-1 text-sm text-muted-foreground">Escolha os serviços e confirme uma vaga para cada pessoa.</p>
+        <p className="text-xs font-bold uppercase tracking-[0.16em] text-primary">Agendamento online</p>
+        <h1 className="mt-1 text-2xl font-extrabold tracking-tight">Agendar horário</h1>
+        <p className="mt-1 text-sm text-muted-foreground">Escolha o serviço e o horário. Se precisar, você pode incluir outra pessoa.</p>
       </header>
 
       <ol className="grid grid-cols-3 gap-2" aria-label="Etapas do agendamento">
@@ -472,7 +519,7 @@ const GroupBookingFlow: React.FC<GroupBookingFlowProps> = ({ userId }) => {
               </Button>
             ))}
             <Button variant="outline" className="h-11 shrink-0 rounded-xl border-dashed" onClick={addParticipant}>
-              <Plus className="mr-2 h-4 w-4" /> Outra pessoa
+              <Plus className="mr-2 h-4 w-4" /> Agendar para outra pessoa
             </Button>
           </div>
 
@@ -481,7 +528,7 @@ const GroupBookingFlow: React.FC<GroupBookingFlowProps> = ({ userId }) => {
               <div className="flex items-center justify-between">
                 <div>
                   <p className="font-bold">Quem será atendido?</p>
-                  <p className="text-xs text-muted-foreground">O acesso e os contatos continuam com você.</p>
+                  <p className="text-xs text-muted-foreground">Você informa seu WhatsApp ao final para a barbearia falar sobre o pedido.</p>
                 </div>
                 {participants.length > 1 && <Button variant="ghost" size="icon" aria-label="Remover pessoa" onClick={() => removeParticipant(activeParticipant.id)}><Trash2 className="h-4 w-4 text-destructive" /></Button>}
               </div>
@@ -646,8 +693,8 @@ const GroupBookingFlow: React.FC<GroupBookingFlowProps> = ({ userId }) => {
 
           <Card className="rounded-2xl">
             <CardContent className="space-y-4 p-4">
-              <div><h2 className="font-bold">Responsável pelo agendamento</h2><p className="text-sm text-muted-foreground">Confirmações de todas as pessoas serão enviadas para este contato.</p></div>
-              <div className="space-y-1.5">
+              <div><h2 className="font-bold">Responsável pelo agendamento</h2><p className="text-sm text-muted-foreground">A barbearia usará este contato para tratar o agendamento.</p></div>
+              {hasAccount && <div className="space-y-1.5">
                 <Label>Quem receberá as confirmações?</Label>
                 <Select
                   value={contactSource}
@@ -659,13 +706,13 @@ const GroupBookingFlow: React.FC<GroupBookingFlowProps> = ({ userId }) => {
                 >
                   <SelectTrigger className="h-12 rounded-xl"><SelectValue /></SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="account">Eu — dono deste acesso</SelectItem>
+                    <SelectItem value="account">Eu — titular da conta</SelectItem>
                     <SelectItem value="manual">Outra pessoa responsável</SelectItem>
                   </SelectContent>
                 </Select>
-              </div>
+              </div>}
 
-              {contactSource === 'account' ? (
+              {hasAccount && contactSource === 'account' ? (
                 <div className="rounded-2xl border border-emerald-200 bg-emerald-50/70 p-4 dark:border-emerald-900 dark:bg-emerald-950/20">
                   <div className="flex items-start gap-3">
                     <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-emerald-100 text-emerald-700 dark:bg-emerald-900 dark:text-emerald-300"><ShieldCheck className="h-5 w-5" /></span>
@@ -684,11 +731,9 @@ const GroupBookingFlow: React.FC<GroupBookingFlowProps> = ({ userId }) => {
                 </div>
               ) : (
                 <div className="space-y-3 rounded-2xl border p-4">
-                  <div className="space-y-1.5"><Label htmlFor="contact-name">Nome</Label><Input id="contact-name" className="h-12 rounded-xl" value={contact.name} onChange={event => setContact(current => ({ ...current, name: event.target.value }))} /></div>
-                  <div className="grid gap-3 sm:grid-cols-2">
-                    <div className="space-y-1.5"><Label htmlFor="contact-phone">Telefone</Label><Input id="contact-phone" inputMode="tel" className="h-12 rounded-xl" value={contact.phone} onChange={event => setContact(current => ({ ...current, phone: event.target.value }))} /></div>
-                    <div className="space-y-1.5"><Label htmlFor="contact-email">Email</Label><Input id="contact-email" type="email" className="h-12 rounded-xl" value={contact.email} onChange={event => setContact(current => ({ ...current, email: event.target.value }))} /></div>
-                  </div>
+                  <div className="space-y-1.5"><Label htmlFor="contact-name">Nome</Label><Input id="contact-name" autoComplete="name" className="h-12 rounded-xl" value={contact.name} onChange={event => updateResponsibleName(event.target.value)} /></div>
+                  <div className="space-y-1.5"><Label htmlFor="contact-phone">WhatsApp</Label><Input id="contact-phone" type="tel" inputMode="tel" autoComplete="tel" className="h-12 rounded-xl" value={contact.phone} onChange={event => setContact(current => ({ ...current, phone: event.target.value }))} placeholder="(11) 99999-9999" /></div>
+                  <p className="text-xs text-muted-foreground">Não precisa criar uma conta nem informar e-mail para pedir um horário.</p>
                 </div>
               )}
               <div className="space-y-1.5"><Label htmlFor="group-notes">Observações para o estabelecimento</Label><Textarea id="group-notes" rows={3} value={notes} onChange={event => setNotes(event.target.value)} placeholder="Ex.: meu filho tem sensibilidade a máquina." /></div>
@@ -697,7 +742,7 @@ const GroupBookingFlow: React.FC<GroupBookingFlowProps> = ({ userId }) => {
         </div>
       )}
 
-      <div className="fixed inset-x-0 bottom-[72px] z-30 border-t bg-background/95 p-3 shadow-[0_-8px_24px_rgba(15,23,42,0.08)] backdrop-blur sm:sticky sm:bottom-0 sm:rounded-2xl sm:border">
+      <div className="fixed inset-x-0 bottom-0 z-30 border-t bg-background/95 p-3 shadow-[0_-8px_24px_rgba(15,23,42,0.08)] backdrop-blur sm:sticky sm:bottom-0 sm:rounded-2xl sm:border">
         <div className="mx-auto flex max-w-lg items-center gap-3">
           <Button variant="outline" className="h-12 rounded-xl px-4" disabled={step === 1 || submitting} onClick={() => setStep(current => current - 1)}><ArrowLeft className="mr-2 h-4 w-4" /> Voltar</Button>
           <div className="min-w-0 flex-1 text-right"><p className="text-xs text-muted-foreground">Total do grupo</p><p className="truncate text-lg font-extrabold text-primary">{currency.format(groupTotal)}</p></div>

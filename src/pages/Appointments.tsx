@@ -13,6 +13,7 @@ import Layout from '@/components/Layout';
 import { Appointment, AppointmentFormData } from '@/types/appointments';
 import { useQuery } from '@tanstack/react-query';
 import { toast } from '@/hooks/use-toast';
+import { formatDateOnlyBR } from '@/lib/formatters';
 import { format, parseISO, isToday, isThisWeek, subDays, differenceInHours } from 'date-fns';
 import { Button } from '@/components/ui/button';
 import { Tabs } from '@/components/ui/tabs';
@@ -86,10 +87,10 @@ const Appointments = () => {
   const handleDeleteClick = (appointment: Appointment) => { setDeletingAppointment(appointment); setDeleteDialogOpen(true); };
   const handleDeleteSingle = async (id: string) => { await deleteAppointment(id, false); refetchAppointments(); };
   const handleDeleteSeries = async (id: string) => { await deleteAppointment(id, true); refetchAppointments(); };
-  const handleUpdateStatus = async (id: string, newStatus: 'pending' | 'confirmed' | 'completed' | 'cancelled') => { await updateAppointmentStatus({ id, status: newStatus }); refetchAppointments(); };
+  const handleUpdateStatus = async (id: string, newStatus: 'pending' | 'confirmed' | 'completed' | 'cancelled', tipAmount?: number) => { await updateAppointmentStatus({ id, status: newStatus, ...(tipAmount !== undefined ? { tipAmount } : {}) }); refetchAppointments(); };
   const handleSave = async (formData: AppointmentFormData, id: string | null): Promise<void> => { if (id && editMode === 'series') await updateAppointmentSeries({ id, formData, updateFutureOnly: true }); else if (id) await updateAppointment({ id, formData }); else await addAppointment(formData); setEditMode('single'); refetchAppointments(); };
   const handleTimeSlotClick = (date: Date, time: string) => handleManualSchedule(date, time);
-  const handleAppointmentMove = async (appointmentId: string, newDate: string, newTime: string) => { const apt = appointments.find(a => a.id === appointmentId); if (!apt || (apt.appointment_date === newDate && apt.appointment_time === newTime)) return; try { await updateAppointment({ id: appointmentId, formData: { client_id: apt.client_id, service_id: apt.service_id, barbeiro_id: apt.barbeiro_id, appointment_date: newDate, appointment_time: newTime, notes: apt.notes || '' } }); toast({ title: "Agendamento movido", description: `Movido para ${format(new Date(newDate), 'dd/MM/yyyy')} às ${newTime}` }); refetchAppointments(); } catch { toast({ title: "Erro ao mover", variant: "destructive" }); } };
+  const handleAppointmentMove = async (appointmentId: string, newDate: string, newTime: string) => { const apt = appointments.find(a => a.id === appointmentId); if (!apt || (apt.appointment_date === newDate && apt.appointment_time === newTime)) return; try { await updateAppointment({ id: appointmentId, formData: { client_id: apt.client_id, service_id: apt.service_id, barbeiro_id: apt.barbeiro_id, appointment_date: newDate, appointment_time: newTime, notes: apt.notes || '' } }); toast({ title: "Agendamento movido", description: `Movido para ${formatDateOnlyBR(newDate)} às ${newTime}` }); refetchAppointments(); } catch { toast({ title: "Erro ao mover", variant: "destructive" }); } };
 
   const isLoading = isLoadingClients || isLoadingServices || isLoadingBarbers || isLoadingAppointments;
   const selectedDayCount = filteredAppointments.filter((apt) => apt.appointment_date === format(selectedDate || new Date(), 'yyyy-MM-dd')).length;

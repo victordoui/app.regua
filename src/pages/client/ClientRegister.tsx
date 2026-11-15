@@ -13,6 +13,7 @@ import { Eye, EyeOff, Mail, Lock, User, Phone, Loader2, ArrowLeft } from 'lucide
 import { useToast } from '@/hooks/use-toast';
 import { motion } from 'framer-motion';
 import { isGoogleAuthEnabled } from '@/lib/authProviders';
+import { getSignupDeviceId } from '@/lib/signupDeviceId';
 
 const registerSchema = z.object({
   fullName: z.string().min(3, 'Nome completo é obrigatório'),
@@ -23,8 +24,8 @@ const registerSchema = z.object({
       const digits = value.replace(/\D/g, '');
       return digits.length === 10 || digits.length === 11;
     }, 'Informe um telefone válido com DDD'),
-  password: z.string().min(6, 'Mínimo 6 caracteres'),
-  confirmPassword: z.string().min(6, 'Confirme a senha'),
+  password: z.string().min(8, 'Mínimo 8 caracteres'),
+  confirmPassword: z.string().min(8, 'Confirme uma senha com pelo menos 8 caracteres'),
 }).refine((data) => data.password === data.confirmPassword, {
   message: 'As senhas não coincidem',
   path: ['confirmPassword'],
@@ -118,18 +119,9 @@ const ClientRegister = () => {
     }
 
     if (authData.user) {
-      const { error: profileError } = await supabase
-        .from('client_profiles')
-        .insert({
-          user_id: authData.user.id,
-          barbershop_user_id: userId,
-          full_name: data.fullName,
-          phone: data.phone || null,
-        });
-
-      if (profileError) {
-        console.error('Error creating client profile:', profileError);
-      }
+      await supabase.functions.invoke('record-signup-signal', {
+        body: { user_id: authData.user.id, email: data.email, full_name: data.fullName, phone: data.phone, device_id: getSignupDeviceId() },
+      }).catch(() => undefined);
 
       toast({ title: 'Conta criada com sucesso!', description: 'Bem-vindo!' });
       navigate(`/b/${userId}/home`);
@@ -251,7 +243,7 @@ const ClientRegister = () => {
         <Card className="max-w-sm mx-auto p-6 shadow-lg rounded-2xl">
           <h2 className="text-xl font-semibold text-center mb-6">Criar sua conta</h2>
 
-          <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
+          <form noValidate onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
             <div className="space-y-2">
               <Label htmlFor="fullName">Nome completo</Label>
               <div className="relative">
@@ -276,6 +268,7 @@ const ClientRegister = () => {
                 <Input
                   id="email"
                   type="email"
+                  autoComplete="email"
                   placeholder="seu@email.com"
                   className="pl-10 h-12"
                   {...form.register('email')}
@@ -310,6 +303,8 @@ const ClientRegister = () => {
                 <Input
                   id="password"
                   type={showPassword ? 'text' : 'password'}
+                  autoComplete="new-password"
+                  minLength={8}
                   placeholder="••••••"
                   className="pl-10 pr-10 h-12"
                   {...form.register('password')}
@@ -338,6 +333,8 @@ const ClientRegister = () => {
                   placeholder="••••••"
                   className="pl-10 h-12"
                   {...form.register('confirmPassword')}
+                  autoComplete="new-password"
+                  minLength={8}
                 />
               </div>
               {form.formState.errors.confirmPassword && (

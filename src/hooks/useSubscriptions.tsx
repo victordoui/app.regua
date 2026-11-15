@@ -4,7 +4,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import { useAuth } from "@/contexts/AuthContext";
 import { PlanFormData, SubscriptionFormData, SubscriptionPlan, UserSubscription, Client } from "@/types/subscriptions";
-import { addMonths, addYears, format } from "date-fns";
+import { addMonths, addYears, format, parseISO } from "date-fns";
 
 export const useSubscriptions = () => {
   const { user } = useAuth();
@@ -169,7 +169,7 @@ export const useSubscriptions = () => {
       const selectedPlan = data.plans.find(p => p.id === formData.plan_id);
       if (!selectedPlan) throw new Error("Plano não encontrado.");
 
-      const startDate = new Date(formData.start_date);
+      const startDate = parseISO(formData.start_date);
       let endDate: Date;
       if (selectedPlan.billing_cycle === 'monthly') {
         endDate = addMonths(startDate, 1);

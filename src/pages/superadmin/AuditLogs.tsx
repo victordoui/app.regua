@@ -1,3 +1,5 @@
+import { useMemo } from 'react';
+import { PageHeader } from '@/components/ui/page-header';
 import { SuperAdminLayout } from '@/components/superadmin/SuperAdminLayout';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
@@ -10,8 +12,9 @@ import {
   TableRow,
 } from '@/components/ui/table';
 import { useAuditLogs } from '@/hooks/useSuperAdmin';
+import { usePlatformUsers } from '@/hooks/superadmin/usePlatformUsers';
 import type { AuditAction } from '@/types/superAdmin';
-import { ScrollText, UserX, UserCheck, Ticket, RefreshCw, Ban, Mail, Send, Settings, MessageSquare } from 'lucide-react';
+import { ScrollText, UserX, UserCheck, Ticket, RefreshCw, Ban, Mail, Send, Settings, MessageSquare, Eye, LogOut } from 'lucide-react';
 import { format } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
 
@@ -34,10 +37,17 @@ const actionLabels: Record<AuditAction, { label: string; icon: React.ReactNode; 
   update_plan_config: { label: 'Atualizar Config. Plano', icon: <Settings className="h-4 w-4" />, color: 'text-primary' },
   resolve_ticket: { label: 'Resolver Ticket', icon: <MessageSquare className="h-4 w-4" />, color: 'text-green-500' },
   assign_ticket: { label: 'Atribuir Ticket', icon: <MessageSquare className="h-4 w-4" />, color: 'text-primary' },
+  impersonation_started: { label: 'Acesso de suporte iniciado', icon: <Eye className="h-4 w-4" />, color: 'text-amber-600' },
+  impersonation_ended: { label: 'Acesso de suporte encerrado', icon: <LogOut className="h-4 w-4" />, color: 'text-green-600' },
+  revoke_sessions: { label: 'Encerrar sessões', icon: <LogOut className="h-4 w-4" />, color: 'text-amber-600' },
 };
 
 const AuditLogs = () => {
   const { data: logs, isLoading } = useAuditLogs();
+  const { data: platformUserData } = usePlatformUsers();
+  const usersById = useMemo(() => new Map(
+    (platformUserData?.users || []).map((user) => [user.user_id, user]),
+  ), [platformUserData?.users]);
 
   return (
     <SuperAdminLayout>
@@ -84,6 +94,11 @@ const AuditLogs = () => {
                       icon: <ScrollText className="h-4 w-4" />,
                       color: 'text-muted-foreground',
                     };
+                    const actor = usersById.get(log.super_admin_id);
+                    const target = log.target_user_id ? usersById.get(log.target_user_id) : undefined;
+                    const detailTarget = log.details?.company_name || log.details?.target_name || log.details?.plan_type || log.details?.coupon_code || log.details?.ticket_id || log.details?.coupon_id;
+                    const actorLabel = actor?.display_name || actor?.email || log.super_admin_id;
+                    const targetLabel = target?.company_name || target?.display_name || target?.email || (typeof detailTarget === 'string' ? detailTarget : null) || log.target_user_id || 'Ação da plataforma';
 
                     return (
                       <TableRow key={log.id}>
@@ -98,12 +113,8 @@ const AuditLogs = () => {
                             <span>{actionInfo.label}</span>
                           </div>
                         </TableCell>
-                        <TableCell className="font-mono text-sm">
-                          {log.super_admin_id.slice(0, 8)}...
-                        </TableCell>
-                        <TableCell className="font-mono text-sm">
-                          {log.target_user_id ? `${log.target_user_id.slice(0, 8)}...` : '-'}
-                        </TableCell>
+                        <TableCell className="max-w-[220px] truncate text-sm" title={actorLabel}>{actorLabel}</TableCell>
+                        <TableCell className="max-w-[240px] truncate text-sm" title={targetLabel}>{targetLabel}</TableCell>
                         <TableCell>
                           {log.details ? (
                             <Badge variant="outline" className="font-mono text-xs">
@@ -128,4 +139,3 @@ const AuditLogs = () => {
 };
 
 export default AuditLogs;
-import { PageHeader } from '@/components/ui/page-header';

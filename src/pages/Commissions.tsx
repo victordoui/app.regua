@@ -1,3 +1,4 @@
+import { formatCurrency } from '@/lib/formatters';
 import React from 'react';
 import Layout from '@/components/Layout';
 import { Badge } from '@/components/ui/badge';
@@ -81,7 +82,7 @@ const Commissions = () => {
             <StatusCards
               className="grid-cols-1 sm:grid-cols-3"
               items={[
-                { label: "Comissão Padrão", value: defaultRule ? (defaultRule.commission_type === 'percentage' ? `${defaultRule.commission_value}%` : `R$ ${defaultRule.commission_value.toFixed(2)}`) : '40%', icon: <Percent className="h-5 w-5" />, color: "primary" },
+                { label: "Comissão Padrão", value: defaultRule ? (defaultRule.commission_type === 'percentage' ? `${defaultRule.commission_value}%` : `${formatCurrency(defaultRule.commission_value)}`) : '40%', icon: <Percent className="h-5 w-5" />, color: "primary" },
                 { label: "Regras Específicas", value: rules.length, icon: <Scissors className="h-5 w-5" />, color: "blue" },
                 { label: "Profissionais Ativos", value: allBarbers.length, icon: <Users className="h-5 w-5" />, color: "green" },
               ]}

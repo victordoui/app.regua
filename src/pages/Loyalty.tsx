@@ -1,3 +1,4 @@
+import { formatCurrency } from '@/lib/formatters';
 import { useState } from 'react';
 import Layout from '@/components/Layout';
 import { Button } from '@/components/ui/button';
@@ -128,7 +129,7 @@ const Loyalty = () => {
                 { label: "Total", value: referralStats.total, icon: <Users className="h-5 w-5" />, color: "blue" },
                 { label: "Pendentes", value: referralStats.pending, icon: <Clock className="h-5 w-5" />, color: "amber" },
                 { label: "Recompensados", value: referralStats.rewarded, icon: <CheckCircle className="h-5 w-5" />, color: "green" },
-                { label: "Total Recompensas", value: `R$ ${referralStats.totalRewards.toFixed(2)}`, icon: <Gift className="h-5 w-5" />, color: "purple" },
+                { label: "Total Recompensas", value: `${formatCurrency(referralStats.totalRewards)}`, icon: <Gift className="h-5 w-5" />, color: "purple" },
               ]}
             />
 
@@ -146,7 +147,7 @@ const Loyalty = () => {
                       <TableCell className="font-medium">{r.referrer?.name || 'N/A'}</TableCell>
                       <TableCell>{r.referred?.name || 'N/A'}</TableCell>
                       <TableCell><div className="flex items-center gap-2"><code className="px-2 py-1 bg-muted rounded text-sm">{r.referral_code}</code><Button variant="ghost" size="icon" className="h-6 w-6" onClick={() => copyCode(r.referral_code)}><Copy className="h-3 w-3" /></Button></div></TableCell>
-                      <TableCell>{r.reward_amount ? `R$ ${r.reward_amount.toFixed(2)}` : '-'}</TableCell>
+                      <TableCell>{r.reward_amount ? `${formatCurrency(r.reward_amount)}` : '-'}</TableCell>
                       <TableCell>{r.reward_given ? <Badge className="bg-green-500/20 text-green-600 dark:text-green-400"><CheckCircle className="h-3 w-3 mr-1" />Entregue</Badge> : <Badge variant="secondary"><Clock className="h-3 w-3 mr-1" />Pendente</Badge>}</TableCell>
                       <TableCell>{format(new Date(r.created_at), "dd/MM/yyyy", { locale: ptBR })}</TableCell>
                       <TableCell className="text-right">{!r.reward_given && <Button variant="outline" size="sm" onClick={() => markRewardGiven(r.id)} disabled={isMarking}>{isMarking ? <Loader2 className="h-4 w-4 animate-spin" /> : <><Gift className="h-4 w-4 mr-2" />Entregar</>}</Button>}</TableCell>

@@ -1,3 +1,4 @@
+import { formatCompactCurrency, formatCurrency } from '@/lib/formatters';
 import React from "react";
 import {
   AreaChart,
@@ -45,15 +46,15 @@ const RevenueForecastChart: React.FC = () => {
         <div className="grid grid-cols-3 gap-2 mb-4">
           <div className="bg-muted/40 rounded-lg p-2.5 text-center">
             <div className="text-[10px] text-muted-foreground">Realizado</div>
-            <div className="font-heading text-sm font-bold text-foreground">R$ 18.4k</div>
+            <div className="font-heading text-sm font-bold text-foreground">{formatCurrency(18400)}</div>
           </div>
           <div className="bg-muted/40 rounded-lg p-2.5 text-center">
             <div className="text-[10px] text-muted-foreground">Projeção Jun</div>
-            <div className="font-heading text-sm font-bold text-primary">R$ 22.5k</div>
+            <div className="font-heading text-sm font-bold text-primary">{formatCurrency(22500)}</div>
           </div>
           <div className="bg-muted/40 rounded-lg p-2.5 text-center">
             <div className="text-[10px] text-muted-foreground">Meta Anual</div>
-            <div className="font-heading text-sm font-bold text-foreground">R$ 250k</div>
+            <div className="font-heading text-sm font-bold text-foreground">{formatCurrency(250000)}</div>
           </div>
         </div>
 
@@ -91,7 +92,7 @@ const RevenueForecastChart: React.FC = () => {
                 tickLine={false}
               />
               <YAxis
-                tickFormatter={(v) => `R$${(v / 1000).toFixed(0)}k`}
+                tickFormatter={formatCompactCurrency}
                 tick={{ fill: "hsl(var(--muted-foreground))", fontSize: 11 }}
                 axisLine={false}
                 tickLine={false}
@@ -100,7 +101,7 @@ const RevenueForecastChart: React.FC = () => {
                 formatter={(value: number | null, name: string) => {
                   if (value === null) return ["-", name];
                   return [
-                    `R$ ${value.toLocaleString("pt-BR", { minimumFractionDigits: 0 })}`,
+                    formatCurrency(value),
                     name === "real" ? "Realizado" : "Projeção",
                   ];
                 }}

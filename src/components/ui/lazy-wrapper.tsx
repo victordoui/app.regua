@@ -6,7 +6,7 @@ interface LazyWrapperProps {
 }
 
 export const createLazyComponent = <Props extends object>(importFunc: () => Promise<{ default: React.ComponentType<Props> }>) => {
-  const LazyComponent = React.lazy(importFunc);
+  const LazyComponent = React.lazy(importFunc) as React.ComponentType<Props>;
   
   return (props: Props) => (
     <Suspense fallback={<div>Loading...</div>}>

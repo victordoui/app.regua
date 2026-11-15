@@ -6,7 +6,7 @@ import { Badge } from '@/components/ui/badge';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { Label } from '@/components/ui/label';
 import { useWaitlist } from '@/hooks/useWaitlist';
-import { format } from 'date-fns';
+import { formatDateOnlyBR } from '@/lib/formatters';
 import { Clock, Users, Plus, Bell, Calendar, Trash2, Loader2, CheckCircle } from 'lucide-react';
 import { formatPhoneBR, formatNameOnly } from '@/lib/utils';
 
@@ -44,7 +44,7 @@ const WaitlistContent = () => {
         {isLoading ? <div className="flex items-center justify-center py-12"><Loader2 className="h-8 w-8 animate-spin text-primary" /></div> : waitlist.length === 0 ? <div className="text-center py-12 text-muted-foreground"><Users className="h-12 w-12 mx-auto mb-4 opacity-50" /><p>Lista de espera vazia</p></div> : (
           <div className="space-y-3">{waitlist.map(item => (
             <Card key={item.id}><CardContent className="p-4 flex items-center justify-between">
-              <div><p className="font-medium">{item.client_name}</p><p className="text-sm text-muted-foreground">{item.client_phone}</p>{item.preferred_date && <p className="text-xs text-muted-foreground flex items-center gap-1 mt-1"><Calendar className="h-3 w-3" />{format(new Date(item.preferred_date), 'dd/MM/yyyy')}</p>}<div className="flex gap-2 mt-2">{getStatusBadge(item.status)}{item.service && <Badge variant="outline">{item.service.name}</Badge>}</div></div>
+              <div><p className="font-medium">{item.client_name}</p><p className="text-sm text-muted-foreground">{item.client_phone}</p>{item.preferred_date && <p className="text-xs text-muted-foreground flex items-center gap-1 mt-1"><Calendar className="h-3 w-3" />{formatDateOnlyBR(item.preferred_date)}</p>}<div className="flex gap-2 mt-2">{getStatusBadge(item.status)}{item.service && <Badge variant="outline">{item.service.name}</Badge>}</div></div>
               <div className="flex gap-2">{item.status === 'waiting' && <Button size="sm" variant="outline" onClick={() => updateStatus({ id: item.id, status: 'notified' })}><Bell className="h-4 w-4 mr-1" />Notificar</Button>}{item.status === 'notified' && <Button size="sm" onClick={() => updateStatus({ id: item.id, status: 'booked' })}><CheckCircle className="h-4 w-4 mr-1" />Agendar</Button>}<Button size="icon" variant="ghost" onClick={() => removeFromWaitlist(item.id)}><Trash2 className="h-4 w-4 text-destructive" /></Button></div>
             </CardContent></Card>
           ))}</div>

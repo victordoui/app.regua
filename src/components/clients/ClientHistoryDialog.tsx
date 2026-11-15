@@ -6,8 +6,7 @@ import { ScrollArea } from '@/components/ui/scroll-area';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/contexts/AuthContext';
-import { format } from 'date-fns';
-import { ptBR } from 'date-fns/locale';
+import { formatDateOnlyBR } from '@/lib/formatters';
 import { Calendar, Clock, DollarSign, Scissors, TrendingUp, User, Star, Camera } from 'lucide-react';
 import { Loader2 } from 'lucide-react';
 
@@ -235,7 +234,7 @@ const ClientHistoryDialog = ({ open, onOpenChange, clientId, clientName }: Clien
                     </div>
                     <p className="text-lg font-medium">
                       {stats.lastVisit 
-                        ? format(new Date(stats.lastVisit), "dd/MM/yyyy", { locale: ptBR })
+                        ? formatDateOnlyBR(stats.lastVisit)
                         : '-'}
                     </p>
                   </CardContent>
@@ -264,7 +263,7 @@ const ClientHistoryDialog = ({ open, onOpenChange, clientId, clientName }: Clien
                               <div className="flex items-center gap-4 text-sm text-muted-foreground">
                                 <span className="flex items-center gap-1">
                                   <Calendar className="h-3 w-3" />
-                                  {format(new Date(apt.appointment_date), "dd/MM/yyyy", { locale: ptBR })}
+                                  {formatDateOnlyBR(apt.appointment_date)}
                                 </span>
                                 <span className="flex items-center gap-1">
                                   <Clock className="h-3 w-3" />

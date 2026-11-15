@@ -1,4 +1,5 @@
 import React from "react";
+import { formatCompactCurrency, formatCurrency } from "@/lib/formatters";
 import {
   AreaChart,
   Area,
@@ -7,7 +8,6 @@ import {
   CartesianGrid,
   Tooltip,
   ResponsiveContainer,
-  ReferenceLine,
 } from "recharts";
 
 interface RevenueLineChartProps {
@@ -18,16 +18,13 @@ interface RevenueLineChartProps {
 }
 
 const RevenueLineChart: React.FC<RevenueLineChartProps> = ({ data, periodLabel, totalRevenue, revenueTrend }) => {
-  const formatCurrency = (value: number) => `R$ ${(value / 1000).toFixed(1)}k`;
-
-  const maxRevenue = Math.max(...data.map((d) => d.revenue), 0);
-  const metaValue = maxRevenue > 0 ? maxRevenue * 0.75 : 5000;
+  const formatAxisCurrency = formatCompactCurrency;
 
   return (
     <div className="dashboard-surface h-full overflow-hidden">
       <div className="flex items-center justify-between px-4 pt-3 pb-2">
         <span className="font-heading text-[15px] font-bold text-foreground">
-          Faturamento Mensal
+          Faturamento de serviços
         </span>
         <span className="rounded-lg border bg-background px-3 py-1.5 text-[11px] font-semibold text-muted-foreground">{periodLabel}</span>
       </div>
@@ -38,10 +35,6 @@ const RevenueLineChart: React.FC<RevenueLineChartProps> = ({ data, periodLabel, 
           <div className="flex items-center gap-[5px] text-[11px] text-muted-foreground">
             <div className="w-2.5 h-2.5 rounded-sm bg-primary" />
             Receita
-          </div>
-          <div className="flex items-center gap-[5px] text-[11px] text-muted-foreground">
-            <div className="w-2.5 h-2.5 rounded-full bg-[hsl(var(--success,142_71%_45%))]" />
-            Meta
           </div>
         </div>
 
@@ -68,14 +61,14 @@ const RevenueLineChart: React.FC<RevenueLineChartProps> = ({ data, periodLabel, 
                 tickLine={false}
               />
               <YAxis
-                tickFormatter={formatCurrency}
+                tickFormatter={formatAxisCurrency}
                 tick={{ fill: "hsl(var(--muted-foreground))", fontSize: 11 }}
                 axisLine={false}
                 tickLine={false}
               />
               <Tooltip
                 formatter={(value: number) => [
-                  `R$ ${value.toLocaleString("pt-BR", { minimumFractionDigits: 2 })}`,
+                  formatCurrency(value),
                   "Receita",
                 ]}
                 contentStyle={{
@@ -86,13 +79,6 @@ const RevenueLineChart: React.FC<RevenueLineChartProps> = ({ data, periodLabel, 
                   fontSize: 12,
                 }}
                 labelStyle={{ color: "hsl(var(--foreground))", fontWeight: 600 }}
-              />
-              <ReferenceLine
-                y={metaValue}
-                stroke="hsl(142, 71%, 45%)"
-                strokeDasharray="5 4"
-                strokeWidth={1.5}
-                strokeOpacity={0.5}
               />
               <Area
                 type="monotone"

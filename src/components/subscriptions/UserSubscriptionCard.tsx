@@ -4,8 +4,7 @@ import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Crown } from 'lucide-react';
 import { UserSubscription } from '@/types/subscriptions';
-import { format } from 'date-fns';
-import { ptBR } from 'date-fns/locale';
+import { formatCurrency, formatDateOnlyBR } from '@/lib/formatters';
 
 interface UserSubscriptionCardProps {
   subscription: UserSubscription;
@@ -39,13 +38,13 @@ const UserSubscriptionCard: React.FC<UserSubscriptionCardProps> = ({ subscriptio
             <span className="font-medium">Cliente:</span> {subscription.clients?.name || 'Cliente Desconhecido'}
           </p>
           <p className="text-sm">
-            <span className="font-medium">Início:</span> {format(new Date(subscription.start_date), 'dd/MM/yyyy', { locale: ptBR })}
+            <span className="font-medium">Início:</span> {formatDateOnlyBR(subscription.start_date)}
           </p>
           <p className="text-sm">
-            <span className="font-medium">Fim:</span> {format(new Date(subscription.end_date), 'dd/MM/yyyy', { locale: ptBR })}
+            <span className="font-medium">Fim:</span> {formatDateOnlyBR(subscription.end_date)}
           </p>          
           <p className="text-lg font-bold">
-            R$ {subscription.subscription_plans?.price?.toFixed(2) || '0.00'}
+            {formatCurrency(subscription.subscription_plans?.price)}
             <span className="text-sm font-normal text-muted-foreground">/{subscription.subscription_plans?.billing_cycle === 'monthly' ? 'mês' : 'ano'}</span>
           </p>
           {subscription.credits_remaining > 0 && (

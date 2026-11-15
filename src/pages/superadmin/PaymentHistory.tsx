@@ -24,6 +24,7 @@ import { CreditCard, Search, Download } from 'lucide-react';
 import { format } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
 import type { PaymentStatus, PaymentFilters } from '@/types/superAdmin';
+import { useToast } from '@/hooks/use-toast';
 
 const statusColors: Record<PaymentStatus, string> = {
   pending: 'bg-amber-500/10 text-amber-600 border-amber-500/20',
@@ -49,6 +50,7 @@ const formatCurrency = (value: number) => {
 const PaymentHistory = () => {
   const [filters, setFilters] = useState<PaymentFilters>({});
   const [searchTerm, setSearchTerm] = useState('');
+  const { toast } = useToast();
   
   const { data: payments, isLoading } = usePlatformPayments(filters);
 
@@ -58,7 +60,10 @@ const PaymentHistory = () => {
   });
 
   const handleExportCSV = () => {
-    if (!filteredPayments.length) return;
+    if (!filteredPayments.length) {
+      toast({ title: 'Sem dados para exportar', description: 'Ajuste os filtros e tente novamente.' });
+      return;
+    }
     
     const headers = ['ID', 'Usuário', 'Valor', 'Método', 'Status', 'Data'];
     const rows = filteredPayments.map((p) => [

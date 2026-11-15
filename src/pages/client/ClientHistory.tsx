@@ -1,3 +1,4 @@
+import { formatCurrency, formatDateOnlyBR } from '@/lib/formatters';
 import React, { useEffect, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { supabase } from '@/integrations/supabase/client';
@@ -5,8 +6,6 @@ import { Card } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Scissors, Star, Clock, Calendar, Loader2, ArrowLeft } from 'lucide-react';
 import { motion } from 'framer-motion';
-import { format } from 'date-fns';
-import { ptBR } from 'date-fns/locale';
 import MobileLayout from '@/components/mobile/MobileLayout';
 import { Button } from '@/components/ui/button';
 
@@ -82,7 +81,7 @@ const ClientHistory = () => {
             status,
             total_price,
             barbeiro_id,
-            result_photos,
+            result_photo_url,
             services (name, price)
           `)
           .eq('user_id', userId)
@@ -98,6 +97,7 @@ const ClientHistory = () => {
           const professionalsById = new Map((professionals || []).map(item => [item.id, item.display_name]));
           setAppointments(appointmentsData.map(item => ({
             ...item,
+            result_photos: item.result_photo_url ? [item.result_photo_url] : [],
             profiles: item.barbeiro_id
               ? { display_name: professionalsById.get(item.barbeiro_id) || 'Profissional' }
               : null,
@@ -154,29 +154,29 @@ const ClientHistory = () => {
           <Card className="p-4 text-center">
             <Scissors className="h-6 w-6 mx-auto mb-2" style={{ color: settings.primary_color_hex }} />
             <p className="text-2xl font-bold">{appointments.length}</p>
-            <p className="text-sm text-muted-foreground">Cortes</p>
+            <p className="text-sm text-muted-foreground">Atendimentos</p>
           </Card>
           <Card className="p-4 text-center">
             <Star className="h-6 w-6 mx-auto mb-2 fill-yellow-400 text-yellow-400" />
-            <p className="text-2xl font-bold">R$ {totalSpent.toFixed(0)}</p>
+            <p className="text-2xl font-bold">{formatCurrency(totalSpent)}</p>
             <p className="text-sm text-muted-foreground">Total gasto</p>
           </Card>
         </div>
 
         {/* Appointments List */}
         <div className="space-y-4">
-          <h2 className="text-lg font-semibold">Histórico de Cortes</h2>
+          <h2 className="text-lg font-semibold">Histórico</h2>
           
           {appointments.length === 0 ? (
             <Card className="p-8 text-center">
               <Scissors className="h-12 w-12 mx-auto text-muted-foreground mb-4" />
-              <p className="text-muted-foreground">Nenhum corte realizado ainda</p>
+              <p className="text-muted-foreground">Nenhum atendimento concluído ainda</p>
               <Button 
                 className="mt-4"
                 onClick={() => navigate(`/b/${userId}/agendar`)}
                 style={{ backgroundColor: settings.primary_color_hex }}
               >
-                Agendar Agora
+                Agendar horário
               </Button>
             </Card>
           ) : (
@@ -204,13 +204,13 @@ const ClientHistory = () => {
                           </p>
                         </div>
                         <Badge variant="secondary">
-                          R$ {(apt.total_price || apt.services?.price || 0).toFixed(2)}
+                          {formatCurrency((apt.total_price || apt.services?.price || 0))}
                         </Badge>
                       </div>
                       <div className="flex items-center gap-4 mt-2 text-sm text-muted-foreground">
                         <span className="flex items-center gap-1">
                           <Calendar className="h-4 w-4" />
-                          {format(new Date(apt.appointment_date), 'dd/MM/yyyy', { locale: ptBR })}
+                          {formatDateOnlyBR(apt.appointment_date)}
                         </span>
                         <span className="flex items-center gap-1">
                           <Clock className="h-4 w-4" />

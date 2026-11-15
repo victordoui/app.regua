@@ -1,4 +1,5 @@
 import React from 'react';
+import { formatCurrency } from '@/lib/formatters';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Badge } from '@/components/ui/badge';
@@ -87,7 +88,7 @@ const BarberRankingTable: React.FC<BarberRankingTableProps> = ({ barbers }) => {
                   </TableCell>
                   <TableCell className="text-center">
                     <span className="font-bold text-[hsl(var(--success))]">
-                      R$ {barber.totalRevenue.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
+                      {formatCurrency(barber.totalRevenue)}
                     </span>
                   </TableCell>
                   <TableCell>

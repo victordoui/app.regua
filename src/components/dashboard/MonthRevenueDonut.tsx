@@ -1,5 +1,6 @@
 import React from "react";
 import { PieChart, Pie, Cell, ResponsiveContainer } from "recharts";
+import { formatCurrency } from "@/lib/formatters";
 
 interface MonthRevenueDonutProps {
   monthRevenue: number;
@@ -45,7 +46,7 @@ const MonthRevenueDonut: React.FC<MonthRevenueDonutProps> = ({ monthRevenue }) =
           </div>
           <div className="flex items-baseline">
             <span className="font-heading text-2xl font-extrabold text-foreground tracking-tight">
-              R$ {monthRevenue.toLocaleString("pt-BR", { minimumFractionDigits: 0 })}
+              {formatCurrency(monthRevenue)}
             </span>
             <span className="inline-flex items-center gap-1 text-[11px] font-semibold text-[hsl(var(--success))] ml-2">
               ▲ +14%
@@ -98,7 +99,7 @@ const MonthRevenueDonut: React.FC<MonthRevenueDonutProps> = ({ monthRevenue }) =
         <div>
           <div className="flex justify-between text-[11px] text-muted-foreground mb-1.5">
             <span>Meta do mês</span>
-            <span className="font-semibold text-foreground">R$ {goal.toLocaleString("pt-BR")}</span>
+            <span className="font-semibold text-foreground">{formatCurrency(goal)}</span>
           </div>
           <div className="h-1.5 bg-muted rounded-full overflow-hidden">
             <div
@@ -108,7 +109,7 @@ const MonthRevenueDonut: React.FC<MonthRevenueDonutProps> = ({ monthRevenue }) =
           </div>
           <div className="flex justify-between text-[10px] text-muted-foreground mt-1">
             <span>0</span>
-            <span>Falta R$ {remaining.toLocaleString("pt-BR")}</span>
+            <span>Falta {formatCurrency(remaining)}</span>
           </div>
         </div>
       </div>

@@ -1,3 +1,4 @@
+import { formatCurrency } from '@/lib/formatters';
 import React, { useCallback, useEffect, useState, useMemo } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { supabase } from '@/integrations/supabase/client';
@@ -349,7 +350,7 @@ const ClientAppointments = () => {
                 </div>
                 <div className="mt-3 flex items-center justify-between border-t border-border/70 pt-3">
                   <span className="text-xs font-medium capitalize text-muted-foreground">{format(parseISO(apt.appointment_date), "EEEE, dd 'de' MMMM", { locale: ptBR })}</span>
-                  <span className="whitespace-nowrap text-sm font-bold" style={{ color: settings?.primary_color_hex }}>R$ {apt.service_price.toFixed(2)}</span>
+                  <span className="whitespace-nowrap text-sm font-bold" style={{ color: settings?.primary_color_hex }}>{formatCurrency(apt.service_price)}</span>
                 </div>
               
               {/* Result Photo */}
@@ -384,9 +385,9 @@ const ClientAppointments = () => {
                     Remarcar
                   </Button>
                   <Button 
-                    variant="destructive" 
+                    variant="ghost"
                     size="sm" 
-                    className="min-h-11 font-bold"
+                    className="col-span-3 min-h-9 font-medium text-muted-foreground hover:bg-destructive/5 hover:text-destructive"
                     onClick={() => handleCancelClick(apt)}
                   >
                     Cancelar
@@ -425,7 +426,7 @@ const ClientAppointments = () => {
         <div className="flex items-end justify-between gap-3">
           <div>
             <p className="text-xs font-bold uppercase tracking-wider text-muted-foreground">Sua agenda</p>
-            <h1 className="text-2xl font-extrabold tracking-tight">Meus horários</h1>
+            <h1 className="text-2xl font-extrabold tracking-tight">Meus agendamentos</h1>
             <p className="mt-1 text-sm text-muted-foreground">Consulte, remarque ou cancele seus agendamentos.</p>
           </div>
           <Button 

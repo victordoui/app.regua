@@ -1,3 +1,4 @@
+import { formatCurrency } from '@/lib/formatters';
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -8,7 +9,7 @@ interface DigitalWalletProps {
   loyaltyPoints?: number;
   giftCardBalance?: number;
   availableCoupons?: number;
-  nextRewardAt?: number;
+  nextRewardAt?: number | null;
   onViewDetails?: () => void;
 }
 
@@ -16,11 +17,12 @@ export const DigitalWallet = ({
   loyaltyPoints = 0,
   giftCardBalance = 0,
   availableCoupons = 0,
-  nextRewardAt = 100,
+  nextRewardAt = null,
   onViewDetails,
 }: DigitalWalletProps) => {
-  const progressPercent = Math.min((loyaltyPoints / nextRewardAt) * 100, 100);
-  const pointsToNextReward = Math.max(nextRewardAt - loyaltyPoints, 0);
+  const hasActiveReward = typeof nextRewardAt === 'number' && nextRewardAt > 0;
+  const progressPercent = hasActiveReward ? Math.min((loyaltyPoints / nextRewardAt) * 100, 100) : 0;
+  const pointsToNextReward = hasActiveReward ? Math.max(nextRewardAt - loyaltyPoints, 0) : null;
 
   const items = [
     {
@@ -33,7 +35,7 @@ export const DigitalWallet = ({
     {
       icon: Gift,
       label: "Gift Card",
-      value: `R$ ${giftCardBalance.toFixed(2)}`,
+      value: `${formatCurrency(giftCardBalance)}`,
       color: "text-purple-500",
       bgColor: "bg-purple-500/10",
     },
@@ -56,7 +58,7 @@ export const DigitalWallet = ({
           </span>
           {onViewDetails && (
             <Button variant="ghost" size="sm" onClick={onViewDetails} className="gap-1 text-xs">
-              Ver tudo
+              Ver pagamentos
               <ChevronRight className="h-3 w-3" />
             </Button>
           )}
@@ -80,7 +82,7 @@ export const DigitalWallet = ({
         </div>
 
         {/* Progress to next reward */}
-        <div className="space-y-2">
+        {hasActiveReward ? <div className="space-y-2">
           <div className="flex items-center justify-between text-sm">
             <span className="flex items-center gap-1 text-muted-foreground">
               <TrendingUp className="h-4 w-4" />
@@ -101,7 +103,7 @@ export const DigitalWallet = ({
           <p className="text-xs text-center text-muted-foreground">
             {loyaltyPoints} / {nextRewardAt} pontos
           </p>
-        </div>
+        </div> : <p className="text-center text-xs text-muted-foreground">O estabelecimento ainda não definiu uma recompensa ativa.</p>}
       </CardContent>
     </Card>
   );

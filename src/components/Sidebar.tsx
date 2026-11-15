@@ -75,6 +75,7 @@ const Sidebar = () => {
     {
       category: "plat-subscribers", label: "Assinantes", icon: Users, section: "Operação",
       items: [
+        { icon: Building, label: "Empresas", path: "/superadmin/companies" },
         { icon: Users, label: "Assinantes", path: "/superadmin/subscribers" },
         { icon: CalendarClock, label: "Expirando", path: "/superadmin/expiring", badge: expiring7Days },
         { icon: CreditCard, label: "Pagamentos", path: "/superadmin/payments" },
@@ -113,7 +114,7 @@ const Sidebar = () => {
     {
       category: "home", label: "Início", icon: Home, section: "Início",
       items: [
-        { icon: Home, label: "Visão Geral", path: "/" },
+        { icon: Home, label: "Visão Geral", path: "/dashboard" },
       ]
     },
     {
@@ -344,13 +345,13 @@ const Sidebar = () => {
                       >
                         <Icon className="h-4 w-4 flex-shrink-0 opacity-90" />
                         <span className="truncate">{item.label}</span>
-                        {item.badge && (
+                        {'badge' in item && item.badge && (
                           <span className={`ml-auto min-w-[20px] h-5 px-1.5 rounded-full flex items-center justify-center text-[10px] font-bold ${
                             active
                               ? 'bg-[hsl(var(--sidebar-background))] text-white'
                               : 'bg-red-500 text-white'
                           }`}>
-                            {item.badge}
+                            {String(item.badge)}
                           </span>
                         )}
                       </button>

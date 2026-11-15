@@ -1,3 +1,4 @@
+import { formatBusinessDateInput, formatCurrency } from '@/lib/formatters';
 import { useState } from 'react';
 import { SuperAdminLayout } from '@/components/superadmin/SuperAdminLayout';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -29,46 +30,78 @@ import {
 } from '@/components/ui/select';
 import { Switch } from '@/components/ui/switch';
 import { usePlatformCoupons } from '@/hooks/useSuperAdmin';
-import type { CouponFormData, PlanType } from '@/types/superAdmin';
+import type { CouponFormData, PlatformCoupon } from '@/types/superAdmin';
 import { Plus, Ticket, Trash2, Edit } from 'lucide-react';
 import { format } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
 
+const todayInputValue = () => formatBusinessDateInput();
+
+const formatDateOnly = (value: string) => {
+  const [year, month, day] = value.slice(0, 10).split('-').map(Number);
+  return format(new Date(year, month - 1, day, 12), 'dd/MM/yyyy', { locale: ptBR });
+};
+
 const PlatformCoupons = () => {
-  const { coupons, isLoading, createCoupon, updateCoupon, deleteCoupon, isCreating } =
+  const { coupons, isLoading, createCoupon, updateCoupon, deleteCoupon, isCreating, isUpdating } =
     usePlatformCoupons();
   const [isDialogOpen, setIsDialogOpen] = useState(false);
+  const [editingCoupon, setEditingCoupon] = useState<PlatformCoupon | null>(null);
   const [formData, setFormData] = useState<CouponFormData>({
     code: '',
     description: '',
     discount_type: 'percentage',
     discount_value: 10,
-    valid_from: new Date().toISOString().split('T')[0],
+    valid_from: todayInputValue(),
     valid_until: null,
     max_uses: null,
     applicable_plans: ['basic', 'pro', 'enterprise'],
     active: true,
   });
 
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    createCoupon(formData);
-    setIsDialogOpen(false);
-    setFormData({
-      code: '',
-      description: '',
-      discount_type: 'percentage',
-      discount_value: 10,
-      valid_from: new Date().toISOString().split('T')[0],
-      valid_until: null,
-      max_uses: null,
-      applicable_plans: ['basic', 'pro', 'enterprise'],
-      active: true,
-    });
+  const resetForm = () => setFormData({
+    code: '',
+    description: '',
+    discount_type: 'percentage',
+    discount_value: 10,
+    valid_from: todayInputValue(),
+    valid_until: null,
+    max_uses: null,
+    applicable_plans: ['basic', 'pro', 'enterprise'],
+    active: true,
+  });
+
+  const handleDialogOpenChange = (open: boolean) => {
+    setIsDialogOpen(open);
+    if (!open) {
+      setEditingCoupon(null);
+      resetForm();
+    }
   };
 
-  const toggleCouponActive = (id: string, currentActive: boolean) => {
-    updateCoupon({ id, data: { active: !currentActive } });
+  const startEditingCoupon = (coupon: PlatformCoupon) => {
+    setEditingCoupon(coupon);
+    setFormData({
+      code: coupon.code,
+      description: coupon.description || '',
+      discount_type: coupon.discount_type,
+      discount_value: coupon.discount_value,
+      valid_from: coupon.valid_from?.slice(0, 10) || todayInputValue(),
+      valid_until: coupon.valid_until?.slice(0, 10) || null,
+      max_uses: coupon.max_uses,
+      applicable_plans: coupon.applicable_plans || ['basic', 'pro', 'enterprise'],
+      active: coupon.active,
+    });
+    setIsDialogOpen(true);
+  };
+
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (editingCoupon) updateCoupon({ id: editingCoupon.id, data: formData });
+    else createCoupon(formData);
+    setIsDialogOpen(false);
+    setEditingCoupon(null);
+    resetForm();
   };
 
   return (
@@ -82,7 +115,7 @@ const PlatformCoupons = () => {
             </p>
           </div>
 
-          <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
+          <Dialog open={isDialogOpen} onOpenChange={handleDialogOpenChange}>
             <DialogTrigger asChild>
               <Button>
                 <Plus className="h-4 w-4 mr-2" />
@@ -91,7 +124,7 @@ const PlatformCoupons = () => {
             </DialogTrigger>
             <DialogContent className="max-w-md">
               <DialogHeader>
-                <DialogTitle>Criar Cupom</DialogTitle>
+                <DialogTitle>{editingCoupon ? 'Editar Cupom' : 'Criar Cupom'}</DialogTitle>
               </DialogHeader>
               <form onSubmit={handleSubmit} className="space-y-4">
                 <div className="space-y-2">
@@ -201,8 +234,8 @@ const PlatformCoupons = () => {
                   />
                 </div>
 
-                <Button type="submit" className="w-full" disabled={isCreating}>
-                  {isCreating ? 'Criando...' : 'Criar Cupom'}
+                <Button type="submit" className="w-full" disabled={isCreating || isUpdating}>
+                  {isCreating || isUpdating ? 'Salvando...' : editingCoupon ? 'Salvar alterações' : 'Criar Cupom'}
                 </Button>
               </form>
             </DialogContent>
@@ -246,16 +279,16 @@ const PlatformCoupons = () => {
                       <TableCell>
                         {coupon.discount_type === 'percentage'
                           ? `${coupon.discount_value}%`
-                          : `R$ ${coupon.discount_value.toFixed(2)}`}
+                          : `${formatCurrency(coupon.discount_value)}`}
                       </TableCell>
                       <TableCell>
                         {coupon.current_uses}
                         {coupon.max_uses ? ` / ${coupon.max_uses}` : ' / ∞'}
                       </TableCell>
                       <TableCell>
-                        {format(new Date(coupon.valid_from), 'dd/MM/yyyy', { locale: ptBR })}
+                        {coupon.valid_from ? formatDateOnly(coupon.valid_from) : '—'}
                         {coupon.valid_until &&
-                          ` - ${format(new Date(coupon.valid_until), 'dd/MM/yyyy', { locale: ptBR })}`}
+                          ` - ${formatDateOnly(coupon.valid_until)}`}
                       </TableCell>
                       <TableCell>
                         <Badge variant={coupon.active ? 'default' : 'secondary'}>
@@ -267,7 +300,8 @@ const PlatformCoupons = () => {
                           <Button
                             variant="ghost"
                             size="icon"
-                            onClick={() => toggleCouponActive(coupon.id, coupon.active)}
+                            onClick={() => startEditingCoupon(coupon)}
+                            aria-label={`Editar cupom ${coupon.code}`}
                           >
                             <Edit className="h-4 w-4" />
                           </Button>

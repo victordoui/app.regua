@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { useParams, useNavigate } from 'react-router-dom';
+import { useParams } from 'react-router-dom';
 import { supabase } from '@/integrations/supabase/client';
 import { Card } from '@/components/ui/card';
 import { Loader2 } from 'lucide-react';
@@ -15,35 +15,32 @@ interface BarbershopSettings {
 
 const ClientBooking = () => {
   const { userId } = useParams<{ userId: string }>();
-  const navigate = useNavigate();
   
   const [settings, setSettings] = useState<BarbershopSettings | null>(null);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     const fetchData = async () => {
-      if (!userId) return;
-
-      const { data: { user } } = await supabase.auth.getUser();
-      if (!user) {
-        navigate(`/b/${userId}/login`);
+      if (!userId) {
+        setSettings(null);
+        setLoading(false);
         return;
       }
 
-      const { data } = await supabase
+      const { data, error } = await supabase
         .from('public_business_profile')
         .select('company_name, logo_url, primary_color_hex, secondary_color_hex')
         .eq('user_id', userId)
-        .single();
+        .maybeSingle();
 
-      if (data) {
+      if (!error && data) {
         setSettings(data as BarbershopSettings);
       }
       setLoading(false);
     };
 
     fetchData();
-  }, [userId, navigate]);
+  }, [userId]);
 
   if (loading) {
     return (
@@ -64,7 +61,7 @@ const ClientBooking = () => {
   }
 
   return (
-    <MobileLayout settings={settings}>
+    <MobileLayout settings={settings} showNavigation={false}>
       <div className="px-4 py-5">
         <GroupBookingFlow userId={userId!} />
       </div>

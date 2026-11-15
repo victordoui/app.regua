@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { formatDateInBusinessTimeZone } from '@/lib/formatters';
 import { SuperAdminLayout } from '@/components/superadmin/SuperAdminLayout';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -52,10 +53,10 @@ const statusColors: Record<SubscriptionStatus, string> = {
 };
 
 const planLabels: Record<PlanType, string> = {
-  trial: 'Trial',
-  basic: 'Basic',
-  pro: 'Pro',
-  enterprise: 'Enterprise',
+  trial: 'Teste grátis',
+  basic: 'Essencial',
+  pro: 'Profissional',
+  enterprise: 'Premium',
 };
 
 const statusLabels: Record<SubscriptionStatus, string> = {
@@ -167,9 +168,9 @@ const SubscribersManagement = () => {
                 <SelectContent>
                   <SelectItem value="all">Todos os planos</SelectItem>
                   <SelectItem value="trial">Trial</SelectItem>
-                  <SelectItem value="basic">Basic</SelectItem>
-                  <SelectItem value="pro">Pro</SelectItem>
-                  <SelectItem value="enterprise">Enterprise</SelectItem>
+                  <SelectItem value="basic">Essencial</SelectItem>
+                  <SelectItem value="pro">Profissional</SelectItem>
+                  <SelectItem value="enterprise">Premium</SelectItem>
                 </SelectContent>
               </Select>
             </div>
@@ -226,11 +227,11 @@ const SubscribersManagement = () => {
                         </Badge>
                       </TableCell>
                       <TableCell>
-                        {format(new Date(sub.start_date), 'dd/MM/yyyy', { locale: ptBR })}
+                        {formatDateInBusinessTimeZone(sub.start_date)}
                       </TableCell>
                       <TableCell>
                         {sub.end_date
-                          ? format(new Date(sub.end_date), 'dd/MM/yyyy', { locale: ptBR })
+                          ? formatDateInBusinessTimeZone(sub.end_date)
                           : '-'}
                       </TableCell>
                       <TableCell>

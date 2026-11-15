@@ -8,6 +8,7 @@ import vizzuLogo from '@/assets/vizzu-icon.png';
 import { Bell, ChevronDown } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
 import { useLocation, useNavigate } from 'react-router-dom';
+import SupportImpersonationBanner from '@/components/superadmin/SupportImpersonationBanner';
 
 interface LayoutProps {
   children?: React.ReactNode;
@@ -32,24 +33,30 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
 
   if (isMobile) {
     return (
-      <div className="readable-ui flex min-h-screen flex-col bg-[hsl(var(--page))]">
-        <MobileTopbar />
-        <main className="flex-1 overflow-auto px-4 pb-24 pt-[4.75rem]">
-          {children}
-        </main>
-        <MobileBottomNav />
-      </div>
+      <>
+        <SupportImpersonationBanner />
+        <div className="readable-ui flex min-h-screen flex-col bg-[hsl(var(--page))]">
+          <MobileTopbar />
+          <main className="flex-1 overflow-auto px-4 pb-24 pt-[4.75rem]">
+            {children}
+          </main>
+          <MobileBottomNav />
+        </div>
+      </>
     );
   }
 
   return (
-    <div className="readable-ui flex h-screen bg-[hsl(var(--page))]">
-      <Sidebar />
-      <Topbar />
-      <main className="flex-1 overflow-auto px-6 pb-12 pt-[5.25rem] transition-[margin] duration-200 md:ml-[var(--sidebar-w)] xl:px-8">
-        {children}
-      </main>
-    </div>
+    <>
+      <SupportImpersonationBanner />
+      <div className="readable-ui flex h-screen bg-[hsl(var(--page))]">
+        <Sidebar />
+        <Topbar />
+        <main className="flex-1 overflow-auto px-6 pb-12 pt-[5.25rem] transition-[margin] duration-200 md:ml-[var(--sidebar-w)] xl:px-8">
+          {children}
+        </main>
+      </div>
+    </>
   );
 };
 
@@ -75,7 +82,7 @@ const MobileTopbar = () => {
 
   return (
     <header className="fixed left-0 right-0 top-0 z-40 flex h-16 items-center justify-between border-b border-border/70 bg-background/90 px-4 shadow-sm backdrop-blur-xl">
-      <button onClick={() => navigate('/')} className="flex min-w-0 items-center gap-2.5 rounded-lg text-left">
+      <button onClick={() => navigate('/dashboard')} className="flex min-w-0 items-center gap-2.5 rounded-lg text-left">
         <img src={vizzuLogo} alt="VIZZU" className="h-9 w-9 object-contain" />
         <div className="min-w-0">
           <span className="block text-[10px] font-extrabold uppercase tracking-[0.18em] text-primary">VIZZU</span>

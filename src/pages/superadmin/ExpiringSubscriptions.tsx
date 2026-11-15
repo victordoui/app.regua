@@ -15,15 +15,14 @@ import {
 import { useExpiringSubscriptions, useExpiringStats } from '@/hooks/superadmin/useExpiringSubscriptions';
 import { useSubscribers } from '@/hooks/useSuperAdmin';
 import { CalendarClock, AlertTriangle, RefreshCw, Mail } from 'lucide-react';
-import { format, differenceInDays } from 'date-fns';
-import { ptBR } from 'date-fns/locale';
+import { differenceInBusinessDays, formatDateInBusinessTimeZone } from '@/lib/formatters';
 import type { PlanType } from '@/types/superAdmin';
 
 const planLabels: Record<PlanType, string> = {
-  trial: 'Trial',
-  basic: 'Basic',
-  pro: 'Pro',
-  enterprise: 'Enterprise',
+  trial: 'Teste grátis',
+  basic: 'Essencial',
+  pro: 'Profissional',
+  enterprise: 'Premium',
 };
 
 const ExpiringSubscriptions = () => {
@@ -41,7 +40,7 @@ const ExpiringSubscriptions = () => {
   };
 
   const getUrgencyColor = (endDate: string) => {
-    const days = differenceInDays(new Date(endDate), new Date());
+    const days = differenceInBusinessDays(endDate);
     if (days <= 3) return 'text-destructive bg-destructive/10 border-destructive/20';
     if (days <= 7) return 'text-amber-600 bg-amber-500/10 border-amber-500/20';
     return 'text-primary bg-primary/10 border-primary/20';
@@ -143,7 +142,7 @@ const ExpiringSubscriptions = () => {
                     </TableHeader>
                     <TableBody>
                       {subscriptions.map((sub) => {
-                        const daysLeft = differenceInDays(new Date(sub.end_date!), new Date());
+                        const daysLeft = differenceInBusinessDays(sub.end_date!);
                         return (
                           <TableRow key={sub.id}>
                             <TableCell className="font-mono text-sm">
@@ -153,7 +152,7 @@ const ExpiringSubscriptions = () => {
                               <Badge variant="outline">{planLabels[sub.plan_type]}</Badge>
                             </TableCell>
                             <TableCell>
-                              {format(new Date(sub.end_date!), 'dd/MM/yyyy', { locale: ptBR })}
+                              {formatDateInBusinessTimeZone(sub.end_date!)}
                             </TableCell>
                             <TableCell>
                               <Badge className={getUrgencyColor(sub.end_date!)}>

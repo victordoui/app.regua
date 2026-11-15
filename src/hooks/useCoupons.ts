@@ -1,3 +1,4 @@
+import { formatBusinessDateInput, formatCurrency } from '@/lib/formatters';
 import { useCallback } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
@@ -148,7 +149,7 @@ export const useCoupons = () => {
       return { valid: false, discount: 0, message: 'Cupom não encontrado' };
     }
 
-    const today = new Date().toISOString().split('T')[0];
+    const today = formatBusinessDateInput();
     
     if (coupon.valid_from && today < coupon.valid_from) {
       return { valid: false, discount: 0, message: 'Cupom ainda não válido' };
@@ -163,7 +164,7 @@ export const useCoupons = () => {
     }
 
     if (purchaseAmount < coupon.min_purchase) {
-      return { valid: false, discount: 0, message: `Valor mínimo: R$ ${coupon.min_purchase.toFixed(2)}` };
+      return { valid: false, discount: 0, message: `Valor mínimo: ${formatCurrency(coupon.min_purchase)}` };
     }
 
     const discount = coupon.discount_type === 'percent'

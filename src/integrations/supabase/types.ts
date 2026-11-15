@@ -103,6 +103,7 @@ export type Database = {
           appointment_date: string
           appointment_time: string
           barbeiro_id: string | null
+          booking_source: string | null
           client_id: string
           created_at: string
           id: string
@@ -110,10 +111,13 @@ export type Database = {
           parent_appointment_id: string | null
           recurrence_end_date: string | null
           recurrence_type: string | null
+          reminder_24h_sent_at: string | null
+          reminder_2h_sent_at: string | null
           reminder_sent_at: string | null
           result_photo_url: string | null
           service_id: string
           status: string
+          tip_amount: number
           total_price: number | null
           updated_at: string
           user_id: string
@@ -122,6 +126,7 @@ export type Database = {
           appointment_date: string
           appointment_time: string
           barbeiro_id?: string | null
+          booking_source?: string | null
           client_id: string
           created_at?: string
           id?: string
@@ -129,10 +134,13 @@ export type Database = {
           parent_appointment_id?: string | null
           recurrence_end_date?: string | null
           recurrence_type?: string | null
+          reminder_24h_sent_at?: string | null
+          reminder_2h_sent_at?: string | null
           reminder_sent_at?: string | null
           result_photo_url?: string | null
           service_id: string
           status?: string
+          tip_amount?: number
           total_price?: number | null
           updated_at?: string
           user_id: string
@@ -141,6 +149,7 @@ export type Database = {
           appointment_date?: string
           appointment_time?: string
           barbeiro_id?: string | null
+          booking_source?: string | null
           client_id?: string
           created_at?: string
           id?: string
@@ -148,10 +157,13 @@ export type Database = {
           parent_appointment_id?: string | null
           recurrence_end_date?: string | null
           recurrence_type?: string | null
+          reminder_24h_sent_at?: string | null
+          reminder_2h_sent_at?: string | null
           reminder_sent_at?: string | null
           result_photo_url?: string | null
           service_id?: string
           status?: string
+          tip_amount?: number
           total_price?: number | null
           updated_at?: string
           user_id?: string
@@ -286,6 +298,56 @@ export type Database = {
         }
         Relationships: []
       }
+      barbeiro_goals: {
+        Row: {
+          achieved: boolean | null
+          barbeiro_id: string
+          bonus_amount: number | null
+          created_at: string
+          current_value: number | null
+          goal_type: string
+          id: string
+          period_end: string
+          period_start: string
+          target_value: number
+          updated_at: string
+        }
+        Insert: {
+          achieved?: boolean | null
+          barbeiro_id: string
+          bonus_amount?: number | null
+          created_at?: string
+          current_value?: number | null
+          goal_type: string
+          id?: string
+          period_end: string
+          period_start: string
+          target_value: number
+          updated_at?: string
+        }
+        Update: {
+          achieved?: boolean | null
+          barbeiro_id?: string
+          bonus_amount?: number | null
+          created_at?: string
+          current_value?: number | null
+          goal_type?: string
+          id?: string
+          period_end?: string
+          period_start?: string
+          target_value?: number
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "barbeiro_goals_barbeiro_id_fkey"
+            columns: ["barbeiro_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       barbershop_settings: {
         Row: {
           address: string | null
@@ -412,6 +474,30 @@ export type Database = {
         }
         Relationships: []
       }
+      business_monthly_goals: {
+        Row: {
+          created_at: string
+          month_start: string
+          revenue_target: number
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          month_start: string
+          revenue_target: number
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          month_start?: string
+          revenue_target?: number
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       business_hours: {
         Row: {
           close_time: string | null
@@ -506,6 +592,45 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      client_notifications: {
+        Row: {
+          action_url: string
+          appointment_id: string
+          business_user_id: string
+          created_at: string
+          id: string
+          lead_hours_before: number
+          message: string
+          read_at: string | null
+          title: string
+          user_id: string
+        }
+        Insert: {
+          action_url: string
+          appointment_id: string
+          business_user_id: string
+          created_at?: string
+          id?: string
+          lead_hours_before: number
+          message: string
+          read_at?: string | null
+          title: string
+          user_id: string
+        }
+        Update: {
+          action_url?: string
+          appointment_id?: string
+          business_user_id?: string
+          created_at?: string
+          id?: string
+          lead_hours_before?: number
+          message?: string
+          read_at?: string | null
+          title?: string
+          user_id?: string
+        }
+        Relationships: []
       }
       clients: {
         Row: {
@@ -1615,6 +1740,7 @@ export type Database = {
           price_yearly: number | null
           sort_order: number | null
           stripe_price_id: string | null
+          stripe_price_yearly_id: string | null
           trial_days: number | null
           updated_at: string | null
         }
@@ -1631,6 +1757,7 @@ export type Database = {
           price_yearly?: number | null
           sort_order?: number | null
           stripe_price_id?: string | null
+          stripe_price_yearly_id?: string | null
           trial_days?: number | null
           updated_at?: string | null
         }
@@ -1647,6 +1774,7 @@ export type Database = {
           price_yearly?: number | null
           sort_order?: number | null
           stripe_price_id?: string | null
+          stripe_price_yearly_id?: string | null
           trial_days?: number | null
           updated_at?: string | null
         }
@@ -1699,6 +1827,59 @@ export type Database = {
           user_id?: string
         }
         Relationships: []
+      }
+      platform_subscription_events: {
+        Row: {
+          created_at: string
+          end_date: string | null
+          event_type: string
+          id: string
+          plan_type: string
+          previous_plan_type: string | null
+          previous_status: string | null
+          previous_end_date: string | null
+          source: string
+          status: string
+          subscription_id: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          end_date?: string | null
+          event_type: string
+          id?: string
+          plan_type: string
+          previous_plan_type?: string | null
+          previous_status?: string | null
+          previous_end_date?: string | null
+          source?: string
+          status: string
+          subscription_id: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          end_date?: string | null
+          event_type?: string
+          id?: string
+          plan_type?: string
+          previous_plan_type?: string | null
+          previous_status?: string | null
+          previous_end_date?: string | null
+          source?: string
+          status?: string
+          subscription_id?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "platform_subscription_events_subscription_id_fkey"
+            columns: ["subscription_id"]
+            isOneToOne: false
+            referencedRelation: "platform_subscriptions"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       platform_support_tickets: {
         Row: {
@@ -2568,6 +2749,22 @@ export type Database = {
           _appointment_id?: string | null
           _appointment_time: string
           _barber_id: string
+          _client_id: string
+          _notes?: string | null
+          _recurrence_end_date?: string | null
+          _recurrence_type?: string | null
+          _series_scope?: string
+          _service_ids: string[]
+        }
+        Returns: Json
+      }
+      save_business_appointments_with_source: {
+        Args: {
+          _appointment_dates: string[]
+          _appointment_id?: string | null
+          _appointment_time: string
+          _barber_id: string
+          _booking_source?: string | null
           _client_id: string
           _notes?: string | null
           _recurrence_end_date?: string | null

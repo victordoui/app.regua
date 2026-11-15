@@ -22,7 +22,7 @@ export default function TVSettings() {
   const activeSlides = draft.slides.filter(slide => slide.enabled);
   const preview = draft.slides.find(slide => slide.id === previewId);
   const cycleSeconds = activeSlides.reduce((total, slide) => total + slide.seconds, 0);
-  useEffect(() => { if (data && !dirty) setDraft(data); }, [data, dirty]);
+  useEffect(() => { if (data && !dirty) setDraft({ ...defaultTVConfig, ...data, slides: (data.slides || []).map(slide => ({ ...defaultTVConfig.slides[0], ...slide })) }); }, [data, dirty]);
   const change = (next: TVConfig) => { setDraft(next); setDirty(true); };
   const edit = (id: string, values: Partial<TVSlide>) => change({ ...draft, slides: draft.slides.map(s => s.id === id ? { ...s, ...values } : s) });
   const submit = async () => {

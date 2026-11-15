@@ -269,7 +269,7 @@ export const useAppointments = () => {
         formData.recurrence_type || null
       );
 
-      const { data, error } = await supabase.rpc("save_business_appointments", {
+      const { data, error } = await supabase.rpc("save_business_appointments_with_source", {
         _client_id: formData.client_id,
         _service_ids: serviceIds,
         _barber_id: formData.barbeiro_id,
@@ -280,6 +280,7 @@ export const useAppointments = () => {
         _recurrence_end_date: formData.recurrence_end_date || null,
         _appointment_id: null,
         _series_scope: "single",
+        _booking_source: formData.booking_source ?? null,
       });
 
       if (error) throw error;
@@ -311,7 +312,7 @@ export const useAppointments = () => {
       const serviceIds = [...new Set(
         formData.service_ids?.length ? formData.service_ids : [formData.service_id],
       )].filter(Boolean);
-      const { data, error } = await supabase.rpc("save_business_appointments", {
+      const { data, error } = await supabase.rpc("save_business_appointments_with_source", {
         _client_id: formData.client_id,
         _service_ids: serviceIds,
         _barber_id: formData.barbeiro_id,
@@ -322,6 +323,7 @@ export const useAppointments = () => {
         _recurrence_end_date: formData.recurrence_end_date || null,
         _appointment_id: id,
         _series_scope: "single",
+        _booking_source: formData.booking_source ?? null,
       });
 
       if (error) throw error;
@@ -341,12 +343,12 @@ export const useAppointments = () => {
     },
   });
 
-  const updateAppointmentStatusMutation = useMutation<Appointment, Error, { id: string; status: 'pending' | 'confirmed' | 'completed' | 'cancelled' | 'no_show' }>({
-    mutationFn: async ({ id, status }) => {
+  const updateAppointmentStatusMutation = useMutation<Appointment, Error, { id: string; status: 'pending' | 'confirmed' | 'completed' | 'cancelled' | 'no_show'; tipAmount?: number }>({
+    mutationFn: async ({ id, status, tipAmount }) => {
       if (!user || !businessId) throw new Error("Usuário não autenticado.");
       const { data, error } = await supabase
         .from("appointments")
-        .update({ status })
+        .update({ status, ...(status === 'completed' && tipAmount !== undefined ? { tip_amount: tipAmount } : {}) })
         .eq("id", id)
         .eq("user_id", businessId)
         .select()
@@ -438,7 +440,7 @@ export const useAppointments = () => {
       )].filter(Boolean);
       if (serviceIds.length === 0) throw new Error("INVALID_SERVICE");
 
-      const { data, error } = await supabase.rpc("save_business_appointments", {
+      const { data, error } = await supabase.rpc("save_business_appointments_with_source", {
         _client_id: formData.client_id,
         _service_ids: serviceIds,
         _barber_id: formData.barbeiro_id,
@@ -449,6 +451,7 @@ export const useAppointments = () => {
         _recurrence_end_date: formData.recurrence_end_date || null,
         _appointment_id: id,
         _series_scope: updateFutureOnly ? "future" : "single",
+        _booking_source: formData.booking_source ?? null,
       });
 
       if (error) throw error;

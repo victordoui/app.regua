@@ -10,7 +10,19 @@
 
 [[redirects]]
   from = "/agendamento/*"
-  to = "https://yjuqixthmwgnzkjummaf.supabase.co/functions/v1/booking-share/:splat"
+  to = "/.netlify/functions/booking-share/:splat"
+  status = 200
+  force = true
+
+[[redirects]]
+  from = "/"
+  to = "/vendas"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "/vendas"
+  to = "/vendas/index.html"
   status = 200
   force = true
 

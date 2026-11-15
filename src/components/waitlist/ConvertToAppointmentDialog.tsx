@@ -1,3 +1,4 @@
+import { formatCurrency } from '@/lib/formatters';
 import React, { useState, useEffect } from 'react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
@@ -7,7 +8,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Calendar } from '@/components/ui/calendar';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { CalendarIcon, Loader2 } from 'lucide-react';
-import { format } from 'date-fns';
+import { format, parseISO } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
 import { cn } from '@/lib/utils';
 import { WaitlistItem } from '@/hooks/useWaitlist';
@@ -64,7 +65,7 @@ const ConvertToAppointmentDialog: React.FC<ConvertToAppointmentDialogProps> = ({
     if (waitlistItem) {
       if (waitlistItem.service_id) setSelectedService(waitlistItem.service_id);
       if (waitlistItem.barber_id) setSelectedBarber(waitlistItem.barber_id);
-      if (waitlistItem.preferred_date) setSelectedDate(new Date(waitlistItem.preferred_date));
+      if (waitlistItem.preferred_date) setSelectedDate(parseISO(waitlistItem.preferred_date));
       if (waitlistItem.preferred_time_start) setSelectedTime(waitlistItem.preferred_time_start);
     }
   }, [waitlistItem]);
@@ -107,7 +108,7 @@ const ConvertToAppointmentDialog: React.FC<ConvertToAppointmentDialogProps> = ({
               <SelectContent>
                 {services.map(service => (
                   <SelectItem key={service.id} value={service.id}>
-                    {service.name} - R$ {service.price.toFixed(2)} ({service.duration_minutes}min)
+                    {service.name} - {formatCurrency(service.price)} ({service.duration_minutes}min)
                   </SelectItem>
                 ))}
               </SelectContent>

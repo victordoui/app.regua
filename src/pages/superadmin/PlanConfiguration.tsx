@@ -26,14 +26,27 @@ const PLAN_COLORS: Record<string, string> = {
 const FEATURE_LABELS: Record<string, string> = {
   basic_scheduling: 'Agendamento Básico',
   client_management: 'Gestão de Clientes',
+  services: 'Cadastro de serviços',
+  public_booking: 'Link público de agendamento',
+  reminders_150: '150 lembretes por mês',
+  reminders_600: '600 lembretes por mês',
+  reminders_2000: '2.000 lembretes por mês',
+  basic_reports: 'Relatórios básicos',
+  complete_reports: 'Relatórios completos',
+  commissions: 'Comissões',
+  pix_deposit: 'Sinal por Pix',
   reports: 'Relatórios',
   loyalty: 'Programa de Fidelidade',
   campaigns: 'Campanhas de Marketing',
+  stock: 'Controle de estoque',
   api_access: 'Acesso à API',
   priority_support: 'Suporte Prioritário',
-  white_label: 'White Label',
-  multi_location: 'Múltiplas Unidades',
+  client_subscription_club: 'Clube de assinatura para clientes',
+  white_label: 'Marca própria',
+  multi_location: 'Até 2 unidades',
 };
+
+const COMING_SOON_FEATURES = new Set(['client_subscription_club', 'white_label', 'multi_location']);
 
 const formatCurrency = (value: number) => {
   return new Intl.NumberFormat('pt-BR', {
@@ -60,6 +73,7 @@ const PlanConfiguration = () => {
       is_active: plan.is_active,
       trial_days: plan.trial_days,
       stripe_price_id: plan.stripe_price_id,
+      stripe_price_yearly_id: plan.stripe_price_yearly_id,
     });
   };
 
@@ -109,6 +123,7 @@ const PlanConfiguration = () => {
                 <div className="flex items-center justify-between">
                   <CardTitle className="text-lg">{plan.display_name}</CardTitle>
                   <div className="flex items-center gap-2">
+                    {plan.plan_type === 'pro' && <Badge variant="secondary" className="text-xs">Mais escolhido</Badge>}
                     {!plan.is_active && (
                       <Badge variant="secondary" className="text-xs">Inativo</Badge>
                     )}
@@ -145,7 +160,7 @@ const PlanConfiguration = () => {
                     <strong className="text-foreground">{plan.max_barbers}</strong> colaboradores
                   </p>
                   <p className="text-muted-foreground">
-                    <strong className="text-foreground">{plan.max_appointments_month}</strong> agendamentos/mês
+                    <strong className="text-foreground">Ilimitados</strong> agendamentos
                   </p>
                 </div>
 
@@ -154,13 +169,15 @@ const PlanConfiguration = () => {
                   <div className="space-y-1">
                     {Object.entries(plan.features || {}).map(([feature, enabled]) => (
                       <div key={feature} className="flex items-center gap-2 text-xs">
-                        {enabled ? (
+                        {COMING_SOON_FEATURES.has(feature) ? (
+                          <span className="h-3 w-3 shrink-0 rounded-full border border-amber-500" />
+                        ) : enabled ? (
                           <Check className="h-3 w-3 text-green-500" />
                         ) : (
                           <X className="h-3 w-3 text-muted-foreground" />
                         )}
-                        <span className={enabled ? 'text-foreground' : 'text-muted-foreground'}>
-                          {FEATURE_LABELS[feature] || feature}
+                        <span className={enabled || COMING_SOON_FEATURES.has(feature) ? 'text-foreground' : 'text-muted-foreground'}>
+                          {FEATURE_LABELS[feature] || feature}{COMING_SOON_FEATURES.has(feature) ? ' · Em breve' : ''}
                         </span>
                       </div>
                     ))}
@@ -243,14 +260,25 @@ const PlanConfiguration = () => {
                 )}
 
                 {editingPlan?.plan_type !== 'trial' && (
-                  <div className="space-y-2">
-                    <label className="text-sm font-medium">Stripe Price ID mensal</label>
-                    <Input
-                      value={formData.stripe_price_id || ''}
-                      placeholder="price_..."
-                      onChange={(e) => setFormData({ ...formData, stripe_price_id: e.target.value.trim() || null })}
-                    />
-                    <p className="text-xs text-muted-foreground">Deve corresponder a um preço mensal ativo em BRL no Stripe.</p>
+                  <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+                    <div className="space-y-2">
+                      <label className="text-sm font-medium">Stripe Price ID mensal</label>
+                      <Input
+                        value={formData.stripe_price_id || ''}
+                        placeholder="price_..."
+                        onChange={(e) => setFormData({ ...formData, stripe_price_id: e.target.value.trim() || null })}
+                      />
+                      <p className="text-xs text-muted-foreground">Preço mensal ativo em BRL no Stripe.</p>
+                    </div>
+                    <div className="space-y-2">
+                      <label className="text-sm font-medium">Stripe Price ID anual</label>
+                      <Input
+                        value={formData.stripe_price_yearly_id || ''}
+                        placeholder="price_..."
+                        onChange={(e) => setFormData({ ...formData, stripe_price_yearly_id: e.target.value.trim() || null })}
+                      />
+                      <p className="text-xs text-muted-foreground">Preço anual ativo em BRL no Stripe.</p>
+                    </div>
                   </div>
                 )}
 
@@ -288,10 +316,11 @@ const PlanConfiguration = () => {
                         <Checkbox
                           id={feature}
                           checked={formData.features[feature] || false}
+                          disabled={COMING_SOON_FEATURES.has(feature)}
                           onCheckedChange={() => toggleFeature(feature)}
                         />
                         <label htmlFor={feature} className="text-sm">
-                          {FEATURE_LABELS[feature]}
+                          {FEATURE_LABELS[feature]}{COMING_SOON_FEATURES.has(feature) ? ' · Em breve' : ''}
                         </label>
                       </div>
                     ))}

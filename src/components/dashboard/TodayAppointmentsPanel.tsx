@@ -1,6 +1,7 @@
 import React from "react";
 import { useNavigate } from "react-router-dom";
 import { useRealtimeAppointments } from "@/hooks/useRealtimeAppointments";
+import { formatCurrency } from "@/lib/formatters";
 
 const barColors = ["bg-primary", "bg-[hsl(var(--teal))]", "bg-[hsl(var(--warning))]", "bg-[hsl(var(--violet))]", "bg-[hsl(var(--rose))]"];
 
@@ -48,7 +49,7 @@ const TodayAppointmentsPanel = () => {
                 </div>
               </div>
               <div className="font-heading text-xs font-bold text-foreground flex-shrink-0">
-                R$ {apt.total_price || apt.services?.price || 0}
+                {formatCurrency(apt.total_price || apt.services?.price || 0)}
               </div>
             </div>
           ))}

@@ -45,27 +45,16 @@ const FinancialMetrics = () => {
 
   const isLoading = loadingPayments || loadingPlatform || loadingPlans;
 
-  // Calculate revenue by plan
-  const revenueByPlan = plans.map((plan) => {
-    const subscriberCount = platformStats?.by_plan?.[plan.plan_type as keyof typeof platformStats.by_plan] || 0;
-    const revenue = subscriberCount * plan.price_monthly;
-    return {
-      name: plan.display_name,
-      value: revenue,
-      subscribers: subscriberCount,
+  const revenueByPlan = (platformStats?.revenue_by_plan || [])
+    .filter((plan) => plan.revenue > 0)
+    .map((plan) => ({
+      name: plan.label,
+      value: plan.revenue,
+      subscribers: plan.subscribers,
       color: PLAN_COLORS[plan.plan_type] || '#6b7280',
-    };
-  }).filter(p => p.value > 0);
+    }));
 
-  // Mock monthly data for chart
-  const monthlyData = [
-    { month: 'Set', revenue: (paymentStats?.mrr || 0) * 0.7 },
-    { month: 'Out', revenue: (paymentStats?.mrr || 0) * 0.8 },
-    { month: 'Nov', revenue: (paymentStats?.mrr || 0) * 0.9 },
-    { month: 'Dez', revenue: (paymentStats?.mrr || 0) * 0.95 },
-    { month: 'Jan', revenue: paymentStats?.mrr || 0 },
-    { month: 'Fev', revenue: paymentStats?.mrr || 0 },
-  ];
+  const monthlyData = platformStats?.revenue_by_month || [];
 
   if (isLoading) {
     return (
@@ -98,7 +87,7 @@ const FinancialMetrics = () => {
             </CardHeader>
             <CardContent>
               <div className="text-3xl font-bold text-foreground">
-                {formatCurrency(paymentStats?.mrr || 0)}
+                {formatCurrency(platformStats?.monthly_revenue || 0)}
               </div>
               <p className="text-xs text-green-500 mt-1 flex items-center gap-1">
                 <TrendingUp className="h-3 w-3" />
@@ -163,7 +152,7 @@ const FinancialMetrics = () => {
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
           <Card>
             <CardHeader>
-              <CardTitle>Crescimento de Receita (6 meses)</CardTitle>
+              <CardTitle>Receita recebida (6 meses)</CardTitle>
             </CardHeader>
             <CardContent>
               <ResponsiveContainer width="100%" height={300}>

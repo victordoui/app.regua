@@ -36,7 +36,7 @@ export const usePlatformBroadcast = () => {
       await supabase.from('platform_audit_logs').insert([{
         super_admin_id: user?.id || '',
         action: 'send_broadcast',
-        details: formData as Json,
+        details: { ...formData } as Json,
       }]);
     },
     onSuccess: () => {

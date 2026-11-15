@@ -5,6 +5,7 @@ import { cn } from '@/lib/utils';
 
 interface MobileLayoutProps {
   children: React.ReactNode;
+  showNavigation?: boolean;
   settings?: {
     company_name: string;
     logo_url: string | null;
@@ -13,7 +14,7 @@ interface MobileLayoutProps {
   };
 }
 
-const MobileLayout: React.FC<MobileLayoutProps> = ({ children, settings }) => {
+const MobileLayout: React.FC<MobileLayoutProps> = ({ children, settings, showNavigation = true }) => {
   const navigate = useNavigate();
   const location = useLocation();
   const { userId } = useParams();
@@ -23,7 +24,7 @@ const MobileLayout: React.FC<MobileLayoutProps> = ({ children, settings }) => {
   const navItems = [
     { icon: Home, label: "Início", path: `${basePath}/home` },
     { icon: CalendarPlus, label: "Agendar", path: `${basePath}/agendar` },
-    { icon: Calendar, label: "Meus Cortes", path: `${basePath}/agendamentos` },
+    { icon: Calendar, label: "Meus agendamentos", path: `${basePath}/agendamentos` },
     { icon: User, label: "Perfil", path: `${basePath}/perfil` },
   ];
 
@@ -64,12 +65,12 @@ const MobileLayout: React.FC<MobileLayoutProps> = ({ children, settings }) => {
       </header>
 
       {/* Main Content - with padding for bottom nav */}
-      <main className="flex-1 overflow-y-auto pb-24">
+      <main className={cn("flex-1 overflow-y-auto", showNavigation ? "pb-24" : "pb-4")}>
         {children}
       </main>
 
       {/* Bottom Navigation */}
-      <nav className="fixed inset-x-0 bottom-0 z-50 border-t border-border/80 bg-background/95 shadow-[0_-8px_24px_rgba(15,23,42,0.08)] backdrop-blur safe-area-pb" aria-label="Navegação principal">
+      {showNavigation && <nav className="fixed inset-x-0 bottom-0 z-50 border-t border-border/80 bg-background/95 shadow-[0_-8px_24px_rgba(15,23,42,0.08)] backdrop-blur safe-area-pb" aria-label="Navegação principal">
         <div className="mx-auto grid w-full max-w-lg grid-cols-4 px-2 py-1.5">
           {navItems.map((item) => {
             const Icon = item.icon;
@@ -106,7 +107,7 @@ const MobileLayout: React.FC<MobileLayoutProps> = ({ children, settings }) => {
             );
           })}
         </div>
-      </nav>
+      </nav>}
     </div>
   );
 };

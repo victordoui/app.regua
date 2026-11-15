@@ -12,6 +12,7 @@ dist
 dist-ssr
 .netlify/
 *.local
+supabase/.temp/
 
 # Editor directories and files
 .vscode/*

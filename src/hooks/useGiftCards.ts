@@ -1,3 +1,4 @@
+import { businessDateTimeToISOString, formatCurrency } from '@/lib/formatters';
 import { useCallback, useMemo } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
@@ -170,7 +171,7 @@ export function useGiftCards() {
           recipient_name: input.recipient_name || null,
           recipient_email: input.recipient_email || null,
           message: input.message || null,
-          expires_at: input.expires_at || null,
+          expires_at: input.expires_at ? businessDateTimeToISOString(input.expires_at, '23:59:59') : null,
           status: 'active',
         })
         .select()
@@ -279,7 +280,7 @@ export function useGiftCards() {
       }
 
       if (input.amount > giftCard.current_balance) {
-        throw new Error(`Saldo insuficiente. Disponível: R$ ${giftCard.current_balance.toFixed(2)}`);
+        throw new Error(`Saldo insuficiente. Disponível: ${formatCurrency(giftCard.current_balance)}`);
       }
 
       const newBalance = giftCard.current_balance - input.amount;
@@ -308,7 +309,7 @@ export function useGiftCards() {
           amount: -input.amount, // Negative for redemption
           type: 'redeem',
           appointment_id: input.appointmentId || null,
-          notes: input.notes || `Resgate de R$ ${input.amount.toFixed(2)}`,
+          notes: input.notes || `Resgate de ${formatCurrency(input.amount)}`,
         });
 
       if (transactionError) {
@@ -326,7 +327,7 @@ export function useGiftCards() {
       queryClient.invalidateQueries({ queryKey: ['gift-card-transactions'] });
       toast({
         title: 'Gift Card resgatado!',
-        description: `R$ ${result.amountRedeemed.toFixed(2)} utilizado. Saldo restante: R$ ${result.newBalance.toFixed(2)}`,
+        description: `${formatCurrency(result.amountRedeemed)} utilizado. Saldo restante: ${formatCurrency(result.newBalance)}`,
       });
     },
     onError: (error: Error) => {
@@ -404,7 +405,7 @@ export function useGiftCards() {
           user_id: user.id,
           amount: amount, // Positive for refund
           type: 'refund',
-          notes: notes || `Estorno de R$ ${amount.toFixed(2)}`,
+          notes: notes || `Estorno de ${formatCurrency(amount)}`,
         });
 
       return { newBalance };
@@ -414,7 +415,7 @@ export function useGiftCards() {
       queryClient.invalidateQueries({ queryKey: ['gift-card-transactions'] });
       toast({
         title: 'Estorno realizado!',
-        description: `Novo saldo: R$ ${result.newBalance.toFixed(2)}`,
+        description: `Novo saldo: ${formatCurrency(result.newBalance)}`,
       });
     },
     onError: (error: Error) => {

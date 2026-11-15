@@ -10,7 +10,7 @@
   :root {
     /* ── MARCA VIZZU ── */
     --brand: 224 72% 48%;          /* #1D4ED8 */
-    --brand-mid: 217 91% 60%;     /* #2563EB */
+    --brand-mid: 221.2 83.3% 53.3%; /* #2563EB */
     --brand-light: 217 91% 60%;   /* #3B82F6 */
     --brand-50: 214 100% 97%;     /* #EFF6FF */
     --brand-100: 214 95% 93%;     /* #DBEAFE */
@@ -27,7 +27,7 @@
     --popover-foreground: 222 47% 11%;
 
     /* Primary = brand-mid #2563EB */
-    --primary: 217 91% 60%;
+    --primary: 221.2 83.3% 53.3%;
     --primary-foreground: 0 0% 100%;
 
     --primary-50: 214 100% 97%;
@@ -45,7 +45,7 @@
     --primary-rgb: 37, 99, 235;
 
     --secondary: 210 20% 98%;
-    --secondary-foreground: 217 91% 60%;
+    --secondary-foreground: 221.2 83.3% 53.3%;
     --secondary-rgb: 249, 250, 251;
 
     --muted: 214 32% 94%;
@@ -156,7 +156,7 @@
     --popover-foreground: 210 40% 96%;
 
     /* Primary stays brand blue */
-    --primary: 217 91% 60%;
+    --primary: 221.2 83.3% 53.3%;
     --primary-foreground: 0 0% 100%;
 
     --primary-50: 217 50% 15%;

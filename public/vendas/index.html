@@ -1,0 +1,70 @@
+<!doctype html>
+<html lang="pt-BR">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="theme-color" content="#f4f7fc">
+    <title>VIZZU | Gestão de agenda para barbearias e salões</title>
+    <meta name="description" content="Organize agenda, equipe, clientes e financeiro da sua barbearia ou salão com o VIZZU. Teste grátis por 7 dias, sem cartão de crédito.">
+    <link rel="icon" href="/pwa-icon-192.png" type="image/png">
+    <link rel="preload" as="image" href="/images/sales/vizzu-sales-dashboard-mobile.webp" fetchpriority="high">
+    <meta property="og:type" content="website">
+    <meta property="og:title" content="VIZZU | Gestão de agenda para barbearias e salões">
+    <meta property="og:description" content="Organize agenda, equipe, clientes e financeiro do seu negócio de serviços.">
+    <meta property="og:image" content="https://vizzuapp.netlify.app/og-vizzu.png">
+    <meta property="og:image:alt" content="VIZZU — Gestão inteligente de agendamentos para barbearias e salões">
+    <meta property="og:image:type" content="image/png">
+    <meta property="og:image:width" content="1200">
+    <meta property="og:image:height" content="630">
+    <meta property="og:url" content="https://vizzuapp.netlify.app/vendas">
+    <style>
+      :root{color-scheme:light;--ink:#0f2345;--muted:#52627c;--blue:#2563eb;--blue-dark:#1745a4;--line:#d7e1f0;--soft:#f4f7fc;--white:#fff}*{box-sizing:border-box}html{scroll-behavior:smooth}body{margin:0;background:var(--soft);color:var(--ink);font-family:Inter,ui-sans-serif,system-ui,-apple-system,"Segoe UI",sans-serif;-webkit-font-smoothing:antialiased}a{color:inherit;text-decoration:none}.wrap{width:min(1120px,calc(100% - 40px));margin-inline:auto}.topbar{position:sticky;top:0;z-index:5;border-bottom:1px solid #e2e8f0;background:rgba(255,255,255,.96);backdrop-filter:blur(12px)}.nav{height:72px;display:flex;align-items:center;justify-content:space-between;gap:20px}.brand{display:flex;align-items:center;gap:10px;font-size:22px;font-weight:900;letter-spacing:.04em}.brand img{width:42px;height:42px;object-fit:contain}.nav-links{display:flex;align-items:center;gap:26px;color:#354967;font-size:14px;font-weight:650}.actions{display:flex;align-items:center;gap:10px}.button{min-height:44px;display:inline-flex;align-items:center;justify-content:center;padding:0 18px;border:1px solid var(--line);border-radius:12px;background:#fff;color:var(--ink);font-size:14px;font-weight:750;transition:background .15s ease,transform .15s ease}.button:hover{transform:translateY(-1px);background:#f7faff}.button.primary{border-color:var(--blue);background:linear-gradient(110deg,#3b82f6,#1d4ed8);color:#fff;box-shadow:0 10px 24px #2563eb2b}.button.primary:hover{background:var(--blue-dark)}.hero{padding:54px 0 42px;background:radial-gradient(ellipse at 78% 16%,#dceaff 0,transparent 44%),linear-gradient(180deg,#fff,#f4f7fc)}.hero-grid{display:grid;grid-template-columns:.92fr 1.08fr;align-items:center;gap:34px}.eyebrow{display:inline-flex;align-items:center;gap:8px;color:var(--blue);font-size:12px;font-weight:850;letter-spacing:.14em;text-transform:uppercase}.eyebrow:before{content:"";width:24px;height:2px;background:#60a5fa}.hero h1{max-width:580px;margin:16px 0 14px;font-size:clamp(38px,5vw,58px);line-height:.99;letter-spacing:-.055em}.hero h1 span{color:var(--blue)}.hero p{max-width:545px;margin:0;color:var(--muted);font-size:16px;line-height:1.7}.hero-actions{display:flex;flex-wrap:wrap;gap:11px;margin-top:24px}.checks{display:flex;flex-wrap:wrap;gap:13px;margin-top:18px;color:#52627c;font-size:12px}.checks span:before{content:"✓";margin-right:6px;color:#16845d;font-weight:900}.preview{position:relative}.preview:before{content:"";position:absolute;inset:8% 4% 0;border-radius:28px;background:#8fb5ff55;filter:blur(34px)}.preview img{position:relative;display:block;width:100%;height:auto;border:1px solid #dbe5f3;border-radius:18px;background:white;box-shadow:0 28px 70px -38px #173d7d88}.section{padding:64px 0}.section.white{background:#fff;border-block:1px solid #e3eaf4}.section-head{max-width:690px;margin:0 auto 30px;text-align:center}.section h2{margin:0 0 10px;font-size:clamp(28px,4vw,38px);letter-spacing:-.04em}.section-head p,.muted{color:var(--muted);line-height:1.65}.grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:16px}.tile,.plan{border:1px solid var(--line);border-radius:18px;background:#fff;box-shadow:0 14px 36px -30px #18335f88}.tile{padding:23px}.tile-icon{display:grid;width:44px;height:44px;place-items:center;border-radius:13px;background:#eaf1ff;color:var(--blue);font-size:21px}.tile h3{margin:15px 0 7px;font-size:17px}.tile p{margin:0;color:var(--muted);font-size:14px;line-height:1.6}.plans{align-items:stretch}.plan{position:relative;padding:25px;display:flex;flex-direction:column}.plan.featured{border:2px solid #4a83f3;box-shadow:0 20px 55px -35px #2563eb99}.tag{position:absolute;top:-13px;left:50%;transform:translateX(-50%);padding:6px 12px;border-radius:99px;background:var(--blue);color:#fff;font-size:11px;font-weight:850;white-space:nowrap}.plan h3{margin:0;font-size:21px}.price{margin:18px 0 5px;font-size:32px;font-weight:900;letter-spacing:-.04em}.price small{font-size:13px;font-weight:600;color:var(--muted);letter-spacing:0}.annual{min-height:22px;color:var(--muted);font-size:12px}.billing-toggle{display:flex;width:max-content;gap:4px;margin:0 auto 22px;padding:4px;border:1px solid var(--line);border-radius:12px;background:#fff}.billing-toggle button{min-height:38px;padding:0 13px;border:0;border-radius:8px;background:transparent;color:var(--ink);font:inherit;font-size:13px;font-weight:750}.billing-toggle button[aria-pressed="true"]{background:var(--blue);color:#fff}.plan ul{display:grid;gap:11px;padding:0;margin:21px 0 24px;list-style:none;color:#40516d;font-size:13px;line-height:1.45}.plan li:before{content:"✓";margin-right:8px;color:#159166;font-weight:900}.plan li.soon:before{content:"·";color:#b7791f}.plan .button{margin-top:auto}.trial-note{max-width:760px;margin:28px auto 0;padding:18px 20px;border:1px solid #c8d9fa;border-radius:16px;background:#edf4ff;color:#304563;text-align:center;font-size:14px;line-height:1.6}.cta{padding:48px 0;background:linear-gradient(110deg,#2158bb,#17428f);color:#fff}.cta-row{display:flex;align-items:center;justify-content:space-between;gap:24px}.cta h2{margin:0 0 8px;font-size:clamp(23px,3vw,32px)}.cta p{margin:0;color:#d7e7ff}.cta .button{border-color:#fff;background:#fff;color:#17428f}.footer{padding:24px 0;background:#fff;color:#60718c;font-size:12px}.footer-row{display:flex;align-items:center;justify-content:space-between;gap:15px}.footer .brand{font-size:16px}.footer .brand img{width:32px;height:32px}
+      @media(max-width:800px){.nav-links{display:none}.hero{padding:34px 0 30px}.hero-grid{grid-template-columns:1fr;gap:26px}.hero h1{font-size:clamp(38px,10vw,50px)}.hero p{font-size:15px}.preview{max-width:650px;margin:auto}.section{padding:48px 0}.grid{grid-template-columns:1fr}.plan{padding:23px}.cta-row{align-items:flex-start;flex-direction:column}.cta .button{width:100%}}
+      @media(max-width:430px){.wrap{width:calc(100% - 28px)}.nav{height:64px;gap:8px}.brand{gap:6px;font-size:18px}.brand img{width:34px;height:34px}.actions{gap:5px}.actions .button{min-height:38px;padding-inline:10px;font-size:12px}.hero-actions .button{width:100%}.checks{gap:8px;font-size:11px}.footer-row{align-items:flex-start;flex-direction:column}}
+      @media(prefers-reduced-motion:reduce){*,*::before,*::after{scroll-behavior:auto!important;transition:none!important}}
+    </style>
+  </head>
+  <body>
+    <header class="topbar"><div class="wrap nav">
+      <a class="brand" href="/vendas" aria-label="VIZZU — início"><img src="/pwa-icon-192.png" alt=""><span>VIZZU</span></a>
+      <nav class="nav-links" aria-label="Navegação principal"><a href="#recursos">Recursos</a><a href="#planos">Planos</a><a href="#contato">Contato</a></nav>
+      <div class="actions"><a class="button" href="/login">Entrar</a><a class="button primary" href="/cadastro?plano=trial">Testar grátis</a></div>
+    </div></header>
+    <main>
+      <section class="hero"><div class="wrap hero-grid">
+        <div><span class="eyebrow">Gestão para negócios de serviços</span><h1>Sua agenda cheia.<br><span>Seu negócio no controle.</span></h1><p>Organize agendamentos, clientes, equipe e financeiro em um só lugar. O VIZZU simplifica sua rotina para você atender melhor e crescer.</p><div class="hero-actions"><a class="button primary" href="/cadastro?plano=trial">Testar grátis por 7 dias&nbsp; →</a><a class="button" href="#planos">Conhecer os planos</a></div><div class="checks"><span>Sem cartão de crédito</span><span>Configuração guiada</span><span>Cancele quando quiser</span></div></div>
+        <div class="preview"><img src="/images/sales/vizzu-sales-dashboard-mobile.webp" width="900" height="506" alt="Painel VIZZU com agenda, indicadores e gestão financeira" fetchpriority="high"></div>
+      </div></section>
+      <section id="recursos" class="section white"><div class="wrap"><div class="section-head"><span class="eyebrow">Sua operação em ordem</span><h2>Mais tempo para cuidar dos seus clientes</h2><p>As ferramentas essenciais para organizar o atendimento e acompanhar o crescimento do seu negócio.</p></div><div class="grid">
+        <article class="tile"><span class="tile-icon" aria-hidden="true">▦</span><h3>Agendamento online</h3><p>Seus clientes escolhem serviço, profissional e horário pelo link da sua empresa.</p></article>
+        <article class="tile"><span class="tile-icon" aria-hidden="true">♙</span><h3>Equipe e comissões</h3><p>Acompanhe horários, atendimentos, ganhos e comissões de cada profissional.</p></article>
+        <article class="tile"><span class="tile-icon" aria-hidden="true">↗</span><h3>Gestão e resultados</h3><p>Veja clientes, faturamento e indicadores para tomar decisões com clareza.</p></article>
+      </div></div></section>
+      <section id="planos" class="section"><div class="wrap"><div class="section-head"><span class="eyebrow">Comece no seu ritmo</span><h2>Planos claros para cada fase do negócio</h2><p>Teste por 7 dias sem cartão. Depois, escolha o plano que acompanha sua equipe.</p></div>
+        <div class="billing-toggle" role="group" aria-label="Período de cobrança"><button type="button" data-cycle="monthly" aria-pressed="true">Mensal</button><button type="button" data-cycle="yearly" aria-pressed="false">Anual · 2 meses grátis</button></div>
+        <div class="grid plans">
+        <article class="plan" data-plan="basic"><h3>Essencial</h3><div class="price"><span data-month="44,90" data-year="449,00">R$ 44,90</span> <small data-period>/mês</small></div><p class="annual">R$ 449 por ano · 2 meses grátis</p><ul><li>Até 2 profissionais</li><li>Agendamentos ilimitados</li><li>Agenda, link público, clientes e serviços</li><li>150 lembretes por mês</li><li>Relatórios básicos</li></ul><a class="button" data-checkout href="/cadastro?plano=basic&ciclo=monthly">Escolher Essencial</a></article>
+        <article class="plan featured" data-plan="pro"><span class="tag">Mais escolhido</span><h3>Profissional</h3><div class="price"><span data-month="89,90" data-year="899,00">R$ 89,90</span> <small data-period>/mês</small></div><p class="annual">R$ 899 por ano · 2 meses grátis</p><ul><li>Até 6 profissionais</li><li>Tudo do Essencial</li><li>Comissões, sinal por Pix e fidelidade</li><li>Campanhas e controle de estoque</li><li>600 lembretes e relatórios completos</li></ul><a class="button primary" data-checkout href="/cadastro?plano=pro&ciclo=monthly">Escolher Profissional</a></article>
+        <article class="plan" data-plan="enterprise"><h3>Premium</h3><div class="price"><span data-month="149,90" data-year="1.499,00">R$ 149,90</span> <small data-period>/mês</small></div><p class="annual">R$ 1.499 por ano · 2 meses grátis</p><ul><li>Até 15 profissionais</li><li>Tudo do Profissional</li><li class="soon">Clube de assinatura para clientes <strong>(em breve)</strong></li><li class="soon">Marca própria e até 2 unidades <strong>(em breve)</strong></li><li>2.000 lembretes e suporte prioritário</li></ul><a class="button" data-checkout href="/cadastro?plano=enterprise&ciclo=monthly">Escolher Premium</a></article>
+      </div><p class="trial-note"><strong>Teste grátis por 7 dias, sem cartão.</strong> O período de teste inclui os recursos do plano Profissional. Profissional adicional: R$ 12 por mês.</p></div></section>
+      <section id="contato" class="cta"><div class="wrap cta-row"><div><h2>Organize seu próximo atendimento com o VIZZU</h2><p>Crie sua conta e conheça o sistema por 7 dias, sem compromisso.</p></div><a class="button" href="/cadastro?plano=trial">Começar teste grátis&nbsp; →</a></div></section>
+    </main>
+    <footer class="footer"><div class="wrap footer-row"><a class="brand" href="/vendas"><img src="/pwa-icon-192.png" alt=""><span>VIZZU</span></a><span>Gestão inteligente para barbearias, salões e negócios de serviços.</span><span>© <span data-year>2026</span> VIZZU</span></div></footer>
+    <script>
+      document.querySelector('[data-year]').textContent = new Date().getFullYear();
+      const cycleButtons = document.querySelectorAll('[data-cycle]');
+      cycleButtons.forEach((button) => button.addEventListener('click', () => {
+        const cycle = button.dataset.cycle;
+        cycleButtons.forEach((item) => item.setAttribute('aria-pressed', String(item === button)));
+        document.querySelectorAll('.plan[data-plan]').forEach((card) => {
+          const price = card.querySelector('[data-month]');
+          const period = card.querySelector('[data-period]');
+          const link = card.querySelector('[data-checkout]');
+          price.textContent = `R$ ${cycle === 'yearly' ? price.dataset.year : price.dataset.month}`;
+          period.textContent = cycle === 'yearly' ? '/ano' : '/mês';
+          link.href = `/cadastro?plano=${card.dataset.plan}&ciclo=${cycle}`;
+        });
+      }));
+    </script>
+  </body>
+</html>

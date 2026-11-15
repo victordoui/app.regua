@@ -1,11 +1,10 @@
+import { formatCurrency, formatDateInBusinessTimeZone } from '@/lib/formatters';
 import { useNavigate } from 'react-router-dom';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Progress } from '@/components/ui/progress';
 import { Crown, Calendar, Users, CalendarCheck, Zap, Clock, Sparkles } from 'lucide-react';
-import { format } from 'date-fns';
-import { ptBR } from 'date-fns/locale';
 import type { SubscriptionData } from '@/hooks/useMySubscription';
 
 const planColors: Record<string, string> = {
@@ -74,7 +73,7 @@ const SubscriptionInfoCard = ({ data }: SubscriptionInfoCardProps) => {
 
           {planConfig?.price_monthly != null && (
             <p className="text-2xl font-bold text-foreground">
-              R$ {Number(planConfig.price_monthly).toFixed(2)}
+              {formatCurrency(Number(planConfig.price_monthly))}
               <span className="text-sm font-normal text-muted-foreground">/mês</span>
             </p>
           )}
@@ -101,7 +100,7 @@ const SubscriptionInfoCard = ({ data }: SubscriptionInfoCardProps) => {
                 <p className="text-xs text-muted-foreground">Início</p>
                 <p className="text-sm font-medium">
                   {subscription.start_date
-                    ? format(new Date(subscription.start_date), 'dd/MM/yyyy', { locale: ptBR })
+                    ? formatDateInBusinessTimeZone(subscription.start_date)
                     : '-'}
                 </p>
               </div>
@@ -112,7 +111,7 @@ const SubscriptionInfoCard = ({ data }: SubscriptionInfoCardProps) => {
                 <p className="text-xs text-muted-foreground">Término</p>
                 <p className="text-sm font-medium">
                   {subscription.end_date
-                    ? format(new Date(subscription.end_date), 'dd/MM/yyyy', { locale: ptBR })
+                    ? formatDateInBusinessTimeZone(subscription.end_date)
                     : 'Indeterminado'}
                 </p>
               </div>

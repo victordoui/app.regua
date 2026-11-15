@@ -14,6 +14,7 @@ import RecentActivities from "@/components/dashboard/RecentActivities";
 import BirthdayClients from "@/components/dashboard/BirthdayClients";
 import InactiveClients from "@/components/dashboard/InactiveClients";
 import { motion, AnimatePresence } from "framer-motion";
+import { formatCurrency } from "@/lib/formatters";
 
 const Dashboard = () => {
   const { user } = useAuth();
@@ -56,12 +57,12 @@ const Dashboard = () => {
     },
     {
       title: "Receita Mensal",
-      value: `R$ ${metrics.monthRevenue.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}`,
-      change: `Meta: R$ 20.000,00`,
+      value: formatCurrency(metrics.monthRevenue),
+      change: metrics.monthlyGoal > 0 ? `Meta: ${formatCurrency(metrics.monthlyGoal)}` : "Meta mensal não definida",
       trend: metrics.monthRevenue > 0 ? "up" : "down",
       icon: DollarSign,
       color: "green",
-      progress: Math.min((metrics.monthRevenue / 20000) * 100, 100)
+      progress: metrics.monthlyGoal > 0 ? Math.min((metrics.monthRevenue / metrics.monthlyGoal) * 100, 100) : undefined
     },
     {
       title: "Taxa de Ocupação",
@@ -171,7 +172,7 @@ const Dashboard = () => {
                         </div>
                       </div>
                     </div>
-                    <div className="space-y-2 mt-2">
+                    {stat.progress !== undefined && <div className="space-y-2 mt-2">
                       <div className="flex items-center justify-between">
                         <p className={`text-xs ${
                           stat.trend === 'up' ? 'text-green-600' : 
@@ -186,7 +187,7 @@ const Dashboard = () => {
                         </span>
                       </div>
                       <Progress value={stat.progress || 0} className="h-2" />
-                    </div>
+                    </div>}
                   </CardContent>
                 </Card>
               </motion.div>

@@ -17,7 +17,12 @@ const htmlResponse = (body: string, status = 200) => new Response(body, {
 
 Deno.serve(async (request) => {
   const url = new URL(request.url);
-  const rawBusiness = url.searchParams.get("business") || url.pathname.split("/").filter(Boolean).at(-1) || "";
+  const pathSegments = url.pathname.split("/").filter(Boolean);
+  const bookingFunctionIndex = pathSegments.lastIndexOf("booking-share");
+  const rawBusiness = url.searchParams.get("business")
+    || pathSegments[bookingFunctionIndex + 1]
+    || pathSegments.at(-1)
+    || "";
   const businessId = rawBusiness.match(/^[0-9a-f]{8}-(?:[0-9a-f]{4}-){3}[0-9a-f]{12}$/i)?.[0];
   const slug = businessId ? null : rawBusiness.toLowerCase();
 
@@ -32,9 +37,9 @@ Deno.serve(async (request) => {
     try { defaultPublishableKey = JSON.parse(publishableKeys)?.default; } catch { /* optional */ }
   }
   const anonKey = Deno.env.get("SUPABASE_ANON_KEY") || defaultPublishableKey;
-  const appUrl = Deno.env.get("PUBLIC_APP_URL");
+  const appUrl = Deno.env.get("PUBLIC_APP_URL") || "https://vizzuapp.netlify.app";
 
-  if (!supabaseUrl || !anonKey || !appUrl) {
+  if (!supabaseUrl || !anonKey) {
     console.error("Missing booking-share function configuration");
     return htmlResponse("<h1>Link de agendamento indisponível</h1>", 503);
   }
@@ -50,11 +55,12 @@ Deno.serve(async (request) => {
     return htmlResponse("<h1>Negócio não encontrado</h1>", 404);
   }
 
-  const bookingUrl = new URL(`/b/${business.user_id}/login`, appUrl).toString();
+  const bookingUrl = new URL(`/b/${business.user_id}/agendar`, appUrl).toString();
   const title = business.share_title || `${business.company_name} — Agendamento online`;
   const description = business.share_description || business.slogan || `Agende seu horário na ${business.company_name}.`;
   const image = business.logo_url || business.banner_url || new URL("/pwa-icon-512.png", appUrl).toString();
-  const shareUrl = url.toString();
+  const sharePath = business.share_slug || business.user_id;
+  const shareUrl = new URL(`/s/${sharePath}`, appUrl).toString();
 
   return htmlResponse(`<!doctype html>
 <html lang="pt-BR">

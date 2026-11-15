@@ -9,8 +9,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Plus, User, Coffee, Trash2 } from 'lucide-react';
 import { useShifts, BarberShift, CreateShiftInput } from '@/hooks/useShifts';
 import { useBarbers } from '@/hooks/useBarbers';
-import { format } from 'date-fns';
-import { ptBR } from 'date-fns/locale';
+import { formatDateOnlyBR } from '@/lib/formatters';
 
 const DAYS_OF_WEEK = [{ value: 0, label: 'Domingo', short: 'Dom' }, { value: 1, label: 'Segunda', short: 'Seg' }, { value: 2, label: 'Terça', short: 'Ter' }, { value: 3, label: 'Quarta', short: 'Qua' }, { value: 4, label: 'Quinta', short: 'Qui' }, { value: 5, label: 'Sexta', short: 'Sex' }, { value: 6, label: 'Sábado', short: 'Sáb' }];
 
@@ -54,7 +53,7 @@ const ShiftsContent = () => {
     <div className="space-y-6">
       <div className="flex items-center justify-between">
         <div><h2 className="text-xl font-bold">Gestão de Turnos</h2><p className="text-muted-foreground">Horários de trabalho dos barbeiros</p></div>
-        <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}><DialogTrigger asChild><Button><Plus className="h-4 w-4 mr-2" />Novo Turno</Button></DialogTrigger><DialogContent className="max-w-lg"><DialogHeader><DialogTitle>Adicionar Turno</DialogTitle></DialogHeader><ShiftForm onSubmit={(data) => createShift.mutate(data)} onClose={() => setIsDialogOpen(false)} barbers={barbers} /></DialogContent></Dialog>
+        <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}><DialogTrigger asChild><Button><Plus className="h-4 w-4 mr-2" />Novo Turno</Button></DialogTrigger><DialogContent className="max-w-lg"><DialogHeader><DialogTitle>Adicionar Turno</DialogTitle></DialogHeader><ShiftForm onSubmit={(data) => createShift.mutate(data)} onClose={() => setIsDialogOpen(false)} barbers={barbers.map(barber => ({ id: barber.id, display_name: barber.full_name }))} /></DialogContent></Dialog>
       </div>
 
       <div className="flex gap-4"><Select value={selectedBarber} onValueChange={setSelectedBarber}><SelectTrigger className="w-[250px]"><SelectValue placeholder="Todos" /></SelectTrigger><SelectContent><SelectItem value="all">Todos</SelectItem>{barbers.map(b => <SelectItem key={b.id} value={b.id}>{b.full_name}</SelectItem>)}</SelectContent></Select></div>
@@ -62,7 +61,7 @@ const ShiftsContent = () => {
       {isLoading ? <div className="text-center py-12"><p className="text-muted-foreground">Carregando...</p></div> : barbers.length === 0 ? <Card className="p-12 text-center"><User className="h-12 w-12 text-muted-foreground mx-auto mb-4" /><p className="text-muted-foreground">Nenhum barbeiro cadastrado</p></Card> : (
         <div className="space-y-6">
           {(selectedBarber === 'all' ? barbers : barbers.filter(b => b.id === selectedBarber)).map(barber => <Card key={barber.id}><CardHeader className="pb-2"><div className="flex items-center gap-3"><div className="w-10 h-10 bg-primary/10 rounded-full flex items-center justify-center"><User className="h-5 w-5 text-primary" /></div><div><CardTitle className="text-lg">{barber.full_name}</CardTitle><p className="text-sm text-muted-foreground">Escala Semanal</p></div></div></CardHeader><CardContent><WeeklySchedule barberId={barber.id} shifts={shifts} onDelete={(id) => deleteShift.mutate(id)} /></CardContent></Card>)}
-          {specificDateShifts.length > 0 && <Card><CardHeader><CardTitle>Exceções por Data</CardTitle></CardHeader><CardContent><div className="space-y-2">{specificDateShifts.map(shift => { const barber = barbers.find(b => b.id === shift.barber_id); return <div key={shift.id} className="flex items-center justify-between p-3 bg-muted rounded-lg"><div className="flex items-center gap-3"><Badge variant="outline">{shift.specific_date && format(new Date(shift.specific_date), 'dd/MM/yyyy', { locale: ptBR })}</Badge><span className="font-medium">{barber?.full_name}</span><span className="text-muted-foreground">{shift.start_time.slice(0, 5)} - {shift.end_time.slice(0, 5)}</span></div><Button variant="ghost" size="sm" onClick={() => deleteShift.mutate(shift.id)}><Trash2 className="h-4 w-4 text-destructive" /></Button></div>; })}</div></CardContent></Card>}
+          {specificDateShifts.length > 0 && <Card><CardHeader><CardTitle>Exceções por Data</CardTitle></CardHeader><CardContent><div className="space-y-2">{specificDateShifts.map(shift => { const barber = barbers.find(b => b.id === shift.barber_id); return <div key={shift.id} className="flex items-center justify-between p-3 bg-muted rounded-lg"><div className="flex items-center gap-3"><Badge variant="outline">{shift.specific_date && formatDateOnlyBR(shift.specific_date)}</Badge><span className="font-medium">{barber?.full_name}</span><span className="text-muted-foreground">{shift.start_time.slice(0, 5)} - {shift.end_time.slice(0, 5)}</span></div><Button variant="ghost" size="sm" onClick={() => deleteShift.mutate(shift.id)}><Trash2 className="h-4 w-4 text-destructive" /></Button></div>; })}</div></CardContent></Card>}
         </div>
       )}
     </div>

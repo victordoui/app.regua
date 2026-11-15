@@ -6,6 +6,7 @@ import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
 import { useQuery } from "@tanstack/react-query";
 import { format } from "date-fns";
+import { formatBusinessDateInput } from "@/lib/formatters";
 
 interface TodayAppointment {
   id: string;
@@ -17,7 +18,7 @@ interface TodayAppointment {
 
 const TodayScheduleCard: React.FC = () => {
   const { user } = useAuth();
-  const today = format(new Date(), "yyyy-MM-dd");
+  const today = formatBusinessDateInput();
 
   const { data: appointments = [] } = useQuery({
     queryKey: ["today-schedule", user?.id, today],
